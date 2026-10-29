@@ -1,0 +1,38 @@
+/// <reference types="vitest/config" />
+import react from '@vitejs/plugin-react'
+import { defineConfig } from 'vite'
+import { VitePWA } from 'vite-plugin-pwa'
+
+// BASE_PATH setzt der Deploy-Workflow (GitHub Pages liegt unter /chess-trainer/).
+const base = process.env.BASE_PATH ?? '/'
+
+export default defineConfig({
+  base,
+  plugins: [
+    react(),
+    VitePWA({
+      registerType: 'autoUpdate',
+      includeAssets: ['favicon.svg', 'apple-touch-icon.png'],
+      manifest: {
+        name: 'Chess Trainer',
+        short_name: 'Schach',
+        description: 'Eröffnungen lernen, aus eigenen Fehlern lernen – auf Deutsch erklärt.',
+        lang: 'de',
+        start_url: base,
+        scope: base,
+        display: 'standalone',
+        orientation: 'portrait',
+        background_color: '#14171c',
+        theme_color: '#14171c',
+        icons: [
+          { src: 'pwa-192.png', sizes: '192x192', type: 'image/png' },
+          { src: 'pwa-512.png', sizes: '512x512', type: 'image/png' },
+          { src: 'pwa-maskable-512.png', sizes: '512x512', type: 'image/png', purpose: 'maskable' },
+        ],
+      },
+    }),
+  ],
+  test: {
+    environment: 'node',
+  },
+})
