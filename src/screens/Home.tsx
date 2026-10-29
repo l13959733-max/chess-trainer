@@ -1,3 +1,5 @@
+import { useState } from 'react'
+import { Mascot } from '../components/Mascot'
 import { go } from '../hooks/useHashRoute'
 import type { Progress } from '../hooks/useProgress'
 import type { Puzzles } from '../hooks/usePuzzles'
@@ -19,21 +21,68 @@ export function Home({ rep, progress, puzzles, analyzer }: { rep: Repertoire; pr
   const doneLines = progress.today?.lines ?? 0
   const activeToday = doneLines + (progress.today?.puzzles ?? 0) > 0
   const { goal } = progress
+  const [open, setOpen] = useState<string | null>(null)
 
   return (
     <div className="screen">
-      <section className="stats" aria-label="Your progress">
-        <div className="stat">
-          <div className="label">Streak</div>
-          <div className="stat-value">{progress.streak}<small>{progress.streak === 1 ? ' day' : ' days'}</small></div>
-          <div className="note">{activeToday ? 'Today counts' : progress.streak ? 'Train today to keep it' : 'Train today to start'}</div>
+      <section className="chips" aria-label="Your progress">
+        <div className="chip-stat streak">
+          <svg viewBox="0 0 24 24"><path d="M12 2c1 4 6 6 6 12a6 6 0 0 1-12 0c0-3 2-5 3-6 0 2 1 3 2 3 0-4-1-6 1-9z" fill="#ff8a1e" /><path d="M12 13c1 2 3 3 3 5a3 3 0 0 1-6 0c0-1 1-2 1.5-2.5.2 1 .8 1.5 1.5 1.5 0-1.5-.5-2.5 0-4z" fill="#ffd166" /></svg>
+          <span>{progress.streak}<small>day streak</small></span>
         </div>
-        <div className="stat">
-          <div className="label">Level {progress.level.level}</div>
-          <div className="stat-value">{progress.totalXp}<small> XP</small></div>
-          <div className="bar" aria-label={`${progress.level.into} of ${progress.level.needed} XP to the next level`}>
-            <span style={{ width: `${(progress.level.into / progress.level.needed) * 100}%` }} />
-          </div>
+        <div className="chip-stat xp">
+          <svg viewBox="0 0 24 24"><path d="M12 2l3 6.5 7 .8-5.2 4.8 1.4 7L12 17.6 5.8 21.1l1.4-7L2 9.3l7-.8z" fill="#ffc531" /></svg>
+          <span>{progress.totalXp}<small>XP</small></span>
+        </div>
+        <div className="chip-stat level">
+          <svg viewBox="0 0 24 24"><path d="M12 2l8 3v6c0 5-3.5 9-8 11-4.5-2-8-6-8-11V5z" fill="#8a5cf6" /><text x="12" y="15.5" textAnchor="middle" fontSize="9" fontWeight="900" fill="#fff">{progress.level.level}</text></svg>
+          <span>Lvl {progress.level.level}<small>{progress.level.needed - progress.level.into} XP to go</small></span>
+        </div>
+      </section>
+
+      <div className="greet">
+        <Mascot mood={activeToday ? 'cheer' : 'happy'} />
+        {activeToday ? 'Great job today! Want to play one more?' : progress.streak ? `Hi! Play today to keep your ${progress.streak}-day streak!` : 'Hi, I’m Hoppy! Let’s learn some chess together.'}
+      </div>
+
+      <section className="lines" aria-label="Repertoire">
+        <div className="section-head">
+          <h2>Your path</h2>
+          <button type="button" onClick={() => go('import')}>Import PGN</button>
+        </div>
+        <div className="path">
+          {rep.lines.map((line, i) => {
+            const s = rep.srs.get(line.id)
+            const status = !s ? 'New' : isDue(s, now) ? 'Practice again' : daysUntil(s, now) <= 1 ? 'Done · again tomorrow' : `Done · again in ${daysUntil(s, now)} days`
+            const cls = !s ? 'new' : isDue(s, now) ? 'due' : 'later'
+            return (
+              <div key={line.id} className={`path-step offset-${i % 4}`}>
+                <button
+                  type="button"
+                  className={`path-node ${cls} ${line.side === 'b' ? 'black' : ''}`}
+                  aria-expanded={open === line.id}
+                  aria-label={line.title}
+                  onClick={() => setOpen(open === line.id ? null : line.id)}
+                >
+                  {cls === 'new' ? '★' : cls === 'due' ? '↻' : '✓'}
+                </button>
+                <div className="path-label">{line.title}</div>
+                {open === line.id && (
+                  <div className="path-pop">
+                    <div className="meta">
+                      <span className={`side side-${line.side}`}>{line.side === 'w' ? 'White' : 'Black'}</span>
+                      <span>{Math.ceil(line.moves.length / 2)} moves</span>
+                      <span className={`status ${cls}`}>{status}</span>
+                    </div>
+                    <div className="row">
+                      <button type="button" onClick={() => go('learn/' + line.id)}>Learn</button>
+                      <button type="button" className="primary" onClick={() => go('drill/' + line.id)}>Play</button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            )
+          })}
         </div>
       </section>
 
@@ -88,34 +137,6 @@ export function Home({ rep, progress, puzzles, analyzer }: { rep: Repertoire; pr
         <AnalysisStatus analyzer={analyzer} analyzedGames={puzzles.analyzedGames} />
       </section>
 
-      <section className="lines" aria-label="Repertoire">
-        <div className="section-head">
-          <h2>Repertoire</h2>
-          <button type="button" onClick={() => go('import')}>Import PGN</button>
-        </div>
-        {rep.lines.map((line) => {
-          const s = rep.srs.get(line.id)
-          const status = !s ? 'New' : isDue(s, now) ? 'Due' : daysUntil(s, now) <= 1 ? 'Tomorrow' : `in ${daysUntil(s, now)} days`
-          const cls = !s ? 'new' : isDue(s, now) ? 'due' : 'later'
-          return (
-            <article key={line.id} className="line-card">
-              <div className="line-info">
-                <h3>{line.title}</h3>
-                <div className="meta">
-                  <span className={`side side-${line.side}`}>{line.side === 'w' ? 'White' : 'Black'}</span>
-                  <span>{line.moves.length} plies</span>
-                  <span className={`status ${cls}`}>{status}</span>
-                  {line.source === 'import' && <span>imported</span>}
-                </div>
-              </div>
-              <div className="line-actions">
-                <button type="button" onClick={() => go('learn/' + line.id)}>Learn</button>
-                <button type="button" className="primary" onClick={() => go('drill/' + line.id)}>Drill</button>
-              </div>
-            </article>
-          )
-        })}
-      </section>
     </div>
   )
 }

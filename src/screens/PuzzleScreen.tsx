@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from 'react'
 import type { Arrow } from 'react-chessboard'
 import { ARROW, Board, LAST_MOVE, WRONG } from '../components/Board'
 import { Celebrate } from '../components/Celebrate'
+import { Mascot } from '../components/Mascot'
 import { go } from '../hooks/useHashRoute'
 import type { Reward } from '../hooks/useProgress'
 import { clampScore, pvToSan } from '../lib/blunders'
@@ -130,6 +131,7 @@ export function PuzzleView({ puzzle, progress, onSolved, onNext, isLast }: Props
 
       {phase !== 'solved' && (
         <div className={`explain ${wrong ? 'wrong' : ''}`}>
+          <Mascot mood={wrong ? 'oops' : 'happy'} />
           <div className="move">
             vs {puzzle.opponent} · {new Date(puzzle.endTime * 1000).toLocaleDateString('en-GB')}
           </div>
@@ -143,6 +145,7 @@ export function PuzzleView({ puzzle, progress, onSolved, onNext, isLast }: Props
 
       {phase === 'solved' && (
         <div className="done">
+          <Mascot mood="cheer" />
           <div className="done-title">
             {solvedWith?.exact ? `${solvedWith.san} – the best move` : `${solvedWith?.san} works too`}
           </div>

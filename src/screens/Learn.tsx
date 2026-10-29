@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import type { Arrow } from 'react-chessboard'
 import { ARROW, Board, LAST_MOVE } from '../components/Board'
 import { Celebrate } from '../components/Celebrate'
+import { Mascot } from '../components/Mascot'
 import { SpeakButton } from '../components/SpeakButton'
 import { go } from '../hooks/useHashRoute'
 import type { Reward } from '../hooks/useProgress'
@@ -55,6 +56,7 @@ export function Learn({ line, onComplete }: { line: Line; onComplete: () => Prom
       <Board fen={fen} orientation={line.side === 'w' ? 'white' : 'black'} arrows={arrows} squareStyles={styles} />
 
       <div className="explain">
+        <Mascot mood="happy" />
         {last ? (
           <>
             <div className={`move ${last.color === line.side ? 'mine' : ''}`}>{moveLabel(line, ply - 1)}</div>

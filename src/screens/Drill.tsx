@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import type { Arrow } from 'react-chessboard'
 import { ARROW, Board, LAST_MOVE, WRONG } from '../components/Board'
 import { Celebrate } from '../components/Celebrate'
+import { Mascot } from '../components/Mascot'
 import { SpeakButton } from '../components/SpeakButton'
 import { checkMove, firstPlayerPly, isFinished } from '../lib/drill'
 import type { Line, LineMove } from '../lib/pgn'
@@ -115,13 +116,15 @@ export function Drill({ line, onDone, after, progress }: Props) {
 
       {feedback?.kind === 'wrong' && feedback.ply === ply && (
         <div className="explain wrong" role="alert">
+          <Mascot mood="oops" />
           <div className="move">The right move is {feedback.expected.san}</div>
           <p>{feedback.expected.comment ?? 'Play the green arrow to continue.'}</p>
           <SpeakButton text={explanationText(feedback.expected.san, feedback.expected.comment, 'The right move is')} />
         </div>
       )}
-      {feedback?.kind === 'info' && (
+      {feedback?.kind === 'info' && !finished && (
         <div className="explain">
+          <Mascot mood="happy" />
           <div className={`move ${feedback.move.color === line.side ? 'mine' : ''}`}>{moveLabel(line, feedback.ply)}</div>
           <p>{feedback.move.comment}</p>
           <SpeakButton text={explanationText(feedback.move.san, feedback.move.comment)} />
@@ -130,7 +133,8 @@ export function Drill({ line, onDone, after, progress }: Props) {
 
       {finished && (
         <div className="done">
-          <div className="done-title">{mistakes === 0 ? 'Flawless!' : mistakes === 1 ? 'Done – 1 mistake' : `Done – ${mistakes} mistakes`}</div>
+          <Mascot mood="cheer" />
+          <div className="done-title">{mistakes === 0 ? 'Perfect!' : mistakes === 1 ? 'Well done!' : 'You did it!'}</div>
           {reward && <Celebrate reward={reward} />}
           {nextDays !== null && <p>Next review: {nextDays <= 1 ? 'tomorrow' : `in ${nextDays} days`}</p>}
           <div className="done-actions">{after(restart)}</div>
