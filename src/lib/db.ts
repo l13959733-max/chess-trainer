@@ -56,6 +56,11 @@ interface TrainerDB extends DBSchema {
 }
 
 let dbPromise: Promise<IDBPDatabase<TrainerDB>> | null = null
+let dbBlocked = false
+
+export function isDbBlocked() {
+  return dbBlocked
+}
 
 function db() {
   dbPromise ??= openDB<TrainerDB>('chess-trainer', 4, {
@@ -75,6 +80,16 @@ function db() {
       if (oldVersion < 4) {
         d.createObjectStore('voiceClips', { keyPath: 'key' })
       }
+    },
+    // A newer version of the app (another tab) needs to upgrade the database: let go and reload into it.
+    // Without this, an old tab keeps the database open and the new version waits forever.
+    blocking() {
+      dbPromise?.then((d) => d.close())
+      window.location.reload()
+    },
+    // This tab is the new version and an old tab still holds the database
+    blocked() {
+      dbBlocked = true
     },
   })
   return dbPromise

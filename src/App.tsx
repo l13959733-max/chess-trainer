@@ -4,6 +4,7 @@ import { useAnalyzer } from './hooks/useAnalyzer'
 import { useProgress } from './hooks/useProgress'
 import { usePuzzles } from './hooks/usePuzzles'
 import { useRepertoire } from './hooks/useRepertoire'
+import { isDbBlocked } from './lib/db'
 import { isDue } from './lib/srs'
 import { isUnlocked, stop as stopVoice, unlockAudio } from './lib/voice'
 import { Drill } from './screens/Drill'
@@ -36,7 +37,7 @@ function App() {
   const line = id ? rep.lines.find((l) => l.id === id) : undefined
 
   let body: React.ReactNode
-  if (!rep.ready) body = <p className="loading">Loading repertoire …</p>
+  if (!rep.ready) body = <Loading />
   else if (page === 'learn' && line) body = <Learn line={line} onComplete={progress.recordLearn} />
   else if (page === 'drill' && line)
     body = (
@@ -138,6 +139,31 @@ function PuzzleSession({ puzzles, progress }: { puzzles: ReturnType<typeof usePu
       onNext={() => setIndex(index + 1)}
       isLast={index + 1 >= queue.length}
     />
+  )
+}
+
+// Normally gone in a blink. If it takes longer, say why and what helps.
+function Loading() {
+  const [slow, setSlow] = useState(false)
+  useEffect(() => {
+    const t = window.setTimeout(() => setSlow(true), 4000)
+    return () => window.clearTimeout(t)
+  }, [])
+  return (
+    <div className="screen">
+      <p className="loading">Loading repertoire …</p>
+      {slow && (
+        <div className="explain wrong">
+          <div className="move">This takes too long</div>
+          <p>
+            {isDbBlocked()
+              ? 'Another Chess Trainer tab or window is still open with an older version. Close all other Chess Trainer tabs, then reload this one.'
+              : 'Close all other Chess Trainer tabs, then reload this page.'}
+          </p>
+          <button type="button" className="primary" onClick={() => window.location.reload()}>Reload</button>
+        </div>
+      )}
+    </div>
   )
 }
 
