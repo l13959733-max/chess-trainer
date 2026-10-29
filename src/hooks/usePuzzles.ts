@@ -1,24 +1,25 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
+import { USERNAME } from '../lib/chesscom'
 import * as store from '../lib/db'
 import { isDue, newState, qualityFromMistakes, review, type SrsState } from '../lib/srs'
 
 const key = (id: string) => 'p:' + id
 
-export function usePuzzles(found: number) {
+export function usePuzzles(found: number, player: string) {
   const [puzzles, setPuzzles] = useState<store.Puzzle[]>([])
   const [srs, setSrs] = useState<Map<string, SrsState>>(new Map())
   const [analyzedGames, setAnalyzedGames] = useState(0)
 
   // Reload whenever the analyzer finds new puzzles
   useEffect(() => {
-    Promise.all([store.getPuzzles(), store.getAllSrs(), store.countAnalyzedGames()])
+    Promise.all([store.getPuzzles(), store.getAllSrs(), store.countAnalyzedGames(player)])
       .then(([p, s, n]) => {
-        setPuzzles(p.sort((a, b) => b.endTime - a.endTime || a.ply - b.ply))
+        setPuzzles(p.filter((x) => (x.player ?? USERNAME) === player).sort((a, b) => b.endTime - a.endTime || a.ply - b.ply))
         setSrs(new Map(s.filter((x) => x.lineId.startsWith('p:')).map((x) => [x.lineId, x])))
         setAnalyzedGames(n)
       })
       .catch(() => {})
-  }, [found])
+  }, [found, player])
 
   const now = Date.now()
   const due = useMemo(() => puzzles.filter((p) => isDue(srs.get(key(p.id)), now)), [puzzles, srs, now])

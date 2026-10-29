@@ -1,6 +1,7 @@
 import { openDB, type DBSchema, type IDBPDatabase } from 'idb'
 import type { Side } from './pgn'
 import type { Blunder, Score } from './blunders'
+import { ownerOfKey } from './chesscom'
 import type { DayActivity, Goal } from './progress'
 import type { SrsState } from './srs'
 
@@ -26,6 +27,7 @@ export interface Puzzle extends Blunder {
   myColor: 'w' | 'b'
   scoreBefore: Score
   bestSan: string
+  player?: string // chess.com username; missing = Lu (l0o2)
 }
 
 // Explanations in Lu's cloned voice, kept on the device so the voice works without the Mac.
@@ -139,8 +141,10 @@ export async function putVoiceSettings(v: VoiceSettings): Promise<void> {
   await (await db()).put('settings', v, 'voice')
 }
 
-export async function getAnalyzedGameIds(): Promise<Set<string>> {
-  return new Set(await (await db()).getAllKeys('games'))
+// Game uuids already analysed for this player
+export async function getAnalyzedGameIds(player: string): Promise<Set<string>> {
+  const keys = await (await db()).getAllKeys('games')
+  return new Set(keys.filter((k) => ownerOfKey(k) === player).map((k) => (k.includes(':') ? k.slice(k.indexOf(':') + 1) : k)))
 }
 
 export async function saveAnalyzedGame(game: GameRecord, puzzles: Puzzle[]): Promise<void> {
@@ -152,8 +156,8 @@ export async function getPuzzles(): Promise<Puzzle[]> {
   return (await db()).getAll('puzzles')
 }
 
-export async function countAnalyzedGames(): Promise<number> {
-  return (await db()).count('games')
+export async function countAnalyzedGames(player: string): Promise<number> {
+  return (await getAnalyzedGameIds(player)).size
 }
 
 export async function getClip(key: string): Promise<VoiceClip | undefined> {

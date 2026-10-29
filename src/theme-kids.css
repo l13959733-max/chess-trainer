@@ -189,3 +189,6 @@ button:focus-visible { outline: 3px solid var(--idea); }
 
 .voice-store { display: grid; gap: 10px; border: 2px solid var(--line); border-radius: 18px; padding: 14px; }
 .voice-store p { margin: 0; }
+
+.link-btn { border: 0; background: none; min-height: 36px; padding: 0; color: var(--idea-dark); font-weight: 800; font-size: 0.9rem; text-align: left; }
+.link-btn:active:not(:disabled) { transform: none; margin: 0; }

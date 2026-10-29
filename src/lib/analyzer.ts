@@ -1,7 +1,7 @@
 // Background analysis of Lu's chess.com games: newest first, one position at a time,
 // pausable, and resumable because every finished game is stored.
 import { findBlunders, gamePositions, terminalScore, uciToSan, type PositionEval } from './blunders'
-import { fetchArchives, fetchMonth, isTrainingGame, myColor, type ChessComGame } from './chesscom'
+import { fetchArchives, fetchMonth, gameKey, getPlayer, isTrainingGame, myColor, type ChessComGame } from './chesscom'
 import { getAnalyzedGameIds, saveAnalyzedGame, type Puzzle } from './db'
 import { evaluate, newGame } from './engine'
 
@@ -14,6 +14,7 @@ export interface AnalyzerState {
   found: number // puzzles found in this run
   current?: { opponent: string; date: string; ply: number; plies: number }
   error?: string
+  player?: string
 }
 
 let state: AnalyzerState = { status: 'idle', total: 0, analyzed: 0, found: 0 }
@@ -36,6 +37,13 @@ export function getState() {
   return state
 }
 
+// Switching players: stop and forget the counts of the previous player
+export async function reset() {
+  pause()
+  for (let i = 0; i < 50 && (state.status === 'running' || state.status === 'loading'); i++) await new Promise((r) => setTimeout(r, 100))
+  set({ status: 'idle', total: 0, analyzed: 0, found: 0, current: undefined, error: undefined, player: undefined })
+}
+
 export function pause() {
   if (state.status === 'running' || state.status === 'loading') stopRequested = true
 }
@@ -54,9 +62,9 @@ async function holdScreen(on: boolean) {
   }
 }
 
-async function analyzeGame(g: ChessComGame): Promise<Puzzle[]> {
+async function analyzeGame(g: ChessComGame, player: string): Promise<Puzzle[]> {
   const { moves, finalFen } = gamePositions(g.pgn)
-  const me = myColor(g)
+  const me = myColor(g, player)
   const opponent = me === 'w' ? g.black.username : g.white.username
   const date = new Date(g.end_time * 1000).toLocaleDateString('en-GB')
   const fens = [...moves.map((m) => m.fenBefore), finalFen]
@@ -70,7 +78,8 @@ async function analyzeGame(g: ChessComGame): Promise<Puzzle[]> {
   }
   return findBlunders(moves, evals, me).map((b) => ({
     ...b,
-    id: `${g.uuid}:${b.ply}`,
+    id: `${gameKey(player, g.uuid)}:${b.ply}`,
+    player,
     gameUuid: g.uuid,
     gameUrl: g.url,
     endTime: g.end_time,
@@ -87,22 +96,24 @@ export async function start() {
   set({ status: 'loading', error: undefined, found: 0 })
   holdScreen(true)
   try {
-    const done = await getAnalyzedGameIds()
-    const archives = (await fetchArchives()).reverse() // newest month first
+    const player = getPlayer()
+    set({ player })
+    const done = await getAnalyzedGameIds(player)
+    const archives = (await fetchArchives(player)).reverse() // newest month first
     const todo: ChessComGame[] = []
     let total = 0
     for (const url of archives) {
       if (stopRequested) throw new Error('paused')
-      const games = (await fetchMonth(url)).filter((g) => isTrainingGame(g)).sort((a, b) => b.end_time - a.end_time)
+      const games = (await fetchMonth(url)).filter((g) => isTrainingGame(g, player)).sort((a, b) => b.end_time - a.end_time)
       total += games.length
       todo.push(...games.filter((g) => !done.has(g.uuid)))
     }
     set({ status: 'running', total, analyzed: total - todo.length })
 
     for (const g of todo) {
-      const puzzles = await analyzeGame(g)
+      const puzzles = await analyzeGame(g, player)
       await saveAnalyzedGame(
-        { uuid: g.uuid, endTime: g.end_time, analyzedAt: Date.now(), plies: state.current?.plies ?? 0, blunders: puzzles.length },
+        { uuid: gameKey(player, g.uuid), endTime: g.end_time, analyzedAt: Date.now(), plies: state.current?.plies ?? 0, blunders: puzzles.length },
         puzzles,
       )
       set({ analyzed: state.analyzed + 1, found: state.found + puzzles.length })

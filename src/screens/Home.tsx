@@ -8,7 +8,7 @@ import type { Repertoire } from '../hooks/useRepertoire'
 import { PUZZLES_AVAILABLE } from '../lib/progress'
 import { daysUntil, isDue, lineResult } from '../lib/srs'
 
-export function Home({ rep, progress, puzzles, analyzer }: { rep: Repertoire; progress: Progress; puzzles: Puzzles; analyzer: AnalyzerState }) {
+export function Home({ rep, progress, puzzles, analyzer, player }: { rep: Repertoire; progress: Progress; puzzles: Puzzles; analyzer: AnalyzerState; player: string }) {
   const now = Date.now()
   const due = rep.lines.filter((l) => isDue(rep.srs.get(l.id), now))
   const fresh = rep.lines.filter((l) => !rep.srs.get(l.id))
@@ -130,7 +130,7 @@ export function Home({ rep, progress, puzzles, analyzer }: { rep: Repertoire; pr
       </section>
 
       <section className="due-card" aria-label="Blunder puzzles">
-        <div className="label">Blunder puzzles</div>
+        <div className="label">Blunder puzzles · {player}</div>
         <div className="puzzle-counts">
           <div><span className="big">{puzzles.due.length}</span> due</div>
           <div><span className="big">{puzzles.fresh.length}</span> new</div>
@@ -138,9 +138,10 @@ export function Home({ rep, progress, puzzles, analyzer }: { rep: Repertoire; pr
         {puzzles.due.length + puzzles.fresh.length > 0 ? (
           <button type="button" className="primary wide" onClick={() => go('puzzles')}>Solve puzzles</button>
         ) : (
-          <p className="note">{puzzles.puzzles.length ? 'Nothing due right now.' : 'Puzzles come from your own mistakes. Analyse your chess.com games to find them.'}</p>
+          <p className="note">{puzzles.puzzles.length ? 'Nothing due right now.' : `Puzzles come from your own mistakes. Analyse ${player}'s chess.com games to find them.`}</p>
         )}
         <AnalysisStatus analyzer={analyzer} analyzedGames={puzzles.analyzedGames} />
+        <button type="button" className="link-btn" onClick={() => go('settings')}>Not {player}? Change the chess.com account</button>
       </section>
 
     </div>

@@ -32,7 +32,8 @@ All progress and imports live only in the browser (IndexedDB `chess-trainer`).
 
 ## Blunder trainer (step 4)
 
-- **Analyse games** loads Lu's games from the chess.com public API (`l0o2`, rapid + daily only), newest first.
+- **Analyse games** loads the games of this device's chess.com player (default `l0o2`; Settings → Chess.com account,
+  or the link `#/player/<name>`), rapid + daily only, newest first. Games and puzzles are stored per player.
 - Every position is evaluated by **Stockfish 19 lite** (single-threaded WASM, depth 14) in a Web Worker.
   The engine files are copied from `node_modules/stockfish` into `public/stockfish/` by `scripts/copy-stockfish.mjs`
   before `dev`/`build` (not committed). Stockfish is GPL-3.0; its licence ships as `stockfish/COPYING.txt`.

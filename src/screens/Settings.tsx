@@ -1,6 +1,8 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { SpeakButton } from '../components/SpeakButton'
 import { go } from '../hooks/useHashRoute'
+import { reset as resetAnalyzer } from '../lib/analyzer'
+import { findPlayer, setPlayer } from '../lib/chesscom'
 import { feedback, getFeedbackPrefs, setFeedbackPrefs } from '../lib/feedback'
 import type { Line } from '../lib/pgn'
 import { TRY_IT, voiceTexts } from '../lib/speech'
@@ -9,7 +11,15 @@ import { isAllowedVoiceUrl, loadVoiceSettings, saveAll, savedCount, saveVoiceSet
 type Check = { kind: 'idle' } | { kind: 'checking' } | { kind: 'ok' } | { kind: 'fail'; why: string }
 
 // `incoming` comes from a voice link (#/voice/<address>) made by the starter on the Mac.
-export function Settings({ incoming, lines }: { incoming?: string; lines: Line[] }) {
+interface Props {
+  lines: Line[]
+  player: string
+  onPlayer: (name: string) => void
+  incoming?: string // voice address from a voice link
+  incomingPlayer?: string // chess.com name from a player link (#/player/<name>)
+}
+
+export function Settings({ incoming, lines, player, onPlayer, incomingPlayer }: Props) {
   const [url, setUrl] = useState('')
   const [voiceName, setVoiceName] = useState('stimme1')
   const [saved, setSaved] = useState(false)
@@ -24,6 +34,33 @@ export function Settings({ incoming, lines }: { incoming?: string; lines: Line[]
   }
 
   const [rejected, setRejected] = useState(false)
+  const [account, setAccount] = useState(incomingPlayer ?? player)
+  const [accountMsg, setAccountMsg] = useState<{ ok: boolean; text: string } | null>(null)
+
+  async function saveAccount(name = account) {
+    const wanted = name.trim()
+    if (!wanted) return
+    setAccountMsg({ ok: true, text: 'Looking up ' + wanted + ' on chess.com …' })
+    try {
+      const found = await findPlayer(wanted)
+      if (!found) return setAccountMsg({ ok: false, text: `There is no chess.com player called “${wanted}”.` })
+      if (found !== player) {
+        await resetAnalyzer()
+        setPlayer(found)
+        onPlayer(found)
+      }
+      setAccount(found)
+      setAccountMsg({ ok: true, text: `Puzzles now come from ${found}'s games. On the start page, tap “Analyse games”.` })
+    } catch {
+      setAccountMsg({ ok: false, text: 'chess.com did not answer. Check the internet connection and try again.' })
+    }
+  }
+
+  // A player link (#/player/johanzii) sets the account right away
+  useEffect(() => {
+    if (incomingPlayer) saveAccount(incomingPlayer)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [incomingPlayer])
   const texts = useMemo(() => [...voiceTexts(lines), TRY_IT], [lines])
   const [clipCount, setClipCount] = useState<number | null>(null)
   const [saving, setSaving] = useState<'idle' | 'running' | 'error'>('idle')
@@ -83,6 +120,24 @@ export function Settings({ incoming, lines }: { incoming?: string; lines: Line[]
       </div>
 
       <div className="form">
+        <div className="label">Chess.com account</div>
+        <p className="note">Blunder puzzles come from this player's rapid and daily games. Each phone can have its own player.</p>
+        <input
+          id="chesscom-name"
+          type="text"
+          autoCapitalize="off"
+          autoCorrect="off"
+          spellCheck={false}
+          value={account}
+          onChange={(e) => {
+            setAccount(e.target.value)
+            setAccountMsg(null)
+          }}
+          placeholder="chess.com username"
+        />
+        <button type="button" className="primary wide" onClick={() => saveAccount()}>Use this account</button>
+        {accountMsg && <p className={accountMsg.ok ? 'good' : 'bad'} role="status">{accountMsg.text}</p>}
+
         <div className="label">Sound &amp; vibration</div>
         <label className="toggle" htmlFor="fb-sound">
           <span>Move sounds</span>

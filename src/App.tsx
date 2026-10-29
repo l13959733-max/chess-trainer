@@ -4,6 +4,7 @@ import { useAnalyzer } from './hooks/useAnalyzer'
 import { useProgress } from './hooks/useProgress'
 import { usePuzzles } from './hooks/usePuzzles'
 import { useRepertoire } from './hooks/useRepertoire'
+import { getPlayer } from './lib/chesscom'
 import { isDbBlocked } from './lib/db'
 import { isDue } from './lib/srs'
 import { isUnlocked, stop as stopVoice, unlockAudio } from './lib/voice'
@@ -19,7 +20,8 @@ function App() {
   const rep = useRepertoire()
   const progress = useProgress()
   const analyzer = useAnalyzer()
-  const puzzles = usePuzzles(analyzer.analyzed)
+  const [player, setPlayerState] = useState(getPlayer)
+  const puzzles = usePuzzles(analyzer.analyzed, player)
   const [page, id] = useHashRoute()
 
   // Reading stops when the screen changes; the first tap unlocks audio for automatic reading (iOS)
@@ -55,10 +57,11 @@ function App() {
     )
   else if (page === 'review') body = <Review rep={rep} progress={progress} />
   else if (page === 'import') body = <Import rep={rep} />
-  else if (page === 'settings') body = <Settings lines={rep.lines} />
-  else if (page === 'voice') body = <Settings lines={rep.lines} incoming={id ? decodeURIComponent(id) : undefined} />
+  else if (page === 'settings') body = <Settings lines={rep.lines} player={player} onPlayer={setPlayerState} />
+  else if (page === 'voice') body = <Settings lines={rep.lines} player={player} onPlayer={setPlayerState} incoming={id ? decodeURIComponent(id) : undefined} />
+  else if (page === 'player') body = <Settings lines={rep.lines} player={player} onPlayer={setPlayerState} incomingPlayer={id ? decodeURIComponent(id) : undefined} />
   else if (page === 'puzzles') body = <PuzzleSession puzzles={puzzles} progress={progress} />
-  else body = <Home rep={rep} progress={progress} puzzles={puzzles} analyzer={analyzer} />
+  else body = <Home rep={rep} progress={progress} puzzles={puzzles} analyzer={analyzer} player={player} />
 
   return (
     <main className="app">
