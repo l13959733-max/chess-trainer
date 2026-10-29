@@ -1,14 +1,15 @@
 import { Chess } from 'chess.js'
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import type { Arrow } from 'react-chessboard'
 import { ARROW, Board, LAST_MOVE, WRONG } from '../components/Board'
 import { Celebrate } from '../components/Celebrate'
 import { Mascot } from '../components/Mascot'
 import { go } from '../hooks/useHashRoute'
 import type { Reward } from '../hooks/useProgress'
-import { clampScore, pvToSan } from '../lib/blunders'
+import { clampScore } from '../lib/blunders'
 import type { Puzzle } from '../lib/db'
 import { evaluate } from '../lib/engine'
+import { explainBest, explainMistake, type Explanation, type LineStep } from '../lib/explain'
 import { feedback } from '../lib/feedback'
 import { daysUntil, type SrsState } from '../lib/srs'
 
@@ -37,6 +38,25 @@ export function PuzzleView({ puzzle, progress, onSolved, onNext, isLast }: Props
   const recorded = useRef(false)
 
   const revealed = mistakes >= REVEAL_AFTER
+  // Explanations: why the game move was bad (engine answer computed on demand), why the best move is better
+  const [mistakeEx, setMistakeEx] = useState<Explanation | 'loading' | null>(null)
+  const [viewer, setViewer] = useState<{ line: LineStep[]; idx: number; title: string } | null>(null)
+  const bestEx = useMemo(() => explainBest(puzzle.fen, puzzle.pv, puzzle.scoreBefore), [puzzle])
+
+  function loadMistake() {
+    if (mistakeEx) return
+    setMistakeEx('loading')
+    const after = new Chess(puzzle.fen).move(puzzle.played).after
+    evaluate(after, 14, true)
+      .then((ev) => setMistakeEx(explainMistake(puzzle.fen, puzzle.played, { score: ev.score, pv: ev.pv })))
+      .catch(() => setMistakeEx({ sentences: ['The engine could not look at this position right now.'], line: [] }))
+  }
+
+  // Once the answer is known, explain both moves right away
+  useEffect(() => {
+    if (phase === 'solved' || revealed) loadMistake()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [phase, revealed])
   const best = { from: puzzle.best.slice(0, 2), to: puzzle.best.slice(2, 4) }
   const playedMove = new Chess(puzzle.fen).move(puzzle.played)
 
@@ -94,10 +114,18 @@ export function PuzzleView({ puzzle, progress, onSolved, onNext, isLast }: Props
     return true
   }
 
-  const fen = solvedWith?.fen ?? pending ?? puzzle.fen
+  const step = viewer && viewer.idx >= 0 ? viewer.line[viewer.idx] : null
+  const fen = viewer ? (step ? step.fenAfter : puzzle.fen) : (solvedWith?.fen ?? pending ?? puzzle.fen)
   const styles: Record<string, React.CSSProperties> = {}
   const arrows: Arrow[] = []
-  if (solvedWith) {
+  if (viewer) {
+    if (step) {
+      styles[step.from] = LAST_MOVE
+      styles[step.to] = LAST_MOVE
+    }
+    const next = viewer.line[viewer.idx + 1]
+    if (next) arrows.push({ startSquare: next.from, endSquare: next.to, color: ARROW.next })
+  } else if (solvedWith) {
     styles[solvedWith.from] = LAST_MOVE
     styles[solvedWith.to] = LAST_MOVE
   } else {
@@ -127,7 +155,28 @@ export function PuzzleView({ puzzle, progress, onSolved, onNext, isLast }: Props
         </div>
       </div>
 
-      <Board fen={fen} orientation={puzzle.myColor === 'w' ? 'white' : 'black'} onMove={phase === 'solving' ? onMove : undefined} arrows={arrows} squareStyles={styles} />
+      <Board fen={fen} orientation={puzzle.myColor === 'w' ? 'white' : 'black'} onMove={phase === 'solving' && !viewer ? onMove : undefined} arrows={arrows} squareStyles={styles} />
+
+      {viewer && (
+        <div className="line-viewer">
+          <div className="line-viewer-head">
+            <span className="label">{viewer.title}</span>
+            <span className="count">{viewer.idx + 1} / {viewer.line.length}</span>
+          </div>
+          <div className="line-moves">
+            {viewer.line.map((s, i) => (
+              <button key={i} type="button" className={`chip ${i === viewer.idx ? 'current' : ''}`} onClick={() => setViewer({ ...viewer, idx: i })}>
+                {s.san}
+              </button>
+            ))}
+          </div>
+          <div className="controls">
+            <button type="button" onClick={() => setViewer(null)} aria-label="Close">✕</button>
+            <button type="button" disabled={viewer.idx < 0} onClick={() => setViewer({ ...viewer, idx: viewer.idx - 1 })}>Back</button>
+            <button type="button" className="primary" disabled={viewer.idx >= viewer.line.length - 1} onClick={() => setViewer({ ...viewer, idx: viewer.idx + 1 })}>Next</button>
+          </div>
+        </div>
+      )}
 
       <div className="drill-status">
         <span>
@@ -147,7 +196,21 @@ export function PuzzleView({ puzzle, progress, onSolved, onNext, isLast }: Props
           </p>
           {wrong && <p className="bad">{wrong.note}</p>}
           {revealed && <p>The best move is <b>{puzzle.bestSan}</b> – play the green arrow.</p>}
+          {!mistakeEx && (
+            <button type="button" className="speak-btn" onClick={loadMistake}>Why is {puzzle.played} bad?</button>
+          )}
         </div>
+      )}
+
+      {mistakeEx && (
+        <ExplainCard
+          title={`Why ${puzzle.played} was a mistake`}
+          ex={mistakeEx}
+          onShow={(line) => setViewer({ line, idx: -1, title: `After ${puzzle.played}` })}
+        />
+      )}
+      {(phase === 'solved' || revealed) && bestEx.sentences.length > 0 && (
+        <ExplainCard title={`Why ${puzzle.bestSan} is better`} ex={bestEx} onShow={(line) => setViewer({ line, idx: -1, title: `After ${puzzle.bestSan}` })} />
       )}
 
       {phase === 'solved' && (
@@ -157,7 +220,6 @@ export function PuzzleView({ puzzle, progress, onSolved, onNext, isLast }: Props
             {solvedWith?.exact ? `${solvedWith.san} – the best move` : `${solvedWith?.san} works too`}
           </div>
           {!solvedWith?.exact && <p>The engine's first choice was {puzzle.bestSan}.</p>}
-          <p>Best line: {pvToSan(puzzle.fen, puzzle.pv, 5).join(' ')}</p>
           <p>
             <a href={`${puzzle.gameUrl}?move=${puzzle.ply}`} target="_blank" rel="noreferrer">Open the game on chess.com</a>
           </p>
@@ -172,3 +234,29 @@ export function PuzzleView({ puzzle, progress, onSolved, onNext, isLast }: Props
     </div>
   )
 }
+
+function ExplainCard({ title, ex, onShow }: { title: string; ex: Explanation | 'loading'; onShow: (line: LineStep[]) => void }) {
+  // The board is at the top of the screen: bring it into view when a line is shown
+  const show = (line: LineStep[]) => {
+    onShow(line)
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }
+  return (
+    <section className="explain-card">
+      <div className="label">{title}</div>
+      {ex === 'loading' ? (
+        <p className="note">Looking at the position …</p>
+      ) : (
+        <>
+          {ex.sentences.map((s) => (
+            <p key={s}>{s}</p>
+          ))}
+          {ex.line.length > 0 && (
+            <button type="button" className="speak-btn" onClick={() => show(ex.line)}>▶ Show it on the board</button>
+          )}
+        </>
+      )}
+    </section>
+  )
+}
+

@@ -192,3 +192,12 @@ button:focus-visible { outline: 3px solid var(--idea); }
 
 .link-btn { border: 0; background: none; min-height: 36px; padding: 0; color: var(--idea-dark); font-weight: 800; font-size: 0.9rem; text-align: left; }
 .link-btn:active:not(:disabled) { transform: none; margin: 0; }
+
+/* Puzzle explanations and the line viewer */
+.screen > .explain-card, .screen > .line-viewer { margin-inline: 16px; }
+.explain-card { border: 2px solid var(--line); border-radius: 18px; padding: 14px; display: grid; gap: 8px; background: #fff; }
+.explain-card p { margin: 0; line-height: 1.5; }
+.explain-card .speak-btn { justify-self: start; }
+.line-viewer { border: 2px solid var(--idea); border-radius: 18px; padding: 12px; display: grid; gap: 10px; background: #f2f9ff; }
+.line-viewer-head { display: flex; justify-content: space-between; font-weight: 800; }
+.line-moves { display: flex; flex-wrap: wrap; gap: 6px; }
