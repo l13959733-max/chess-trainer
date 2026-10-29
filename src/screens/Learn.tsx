@@ -1,11 +1,12 @@
 import { useEffect, useRef, useState } from 'react'
 import type { Arrow } from 'react-chessboard'
-import { ARROW, Board, LAST_MOVE } from '../components/Board'
+import { ARROW, Board, LAST_MOVE, WRONG } from '../components/Board'
 import { Celebrate } from '../components/Celebrate'
 import { Mascot } from '../components/Mascot'
 import { SpeakButton } from '../components/SpeakButton'
 import { go } from '../hooks/useHashRoute'
 import type { Reward } from '../hooks/useProgress'
+import { checkMove } from '../lib/drill'
 import { feedback } from '../lib/feedback'
 import type { Line, LineArrow } from '../lib/pgn'
 import { explanationText } from '../lib/speech'
@@ -23,19 +24,65 @@ export function moveLabel(line: Line, i: number) {
   return `${no}.${m.color === 'b' ? '..' : ''} ${m.san}`
 }
 
-// Learn mode: step through a line move by move, with an explanation for each move.
+const OPPONENT_DELAY = 700
+
+// Learn mode: Lu moves the pieces of their side along the blue arrow (to get a feel for the moves),
+// the opponent's replies play by themselves, and every move comes with its explanation.
+// Next/Back still step through the line without moving pieces.
 export function Learn({ line, onComplete }: { line: Line; onComplete: () => Promise<Reward> }) {
   const [ply, setPly] = useState(0)
   const [reward, setReward] = useState<Reward | null>(null)
+  // flow = the opponent answers by itself; off while Lu browses back through the line
+  const [flow, setFlow] = useState(true)
+  const [missed, setMissed] = useState<{ from: string; to: string; ply: number } | null>(null)
   const completed = useRef(false)
   const last = ply > 0 ? line.moves[ply - 1] : null
   const next = line.moves[ply]
   const fen = last ? last.fenAfter : line.moves[0].fenBefore
+  const myTurn = !!next && next.color === line.side
+  const waiting = !!next && !myTurn && flow
 
   const arrows: Arrow[] = (last?.arrows ?? []).map((a) => ({ startSquare: a.from, endSquare: a.to, color: CAL[a.color] }))
-  if (next) arrows.push({ startSquare: next.from, endSquare: next.to, color: ARROW.next })
+  if (next && !waiting) arrows.push({ startSquare: next.from, endSquare: next.to, color: ARROW.next })
 
-  const styles = last ? { [last.from]: LAST_MOVE, [last.to]: LAST_MOVE } : {}
+  const styles: Record<string, React.CSSProperties> = last ? { [last.from]: LAST_MOVE, [last.to]: LAST_MOVE } : {}
+  const wrongNow = missed && missed.ply === ply
+  if (wrongNow) {
+    styles[missed.from] = WRONG
+    styles[missed.to] = WRONG
+  }
+
+  // The opponent's reply plays by itself
+  useEffect(() => {
+    if (!waiting) return
+    const t = window.setTimeout(() => {
+      feedback.move(next.san, false)
+      setPly((p) => p + 1)
+    }, ply === 0 ? 450 : OPPONENT_DELAY)
+    return () => window.clearTimeout(t)
+  }, [waiting, next, ply])
+
+  function onMove(from: string, to: string): boolean {
+    if (!myTurn) return false
+    const res = checkMove(next, from, to)
+    if (res === 'illegal') return false
+    if (res === 'wrong') {
+      feedback.wrong()
+      setMissed({ from, to, ply })
+      return false
+    }
+    feedback.move(next.san)
+    setMissed(null)
+    setFlow(true)
+    setPly(ply + 1)
+    return true
+  }
+
+  function jump(to: number) {
+    setFlow(false)
+    setMissed(null)
+    setPly(to)
+  }
 
   // XP once per visit, the first time the end of the line is reached
   useEffect(() => {
@@ -54,7 +101,12 @@ export function Learn({ line, onComplete }: { line: Line; onComplete: () => Prom
         </div>
       </div>
 
-      <Board fen={fen} orientation={line.side === 'w' ? 'white' : 'black'} arrows={arrows} squareStyles={styles} />
+      <Board fen={fen} orientation={line.side === 'w' ? 'white' : 'black'} onMove={myTurn ? onMove : undefined} arrows={arrows} squareStyles={styles} />
+
+      <div className="drill-status">
+        <span>{!next ? 'Line complete' : myTurn ? 'Your move: follow the blue arrow' : waiting ? 'Opponent is moving …' : 'Opponent’s move – tap Next'}</span>
+        {wrongNow && <span className="bad">Not this one</span>}
+      </div>
 
       <div className="explain">
         <Mascot mood="happy" />
@@ -65,18 +117,20 @@ export function Learn({ line, onComplete }: { line: Line; onComplete: () => Prom
             {last.comment && <SpeakButton text={explanationText(last.san, last.comment)} />}
           </>
         ) : (
-          <p>Starting position. The blue arrow always shows the next move. Tap “Next”.</p>
+          <p>{myTurn ? 'Starting position. Move your piece along the blue arrow.' : 'Starting position. Your opponent starts.'}</p>
         )}
       </div>
 
       <div className="controls">
-        <button type="button" onClick={() => setPly(0)} disabled={ply === 0} aria-label="To the start">⏮</button>
-        <button type="button" onClick={() => setPly(ply - 1)} disabled={ply === 0}>Back</button>
+        <button type="button" onClick={() => jump(0)} disabled={ply === 0} aria-label="To the start">⏮</button>
+        <button type="button" onClick={() => jump(ply - 1)} disabled={ply === 0}>Back</button>
         <button
           type="button"
           className="primary"
           onClick={() => {
             if (next) feedback.move(next.san, next.color === line.side)
+            setMissed(null)
+            setFlow(true)
             setPly(ply + 1)
           }}
           disabled={!next}
@@ -91,7 +145,7 @@ export function Learn({ line, onComplete }: { line: Line; onComplete: () => Prom
             <button
               type="button"
               className={`chip ${i === ply - 1 ? 'current' : ''} ${m.color === line.side ? 'mine' : ''} ${m.comment ? 'has-comment' : ''}`}
-              onClick={() => setPly(i + 1)}
+              onClick={() => jump(i + 1)}
             >
               {moveLabel(line, i)}
             </button>
