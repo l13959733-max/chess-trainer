@@ -47,7 +47,7 @@ export function Settings() {
         <button type="button" className="back" onClick={() => go('')} aria-label="Back to overview">←</button>
         <div>
           <div className="eyebrow">Settings</div>
-          <h2>Read-aloud voice</h2>
+          <h2>Sound &amp; voice</h2>
         </div>
       </div>
 
