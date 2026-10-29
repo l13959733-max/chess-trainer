@@ -22,6 +22,18 @@ Linien liegen als PGN in `data/`. Pro Partie:
 
 Neue Datei hinzufügen → `npm test` prüft automatisch, dass alle Züge legal sind.
 
+## Was die App kann (Stand Schritt 2)
+
+- **Repertoire-Übersicht**: alle Linien mit Status (Neu / Fällig / in X Tagen)
+- **Lernen**: Linie Zug für Zug, Erklärung aus dem PGN-Kommentar, blauer Pfeil = nächster Zug,
+  Pfeile aus `[%cal Ge2e4,Rd1h5]` in Kommentaren werden angezeigt (G/R/Y/B = grün/rot/gelb/blau)
+- **Drill**: eigene Seite spielen (ziehen oder Feld antippen), App spielt den Gegner.
+  Falscher Zug → rote Felder, grüner Pfeil zum richtigen Zug, Erklärung
+- **Wiederholungsplan (SM-2)** pro Linie: fehlerfrei → Intervall wächst, ≥ 2 Fehler → morgen wieder
+- **PGN-Import** (Datei oder einfügen), gespeichert in IndexedDB im Browser
+
+Daten (Fortschritt, Importe) liegen nur lokal im Browser (IndexedDB `chess-trainer`).
+
 ## Deploy (GitHub Pages)
 
 Jeder Push auf `main` baut, testet und veröffentlicht über `.github/workflows/deploy.yml`.

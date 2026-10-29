@@ -5,6 +5,9 @@
   --text: #e8e4d8;
   --muted: #9097a3;
   --accent: #8fbf6a;
+  --bad: #e5484d;
+  --good: #8fbf6a;
+  --idea: #6ea0e6;
   --board-light: #e8e4d8;
   --board-dark: #6f9a5e;
   color-scheme: dark;
@@ -34,3 +37,8 @@ button {
   cursor: pointer;
 }
 button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+button:disabled { opacity: 0.4; cursor: default; }
+button.primary { background: var(--accent); border-color: var(--accent); color: #12160f; font-weight: 600; }
+button.danger { background: var(--bad); border-color: var(--bad); color: #fff; font-weight: 600; }
+button.wide { width: 100%; }

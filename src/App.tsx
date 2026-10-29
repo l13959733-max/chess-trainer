@@ -1,79 +1,84 @@
-import { Chess } from 'chess.js'
 import { useState } from 'react'
-import { Chessboard } from 'react-chessboard'
+import { go, useHashRoute } from './hooks/useHashRoute'
+import { useRepertoire } from './hooks/useRepertoire'
+import { isDue } from './lib/srs'
+import { Drill } from './screens/Drill'
+import { Home } from './screens/Home'
+import { Import } from './screens/Import'
+import { Learn } from './screens/Learn'
 import './App.css'
 
-// Schritt 1: App-Gerüst. Das freie Brett zeigt, dass Brett + Regeln laufen.
-// Startseiten-Kacheln werden in Schritt 2/3 mit echten Daten gefüllt.
 function App() {
-  const [game] = useState(() => new Chess())
-  const [fen, setFen] = useState(game.fen())
+  const rep = useRepertoire()
+  const [page, id] = useHashRoute()
+  const line = id ? rep.lines.find((l) => l.id === id) : undefined
 
-  function onPieceDrop({ sourceSquare, targetSquare }: { sourceSquare: string; targetSquare: string | null }) {
-    if (!targetSquare) return false
-    try {
-      game.move({ from: sourceSquare, to: targetSquare, promotion: 'q' })
-    } catch {
-      return false
-    }
-    setFen(game.fen())
-    return true
-  }
-
-  function reset() {
-    game.reset()
-    setFen(game.fen())
-  }
-
-  const turn = game.turn() === 'w' ? 'Weiß' : 'Schwarz'
-  const status = game.isCheckmate() ? `Matt – ${turn} hat verloren` : game.isDraw() ? 'Remis' : `${turn} am Zug`
+  let body: React.ReactNode
+  if (!rep.ready) body = <p className="loading">Lade Repertoire …</p>
+  else if (page === 'lernen' && line) body = <Learn line={line} />
+  else if (page === 'drill' && line)
+    body = (
+      <Drill
+        key={line.id}
+        line={line}
+        onDone={(m) => rep.recordDrill(line.id, m)}
+        after={(restart) => (
+          <>
+            <button type="button" onClick={restart}>Nochmal</button>
+            <button type="button" className="primary" onClick={() => go('')}>Zur Übersicht</button>
+          </>
+        )}
+      />
+    )
+  else if (page === 'wiederholen') body = <Review rep={rep} />
+  else if (page === 'import') body = <Import rep={rep} />
+  else body = <Home rep={rep} />
 
   return (
     <main className="app">
       <header className="top">
-        <h1>Chess Trainer</h1>
+        <button type="button" className="brand" onClick={() => go('')}>Chess Trainer</button>
         <span className="user">l0o2</span>
       </header>
-
-      <div className="board">
-        <Chessboard
-          options={{
-            position: fen,
-            onPieceDrop,
-            lightSquareStyle: { backgroundColor: 'var(--board-light)' },
-            darkSquareStyle: { backgroundColor: 'var(--board-dark)' },
-          }}
-        />
-      </div>
-
-      <div className="status">
-        <span>{status}</span>
-        <button type="button" onClick={reset}>Neu aufstellen</button>
-      </div>
-
-      <section className="tiles" aria-label="Heute">
-        <div className="tile">
-          <div className="label">Tagesziel</div>
-          <div className="value">0 / 20</div>
-          <div className="note">ab Schritt 3</div>
-        </div>
-        <div className="tile">
-          <div className="label">Streak</div>
-          <div className="value">0 Tage</div>
-          <div className="note">ab Schritt 3</div>
-        </div>
-        <div className="tile">
-          <div className="label">Fällige Linien</div>
-          <div className="value">–</div>
-          <div className="note">ab Schritt 2</div>
-        </div>
-        <div className="tile">
-          <div className="label">Fällige Puzzles</div>
-          <div className="value">–</div>
-          <div className="note">ab Schritt 4</div>
-        </div>
-      </section>
+      {body}
     </main>
+  )
+}
+
+// Alle fälligen Linien nacheinander drillen. Die Liste wird beim Start festgehalten.
+function Review({ rep }: { rep: ReturnType<typeof useRepertoire> }) {
+  const [queue] = useState(() => rep.lines.filter((l) => isDue(rep.srs.get(l.id), Date.now())).map((l) => l.id))
+  const [index, setIndex] = useState(0)
+  const line = rep.lines.find((l) => l.id === queue[index])
+
+  if (!line) {
+    return (
+      <div className="screen">
+        <div className="done">
+          <div className="done-title">{queue.length ? 'Alle fälligen Linien wiederholt' : 'Nichts fällig'}</div>
+          <div className="done-actions">
+            <button type="button" className="primary" onClick={() => go('')}>Zur Übersicht</button>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  return (
+    <Drill
+      key={line.id}
+      line={line}
+      progress={`${index + 1} von ${queue.length}`}
+      onDone={(m) => rep.recordDrill(line.id, m)}
+      after={(restart) => (
+        <>
+          <button type="button" onClick={restart}>Nochmal</button>
+          <button type="button" className="primary" onClick={() => setIndex(index + 1)}>
+            {index + 1 < queue.length ? 'Nächste Linie' : 'Fertig'}
+          </button>
+        </>
+      )}
+    />
   )
 }
 
