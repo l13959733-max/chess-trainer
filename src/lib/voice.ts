@@ -18,6 +18,17 @@ const loaded = getVoiceSettings()
 const audioCache = new Map<string, Promise<string>>() // text → blob URL
 let player: HTMLAudioElement | null = null
 
+// Addresses a voice link may set: the Mac's tunnel, or the Mac itself for local tests.
+export function isAllowedVoiceUrl(url: string): boolean {
+  try {
+    const u = new URL(url)
+    if (u.protocol === 'https:' && u.hostname.endsWith('.trycloudflare.com')) return true
+    return u.protocol === 'http:' && (u.hostname === 'localhost' || u.hostname === '127.0.0.1')
+  } catch {
+    return false
+  }
+}
+
 export async function loadVoiceSettings(): Promise<VoiceSettings> {
   await loaded
   return settings
@@ -41,15 +52,26 @@ function silentWav(): string {
   return URL.createObjectURL(new Blob([buf], { type: 'audio/wav' }))
 }
 
-// iOS only lets a page play audio it started during a tap. Playing a silent clip on the
-// tap unlocks the shared player, so the cloned voice can still play when it arrives later.
+// iOS only lets a page play audio it started during a tap. Playing a silent clip (and an empty
+// utterance) on the first tap unlocks both players, so explanations can later start by themselves.
 function unlock(): HTMLAudioElement {
   if (!player) {
     player = new Audio()
     player.src = silentWav()
     player.play().catch(() => {})
+    try {
+      const u = new SpeechSynthesisUtterance('')
+      u.volume = 0
+      window.speechSynthesis?.speak(u)
+    } catch {
+      // no speech synthesis
+    }
   }
   return player
+}
+
+export function unlockAudio() {
+  unlock()
 }
 
 async function request(text: string): Promise<string> {
@@ -116,44 +138,79 @@ function speakPhone(text: string): Promise<void> {
   })
 }
 
+// What is being read right now, so every Listen button can show the right state.
+export interface Playback {
+  text: string
+  phase: 'idle' | 'loading' | 'playing'
+  source?: VoiceSource
+}
+
+let now: Playback = { text: '', phase: 'idle' }
+const listeners = new Set<(p: Playback) => void>()
+let queue: string[] = []
+let run = 0
+
+function set(p: Playback) {
+  now = p
+  listeners.forEach((l) => l(p))
+}
+
+export function onPlayback(fn: (p: Playback) => void): () => void {
+  listeners.add(fn)
+  fn(now)
+  return () => listeners.delete(fn)
+}
+
+async function playOne(text: string, id: number) {
+  set({ text, phase: 'loading' })
+  if (settings.serverUrl) {
+    try {
+      wanted = text
+      const url = await fetchClone(text, false)
+      if (id !== run) return
+      const audio = unlock()
+      set({ text, phase: 'playing', source: 'clone' })
+      audio.src = url
+      await audio.play()
+      await new Promise<void>((r) => {
+        audio.onended = () => r()
+        audio.onpause = () => r()
+      })
+      return
+    } catch {
+      if (id !== run) return
+      // Mac off, tunnel gone or playback refused → phone voice
+    }
+  }
+  set({ text, phase: 'playing', source: 'phone' })
+  await speakPhone(text)
+}
+
+async function pump() {
+  const id = ++run
+  while (queue.length && id === run) await playOne(queue.shift()!, id)
+  if (id === run) set({ text: '', phase: 'idle' })
+}
+
 export function stop() {
+  run++
+  queue = []
   player?.pause()
   window.speechSynthesis?.cancel()
+  set({ text: '', phase: 'idle' })
 }
 
-export interface SpeakHandle {
-  source: Promise<VoiceSource>
-  done: Promise<void>
-}
-
-// Must be called from a tap. `source` resolves once it is clear which voice speaks.
-export function speak(text: string): SpeakHandle {
+// Tapped Listen: read this now, dropping anything queued.
+export function speakNow(text: string) {
   stop()
-  const audio = unlock()
-  let setSource!: (s: VoiceSource) => void
-  const source = new Promise<VoiceSource>((r) => (setSource = r))
+  unlock()
+  queue = [text]
+  pump()
+}
 
-  const done = (async () => {
-    await loaded
-    if (settings.serverUrl) {
-      try {
-        wanted = text
-        const url = await fetchClone(text, false)
-        setSource('clone')
-        audio.src = url
-        await audio.play()
-        await new Promise<void>((r) => {
-          audio.onended = () => r()
-          audio.onpause = () => r()
-        })
-        return
-      } catch {
-        // Mac off, tunnel gone or playback refused → phone voice
-      }
-    }
-    setSource('phone')
-    await speakPhone(text)
-  })()
-
-  return { source, done }
+// Automatic reading: queue behind what is playing, so explanations aren't cut off.
+export function enqueue(text: string) {
+  if (!text || now.text === text || queue.includes(text)) return
+  queue.push(text)
+  if (now.phase === 'idle') pump()
 }

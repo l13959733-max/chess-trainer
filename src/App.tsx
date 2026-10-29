@@ -1,10 +1,11 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { go, useHashRoute } from './hooks/useHashRoute'
 import { useAnalyzer } from './hooks/useAnalyzer'
 import { useProgress } from './hooks/useProgress'
 import { usePuzzles } from './hooks/usePuzzles'
 import { useRepertoire } from './hooks/useRepertoire'
 import { isDue } from './lib/srs'
+import { stop as stopVoice, unlockAudio } from './lib/voice'
 import { Drill } from './screens/Drill'
 import { Home } from './screens/Home'
 import { Import } from './screens/Import'
@@ -19,6 +20,14 @@ function App() {
   const analyzer = useAnalyzer()
   const puzzles = usePuzzles(analyzer.analyzed)
   const [page, id] = useHashRoute()
+
+  // Reading stops when the screen changes; the first tap unlocks audio for automatic reading (iOS)
+  useEffect(() => stopVoice, [page, id])
+  useEffect(() => {
+    const once = () => unlockAudio()
+    window.addEventListener('pointerdown', once, { once: true })
+    return () => window.removeEventListener('pointerdown', once)
+  }, [])
   const line = id ? rep.lines.find((l) => l.id === id) : undefined
 
   let body: React.ReactNode
@@ -41,6 +50,7 @@ function App() {
   else if (page === 'review') body = <Review rep={rep} progress={progress} />
   else if (page === 'import') body = <Import rep={rep} />
   else if (page === 'settings') body = <Settings />
+  else if (page === 'voice') body = <Settings incoming={id ? decodeURIComponent(id) : undefined} />
   else if (page === 'puzzles') body = <PuzzleSession puzzles={puzzles} progress={progress} />
   else body = <Home rep={rep} progress={progress} puzzles={puzzles} analyzer={analyzer} />
 

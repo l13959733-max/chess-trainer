@@ -19,3 +19,15 @@ describe('pickVoice', () => {
     expect(pickVoice([v('Albert'), v('Moira', 'en-IE')])?.name).toBe('Moira')
   })
 })
+
+import { isAllowedVoiceUrl } from './voice'
+describe('voice link', () => {
+  it('accepts only tunnel addresses and the local Mac', () => {
+    expect(isAllowedVoiceUrl('https://able-bird-1234.trycloudflare.com')).toBe(true)
+    expect(isAllowedVoiceUrl('http://localhost:8090')).toBe(true)
+    expect(isAllowedVoiceUrl('http://able-bird.trycloudflare.com')).toBe(false)
+    expect(isAllowedVoiceUrl('https://evil.example.com')).toBe(false)
+    expect(isAllowedVoiceUrl('https://trycloudflare.com.evil.com')).toBe(false)
+    expect(isAllowedVoiceUrl('javascript:alert(1)')).toBe(false)
+  })
+})

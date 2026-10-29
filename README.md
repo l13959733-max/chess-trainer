@@ -49,9 +49,13 @@ All progress and imports live only in the browser (IndexedDB `chess-trainer`).
 Explanations have a **Listen** button. It uses the cloned voice from the voice changer on the Mac
 (`~/Projects/voice-changer`, XTTS) and falls back to the phone's built-in voice when the Mac is not reachable.
 
-1. Mac: `cd ~/Projects/voice-changer && ./klon-oberflaeche`
-2. Mac: `cloudflared tunnel --url http://localhost:8090`
-3. App → Settings → paste the `https://….trycloudflare.com` address → Save
+1. Mac: double-click `~/Projects/voice-changer/Chess-Voice.command`. It starts the voice changer and the tunnel,
+   keeps the Mac awake, copies the `https://….trycloudflare.com` address and prints a voice link.
+2. Phone: App → Settings → paste the address → Save. (Or open the voice link `#/voice/<address>` – handy on Android
+   or in a browser; on iPhone a home-screen app has its own storage, so paste the address inside the app.)
+
+Explanations are read aloud automatically as soon as they appear (queued, so nothing is cut off); turn this off in
+Settings. Reading stops when you leave a screen. The first tap anywhere unlocks audio on iOS.
 
 The voice server only accepts browser requests from this app's address (CORS list `CORS_ORIGINS` in `app_clone.py`).
 A new sentence takes about 10–20 s on the Mac CPU; the app requests one sentence at a time and starts as soon as an

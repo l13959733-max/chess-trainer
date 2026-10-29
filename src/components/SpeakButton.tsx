@@ -1,50 +1,36 @@
 import { useEffect, useRef, useState } from 'react'
-import { prefetch, speak, stop, type VoiceSource } from '../lib/voice'
+import { getFeedbackPrefs } from '../lib/feedback'
+import { enqueue, onPlayback, prefetch, speakNow, stop, type Playback } from '../lib/voice'
 
-type State = 'idle' | 'loading' | 'playing'
+// Listen button under an explanation. With "read aloud automatically" on (the default),
+// the explanation is queued for reading as soon as it appears.
+export function SpeakButton({ text, auto = true }: { text: string; auto?: boolean }) {
+  const [p, setP] = useState<Playback>({ text: '', phase: 'idle' })
+  const queued = useRef('')
 
-export function SpeakButton({ text }: { text: string }) {
-  const [state, setState] = useState<State>('idle')
-  const [source, setSource] = useState<VoiceSource | null>(null)
-  const run = useRef(0)
+  useEffect(() => onPlayback(setP), [])
 
-  // Prepare the cloned voice once the explanation has stayed on screen for a moment
   useEffect(() => {
-    const t = window.setTimeout(() => prefetch(text), 1000)
-    return () => {
-      window.clearTimeout(t)
-      run.current++
-      stop()
-    }
-  }, [text])
-
-  function onClick() {
-    if (state !== 'idle') {
-      run.current++
-      stop()
-      setState('idle')
+    if (auto && getFeedbackPrefs().autoRead && queued.current !== text) {
+      queued.current = text
+      enqueue(text)
       return
     }
-    const id = ++run.current
-    setState('loading')
-    const h = speak(text)
-    h.source.then((s) => {
-      if (run.current !== id) return
-      setSource(s)
-      setState('playing')
-    })
-    h.done.then(() => {
-      if (run.current === id) setState('idle')
-    })
-  }
+    // Not reading by itself: prepare the cloned voice once the explanation stays on screen for a moment
+    const t = window.setTimeout(() => prefetch(text), 1000)
+    return () => window.clearTimeout(t)
+  }, [text, auto])
+
+  const mine = p.text === text
+  const state = mine ? p.phase : 'idle'
 
   return (
     <div className="speak">
-      <button type="button" className="speak-btn" onClick={onClick} aria-live="polite">
-        {state === 'idle' ? '▶ Listen' : state === 'loading' ? 'Loading your voice … tap to cancel' : '■ Stop'}
+      <button type="button" className="speak-btn" onClick={() => (state === 'idle' ? speakNow(text) : stop())} aria-live="polite">
+        {state === 'idle' ? '▶ Listen' : state === 'loading' ? 'Loading your voice … tap to stop' : '■ Stop'}
       </button>
-      {source === 'phone' && <span className="speak-note">Phone voice – your Mac voice is not reachable</span>}
-      {source === 'clone' && state === 'playing' && <span className="speak-note">Your voice</span>}
+      {mine && p.source === 'phone' && <span className="speak-note">Phone voice – your Mac voice is not reachable</span>}
+      {mine && p.source === 'clone' && <span className="speak-note">Your voice</span>}
     </div>
   )
 }

@@ -5,10 +5,11 @@
 export interface FeedbackPrefs {
   sound: boolean
   haptics: boolean
+  autoRead: boolean // read explanations aloud as soon as they appear
 }
 
 const KEY = 'chess-trainer-feedback'
-let prefs: FeedbackPrefs = { sound: true, haptics: true }
+let prefs: FeedbackPrefs = { sound: true, haptics: true, autoRead: true }
 try {
   const saved = localStorage.getItem(KEY)
   if (saved) prefs = { ...prefs, ...JSON.parse(saved) }
