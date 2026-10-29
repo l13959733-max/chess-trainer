@@ -42,3 +42,15 @@ export function isDue(state: SrsState | undefined, now: number): boolean {
 export function daysUntil(state: SrsState, now: number): number {
   return Math.max(0, Math.ceil((state.due - now) / DAY))
 }
+
+export interface LineResult {
+  kind: 'new' | 'perfect' | 'mistakes'
+  mistakes: number
+  due: boolean
+}
+
+// What the learning path shows for a line: never played, last drill flawless, or last drill with mistakes.
+export function lineResult(state: SrsState | undefined, now: number): LineResult {
+  if (!state || !state.lastReviewed) return { kind: 'new', mistakes: 0, due: false }
+  return { kind: state.lastMistakes ? 'mistakes' : 'perfect', mistakes: state.lastMistakes, due: isDue(state, now) }
+}

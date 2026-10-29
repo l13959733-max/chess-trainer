@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { daysUntil, isDue, newState, qualityFromMistakes, review } from './srs'
+import { daysUntil, isDue, lineResult, newState, qualityFromMistakes, review } from './srs'
 
 const DAY = 86_400_000
 const T0 = Date.UTC(2026, 9, 29)
@@ -39,5 +39,17 @@ describe('SM-2', () => {
     expect(isDue(s, T0 + DAY - 1)).toBe(false)
     expect(isDue(s, T0 + DAY)).toBe(true)
     expect(daysUntil(s, T0)).toBe(1)
+  })
+})
+
+describe('lineResult', () => {
+  it('new, perfect and with mistakes', () => {
+    expect(lineResult(undefined, T0)).toEqual({ kind: 'new', mistakes: 0, due: false })
+    expect(lineResult(review(newState('x'), 5, T0, 0), T0)).toEqual({ kind: 'perfect', mistakes: 0, due: false })
+    expect(lineResult(review(newState('x'), 1, T0, 2), T0 + DAY)).toEqual({ kind: 'mistakes', mistakes: 2, due: true })
+  })
+  it('the latest drill counts: mistakes then a perfect run shows perfect', () => {
+    const s = review(review(newState('x'), 1, T0, 3), 5, T0 + DAY, 0)
+    expect(lineResult(s, T0 + DAY).kind).toBe('perfect')
   })
 })

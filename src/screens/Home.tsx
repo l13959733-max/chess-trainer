@@ -6,7 +6,7 @@ import type { Puzzles } from '../hooks/usePuzzles'
 import { pause, start, type AnalyzerState } from '../lib/analyzer'
 import type { Repertoire } from '../hooks/useRepertoire'
 import { PUZZLES_AVAILABLE } from '../lib/progress'
-import { daysUntil, isDue } from '../lib/srs'
+import { daysUntil, isDue, lineResult } from '../lib/srs'
 
 export function Home({ rep, progress, puzzles, analyzer }: { rep: Repertoire; progress: Progress; puzzles: Puzzles; analyzer: AnalyzerState }) {
   const now = Date.now()
@@ -53,26 +53,32 @@ export function Home({ rep, progress, puzzles, analyzer }: { rep: Repertoire; pr
         <div className="path">
           {rep.lines.map((line, i) => {
             const s = rep.srs.get(line.id)
-            const status = !s ? 'New' : isDue(s, now) ? 'Practice again' : daysUntil(s, now) <= 1 ? 'Done · again tomorrow' : `Done · again in ${daysUntil(s, now)} days`
-            const cls = !s ? 'new' : isDue(s, now) ? 'due' : 'later'
+            const r = lineResult(s, now)
+            const last = r.kind === 'new' ? 'Not played yet' : r.kind === 'perfect' ? 'Last time: perfect' : `Last time: ${r.mistakes} ${r.mistakes === 1 ? 'mistake' : 'mistakes'}`
+            const next = !s || r.kind === 'new' ? '' : r.due ? 'Practice again now' : daysUntil(s, now) <= 1 ? 'Again tomorrow' : `Again in ${daysUntil(s, now)} days`
+            const cls = r.kind === 'new' ? 'new' : r.kind === 'perfect' ? 'perfect' : 'mistakes'
             return (
               <div key={line.id} className={`path-step offset-${i % 4}`}>
                 <button
                   type="button"
-                  className={`path-node ${cls} ${line.side === 'b' ? 'black' : ''}`}
+                  className={`path-node ${cls} ${r.due ? 'is-due' : ''} ${line.side === 'b' ? 'black' : ''}`}
                   aria-expanded={open === line.id}
                   aria-label={line.title}
                   onClick={() => setOpen(open === line.id ? null : line.id)}
                 >
-                  {cls === 'new' ? '★' : cls === 'due' ? '↻' : '✓'}
+                  {r.kind === 'new' ? '★' : r.kind === 'perfect' ? '✓' : r.mistakes}
                 </button>
                 <div className="path-label">{line.title}</div>
+                {r.kind !== 'new' && (
+                  <div className={`path-result ${cls}`}>{r.kind === 'perfect' ? 'Perfect' : `${r.mistakes} ${r.mistakes === 1 ? 'mistake' : 'mistakes'}`}{r.due ? ' · practice again' : ''}</div>
+                )}
                 {open === line.id && (
                   <div className="path-pop">
                     <div className="meta">
                       <span className={`side side-${line.side}`}>{line.side === 'w' ? 'White' : 'Black'}</span>
                       <span>{Math.ceil(line.moves.length / 2)} moves</span>
-                      <span className={`status ${cls}`}>{status}</span>
+                      <span className={`status ${cls}`}>{last}</span>
+                      {next && <span className={r.due ? 'status due' : ''}>{next}</span>}
                     </div>
                     <div className="row">
                       <button type="button" onClick={() => go('learn/' + line.id)}>Learn</button>

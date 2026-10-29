@@ -145,8 +145,19 @@ button:focus-visible { outline: 3px solid var(--idea); }
   background: var(--accent);
   border-color: var(--accent-dark);
 }
-.path-node.due { background: var(--sun); border-color: var(--sun-dark); }
-.path-node.later { background: var(--idea); border-color: var(--idea-dark); }
+/* Line results: new = green star, perfect = blue tick, mistakes = orange with the count */
+.path-node.perfect { background: var(--idea); border-color: var(--idea-dark); }
+.path-node.mistakes { background: #ff9f1c; border-color: #d97c00; font-weight: 900; }
+.path-node.is-due { animation: nudge 1.6s ease-in-out infinite; }
+.path-result { font-size: 0.8rem; font-weight: 900; margin-top: -2px; }
+.path-result.perfect { color: var(--idea-dark); }
+.path-result.mistakes { color: #d97c00; }
+.status.perfect { color: var(--idea-dark); }
+.status.mistakes { color: #d97c00; }
+@keyframes nudge {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.07); }
+}
 .path-node.black { box-shadow: 0 0 0 4px #fff, 0 0 0 7px var(--text); }
 .path-label { font-weight: 800; text-align: center; font-size: 0.9rem; line-height: 1.25; }
 .path-pop {
@@ -173,5 +184,5 @@ button:focus-visible { outline: 3px solid var(--idea); }
   75% { transform: rotate(8deg); }
 }
 @media (prefers-reduced-motion: reduce) {
-  .done > .mascot, .mascot.mood-oops { animation: none; }
+  .done > .mascot, .mascot.mood-oops, .path-node.is-due { animation: none; }
 }
