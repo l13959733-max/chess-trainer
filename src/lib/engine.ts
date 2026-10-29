@@ -1,7 +1,7 @@
 // Stockfish 19 lite (single-threaded WASM) in a Web Worker, spoken to over UCI.
 import type { PositionEval, Score } from './blunders'
 
-type Job = { fen: string; depth: number; resolve: (e: PositionEval) => void; reject: (e: Error) => void }
+type Job = { fen: string; depth: number; fresh: boolean; resolve: (e: PositionEval) => void; reject: (e: Error) => void }
 
 let worker: Worker | null = null
 let ready: Promise<void> | null = null
@@ -56,6 +56,8 @@ async function next() {
         }
       }
       w.addEventListener('message', onMsg)
+      // A cleared hash makes the result depend only on position and depth, so comparisons are repeatable
+      if (job.fresh) w.postMessage('ucinewgame')
       w.postMessage('position fen ' + job.fen)
       w.postMessage('go depth ' + job.depth)
     })
@@ -68,10 +70,11 @@ async function next() {
   }
 }
 
-// Evaluate one position. Requests run one after another; `urgent` ones (puzzles) jump the queue.
+// Evaluate one position. Requests run one after another; `urgent` ones (puzzles) jump the queue
+// and start from a cleared hash.
 export function evaluate(fen: string, depth = 14, urgent = false): Promise<PositionEval> {
   return new Promise((resolve, reject) => {
-    const job = { fen, depth, resolve, reject }
+    const job = { fen, depth, fresh: urgent, resolve, reject }
     if (urgent) queue.unshift(job)
     else queue.push(job)
     next()

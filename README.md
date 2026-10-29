@@ -39,7 +39,7 @@ All progress and imports live only in the browser (IndexedDB `chess-trainer`).
 - A move of mine is a **blunder** when it loses more than 2 pawns (scores clamped to ±10 pawns, so swings inside a
   decided game don't count) or when it misses a mate in 3 or less. Each blunder becomes a puzzle: “Find a better move”
   from the position before my move. The engine's move solves it, and so does any move within 0.5 pawns of it
-  (checked live at depth 12).
+  (both moves re-checked live at depth 14 from a cleared engine hash, so the verdict is repeatable).
 - Puzzles use the same SM-2 schedule as lines; a session is all due puzzles plus up to 10 new ones.
 - Finished games are stored (IndexedDB `games`), so the next run only analyses new games. Pausing keeps everything
   except the game in progress. Measured on a Mac: about 6 s per game; a phone is slower.

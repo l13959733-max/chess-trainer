@@ -12,6 +12,7 @@ import { daysUntil, type SrsState } from '../lib/srs'
 
 // A move within this many centipawns of the engine's best move also solves the puzzle.
 const GOOD_ENOUGH = 50
+const CHECK_DEPTH = 14
 const REVEAL_AFTER = 2
 
 type Phase = 'solving' | 'checking' | 'solved'
@@ -64,13 +65,16 @@ export function PuzzleView({ puzzle, progress, onSolved, onNext, isLast }: Props
       setWrong({ from, to, note: 'That is the move from your game. Look for something better.' })
       return false
     }
-    // Another move: ask Stockfish whether it is about as good as the best move
+    // Another move: let Stockfish rate it and the best move the same way, then compare
     setPhase('checking')
     setPending(move.after)
-    evaluate(move.after, 12, true).then((ev) => {
+    const afterBest = new Chess(puzzle.fen)
+    afterBest.move({ from: best.from, to: best.to, promotion: puzzle.best[4] })
+    Promise.all([evaluate(move.after, CHECK_DEPTH, true), evaluate(afterBest.fen(), CHECK_DEPTH, true)]).then(([mineEv, bestEv]) => {
       setPending(null)
-      const mine = -clampScore(ev.score)
-      if (clampScore(puzzle.scoreBefore) - mine <= GOOD_ENOUGH) {
+      const mine = -clampScore(mineEv.score)
+      const top = -clampScore(bestEv.score)
+      if (top - mine <= GOOD_ENOUGH) {
         setSolvedWith({ san: move.san, from, to, fen: move.after, exact: false })
         setPhase('solved')
       } else {
