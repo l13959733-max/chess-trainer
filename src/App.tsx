@@ -5,7 +5,7 @@ import { useProgress } from './hooks/useProgress'
 import { usePuzzles } from './hooks/usePuzzles'
 import { useRepertoire } from './hooks/useRepertoire'
 import { isDue } from './lib/srs'
-import { stop as stopVoice, unlockAudio } from './lib/voice'
+import { isUnlocked, stop as stopVoice, unlockAudio } from './lib/voice'
 import { Drill } from './screens/Drill'
 import { Home } from './screens/Home'
 import { Import } from './screens/Import'
@@ -24,9 +24,14 @@ function App() {
   // Reading stops when the screen changes; the first tap unlocks audio for automatic reading (iOS)
   useEffect(() => stopVoice, [page, id])
   useEffect(() => {
-    const once = () => unlockAudio()
-    window.addEventListener('pointerdown', once, { once: true })
-    return () => window.removeEventListener('pointerdown', once)
+    // iOS: only the end of a tap counts, so listen to those and keep trying until sound is allowed
+    const events = ['touchend', 'pointerup', 'click', 'keydown'] as const
+    const tryUnlock = () => {
+      unlockAudio()
+      if (isUnlocked()) events.forEach((e) => window.removeEventListener(e, tryUnlock))
+    }
+    events.forEach((e) => window.addEventListener(e, tryUnlock))
+    return () => events.forEach((e) => window.removeEventListener(e, tryUnlock))
   }, [])
   const line = id ? rep.lines.find((l) => l.id === id) : undefined
 

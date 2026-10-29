@@ -56,11 +56,24 @@ function silentWav(): string {
 
 // iOS only lets a page play audio it started during a tap. Playing a silent clip (and an empty
 // utterance) on the first tap unlocks both players, so explanations can later start by themselves.
+// iOS only counts the end of a tap (touchend/click) as permission, not the first touch, so this
+// is retried on every tap until a play() actually succeeds.
+let unlocked = false
+
+export function isUnlocked() {
+  return unlocked
+}
+
 function unlock(): HTMLAudioElement {
-  if (!player) {
-    player = new Audio()
+  if (!player) player = new Audio()
+  if (!unlocked) {
     player.src = silentWav()
-    player.play().catch(() => {})
+    player
+      .play()
+      .then(() => {
+        unlocked = true
+      })
+      .catch(() => {})
     try {
       const u = new SpeechSynthesisUtterance('')
       u.volume = 0
@@ -181,7 +194,7 @@ function speakPhone(text: string): Promise<void> {
 // What is being read right now, so every Listen button can show the right state.
 export interface Playback {
   text: string
-  phase: 'idle' | 'loading' | 'playing'
+  phase: 'idle' | 'loading' | 'playing' | 'blocked' // blocked = the phone wants a tap before playing sound
   source?: VoiceSource
 }
 
@@ -220,8 +233,13 @@ async function playOne(text: string, id: number) {
     try {
       await playClip(saved, text)
       return
-    } catch {
-      // fall through to the Mac or the phone voice
+    } catch (e) {
+      // The phone refused to play without a tap: wait for one instead of switching to the phone voice
+      if (e instanceof DOMException && e.name === 'NotAllowedError') {
+        queue = []
+        set({ text, phase: 'blocked' })
+        return
+      }
     }
   }
   if (id !== run) return
@@ -244,7 +262,7 @@ async function playOne(text: string, id: number) {
 async function pump() {
   const id = ++run
   while (queue.length && id === run) await playOne(queue.shift()!, id)
-  if (id === run) set({ text: '', phase: 'idle' })
+  if (id === run && now.phase !== 'blocked') set({ text: '', phase: 'idle' })
 }
 
 export function stop() {
@@ -267,7 +285,7 @@ export function speakNow(text: string) {
 export function enqueue(text: string) {
   if (!text || now.text === text || queue.includes(text)) return
   queue.push(text)
-  if (now.phase === 'idle') pump()
+  if (now.phase === 'idle' || now.phase === 'blocked') pump()
 }
 
 // How many of the given sentences are saved on this device in the cloned voice

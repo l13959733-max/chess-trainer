@@ -172,6 +172,7 @@ export function Settings({ incoming, lines }: { incoming?: string; lines: Line[]
 
         <div className="label">Try it</div>
         <SpeakButton auto={false} text={TRY_IT} />
+        <p className="note small">App version {__APP_VERSION__}</p>
         <p className="note">The address is stored only on this device. The first sentence can take 10–20 seconds; repeated sentences play instantly.</p>
       </div>
     </div>

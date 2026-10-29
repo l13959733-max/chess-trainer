@@ -26,8 +26,8 @@ export function SpeakButton({ text, auto = true }: { text: string; auto?: boolea
 
   return (
     <div className="speak">
-      <button type="button" className="speak-btn" onClick={() => (state === 'idle' ? speakNow(text) : stop())} aria-live="polite">
-        {state === 'idle' ? '▶ Listen' : state === 'loading' ? 'Loading your voice … tap to stop' : '■ Stop'}
+      <button type="button" className="speak-btn" onClick={() => (state === 'idle' || state === 'blocked' ? speakNow(text) : stop())} aria-live="polite">
+        {state === 'idle' ? '▶ Listen' : state === 'loading' ? 'Loading your voice … tap to stop' : state === 'blocked' ? '▶ Tap to hear it' : '■ Stop'}
       </button>
       {mine && p.source === 'phone' && <span className="speak-note">Phone voice – your Mac voice is not reachable</span>}
       {mine && p.source === 'clone' && <span className="speak-note">Your voice</span>}

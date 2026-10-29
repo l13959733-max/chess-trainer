@@ -5,9 +5,12 @@ import { VitePWA } from 'vite-plugin-pwa'
 
 // BASE_PATH is set by the deploy workflow (GitHub Pages serves under /chess-trainer/).
 const base = process.env.BASE_PATH ?? '/'
+// Shown in Settings, so Lu can see whether the phone runs the newest version
+const version = new Date().toISOString().slice(0, 16).replace('T', ' ') + ' UTC'
 
 export default defineConfig({
   base,
+  define: { __APP_VERSION__: JSON.stringify(version) },
   plugins: [
     react(),
     VitePWA({
