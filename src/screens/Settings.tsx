@@ -3,10 +3,8 @@ import { SpeakButton } from '../components/SpeakButton'
 import { go } from '../hooks/useHashRoute'
 import { feedback, getFeedbackPrefs, setFeedbackPrefs } from '../lib/feedback'
 import type { Line } from '../lib/pgn'
-import { voiceTexts } from '../lib/speech'
+import { TRY_IT, voiceTexts } from '../lib/speech'
 import { isAllowedVoiceUrl, loadVoiceSettings, saveAll, savedCount, saveVoiceSettings } from '../lib/voice'
-
-const TRY_IT = 'Knight to f3. This is your chess trainer, speaking in your own voice.'
 
 type Check = { kind: 'idle' } | { kind: 'checking' } | { kind: 'ok' } | { kind: 'fail'; why: string }
 
@@ -152,7 +150,7 @@ export function Settings({ incoming, lines }: { incoming?: string; lines: Line[]
           </div>
           <div className="bar"><span style={{ width: `${((clipCount ?? 0) / texts.length) * 100}%` }} /></div>
           {clipCount === texts.length ? (
-            <p className="good">All saved. Your voice is the standard voice on this phone – even when the Mac is off.</p>
+            <p className="good">All explanations are in your voice – for everyone who opens the app, even when your Mac is off.</p>
           ) : saving === 'running' ? (
             <>
               <p className="note">Saving … keep this screen open. New sentences take 10–20 seconds each on the Mac.</p>

@@ -12,6 +12,17 @@ export default defineConfig({
     react(),
     VitePWA({
       registerType: 'autoUpdate',
+      // Lu's voice clips (public/voice) are cached on first play, not downloaded all at install
+      workbox: {
+        globIgnores: ['voice/**'],
+        runtimeCaching: [
+          {
+            urlPattern: ({ url }) => url.pathname.includes('/voice/'),
+            handler: 'CacheFirst',
+            options: { cacheName: 'voice-clips', expiration: { maxEntries: 500 } },
+          },
+        ],
+      },
       includeAssets: ['favicon.svg', 'apple-touch-icon.png'],
       manifest: {
         name: 'Chess Trainer',

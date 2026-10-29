@@ -54,6 +54,11 @@ Explanations have a **Listen** button. It uses the cloned voice from the voice c
 2. Phone: App → Settings → paste the address → Save. (Or open the voice link `#/voice/<address>` – handy on Android
    or in a browser; on iPhone a home-screen app has its own storage, so paste the address inside the app.)
 
+**Lu's voice ships with the app (Lu's decision, 29.10.2026):** `public/voice/` holds every sentence the app reads
+for the built-in repertoire in Lu's cloned voice (m4a) plus `manifest.json`. Everyone who opens the app hears his voice,
+no Mac needed. These files are public. After changing the repertoire, start the voice changer on the Mac and run
+`npm run voice` (only new sentences are generated), then commit `public/voice`.
+
 **Your voice as the standard voice:** Settings → “Save my voice on this phone” downloads every explanation once
 in the cloned voice (m4a, IndexedDB store `voiceClips`). From then on the app reads in Lu's voice even when the Mac
 is off. Order when reading: saved clip → Mac voice (saved on the way) → phone voice only for sentences that were
@@ -65,7 +70,6 @@ Settings. Reading stops when you leave a screen. The first tap anywhere unlocks 
 The voice server only accepts browser requests from this app's address (CORS list `CORS_ORIGINS` in `app_clone.py`).
 A new sentence takes about 10–20 s on the Mac CPU; the app requests one sentence at a time and starts as soon as an
 explanation has been on screen for a second. Repeated sentences come from the server cache instantly.
-No audio with the cloned voice is ever stored in this (public) repo.
 
 ## Sound and vibration
 

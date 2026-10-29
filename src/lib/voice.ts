@@ -80,14 +80,29 @@ function clipKey(text: string, voice = settings.voiceName) {
   return `${voice}|${text}`
 }
 
-// A clip saved on this device, as a playable URL
+// Clips published with the app (public/voice, built by scripts/build-voice.mjs): everyone who opens
+// the app hears Lu's voice for these sentences without the Mac.
+type Manifest = { voice: string; clips: Record<string, string> }
+let manifest: Promise<Manifest | null> | null = null
+
+function bundled(): Promise<Manifest | null> {
+  manifest ??= fetch(`${import.meta.env.BASE_URL}voice/manifest.json`)
+    .then((r) => (r.ok ? (r.json() as Promise<Manifest>) : null))
+    .catch(() => null)
+  return manifest
+}
+
+// A clip on this device or shipped with the app, as a playable URL
 async function savedClip(text: string): Promise<string | null> {
   try {
     const c = await getClip(clipKey(text))
-    return c ? URL.createObjectURL(c.blob) : null
+    if (c) return URL.createObjectURL(c.blob)
   } catch {
-    return null
+    // no local storage: try the bundled clips
   }
+  const m = await bundled()
+  const file = m && m.voice === settings.voiceName ? m.clips[text] : undefined
+  return file ? `${import.meta.env.BASE_URL}voice/${file}` : null
 }
 
 async function request(text: string): Promise<string> {
@@ -139,8 +154,9 @@ function fetchClone(text: string, isPrefetch: boolean): Promise<string> {
 export function prefetch(text: string) {
   if (!settings.serverUrl || !text) return
   savedClip(text).then((url) => {
-    if (url) URL.revokeObjectURL(url)
-    else {
+    if (url) {
+      if (url.startsWith('blob:')) URL.revokeObjectURL(url)
+    } else {
       wanted = text
       fetchClone(text, true).catch(() => {})
     }
@@ -258,8 +274,10 @@ export function enqueue(text: string) {
 export async function savedCount(texts: string[]): Promise<number> {
   await loaded
   try {
-    const keys = await getClipKeys()
-    return texts.filter((t) => keys.has(clipKey(t))).length
+    const keys = await getClipKeys().catch(() => new Set<string>())
+    const m = await bundled()
+    const shipped = m && m.voice === settings.voiceName ? m.clips : {}
+    return texts.filter((t) => keys.has(clipKey(t)) || shipped[t]).length
   } catch {
     return 0
   }
@@ -276,13 +294,16 @@ export async function saveAll(texts: string[], onProgress: (saved: number) => vo
     // the browser may still keep the data; persist() only makes eviction less likely
   }
   const keys = await getClipKeys()
-  let saved = texts.filter((t) => keys.has(clipKey(t))).length
+  const m = await bundled()
+  const shipped = m && m.voice === settings.voiceName ? m.clips : {}
+  const have = (t: string) => keys.has(clipKey(t)) || !!shipped[t]
+  let saved = texts.filter(have).length
   onProgress(saved)
   for (const text of texts) {
     if (cancelled()) return
-    if (keys.has(clipKey(text))) continue
+    if (have(text)) continue
     const url = await fetchClone(text, false)
-    URL.revokeObjectURL(url)
+    if (url.startsWith('blob:')) URL.revokeObjectURL(url)
     saved++
     onProgress(saved)
   }
