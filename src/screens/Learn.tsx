@@ -40,6 +40,10 @@ export function Learn({ line, onComplete }: { line: Line; onComplete: () => Prom
   const next = line.moves[ply]
   const fen = last ? last.fenAfter : line.moves[0].fenBefore
   const myTurn = !!next && next.color === line.side
+  // When the reply has no explanation of its own, keep showing the explanation of the move before it
+  const prev = ply > 1 ? line.moves[ply - 2] : null
+  const shownIndex = last && !last.comment && prev?.comment ? ply - 2 : ply - 1
+  const shown = shownIndex >= 0 ? line.moves[shownIndex] : null
   const waiting = !!next && !myTurn && flow
 
   const arrows: Arrow[] = (last?.arrows ?? []).map((a) => ({ startSquare: a.from, endSquare: a.to, color: CAL[a.color] }))
@@ -110,11 +114,11 @@ export function Learn({ line, onComplete }: { line: Line; onComplete: () => Prom
 
       <div className="explain">
         <Mascot mood="happy" />
-        {last ? (
+        {shown ? (
           <>
-            <div className={`move ${last.color === line.side ? 'mine' : ''}`}>{moveLabel(line, ply - 1)}</div>
-            <p>{last.comment ?? (last.color === line.side ? 'Your move in this line.' : 'Your opponent\'s move.')}</p>
-            {last.comment && <SpeakButton text={explanationText(last.san, last.comment)} />}
+            <div className={`move ${shown.color === line.side ? 'mine' : ''}`}>{moveLabel(line, shownIndex)}</div>
+            <p>{shown.comment ?? (shown.color === line.side ? 'Your move in this line.' : 'Your opponent\'s move.')}</p>
+            {shown.comment && <SpeakButton text={explanationText(shown.san, shown.comment)} />}
           </>
         ) : (
           <p>{myTurn ? 'Starting position. Move your piece along the blue arrow.' : 'Starting position. Your opponent starts.'}</p>
