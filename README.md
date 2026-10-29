@@ -24,6 +24,9 @@ Regenerate the app icons: `npm run icons` (writes `public/pwa-*.png`).
   Wrong move → red squares, a green arrow to the right move, and its explanation
 - **Spaced repetition (SM-2)** per line: flawless → the interval grows, 2+ mistakes → due again tomorrow
 - **PGN import** (file or paste), stored in the browser's IndexedDB
+- **Gamification**: XP (drill 10 XP, +10 flawless / +5 with one mistake, learning a line 5 XP),
+  levels at 0 / 100 / 300 / 600 … XP, daily streak (a day counts once you finish a drill),
+  daily goal (default 10 lines + 10 puzzles; puzzles count from step 4), short success animation
 
 All progress and imports live only in the browser (IndexedDB `chess-trainer`).
 

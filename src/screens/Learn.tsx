@@ -1,7 +1,9 @@
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import type { Arrow } from 'react-chessboard'
 import { ARROW, Board, LAST_MOVE } from '../components/Board'
+import { Celebrate } from '../components/Celebrate'
 import { go } from '../hooks/useHashRoute'
+import type { Reward } from '../hooks/useProgress'
 import type { Line, LineArrow } from '../lib/pgn'
 
 const CAL: Record<LineArrow['color'], string> = {
@@ -18,8 +20,10 @@ export function moveLabel(line: Line, i: number) {
 }
 
 // Learn mode: step through a line move by move, with an explanation for each move.
-export function Learn({ line }: { line: Line }) {
+export function Learn({ line, onComplete }: { line: Line; onComplete: () => Promise<Reward> }) {
   const [ply, setPly] = useState(0)
+  const [reward, setReward] = useState<Reward | null>(null)
+  const completed = useRef(false)
   const last = ply > 0 ? line.moves[ply - 1] : null
   const next = line.moves[ply]
   const fen = last ? last.fenAfter : line.moves[0].fenBefore
@@ -28,6 +32,13 @@ export function Learn({ line }: { line: Line }) {
   if (next) arrows.push({ startSquare: next.from, endSquare: next.to, color: ARROW.next })
 
   const styles = last ? { [last.from]: LAST_MOVE, [last.to]: LAST_MOVE } : {}
+
+  // XP once per visit, the first time the end of the line is reached
+  useEffect(() => {
+    if (next || completed.current) return
+    completed.current = true
+    onComplete().then(setReward)
+  }, [next, onComplete])
 
   return (
     <div className="screen">
@@ -72,6 +83,11 @@ export function Learn({ line }: { line: Line }) {
         ))}
       </ol>
 
+      {!next && reward && (
+        <div className="learn-reward">
+          <Celebrate reward={reward} />
+        </div>
+      )}
       {!next && (
         <button type="button" className="primary wide" onClick={() => go('drill/' + line.id)}>
           Now play it yourself (drill)
