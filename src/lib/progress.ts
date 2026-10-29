@@ -14,10 +14,10 @@ export interface Goal {
 
 export const DEFAULT_GOAL: Goal = { lines: 10, puzzles: 10 }
 
-// Blunder puzzles arrive in step 4; until then they don't count towards the daily goal.
-export const PUZZLES_AVAILABLE = false
+// Blunder puzzles exist since step 4 and count towards the daily goal.
+export const PUZZLES_AVAILABLE = true
 
-export const XP = { learnLine: 5, drillBase: 10, flawlessBonus: 10, oneMistakeBonus: 5 }
+export const XP = { learnLine: 5, drillBase: 10, flawlessBonus: 10, oneMistakeBonus: 5, puzzleBase: 10, puzzleFirstTry: 5 }
 
 export function dateKey(d: Date): string {
   const p = (n: number) => String(n).padStart(2, '0')
@@ -31,6 +31,10 @@ function prevDay(key: string): string {
 
 export function xpForDrill(mistakes: number): number {
   return XP.drillBase + (mistakes === 0 ? XP.flawlessBonus : mistakes === 1 ? XP.oneMistakeBonus : 0)
+}
+
+export function xpForPuzzle(mistakes: number): number {
+  return XP.puzzleBase + (mistakes === 0 ? XP.puzzleFirstTry : 0)
 }
 
 // Level L starts at 50·L·(L−1) XP: 0, 100, 300, 600, 1000 …

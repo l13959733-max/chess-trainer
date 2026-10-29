@@ -256,3 +256,12 @@
 .steps { margin: 0; padding-left: 20px; color: var(--muted); line-height: 1.55; font-size: 0.92rem; }
 .steps code, .note code { font-size: 0.85em; color: var(--text); background: var(--surface); padding: 1px 5px; border-radius: 4px; overflow-wrap: anywhere; }
 .form input[type='url'] { font: inherit; color: var(--text); background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; width: 100%; min-height: 48px; }
+
+/* Blunder puzzles */
+.puzzle-counts { display: flex; gap: 28px; align-items: baseline; color: var(--muted); }
+.puzzle-counts .big { color: var(--text); margin-right: 4px; }
+.analysis { display: grid; gap: 8px; border-top: 1px solid var(--line); padding-top: 12px; margin-top: 4px; }
+.analysis-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; font-size: 0.92rem; }
+.analysis-row button { flex: none; }
+.note.small { font-size: 0.8rem; }
+.done a { color: var(--idea); }

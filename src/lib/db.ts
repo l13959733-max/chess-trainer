@@ -1,11 +1,31 @@
 import { openDB, type DBSchema, type IDBPDatabase } from 'idb'
 import type { Side } from './pgn'
+import type { Blunder, Score } from './blunders'
 import type { DayActivity, Goal } from './progress'
 import type { SrsState } from './srs'
 
 export interface VoiceSettings {
   serverUrl: string // e.g. https://….trycloudflare.com – stays on this device only
   voiceName: string
+}
+
+export interface GameRecord {
+  uuid: string
+  endTime: number
+  analyzedAt: number
+  plies: number
+  blunders: number
+}
+
+export interface Puzzle extends Blunder {
+  id: string // game uuid + ply
+  gameUuid: string
+  gameUrl: string
+  endTime: number
+  opponent: string
+  myColor: 'w' | 'b'
+  scoreBefore: Score
+  bestSan: string
 }
 
 export interface ImportRecord {
@@ -21,12 +41,14 @@ interface TrainerDB extends DBSchema {
   imports: { key: number; value: ImportRecord }
   activity: { key: string; value: DayActivity }
   settings: { key: string; value: Goal | VoiceSettings }
+  games: { key: string; value: GameRecord }
+  puzzles: { key: string; value: Puzzle }
 }
 
 let dbPromise: Promise<IDBPDatabase<TrainerDB>> | null = null
 
 function db() {
-  dbPromise ??= openDB<TrainerDB>('chess-trainer', 2, {
+  dbPromise ??= openDB<TrainerDB>('chess-trainer', 3, {
     upgrade(d, oldVersion) {
       if (oldVersion < 1) {
         d.createObjectStore('srs', { keyPath: 'lineId' })
@@ -35,6 +57,10 @@ function db() {
       if (oldVersion < 2) {
         d.createObjectStore('activity', { keyPath: 'date' })
         d.createObjectStore('settings')
+      }
+      if (oldVersion < 3) {
+        d.createObjectStore('games', { keyPath: 'uuid' })
+        d.createObjectStore('puzzles', { keyPath: 'id' })
       }
     },
   })
@@ -83,4 +109,21 @@ export async function getVoiceSettings(): Promise<VoiceSettings | undefined> {
 
 export async function putVoiceSettings(v: VoiceSettings): Promise<void> {
   await (await db()).put('settings', v, 'voice')
+}
+
+export async function getAnalyzedGameIds(): Promise<Set<string>> {
+  return new Set(await (await db()).getAllKeys('games'))
+}
+
+export async function saveAnalyzedGame(game: GameRecord, puzzles: Puzzle[]): Promise<void> {
+  const tx = (await db()).transaction(['games', 'puzzles'], 'readwrite')
+  await Promise.all([tx.objectStore('games').put(game), ...puzzles.map((p) => tx.objectStore('puzzles').put(p)), tx.done])
+}
+
+export async function getPuzzles(): Promise<Puzzle[]> {
+  return (await db()).getAll('puzzles')
+}
+
+export async function countAnalyzedGames(): Promise<number> {
+  return (await db()).count('games')
 }

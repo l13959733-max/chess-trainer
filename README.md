@@ -30,6 +30,20 @@ Regenerate the app icons: `npm run icons` (writes `public/pwa-*.png`).
 
 All progress and imports live only in the browser (IndexedDB `chess-trainer`).
 
+## Blunder trainer (step 4)
+
+- **Analyse games** loads Lu's games from the chess.com public API (`l0o2`, rapid + daily only), newest first.
+- Every position is evaluated by **Stockfish 19 lite** (single-threaded WASM, depth 14) in a Web Worker.
+  The engine files are copied from `node_modules/stockfish` into `public/stockfish/` by `scripts/copy-stockfish.mjs`
+  before `dev`/`build` (not committed). Stockfish is GPL-3.0; its licence ships as `stockfish/COPYING.txt`.
+- A move of mine is a **blunder** when it loses more than 2 pawns (scores clamped to ±10 pawns, so swings inside a
+  decided game don't count) or when it misses a mate in 3 or less. Each blunder becomes a puzzle: “Find a better move”
+  from the position before my move. The engine's move solves it, and so does any move within 0.5 pawns of it
+  (checked live at depth 12).
+- Puzzles use the same SM-2 schedule as lines; a session is all due puzzles plus up to 10 new ones.
+- Finished games are stored (IndexedDB `games`), so the next run only analyses new games. Pausing keeps everything
+  except the game in progress. Measured on a Mac: about 6 s per game; a phone is slower.
+
 ## Read aloud in your own voice
 
 Explanations have a **Listen** button. It uses the cloned voice from the voice changer on the Mac

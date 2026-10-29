@@ -1,18 +1,23 @@
 import { useState } from 'react'
 import { go, useHashRoute } from './hooks/useHashRoute'
+import { useAnalyzer } from './hooks/useAnalyzer'
 import { useProgress } from './hooks/useProgress'
+import { usePuzzles } from './hooks/usePuzzles'
 import { useRepertoire } from './hooks/useRepertoire'
 import { isDue } from './lib/srs'
 import { Drill } from './screens/Drill'
 import { Home } from './screens/Home'
 import { Import } from './screens/Import'
 import { Learn } from './screens/Learn'
+import { PuzzleView } from './screens/PuzzleScreen'
 import { Settings } from './screens/Settings'
 import './App.css'
 
 function App() {
   const rep = useRepertoire()
   const progress = useProgress()
+  const analyzer = useAnalyzer()
+  const puzzles = usePuzzles(analyzer.analyzed)
   const [page, id] = useHashRoute()
   const line = id ? rep.lines.find((l) => l.id === id) : undefined
 
@@ -36,7 +41,8 @@ function App() {
   else if (page === 'review') body = <Review rep={rep} progress={progress} />
   else if (page === 'import') body = <Import rep={rep} />
   else if (page === 'settings') body = <Settings />
-  else body = <Home rep={rep} progress={progress} />
+  else if (page === 'puzzles') body = <PuzzleSession puzzles={puzzles} progress={progress} />
+  else body = <Home rep={rep} progress={progress} puzzles={puzzles} analyzer={analyzer} />
 
   return (
     <main className="app">
@@ -82,6 +88,40 @@ function Review({ rep, progress }: { rep: ReturnType<typeof useRepertoire>; prog
           </button>
         </>
       )}
+    />
+  )
+}
+
+// Due puzzles first, then up to 10 new ones (newest games first). The list is fixed when the session starts.
+const NEW_PER_SESSION = 10
+
+function PuzzleSession({ puzzles, progress }: { puzzles: ReturnType<typeof usePuzzles>; progress: ReturnType<typeof useProgress> }) {
+  const [queue] = useState(() => [...puzzles.due, ...puzzles.fresh.slice(0, NEW_PER_SESSION)].map((p) => p.id))
+  const [index, setIndex] = useState(0)
+  const puzzle = puzzles.puzzles.find((p) => p.id === queue[index])
+
+  if (!puzzle) {
+    return (
+      <div className="screen">
+        <div className="done">
+          <div className="done-title">{queue.length ? 'All puzzles done for now' : 'No puzzles yet'}</div>
+          {!queue.length && <p>Analyse your chess.com games on the overview first.</p>}
+          <div className="done-actions">
+            <button type="button" className="primary" onClick={() => go('')}>Overview</button>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  return (
+    <PuzzleView
+      key={puzzle.id}
+      puzzle={puzzle}
+      progress={`${index + 1} of ${queue.length}`}
+      onSolved={async (m) => ({ srs: await puzzles.record(puzzle.id, m), reward: await progress.recordPuzzle(m) })}
+      onNext={() => setIndex(index + 1)}
+      isLast={index + 1 >= queue.length}
     />
   )
 }

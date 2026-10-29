@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { addToDay, dateKey, goalReached, levelInfo, streak, xpForDrill, type DayActivity } from './progress'
+import { addToDay, dateKey, goalReached, levelInfo, streak, xpForDrill, xpForPuzzle, type DayActivity } from './progress'
 
 const day = (date: string, lines = 1): DayActivity => ({ date, lines, puzzles: 0, xp: 10 })
 const map = (...d: DayActivity[]) => new Map(d.map((x) => [x.date, x]))
@@ -13,6 +13,9 @@ describe('dateKey', () => {
 describe('XP', () => {
   it('flawless drill earns the most', () => {
     expect([0, 1, 2, 7].map(xpForDrill)).toEqual([20, 15, 10, 10])
+  })
+  it('puzzles: bonus for the first try', () => {
+    expect([0, 1, 3].map(xpForPuzzle)).toEqual([15, 10, 10])
   })
 })
 
@@ -47,12 +50,13 @@ describe('streak', () => {
 })
 
 describe('daily goal', () => {
-  it('counts lines; puzzles are ignored until they exist', () => {
-    const goal = { lines: 2, puzzles: 10 }
+  it('needs both lines and puzzles', () => {
+    const goal = { lines: 2, puzzles: 1 }
     let d = addToDay(undefined, '2026-10-29', { lines: 1, xp: 20 })
-    expect(goalReached(d, goal)).toBe(false)
     d = addToDay(d, '2026-10-29', { lines: 1, xp: 15 })
     expect(d).toEqual({ date: '2026-10-29', lines: 2, puzzles: 0, xp: 35 })
+    expect(goalReached(d, goal)).toBe(false)
+    d = addToDay(d, '2026-10-29', { puzzles: 1, xp: 15 })
     expect(goalReached(d, goal)).toBe(true)
   })
 })

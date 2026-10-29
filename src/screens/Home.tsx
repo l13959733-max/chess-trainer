@@ -1,10 +1,12 @@
 import { go } from '../hooks/useHashRoute'
 import type { Progress } from '../hooks/useProgress'
+import type { Puzzles } from '../hooks/usePuzzles'
+import { pause, start, type AnalyzerState } from '../lib/analyzer'
 import type { Repertoire } from '../hooks/useRepertoire'
 import { PUZZLES_AVAILABLE } from '../lib/progress'
 import { daysUntil, isDue } from '../lib/srs'
 
-export function Home({ rep, progress }: { rep: Repertoire; progress: Progress }) {
+export function Home({ rep, progress, puzzles, analyzer }: { rep: Repertoire; progress: Progress; puzzles: Puzzles; analyzer: AnalyzerState }) {
   const now = Date.now()
   const due = rep.lines.filter((l) => isDue(rep.srs.get(l.id), now))
   const fresh = rep.lines.filter((l) => !rep.srs.get(l.id))
@@ -15,6 +17,7 @@ export function Home({ rep, progress }: { rep: Repertoire; progress: Progress })
     .sort((a, b) => a - b)[0]
 
   const doneLines = progress.today?.lines ?? 0
+  const activeToday = doneLines + (progress.today?.puzzles ?? 0) > 0
   const { goal } = progress
 
   return (
@@ -23,7 +26,7 @@ export function Home({ rep, progress }: { rep: Repertoire; progress: Progress })
         <div className="stat">
           <div className="label">Streak</div>
           <div className="stat-value">{progress.streak}<small>{progress.streak === 1 ? ' day' : ' days'}</small></div>
-          <div className="note">{progress.today?.lines ? 'Today counts' : progress.streak ? 'Drill a line to keep it' : 'Drill a line to start'}</div>
+          <div className="note">{activeToday ? 'Today counts' : progress.streak ? 'Train today to keep it' : 'Train today to start'}</div>
         </div>
         <div className="stat">
           <div className="label">Level {progress.level.level}</div>
@@ -71,6 +74,20 @@ export function Home({ rep, progress }: { rep: Repertoire; progress: Progress })
         )}
       </section>
 
+      <section className="due-card" aria-label="Blunder puzzles">
+        <div className="label">Blunder puzzles</div>
+        <div className="puzzle-counts">
+          <div><span className="big">{puzzles.due.length}</span> due</div>
+          <div><span className="big">{puzzles.fresh.length}</span> new</div>
+        </div>
+        {puzzles.due.length + puzzles.fresh.length > 0 ? (
+          <button type="button" className="primary wide" onClick={() => go('puzzles')}>Solve puzzles</button>
+        ) : (
+          <p className="note">{puzzles.puzzles.length ? 'Nothing due right now.' : 'Puzzles come from your own mistakes. Analyse your chess.com games to find them.'}</p>
+        )}
+        <AnalysisStatus analyzer={analyzer} analyzedGames={puzzles.analyzedGames} />
+      </section>
+
       <section className="lines" aria-label="Repertoire">
         <div className="section-head">
           <h2>Repertoire</h2>
@@ -99,6 +116,43 @@ export function Home({ rep, progress }: { rep: Repertoire; progress: Progress })
           )
         })}
       </section>
+    </div>
+  )
+}
+
+function AnalysisStatus({ analyzer, analyzedGames }: { analyzer: AnalyzerState; analyzedGames: number }) {
+  const running = analyzer.status === 'running' || analyzer.status === 'loading'
+  const total = analyzer.total
+  const done = total ? analyzer.analyzed : analyzedGames
+  return (
+    <div className="analysis">
+      <div className="analysis-row">
+        <span>
+          {analyzer.status === 'loading'
+            ? 'Loading your games from chess.com …'
+            : total
+              ? `${done.toLocaleString('en-GB')} of ${total.toLocaleString('en-GB')} rapid & daily games analysed`
+              : `${analyzedGames.toLocaleString('en-GB')} games analysed`}
+        </span>
+        {running ? (
+          <button type="button" onClick={pause}>Pause</button>
+        ) : (
+          <button type="button" onClick={() => start()}>{analyzedGames ? 'Continue' : 'Analyse games'}</button>
+        )}
+      </div>
+      {total > 0 && (
+        <div className="bar"><span style={{ width: `${(done / total) * 100}%` }} /></div>
+      )}
+      {analyzer.current && analyzer.status === 'running' && (
+        <p className="note">
+          Now: vs {analyzer.current.opponent} ({analyzer.current.date}), position {analyzer.current.ply + 1} of {analyzer.current.plies}
+          {analyzer.found ? ` · ${analyzer.found} new puzzles this session` : ''}
+        </p>
+      )}
+      {analyzer.status === 'done' && <p className="note good">All games analysed{analyzer.found ? ` · ${analyzer.found} new puzzles` : ''}.</p>}
+      {analyzer.status === 'paused' && <p className="note">Paused. Finished games are saved.</p>}
+      {analyzer.status === 'error' && <p className="note bad">Stopped: {analyzer.error}. Tap Continue to try again.</p>}
+      <p className="note small">Newest games first. Runs while the app is open; keep it in front on your phone.</p>
     </div>
   )
 }
