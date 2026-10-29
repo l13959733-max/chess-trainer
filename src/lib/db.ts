@@ -3,6 +3,11 @@ import type { Side } from './pgn'
 import type { DayActivity, Goal } from './progress'
 import type { SrsState } from './srs'
 
+export interface VoiceSettings {
+  serverUrl: string // e.g. https://….trycloudflare.com – stays on this device only
+  voiceName: string
+}
+
 export interface ImportRecord {
   id?: number
   name: string
@@ -15,7 +20,7 @@ interface TrainerDB extends DBSchema {
   srs: { key: string; value: SrsState }
   imports: { key: number; value: ImportRecord }
   activity: { key: string; value: DayActivity }
-  settings: { key: string; value: Goal }
+  settings: { key: string; value: Goal | VoiceSettings }
 }
 
 let dbPromise: Promise<IDBPDatabase<TrainerDB>> | null = null
@@ -65,9 +70,17 @@ export async function putActivity(day: DayActivity): Promise<void> {
 }
 
 export async function getGoal(): Promise<Goal | undefined> {
-  return (await db()).get('settings', 'goal')
+  return (await db()).get('settings', 'goal') as Promise<Goal | undefined>
 }
 
 export async function putGoal(goal: Goal): Promise<void> {
   await (await db()).put('settings', goal, 'goal')
+}
+
+export async function getVoiceSettings(): Promise<VoiceSettings | undefined> {
+  return (await db()).get('settings', 'voice') as Promise<VoiceSettings | undefined>
+}
+
+export async function putVoiceSettings(v: VoiceSettings): Promise<void> {
+  await (await db()).put('settings', v, 'voice')
 }

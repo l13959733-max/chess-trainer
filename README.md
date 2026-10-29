@@ -30,6 +30,20 @@ Regenerate the app icons: `npm run icons` (writes `public/pwa-*.png`).
 
 All progress and imports live only in the browser (IndexedDB `chess-trainer`).
 
+## Read aloud in your own voice
+
+Explanations have a **Listen** button. It uses the cloned voice from the voice changer on the Mac
+(`~/Projects/voice-changer`, XTTS) and falls back to the phone's built-in voice when the Mac is not reachable.
+
+1. Mac: `cd ~/Projects/voice-changer && ./klon-oberflaeche`
+2. Mac: `cloudflared tunnel --url http://localhost:8090`
+3. App → Settings → paste the `https://….trycloudflare.com` address → Save
+
+The voice server only accepts browser requests from this app's address (CORS list `CORS_ORIGINS` in `app_clone.py`).
+A new sentence takes about 10–20 s on the Mac CPU; the app requests one sentence at a time and starts as soon as an
+explanation has been on screen for a second. Repeated sentences come from the server cache instantly.
+No audio with the cloned voice is ever stored in this (public) repo.
+
 ## Repertoire files
 
 Lines are PGN files in `data/`. Per game:

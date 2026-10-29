@@ -2,8 +2,10 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import type { Arrow } from 'react-chessboard'
 import { ARROW, Board, LAST_MOVE, WRONG } from '../components/Board'
 import { Celebrate } from '../components/Celebrate'
+import { SpeakButton } from '../components/SpeakButton'
 import { checkMove, firstPlayerPly, isFinished } from '../lib/drill'
 import type { Line, LineMove } from '../lib/pgn'
+import { explanationText } from '../lib/speech'
 import { daysUntil, type SrsState } from '../lib/srs'
 import { go } from '../hooks/useHashRoute'
 import type { Reward } from '../hooks/useProgress'
@@ -115,12 +117,14 @@ export function Drill({ line, onDone, after, progress }: Props) {
         <div className="explain wrong" role="alert">
           <div className="move">The right move is {feedback.expected.san}</div>
           <p>{feedback.expected.comment ?? 'Play the green arrow to continue.'}</p>
+          <SpeakButton text={explanationText(feedback.expected.san, feedback.expected.comment, 'The right move is')} />
         </div>
       )}
       {feedback?.kind === 'info' && (
         <div className="explain">
           <div className={`move ${feedback.move.color === line.side ? 'mine' : ''}`}>{moveLabel(line, feedback.ply)}</div>
           <p>{feedback.move.comment}</p>
+          <SpeakButton text={explanationText(feedback.move.san, feedback.move.comment)} />
         </div>
       )}
 

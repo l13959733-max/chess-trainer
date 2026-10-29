@@ -2,9 +2,11 @@ import { useEffect, useRef, useState } from 'react'
 import type { Arrow } from 'react-chessboard'
 import { ARROW, Board, LAST_MOVE } from '../components/Board'
 import { Celebrate } from '../components/Celebrate'
+import { SpeakButton } from '../components/SpeakButton'
 import { go } from '../hooks/useHashRoute'
 import type { Reward } from '../hooks/useProgress'
 import type { Line, LineArrow } from '../lib/pgn'
+import { explanationText } from '../lib/speech'
 
 const CAL: Record<LineArrow['color'], string> = {
   G: ARROW.idea,
@@ -57,6 +59,7 @@ export function Learn({ line, onComplete }: { line: Line; onComplete: () => Prom
           <>
             <div className={`move ${last.color === line.side ? 'mine' : ''}`}>{moveLabel(line, ply - 1)}</div>
             <p>{last.comment ?? (last.color === line.side ? 'Your move in this line.' : 'Your opponent\'s move.')}</p>
+            {last.comment && <SpeakButton text={explanationText(last.san, last.comment)} />}
           </>
         ) : (
           <p>Starting position. The blue arrow always shows the next move. Tap “Next”.</p>

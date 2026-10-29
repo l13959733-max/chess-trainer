@@ -7,6 +7,7 @@ import { Drill } from './screens/Drill'
 import { Home } from './screens/Home'
 import { Import } from './screens/Import'
 import { Learn } from './screens/Learn'
+import { Settings } from './screens/Settings'
 import './App.css'
 
 function App() {
@@ -34,13 +35,14 @@ function App() {
     )
   else if (page === 'review') body = <Review rep={rep} progress={progress} />
   else if (page === 'import') body = <Import rep={rep} />
+  else if (page === 'settings') body = <Settings />
   else body = <Home rep={rep} progress={progress} />
 
   return (
     <main className="app">
       <header className="top">
         <button type="button" className="brand" onClick={() => go('')}>Chess Trainer</button>
-        <span className="user">l0o2</span>
+        <button type="button" className="settings-link" onClick={() => go('settings')}>Settings</button>
       </header>
       {body}
     </main>
