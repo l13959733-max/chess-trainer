@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { SpeakButton } from '../components/SpeakButton'
 import { go } from '../hooks/useHashRoute'
+import { feedback, getFeedbackPrefs, setFeedbackPrefs } from '../lib/feedback'
 import { loadVoiceSettings, saveVoiceSettings } from '../lib/voice'
 
 type Check = { kind: 'idle' } | { kind: 'checking' } | { kind: 'ok' } | { kind: 'fail'; why: string }
@@ -10,6 +11,14 @@ export function Settings() {
   const [voiceName, setVoiceName] = useState('stimme1')
   const [saved, setSaved] = useState(false)
   const [check, setCheck] = useState<Check>({ kind: 'idle' })
+  const [fb, setFb] = useState(getFeedbackPrefs)
+
+  function toggle(key: 'sound' | 'haptics') {
+    const next = { ...fb, [key]: !fb[key] }
+    setFb(next)
+    setFeedbackPrefs(next)
+    if (next[key]) feedback.move('Nf3')
+  }
 
   useEffect(() => {
     loadVoiceSettings().then((s) => {
@@ -43,6 +52,18 @@ export function Settings() {
       </div>
 
       <div className="form">
+        <div className="label">Sound &amp; vibration</div>
+        <label className="toggle" htmlFor="fb-sound">
+          <span>Move sounds</span>
+          <input id="fb-sound" type="checkbox" checked={fb.sound} onChange={() => toggle('sound')} />
+        </label>
+        <label className="toggle" htmlFor="fb-haptics">
+          <span>Vibration</span>
+          <input id="fb-haptics" type="checkbox" checked={fb.haptics} onChange={() => toggle('haptics')} />
+        </label>
+        <p className="note">On an iPhone, sounds follow the silent switch, and vibration needs iOS 18 or newer.</p>
+
+        <div className="label">Read-aloud voice</div>
         <p className="note">
           Explanations are read in your own voice from the voice changer on your Mac. When the Mac is off, your phone's voice
           reads them instead.

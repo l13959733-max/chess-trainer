@@ -1,6 +1,7 @@
 // Reads explanations aloud: Lu's cloned voice from the voice changer on the Mac (XTTS),
 // and the phone's built-in voice whenever the Mac is off or the tunnel is down.
 import { getVoiceSettings, putVoiceSettings, type VoiceSettings } from './db'
+import { pickVoice } from './voicePick'
 
 export type VoiceSource = 'clone' | 'phone'
 
@@ -107,8 +108,8 @@ function speakPhone(text: string): Promise<void> {
     synth.cancel()
     const u = new SpeechSynthesisUtterance(text)
     u.lang = 'en-US'
-    const en = synth.getVoices().find((v) => v.lang.startsWith('en'))
-    if (en) u.voice = en
+    const nice = pickVoice(synth.getVoices())
+    if (nice) u.voice = nice
     u.onend = () => resolve()
     u.onerror = () => resolve()
     synth.speak(u)

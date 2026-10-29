@@ -265,3 +265,19 @@
 .analysis-row button { flex: none; }
 .note.small { font-size: 0.8rem; }
 .done a { color: var(--idea); }
+
+/* Settings toggles */
+.toggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 52px;
+  padding: 0 14px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--surface);
+  color: var(--text) !important;
+  font-size: 1rem !important;
+  cursor: pointer;
+}
+.toggle input { width: 22px; height: 22px; accent-color: var(--accent); }

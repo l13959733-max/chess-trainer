@@ -4,6 +4,7 @@ import { ARROW, Board, LAST_MOVE, WRONG } from '../components/Board'
 import { Celebrate } from '../components/Celebrate'
 import { SpeakButton } from '../components/SpeakButton'
 import { checkMove, firstPlayerPly, isFinished } from '../lib/drill'
+import { feedback as fx } from '../lib/feedback'
 import type { Line, LineMove } from '../lib/pgn'
 import { explanationText } from '../lib/speech'
 import { daysUntil, type SrsState } from '../lib/srs'
@@ -54,6 +55,7 @@ export function Drill({ line, onDone, after, progress }: Props) {
   useEffect(() => {
     if (finished || !current || current.color === line.side) return
     timer.current = window.setTimeout(() => {
+      fx.move(current.san, false)
       setPly((p) => p + 1)
       if (current.comment) setFeedback({ kind: 'info', move: current, ply })
     }, ply === 0 ? 300 : OPPONENT_DELAY)
@@ -64,6 +66,7 @@ export function Drill({ line, onDone, after, progress }: Props) {
   useEffect(() => {
     if (!finished || recorded.current || ply < firstPlayerPly(line)) return
     recorded.current = true
+    fx.success()
     onDone(mistakePlies.size).then(({ srs, reward }) => {
       setNextDays(daysUntil(srs, Date.now()))
       setReward(reward)
@@ -75,10 +78,12 @@ export function Drill({ line, onDone, after, progress }: Props) {
     const res = checkMove(current, from, to)
     if (res === 'illegal') return false
     if (res === 'wrong') {
+      fx.wrong()
       setMistakePlies((s) => new Set(s).add(ply))
       setFeedback({ kind: 'wrong', tried: { from, to }, expected: current, ply })
       return false
     }
+    fx.move(current.san)
     setFeedback(current.comment ? { kind: 'info', move: current, ply } : null)
     setPly(ply + 1)
     return true

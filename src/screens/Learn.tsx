@@ -5,6 +5,7 @@ import { Celebrate } from '../components/Celebrate'
 import { SpeakButton } from '../components/SpeakButton'
 import { go } from '../hooks/useHashRoute'
 import type { Reward } from '../hooks/useProgress'
+import { feedback } from '../lib/feedback'
 import type { Line, LineArrow } from '../lib/pgn'
 import { explanationText } from '../lib/speech'
 
@@ -69,7 +70,17 @@ export function Learn({ line, onComplete }: { line: Line; onComplete: () => Prom
       <div className="controls">
         <button type="button" onClick={() => setPly(0)} disabled={ply === 0} aria-label="To the start">⏮</button>
         <button type="button" onClick={() => setPly(ply - 1)} disabled={ply === 0}>Back</button>
-        <button type="button" className="primary" onClick={() => setPly(ply + 1)} disabled={!next}>Next</button>
+        <button
+          type="button"
+          className="primary"
+          onClick={() => {
+            if (next) feedback.move(next.san, next.color === line.side)
+            setPly(ply + 1)
+          }}
+          disabled={!next}
+        >
+          Next
+        </button>
       </div>
 
       <ol className="movelist" aria-label="Moves of the line">

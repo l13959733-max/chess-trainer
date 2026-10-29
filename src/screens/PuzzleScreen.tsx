@@ -8,6 +8,7 @@ import type { Reward } from '../hooks/useProgress'
 import { clampScore, pvToSan } from '../lib/blunders'
 import type { Puzzle } from '../lib/db'
 import { evaluate } from '../lib/engine'
+import { feedback } from '../lib/feedback'
 import { daysUntil, type SrsState } from '../lib/srs'
 
 // A move within this many centipawns of the engine's best move also solves the puzzle.
@@ -56,16 +57,20 @@ export function PuzzleView({ puzzle, progress, onSolved, onNext, isLast }: Props
     }
     const uci = move.from + move.to + (move.promotion ?? '')
     if (uci === puzzle.best) {
+      feedback.move(move.san)
+      feedback.success()
       setSolvedWith({ san: move.san, from, to, fen: move.after, exact: true })
       setPhase('solved')
       return true
     }
     if (move.san === puzzle.played) {
+      feedback.wrong()
       setMistakes((m) => m + 1)
       setWrong({ from, to, note: 'That is the move from your game. Look for something better.' })
       return false
     }
     // Another move: let Stockfish rate it and the best move the same way, then compare
+    feedback.move(move.san)
     setPhase('checking')
     setPending(move.after)
     const afterBest = new Chess(puzzle.fen)
@@ -75,9 +80,11 @@ export function PuzzleView({ puzzle, progress, onSolved, onNext, isLast }: Props
       const mine = -clampScore(mineEv.score)
       const top = -clampScore(bestEv.score)
       if (top - mine <= GOOD_ENOUGH) {
+        feedback.success()
         setSolvedWith({ san: move.san, from, to, fen: move.after, exact: false })
         setPhase('solved')
       } else {
+        feedback.wrong()
         setMistakes((m) => m + 1)
         setWrong({ from, to, note: `${move.san} is not good enough here. Try again.` })
         setPhase('solving')
