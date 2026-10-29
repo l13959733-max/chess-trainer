@@ -1,0 +1,47 @@
+[Event "Italienisch: Giuoco Piano Hauptlinie"]
+[Side "White"]
+[Result "*"]
+
+1. e4 {Zentrum besetzen, Läufer und Dame öffnen.} e5 2. Nf3 {Greift e5 an, entwickelt.} Nc6 3. Bc4 {Zielt auf f7, den schwächsten Punkt von Schwarz.} Bc5 4. c3 {Bereitet d4 vor – großes Zentrum.} Nf6 5. d4 {Zentrum öffnen, bevor Schwarz rochiert.} exd4 6. cxd4 Bb4+ 7. Bd2 Bxd2+ 8. Nbxd2 d5 {Schwarz muss das Zentrum sofort angreifen.} 9. exd5 Nxd5 10. Qb3 {Druck auf d5 und b7.} Nce7 11. O-O O-O 12. Rfe1 {Turm auf die offene Linie.} c6 *
+
+[Event "Italienisch: Giuoco Pianissimo (ruhig)"]
+[Side "White"]
+[Result "*"]
+
+1. e4 e5 2. Nf3 Nc6 3. Bc4 Bc5 4. c3 Nf6 5. d3 {Ruhiger Aufbau: e4 sicher decken, langsam manövrieren.} d6 6. O-O O-O 7. Re1 a6 8. Bb3 {Läufer weg von Sa5-Angriffen.} Ba7 9. h3 {Verhindert Lg4-Fesselung.} *
+
+[Event "Evans-Gambit angenommen"]
+[Side "White"]
+[Result "*"]
+
+1. e4 e5 2. Nf3 Nc6 3. Bc4 Bc5 4. b4 {Bauernopfer für schnelle Entwicklung und Tempo.} Bxb4 5. c3 {Tempo auf den Läufer, d4 vorbereiten.} Ba5 6. d4 exd4 7. O-O {Rochade zuerst – Angriff vor Material.} Nge7 8. cxd4 d5 {Schwarz gibt den Bauern zurück, um sich zu befreien.} 9. exd5 Nxd5 10. Ba3 {Verhindert die schwarze Rochade.} *
+
+[Event "Evans-Gambit abgelehnt"]
+[Side "White"]
+[Result "*"]
+
+1. e4 e5 2. Nf3 Nc6 3. Bc4 Bc5 4. b4 Bb6 5. a4 {Droht a5 und den Läufer zu fangen.} a6 6. Nc3 {Einfach entwickeln – Weiß hat Raum am Damenflügel.} *
+
+[Event "Zweispringerspiel: Fried Liver Angriff"]
+[Side "White"]
+[Result "*"]
+
+1. e4 e5 2. Nf3 Nc6 3. Bc4 Nf6 4. Ng5 {Doppelangriff auf f7 mit Springer und Läufer.} d5 5. exd5 Nxd5 {Fehler! Jetzt kommt das Opfer.} 6. Nxf7 {Springeropfer: König muss raus.} Kxf7 7. Qf3+ {Fesselt den Sd5, König muss nach e6.} Ke6 8. Nc3 {Noch eine Figur auf d5 – Schwarz' König steht im Zentrum, Weiß greift an.} *
+
+[Event "Zweispringerspiel: Hauptlinie 5...Sa5"]
+[Side "White"]
+[Result "*"]
+
+1. e4 e5 2. Nf3 Nc6 3. Bc4 Nf6 4. Ng5 d5 5. exd5 Na5 {Die beste Antwort: Läufer angreifen.} 6. Bb5+ c6 7. dxc6 bxc6 8. Be2 {Weiß hat einen Bauern mehr, Schwarz Entwicklungsvorsprung.} h6 9. Nf3 e4 10. Ne5 Bd6 *
+
+[Event "Zweispringerspiel: Traxler-Falle vermeiden"]
+[Side "White"]
+[Result "*"]
+
+1. e4 e5 2. Nf3 Nc6 3. Bc4 Nf6 4. Ng5 Bc5 {Traxler: Wenn Weiß 5.Sxf7 spielt, kommt 5...Lxf2+ mit wildem Gegenangriff.} 5. Bxf7+ {Sicherer: Bauer nehmen, König muss ziehen.} Ke7 6. Bb3 {Läufer zurück, Weiß hat einen Bauern mehr und Schwarz kann nicht mehr rochieren.} *
+
+[Event "Falle: Seekadettenmatt (Légal)"]
+[Side "White"]
+[Result "*"]
+
+1. e4 e5 2. Nf3 d6 3. Bc4 Nc6 4. Nc3 Bg4 5. h3 Bh5 {Fehler – der Läufer verlässt die Deckung.} 6. Nxe5 {Damenopfer!} Bxd1 {Gierig. Besser war 6...Sxe5.} 7. Bxf7+ Ke7 8. Nd5# {Matt mit drei Leichtfiguren.} *
