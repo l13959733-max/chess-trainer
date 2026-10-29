@@ -28,6 +28,15 @@ export interface Puzzle extends Blunder {
   bestSan: string
 }
 
+// Explanations in Lu's cloned voice, kept on the device so the voice works without the Mac.
+export interface VoiceClip {
+  key: string // voice name + text
+  voice: string
+  text: string
+  blob: Blob
+  savedAt: number
+}
+
 export interface ImportRecord {
   id?: number
   name: string
@@ -43,12 +52,13 @@ interface TrainerDB extends DBSchema {
   settings: { key: string; value: Goal | VoiceSettings }
   games: { key: string; value: GameRecord }
   puzzles: { key: string; value: Puzzle }
+  voiceClips: { key: string; value: VoiceClip }
 }
 
 let dbPromise: Promise<IDBPDatabase<TrainerDB>> | null = null
 
 function db() {
-  dbPromise ??= openDB<TrainerDB>('chess-trainer', 3, {
+  dbPromise ??= openDB<TrainerDB>('chess-trainer', 4, {
     upgrade(d, oldVersion) {
       if (oldVersion < 1) {
         d.createObjectStore('srs', { keyPath: 'lineId' })
@@ -61,6 +71,9 @@ function db() {
       if (oldVersion < 3) {
         d.createObjectStore('games', { keyPath: 'uuid' })
         d.createObjectStore('puzzles', { keyPath: 'id' })
+      }
+      if (oldVersion < 4) {
+        d.createObjectStore('voiceClips', { keyPath: 'key' })
       }
     },
   })
@@ -126,4 +139,16 @@ export async function getPuzzles(): Promise<Puzzle[]> {
 
 export async function countAnalyzedGames(): Promise<number> {
   return (await db()).count('games')
+}
+
+export async function getClip(key: string): Promise<VoiceClip | undefined> {
+  return (await db()).get('voiceClips', key)
+}
+
+export async function putClip(clip: VoiceClip): Promise<void> {
+  await (await db()).put('voiceClips', clip)
+}
+
+export async function getClipKeys(): Promise<Set<string>> {
+  return new Set(await (await db()).getAllKeys('voiceClips'))
 }

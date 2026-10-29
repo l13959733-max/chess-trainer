@@ -1,13 +1,17 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { SpeakButton } from '../components/SpeakButton'
 import { go } from '../hooks/useHashRoute'
 import { feedback, getFeedbackPrefs, setFeedbackPrefs } from '../lib/feedback'
-import { isAllowedVoiceUrl, loadVoiceSettings, saveVoiceSettings } from '../lib/voice'
+import type { Line } from '../lib/pgn'
+import { voiceTexts } from '../lib/speech'
+import { isAllowedVoiceUrl, loadVoiceSettings, saveAll, savedCount, saveVoiceSettings } from '../lib/voice'
+
+const TRY_IT = 'Knight to f3. This is your chess trainer, speaking in your own voice.'
 
 type Check = { kind: 'idle' } | { kind: 'checking' } | { kind: 'ok' } | { kind: 'fail'; why: string }
 
 // `incoming` comes from a voice link (#/voice/<address>) made by the starter on the Mac.
-export function Settings({ incoming }: { incoming?: string }) {
+export function Settings({ incoming, lines }: { incoming?: string; lines: Line[] }) {
   const [url, setUrl] = useState('')
   const [voiceName, setVoiceName] = useState('stimme1')
   const [saved, setSaved] = useState(false)
@@ -22,6 +26,25 @@ export function Settings({ incoming }: { incoming?: string }) {
   }
 
   const [rejected, setRejected] = useState(false)
+  const texts = useMemo(() => [...voiceTexts(lines), TRY_IT], [lines])
+  const [clipCount, setClipCount] = useState<number | null>(null)
+  const [saving, setSaving] = useState<'idle' | 'running' | 'error'>('idle')
+  const stopSaving = useRef(false)
+
+  useEffect(() => {
+    savedCount(texts).then(setClipCount)
+  }, [texts])
+
+  async function saveVoice() {
+    stopSaving.current = false
+    setSaving('running')
+    try {
+      await saveAll(texts, setClipCount, () => stopSaving.current)
+      setSaving('idle')
+    } catch {
+      setSaving('error')
+    }
+  }
 
   useEffect(() => {
     loadVoiceSettings().then((s) => {
@@ -121,8 +144,36 @@ export function Settings({ incoming }: { incoming?: string }) {
         {check.kind === 'ok' && <p className="good" role="status">Saved. Your Mac voice is reachable.</p>}
         {check.kind === 'fail' && <p className="bad" role="status">Saved, but the Mac voice is not reachable. {check.why}</p>}
 
+        <div className="label">Your voice on this phone</div>
+        <div className="voice-store">
+          <div className="goal-row">
+            <span>Explanations saved in your voice</span>
+            <span className="count">{clipCount ?? '…'} / {texts.length}</span>
+          </div>
+          <div className="bar"><span style={{ width: `${((clipCount ?? 0) / texts.length) * 100}%` }} /></div>
+          {clipCount === texts.length ? (
+            <p className="good">All saved. Your voice is the standard voice on this phone – even when the Mac is off.</p>
+          ) : saving === 'running' ? (
+            <>
+              <p className="note">Saving … keep this screen open. New sentences take 10–20 seconds each on the Mac.</p>
+              <button type="button" onClick={() => (stopSaving.current = true)}>Pause</button>
+            </>
+          ) : (
+            <>
+              <p className="note">
+                Saves every explanation once in your voice on this phone. Afterwards it reads in your voice without the Mac.
+                Needs the Mac voice for the download.
+              </p>
+              <button type="button" className="primary wide" disabled={!url.trim()} onClick={saveVoice}>
+                Save my voice on this phone
+              </button>
+              {saving === 'error' && <p className="bad">The Mac voice stopped answering. Check the Chess-Voice window on the Mac, then tap again – saved sentences are kept.</p>}
+            </>
+          )}
+        </div>
+
         <div className="label">Try it</div>
-        <SpeakButton auto={false} text="Knight to f3. This is your chess trainer, speaking in your own voice." />
+        <SpeakButton auto={false} text={TRY_IT} />
         <p className="note">The address is stored only on this device. The first sentence can take 10–20 seconds; repeated sentences play instantly.</p>
       </div>
     </div>

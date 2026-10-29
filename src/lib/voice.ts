@@ -1,6 +1,8 @@
-// Reads explanations aloud: Lu's cloned voice from the voice changer on the Mac (XTTS),
-// and the phone's built-in voice whenever the Mac is off or the tunnel is down.
-import { getVoiceSettings, putVoiceSettings, type VoiceSettings } from './db'
+// Reads explanations aloud in Lu's cloned voice. Order: clips already saved on this device,
+// then the voice changer on the Mac (XTTS, via the tunnel), and the phone's own voice only when
+// neither has the sentence. Every clip that comes from the Mac is saved, so the cloned voice
+// becomes the standard voice on this device, also when the Mac is off.
+import { getClip, getClipKeys, getVoiceSettings, putClip, putVoiceSettings, type VoiceSettings } from './db'
 import { pickVoice } from './voicePick'
 
 export type VoiceSource = 'clone' | 'phone'
@@ -74,18 +76,35 @@ export function unlockAudio() {
   unlock()
 }
 
+function clipKey(text: string, voice = settings.voiceName) {
+  return `${voice}|${text}`
+}
+
+// A clip saved on this device, as a playable URL
+async function savedClip(text: string): Promise<string | null> {
+  try {
+    const c = await getClip(clipKey(text))
+    return c ? URL.createObjectURL(c.blob) : null
+  } catch {
+    return null
+  }
+}
+
 async function request(text: string): Promise<string> {
   const ctrl = new AbortController()
   const timer = setTimeout(() => ctrl.abort(), TIMEOUT_MS)
   try {
-    const res = await fetch(`${settings.serverUrl}/speak`, {
+    // fmt=share = m4a/AAC: about ten times smaller than WAV, plays on iPhone and Android
+    const res = await fetch(`${settings.serverUrl}/speak?fmt=share`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ text, lang: 'en', voice: settings.voiceName }),
       signal: ctrl.signal,
     })
     if (!res.ok) throw new Error(`voice server answered ${res.status}`)
-    return URL.createObjectURL(await res.blob())
+    const blob = await res.blob()
+    putClip({ key: clipKey(text), voice: settings.voiceName, text, blob, savedAt: Date.now() }).catch(() => {})
+    return URL.createObjectURL(blob)
   } finally {
     clearTimeout(timer)
   }
@@ -104,7 +123,7 @@ function fetchClone(text: string, isPrefetch: boolean): Promise<string> {
       chain = chain.then(async () => {
         if (isPrefetch && wanted !== text) return reject(new Error('skipped'))
         try {
-          resolve(await request(text))
+          resolve((await savedClip(text)) ?? (await request(text)))
         } catch (e) {
           reject(e)
         }
@@ -119,8 +138,13 @@ function fetchClone(text: string, isPrefetch: boolean): Promise<string> {
 // Start generating in the background so the audio is ready when Lu taps "Listen".
 export function prefetch(text: string) {
   if (!settings.serverUrl || !text) return
-  wanted = text
-  fetchClone(text, true).catch(() => {})
+  savedClip(text).then((url) => {
+    if (url) URL.revokeObjectURL(url)
+    else {
+      wanted = text
+      fetchClone(text, true).catch(() => {})
+    }
+  })
 }
 
 function speakPhone(text: string): Promise<void> {
@@ -161,21 +185,36 @@ export function onPlayback(fn: (p: Playback) => void): () => void {
   return () => listeners.delete(fn)
 }
 
+async function playClip(url: string, text: string) {
+  const audio = unlock()
+  set({ text, phase: 'playing', source: 'clone' })
+  audio.src = url
+  await audio.play()
+  await new Promise<void>((r) => {
+    audio.onended = () => r()
+    audio.onpause = () => r()
+  })
+}
+
 async function playOne(text: string, id: number) {
   set({ text, phase: 'loading' })
+  await loaded
+  const saved = await savedClip(text)
+  if (saved && id === run) {
+    try {
+      await playClip(saved, text)
+      return
+    } catch {
+      // fall through to the Mac or the phone voice
+    }
+  }
+  if (id !== run) return
   if (settings.serverUrl) {
     try {
       wanted = text
       const url = await fetchClone(text, false)
       if (id !== run) return
-      const audio = unlock()
-      set({ text, phase: 'playing', source: 'clone' })
-      audio.src = url
-      await audio.play()
-      await new Promise<void>((r) => {
-        audio.onended = () => r()
-        audio.onpause = () => r()
-      })
+      await playClip(url, text)
       return
     } catch {
       if (id !== run) return
@@ -213,4 +252,38 @@ export function enqueue(text: string) {
   if (!text || now.text === text || queue.includes(text)) return
   queue.push(text)
   if (now.phase === 'idle') pump()
+}
+
+// How many of the given sentences are saved on this device in the cloned voice
+export async function savedCount(texts: string[]): Promise<number> {
+  await loaded
+  try {
+    const keys = await getClipKeys()
+    return texts.filter((t) => keys.has(clipKey(t))).length
+  } catch {
+    return 0
+  }
+}
+
+// Fetch every missing sentence from the Mac and keep it on this device. Runs one sentence at a time;
+// `onProgress` reports the saved count, `cancelled` stops after the current sentence.
+export async function saveAll(texts: string[], onProgress: (saved: number) => void, cancelled: () => boolean): Promise<void> {
+  await loaded
+  if (!settings.serverUrl) throw new Error('No voice changer address yet')
+  try {
+    await navigator.storage?.persist?.()
+  } catch {
+    // the browser may still keep the data; persist() only makes eviction less likely
+  }
+  const keys = await getClipKeys()
+  let saved = texts.filter((t) => keys.has(clipKey(t))).length
+  onProgress(saved)
+  for (const text of texts) {
+    if (cancelled()) return
+    if (keys.has(clipKey(text))) continue
+    const url = await fetchClone(text, false)
+    URL.revokeObjectURL(url)
+    saved++
+    onProgress(saved)
+  }
 }

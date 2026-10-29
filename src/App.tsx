@@ -49,8 +49,8 @@ function App() {
     )
   else if (page === 'review') body = <Review rep={rep} progress={progress} />
   else if (page === 'import') body = <Import rep={rep} />
-  else if (page === 'settings') body = <Settings />
-  else if (page === 'voice') body = <Settings incoming={id ? decodeURIComponent(id) : undefined} />
+  else if (page === 'settings') body = <Settings lines={rep.lines} />
+  else if (page === 'voice') body = <Settings lines={rep.lines} incoming={id ? decodeURIComponent(id) : undefined} />
   else if (page === 'puzzles') body = <PuzzleSession puzzles={puzzles} progress={progress} />
   else body = <Home rep={rep} progress={progress} puzzles={puzzles} analyzer={analyzer} />
 

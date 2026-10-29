@@ -186,3 +186,6 @@ button:focus-visible { outline: 3px solid var(--idea); }
 @media (prefers-reduced-motion: reduce) {
   .done > .mascot, .mascot.mood-oops, .path-node.is-due { animation: none; }
 }
+
+.voice-store { display: grid; gap: 10px; border: 2px solid var(--line); border-radius: 18px; padding: 14px; }
+.voice-store p { margin: 0; }

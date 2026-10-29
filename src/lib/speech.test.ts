@@ -36,3 +36,20 @@ describe('explanationText', () => {
     expect(explanationText('Nf3', undefined, 'The right move is')).toBe('The right move is knight to f3.')
   })
 })
+
+import { voiceTexts } from './speech'
+describe('voiceTexts', () => {
+  it('collects explanations and corrections for my moves, without duplicates', () => {
+    const line = { side: 'w' as const, moves: [
+      { san: 'e4', color: 'w' as const, comment: 'Center.' },
+      { san: 'e5', color: 'b' as const, comment: 'Same.' },
+      { san: 'Nf3', color: 'w' as const },
+    ] }
+    expect(voiceTexts([line, line])).toEqual([
+      'e4. Center.',
+      'The right move is e4. Center.',
+      'e5. Same.',
+      'The right move is knight to f3.',
+    ])
+  })
+})

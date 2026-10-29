@@ -54,6 +54,11 @@ Explanations have a **Listen** button. It uses the cloned voice from the voice c
 2. Phone: App → Settings → paste the address → Save. (Or open the voice link `#/voice/<address>` – handy on Android
    or in a browser; on iPhone a home-screen app has its own storage, so paste the address inside the app.)
 
+**Your voice as the standard voice:** Settings → “Save my voice on this phone” downloads every explanation once
+in the cloned voice (m4a, IndexedDB store `voiceClips`). From then on the app reads in Lu's voice even when the Mac
+is off. Order when reading: saved clip → Mac voice (saved on the way) → phone voice only for sentences that were
+never saved. The Mac's voice changer caches finished sentences, so a second device downloads them quickly.
+
 Explanations are read aloud automatically as soon as they appear (queued, so nothing is cut off); turn this off in
 Settings. Reading stops when you leave a screen. The first tap anywhere unlocks audio on iOS.
 

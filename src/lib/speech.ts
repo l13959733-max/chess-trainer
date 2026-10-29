@@ -24,6 +24,19 @@ export function sanToSpeech(san: string): string {
   return words + suffix(mark)
 }
 
+// Every sentence the app may read for a set of lines: each explanation, and the correction
+// ("The right move is …") for each of the player's own moves in a drill.
+export function voiceTexts(lines: { side: 'w' | 'b'; moves: { san: string; color: 'w' | 'b'; comment?: string }[] }[]): string[] {
+  const out = new Set<string>()
+  for (const line of lines) {
+    for (const m of line.moves) {
+      if (m.comment) out.add(explanationText(m.san, m.comment))
+      if (m.color === line.side) out.add(explanationText(m.san, m.comment, 'The right move is'))
+    }
+  }
+  return [...out]
+}
+
 // The sentence read aloud for a move and its explanation.
 export function explanationText(san: string, comment: string | undefined, prefix = ''): string {
   const move = sanToSpeech(san)
