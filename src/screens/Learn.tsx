@@ -2,7 +2,7 @@ import { useState } from 'react'
 import type { Arrow } from 'react-chessboard'
 import { ARROW, Board, LAST_MOVE } from '../components/Board'
 import { go } from '../hooks/useHashRoute'
-import { toGerman, type Line, type LineArrow } from '../lib/pgn'
+import type { Line, LineArrow } from '../lib/pgn'
 
 const CAL: Record<LineArrow['color'], string> = {
   G: ARROW.idea,
@@ -14,10 +14,10 @@ const CAL: Record<LineArrow['color'], string> = {
 export function moveLabel(line: Line, i: number) {
   const m = line.moves[i]
   const no = Math.floor(i / 2) + 1
-  return `${no}.${m.color === 'b' ? '..' : ''} ${toGerman(m.san)}`
+  return `${no}.${m.color === 'b' ? '..' : ''} ${m.san}`
 }
 
-// Lernen-Modus: Linie Zug für Zug durchgehen, Erklärung zu jedem Zug.
+// Learn mode: step through a line move by move, with an explanation for each move.
 export function Learn({ line }: { line: Line }) {
   const [ply, setPly] = useState(0)
   const last = ply > 0 ? line.moves[ply - 1] : null
@@ -32,9 +32,9 @@ export function Learn({ line }: { line: Line }) {
   return (
     <div className="screen">
       <div className="screen-head">
-        <button type="button" className="back" onClick={() => go('')} aria-label="Zurück zur Übersicht">←</button>
+        <button type="button" className="back" onClick={() => go('')} aria-label="Back to overview">←</button>
         <div>
-          <div className="eyebrow">Lernen · {line.side === 'w' ? 'Weiß' : 'Schwarz'}</div>
+          <div className="eyebrow">Learn · {line.side === 'w' ? 'White' : 'Black'}</div>
           <h2>{line.title}</h2>
         </div>
       </div>
@@ -45,20 +45,20 @@ export function Learn({ line }: { line: Line }) {
         {last ? (
           <>
             <div className={`move ${last.color === line.side ? 'mine' : ''}`}>{moveLabel(line, ply - 1)}</div>
-            <p>{last.comment ?? (last.color === line.side ? 'Dein Zug in dieser Linie.' : 'Zug des Gegners.')}</p>
+            <p>{last.comment ?? (last.color === line.side ? 'Your move in this line.' : 'Your opponent\'s move.')}</p>
           </>
         ) : (
-          <p>Startstellung. Der blaue Pfeil zeigt immer den nächsten Zug. Tippe auf „Weiter".</p>
+          <p>Starting position. The blue arrow always shows the next move. Tap “Next”.</p>
         )}
       </div>
 
       <div className="controls">
-        <button type="button" onClick={() => setPly(0)} disabled={ply === 0} aria-label="Zum Anfang">⏮</button>
-        <button type="button" onClick={() => setPly(ply - 1)} disabled={ply === 0}>Zurück</button>
-        <button type="button" className="primary" onClick={() => setPly(ply + 1)} disabled={!next}>Weiter</button>
+        <button type="button" onClick={() => setPly(0)} disabled={ply === 0} aria-label="To the start">⏮</button>
+        <button type="button" onClick={() => setPly(ply - 1)} disabled={ply === 0}>Back</button>
+        <button type="button" className="primary" onClick={() => setPly(ply + 1)} disabled={!next}>Next</button>
       </div>
 
-      <ol className="movelist" aria-label="Züge der Linie">
+      <ol className="movelist" aria-label="Moves of the line">
         {line.moves.map((m, i) => (
           <li key={i}>
             <button
@@ -74,7 +74,7 @@ export function Learn({ line }: { line: Line }) {
 
       {!next && (
         <button type="button" className="primary wide" onClick={() => go('drill/' + line.id)}>
-          Jetzt selbst spielen (Drill)
+          Now play it yourself (drill)
         </button>
       )}
     </div>

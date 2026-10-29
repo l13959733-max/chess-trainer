@@ -3,7 +3,7 @@ import react from '@vitejs/plugin-react'
 import { defineConfig } from 'vite'
 import { VitePWA } from 'vite-plugin-pwa'
 
-// BASE_PATH setzt der Deploy-Workflow (GitHub Pages liegt unter /chess-trainer/).
+// BASE_PATH is set by the deploy workflow (GitHub Pages serves under /chess-trainer/).
 const base = process.env.BASE_PATH ?? '/'
 
 export default defineConfig({
@@ -15,9 +15,9 @@ export default defineConfig({
       includeAssets: ['favicon.svg', 'apple-touch-icon.png'],
       manifest: {
         name: 'Chess Trainer',
-        short_name: 'Schach',
-        description: 'Eröffnungen lernen, aus eigenen Fehlern lernen – auf Deutsch erklärt.',
-        lang: 'de',
+        short_name: 'Chess',
+        description: 'Learn openings and learn from your own mistakes, with every mistake explained.',
+        lang: 'en',
         start_url: base,
         scope: base,
         display: 'standalone',

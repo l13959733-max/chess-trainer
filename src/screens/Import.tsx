@@ -22,7 +22,7 @@ export function Import({ rep }: { rep: Repertoire }) {
   async function save() {
     if (!preview?.lines.length) return
     await rep.addImport({ name: name.trim() || preview.lines[0].title, pgn: text, side, addedAt: Date.now() })
-    setSaved(`${preview.lines.length} ${preview.lines.length === 1 ? 'Linie' : 'Linien'} gespeichert.`)
+    setSaved(`Saved ${preview.lines.length} ${preview.lines.length === 1 ? 'line' : 'lines'}.`)
     setText('')
     setName('')
   }
@@ -30,20 +30,20 @@ export function Import({ rep }: { rep: Repertoire }) {
   return (
     <div className="screen">
       <div className="screen-head">
-        <button type="button" className="back" onClick={() => go('')} aria-label="Zurück zur Übersicht">←</button>
+        <button type="button" className="back" onClick={() => go('')} aria-label="Back to overview">←</button>
         <div>
           <div className="eyebrow">Repertoire</div>
-          <h2>PGN importieren</h2>
+          <h2>Import PGN</h2>
         </div>
       </div>
 
       <div className="form">
         <label className="file">
-          <span>PGN-Datei wählen</span>
+          <span>Choose a PGN file</span>
           <input id="pgn-file" type="file" accept=".pgn,.txt,application/x-chess-pgn,text/plain" onChange={(e) => onFile(e.target.files?.[0])} />
         </label>
 
-        <label htmlFor="pgn-text">… oder hier einfügen</label>
+        <label htmlFor="pgn-text">… or paste it here</label>
         <textarea
           id="pgn-text"
           rows={8}
@@ -52,69 +52,69 @@ export function Import({ rep }: { rep: Repertoire }) {
             setText(e.target.value)
             setSaved(null)
           }}
-          placeholder={'[Event "Caro-Kann: Vorstoßvariante"]\n[Side "Black"]\n\n1. e4 c6 {Bereitet d5 vor.} 2. d4 d5 3. e5 Bf5 *'}
+          placeholder={'[Event "Caro-Kann: Advance Variation"]\n[Side "Black"]\n\n1. e4 c6 {Prepares d5.} 2. d4 d5 3. e5 Bf5 *'}
           spellCheck={false}
         />
 
         <label htmlFor="pgn-name">Name (optional)</label>
-        <input id="pgn-name" type="text" value={name} onChange={(e) => setName(e.target.value)} placeholder="z. B. Caro-Kann" />
+        <input id="pgn-name" type="text" value={name} onChange={(e) => setName(e.target.value)} placeholder="e.g. Caro-Kann" />
 
         <fieldset className="seg">
-          <legend>Meine Seite, falls im PGN kein [Side]-Header steht</legend>
+          <legend>My side, if the PGN has no [Side] header</legend>
           <label className={side === 'w' ? 'on' : ''}>
-            <input id="side-w" type="radio" name="side" checked={side === 'w'} onChange={() => setSide('w')} /> Weiß
+            <input id="side-w" type="radio" name="side" checked={side === 'w'} onChange={() => setSide('w')} /> White
           </label>
           <label className={side === 'b' ? 'on' : ''}>
-            <input id="side-b" type="radio" name="side" checked={side === 'b'} onChange={() => setSide('b')} /> Schwarz
+            <input id="side-b" type="radio" name="side" checked={side === 'b'} onChange={() => setSide('b')} /> Black
           </label>
         </fieldset>
 
         {preview && (
           <div className={`preview ${preview.errors.length ? 'has-errors' : ''}`}>
             <div>
-              {preview.lines.length} {preview.lines.length === 1 ? 'Linie' : 'Linien'} erkannt
+              {preview.lines.length} {preview.lines.length === 1 ? 'line' : 'lines'} found
             </div>
             {preview.lines.length > 0 && (
               <ul>
                 {preview.lines.map((l) => (
                   <li key={l.id}>
-                    {l.title} · {l.side === 'w' ? 'Weiß' : 'Schwarz'} · {l.moves.length} Halbzüge
+                    {l.title} · {l.side === 'w' ? 'White' : 'Black'} · {l.moves.length} plies
                   </li>
                 ))}
               </ul>
             )}
             {preview.errors.map((e) => (
-              <p key={e} className="bad">Nicht lesbar – {e}</p>
+              <p key={e} className="bad">Could not read – {e}</p>
             ))}
           </div>
         )}
 
         <button type="button" className="primary wide" disabled={!preview?.lines.length} onClick={save}>
-          Importieren
+          Import
         </button>
         {saved && <p className="good" role="status">{saved}</p>}
       </div>
 
       {rep.imports.length > 0 && (
         <section className="lines">
-          <h2>Bisher importiert</h2>
+          <h2>Imported so far</h2>
           {rep.imports.map((imp) => (
             <article key={imp.id} className="line-card">
               <div className="line-info">
                 <h3>{imp.name}</h3>
                 <div className="meta">
-                  <span>{parsePgn(imp.pgn, imp.side).lines.length} Linien</span>
-                  <span>{new Date(imp.addedAt).toLocaleDateString('de-DE')}</span>
+                  <span>{parsePgn(imp.pgn, imp.side).lines.length} lines</span>
+                  <span>{new Date(imp.addedAt).toLocaleDateString('en-GB')}</span>
                 </div>
               </div>
               <div className="line-actions">
                 {confirmId === imp.id ? (
                   <>
-                    <button type="button" onClick={() => setConfirmId(null)}>Abbrechen</button>
-                    <button type="button" className="danger" onClick={() => rep.removeImport(imp.id!)}>Löschen</button>
+                    <button type="button" onClick={() => setConfirmId(null)}>Cancel</button>
+                    <button type="button" className="danger" onClick={() => rep.removeImport(imp.id!)}>Delete</button>
                   </>
                 ) : (
-                  <button type="button" onClick={() => setConfirmId(imp.id!)}>Entfernen</button>
+                  <button type="button" onClick={() => setConfirmId(imp.id!)}>Remove</button>
                 )}
               </div>
             </article>

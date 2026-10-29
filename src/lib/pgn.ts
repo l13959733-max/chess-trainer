@@ -34,7 +34,7 @@ export interface ParseResult {
   errors: string[]
 }
 
-// Kurzer stabiler Hash, damit eine Linie über Neuladen hinweg dieselbe ID behält (SRS hängt daran).
+// Short stable hash so a line keeps its ID across reloads (spaced repetition is keyed on it).
 function hash(text: string): string {
   let h = 0x811c9dc5
   for (let i = 0; i < text.length; i++) {
@@ -44,7 +44,7 @@ function hash(text: string): string {
   return (h >>> 0).toString(36)
 }
 
-// Liest [%cal Ge2e4,Rd1h5] aus einem Kommentar und gibt Text + Pfeile getrennt zurück.
+// Reads [%cal Ge2e4,Rd1h5] from a comment and returns the text and arrows separately.
 export function parseComment(raw: string): { text: string; arrows: LineArrow[] } {
   const arrows: LineArrow[] = []
   const text = raw
@@ -61,7 +61,7 @@ export function parseComment(raw: string): { text: string; arrows: LineArrow[] }
   return { text, arrows }
 }
 
-// Zerlegt eine PGN-Datei mit mehreren Partien in einzelne Partie-Texte.
+// Splits a PGN file with several games into one text per game.
 export function splitGames(pgn: string): string[] {
   const text = pgn.replace(/\r\n?/g, '\n').trim()
   if (!text) return []
@@ -75,7 +75,7 @@ export function parseGame(pgn: string, fallbackSide: Side, source: Line['source'
   const headers = chess.getHeaders()
   const comments = new Map(chess.getComments().map((c) => [c.fen, c.comment]))
   const history = chess.history({ verbose: true })
-  if (history.length === 0) throw new Error('enthält keine Züge')
+  if (history.length === 0) throw new Error('contains no moves')
 
   const side: Side = headers.Side === 'Black' ? 'b' : headers.Side === 'White' ? 'w' : fallbackSide
   const title = headers.Event && headers.Event !== '?' ? headers.Event : history.slice(0, 6).map((m) => m.san).join(' ')
@@ -103,19 +103,13 @@ export function parsePgn(pgn: string, fallbackSide: Side = 'w', source: Line['so
   const lines: Line[] = []
   const errors: string[] = []
   splitGames(pgn).forEach((game, i) => {
-    const name = game.match(/\[Event "([^"]*)"\]/)?.[1] || `Partie ${i + 1}`
+    const name = game.match(/\[Event "([^"]*)"\]/)?.[1] || `Game ${i + 1}`
     try {
       lines.push(parseGame(game, fallbackSide, source))
     } catch (e) {
       const msg = e instanceof Error ? e.message : String(e)
-      errors.push(`${name}: ${msg.replace(/^Invalid move in PGN: (\S+)$/, (_, san: string) => `ungültiger Zug ${toGerman(san)}`)}`)
+      errors.push(`${name}: ${msg.replace(/^Invalid move in PGN: (\S+)$/, 'illegal move $1')}`)
     }
   })
   return { lines, errors }
-}
-
-// SAN → deutsche Notation (K, D, T, L, S), so wie in den Kommentaren.
-export function toGerman(san: string): string {
-  const map: Record<string, string> = { K: 'K', Q: 'D', R: 'T', B: 'L', N: 'S' }
-  return san.replace(/^[KQRBN]/, (c) => map[c]).replace(/=([QRBN])/, (_, c: string) => '=' + map[c])
 }

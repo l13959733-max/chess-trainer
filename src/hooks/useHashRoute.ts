@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 
-// Routen über den Hash, damit GitHub Pages ohne Server-Rewrites funktioniert: #/lernen/<id>, #/drill/<id> …
+// Hash routes so GitHub Pages works without server rewrites: #/learn/<id>, #/drill/<id> …
 export function useHashRoute(): string[] {
   const read = () => window.location.hash.replace(/^#\/?/, '').split('/').filter(Boolean)
   const [route, setRoute] = useState(read)

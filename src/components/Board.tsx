@@ -5,7 +5,7 @@ import { Chessboard, type Arrow } from 'react-chessboard'
 interface Props {
   fen: string
   orientation: 'white' | 'black'
-  // Gibt true zurück, wenn der Zug ausgeführt wurde.
+  // Returns true if the move was played.
   onMove?: (from: string, to: string) => boolean
   arrows?: Arrow[]
   squareStyles?: Record<string, CSSProperties>
@@ -15,7 +15,7 @@ const SELECTED: CSSProperties = { boxShadow: 'inset 0 0 0 4px rgba(255, 214, 102
 const DOT: CSSProperties = { background: 'radial-gradient(circle, rgba(20,23,28,0.35) 22%, transparent 24%)' }
 const RING: CSSProperties = { background: 'radial-gradient(circle, transparent 58%, rgba(20,23,28,0.35) 60%)' }
 
-// Brett mit Ziehen UND Antippen (Feld antippen, dann Zielfeld) – am Handy oft angenehmer.
+// Board with dragging AND tapping (tap a piece, then the target square) – often easier on a phone.
 export function Board({ fen, orientation, onMove, arrows = [], squareStyles = {} }: Props) {
   const [selected, setSelected] = useState<{ square: string; fen: string } | null>(null)
   const sel = selected && selected.fen === fen ? selected.square : null

@@ -1,4 +1,4 @@
-// Erzeugt die PWA-Icons (PNG) ohne externe Abhängigkeiten: dunkler Grund, 2x2-Schachbrett.
+// Generates the PWA icons (PNG) without dependencies: dark background, 2x2 chessboard.
 import { writeFileSync } from 'node:fs'
 import { deflateSync } from 'node:zlib'
 
@@ -21,7 +21,7 @@ function chunk(type, data) {
   return Buffer.concat([len, td, crc])
 }
 
-// pad = Anteil Rand (maskable Icons brauchen eine Sicherheitszone)
+// pad = border share (maskable icons need a safe zone)
 function icon(size, pad) {
   const raw = Buffer.alloc(size * (size * 3 + 1))
   const lo = Math.round(size * pad), hi = size - lo, mid = size / 2

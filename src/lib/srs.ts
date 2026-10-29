@@ -1,4 +1,4 @@
-// SM-2 (SuperMemo 2) pro Linie.
+// SM-2 (SuperMemo 2) per line.
 export interface SrsState {
   lineId: string
   ef: number
@@ -15,7 +15,7 @@ export function newState(lineId: string): SrsState {
   return { lineId, ef: 2.5, interval: 0, reps: 0, due: 0, lastReviewed: 0, lastMistakes: 0 }
 }
 
-// Fehler im Drill → SM-2-Qualität (0–5). Fehlerfrei = 5, ein Fehler = 3, mehr = 1 (Linie wird neu gelernt).
+// Drill mistakes → SM-2 quality (0–5). Flawless = 5, one mistake = 3, more = 1 (line is relearned).
 export function qualityFromMistakes(mistakes: number): number {
   if (mistakes === 0) return 5
   if (mistakes === 1) return 3

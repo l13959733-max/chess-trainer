@@ -2,7 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import type { Arrow } from 'react-chessboard'
 import { ARROW, Board, LAST_MOVE, WRONG } from '../components/Board'
 import { checkMove, firstPlayerPly, isFinished } from '../lib/drill'
-import { toGerman, type Line, type LineMove } from '../lib/pgn'
+import type { Line, LineMove } from '../lib/pgn'
 import { daysUntil, type SrsState } from '../lib/srs'
 import { go } from '../hooks/useHashRoute'
 import { moveLabel } from './Learn'
@@ -15,14 +15,14 @@ type Feedback =
 interface Props {
   line: Line
   onDone: (mistakes: number) => Promise<SrsState>
-  // Wird gezeigt, wenn die Linie geschafft ist (z. B. „Nächste fällige Linie").
+  // Shown when the line is done (e.g. “Next due line”).
   after: (restart: () => void) => React.ReactNode
   progress?: string
 }
 
 const OPPONENT_DELAY = 550
 
-// Drill-Modus: Lu spielt seine Seite, die App die Gegnerzüge.
+// Drill mode: Lu plays their side, the app plays the opponent's moves.
 export function Drill({ line, onDone, after, progress }: Props) {
   const [ply, setPly] = useState(0)
   const [mistakePlies, setMistakePlies] = useState<Set<number>>(new Set())
@@ -44,7 +44,7 @@ export function Drill({ line, onDone, after, progress }: Props) {
     setNextDays(null)
   }, [])
 
-  // Gegnerzug automatisch ausführen
+  // Play the opponent's move automatically
   useEffect(() => {
     if (finished || !current || current.color === line.side) return
     timer.current = window.setTimeout(() => {
@@ -54,7 +54,7 @@ export function Drill({ line, onDone, after, progress }: Props) {
     return () => window.clearTimeout(timer.current)
   }, [ply, finished, current, line.side])
 
-  // Linie geschafft → Wiederholungsplan aktualisieren (einmal)
+  // Line done → update the review schedule (once)
   useEffect(() => {
     if (!finished || recorded.current || ply < firstPlayerPly(line)) return
     recorded.current = true
@@ -90,9 +90,9 @@ export function Drill({ line, onDone, after, progress }: Props) {
   return (
     <div className="screen">
       <div className="screen-head">
-        <button type="button" className="back" onClick={() => go('')} aria-label="Zurück zur Übersicht">←</button>
+        <button type="button" className="back" onClick={() => go('')} aria-label="Back to overview">←</button>
         <div>
-          <div className="eyebrow">Drill · {line.side === 'w' ? 'Weiß' : 'Schwarz'}{progress ? ` · ${progress}` : ''}</div>
+          <div className="eyebrow">Drill · {line.side === 'w' ? 'White' : 'Black'}{progress ? ` · ${progress}` : ''}</div>
           <h2>{line.title}</h2>
         </div>
       </div>
@@ -100,14 +100,14 @@ export function Drill({ line, onDone, after, progress }: Props) {
       <Board fen={fen} orientation={line.side === 'w' ? 'white' : 'black'} onMove={finished ? undefined : onMove} arrows={arrows} squareStyles={styles} />
 
       <div className="drill-status">
-        <span>{finished ? 'Linie geschafft' : myTurn ? 'Du bist am Zug' : 'Gegner zieht …'}</span>
-        <span className={mistakes ? 'bad' : 'good'}>{mistakes === 1 ? '1 Fehler' : `${mistakes} Fehler`}</span>
+        <span>{finished ? 'Line complete' : myTurn ? 'Your move' : 'Opponent is moving …'}</span>
+        <span className={mistakes ? 'bad' : 'good'}>{mistakes === 1 ? '1 mistake' : `${mistakes} mistakes`}</span>
       </div>
 
       {feedback?.kind === 'wrong' && feedback.ply === ply && (
         <div className="explain wrong" role="alert">
-          <div className="move">Richtig ist {toGerman(feedback.expected.san)}</div>
-          <p>{feedback.expected.comment ?? 'Spiel den grünen Pfeil nach, um weiterzumachen.'}</p>
+          <div className="move">The right move is {feedback.expected.san}</div>
+          <p>{feedback.expected.comment ?? 'Play the green arrow to continue.'}</p>
         </div>
       )}
       {feedback?.kind === 'info' && (
@@ -119,8 +119,8 @@ export function Drill({ line, onDone, after, progress }: Props) {
 
       {finished && (
         <div className="done">
-          <div className="done-title">{mistakes === 0 ? 'Fehlerfrei!' : mistakes === 1 ? 'Geschafft – 1 Fehler' : `Geschafft – ${mistakes} Fehler`}</div>
-          {nextDays !== null && <p>Nächste Wiederholung: {nextDays <= 1 ? 'morgen' : `in ${nextDays} Tagen`}</p>}
+          <div className="done-title">{mistakes === 0 ? 'Flawless!' : mistakes === 1 ? 'Done – 1 mistake' : `Done – ${mistakes} mistakes`}</div>
+          {nextDays !== null && <p>Next review: {nextDays <= 1 ? 'tomorrow' : `in ${nextDays} days`}</p>}
           <div className="done-actions">{after(restart)}</div>
         </div>
       )}

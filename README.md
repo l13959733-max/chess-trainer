@@ -1,59 +1,60 @@
 # Chess Trainer
 
-Persönliche Schach-Trainings-App (PWA, Deutsch, mobile-first). Spezifikation und Bau-Reihenfolge: [CLAUDE.md](CLAUDE.md).
+Personal chess training app (PWA, mobile-first). Spec and build order: [CLAUDE.md](CLAUDE.md).
+
+Live: https://l13959733-max.github.io/chess-trainer/
 
 ## Setup
 
 ```bash
 npm install
-npm run dev      # Entwicklung, http://localhost:5173
-npm test         # Vitest (u. a. prüft jede Linie in data/*.pgn auf Legalität)
-npm run build    # Produktions-Build nach dist/
+npm run dev      # development, http://localhost:5173
+npm test         # Vitest (also checks every line in data/*.pgn for legal moves)
+npm run build    # production build into dist/
 ```
 
-App-Icons neu erzeugen: `npm run icons` (schreibt `public/pwa-*.png`).
+Regenerate the app icons: `npm run icons` (writes `public/pwa-*.png`).
 
-## Repertoire
+## Features
 
-Linien liegen als PGN in `data/`. Pro Partie:
+- **Repertoire overview**: every line with its status (New / Due / in X days)
+- **Learn**: step through a line move by move with the explanation from the PGN comment.
+  The blue arrow shows the next move; `[%cal Ge2e4,Rd1h5]` in comments draws arrows (G/R/Y/B = green/red/yellow/blue)
+- **Drill**: play your side (drag or tap a piece, then its square), the app plays the opponent.
+  Wrong move → red squares, a green arrow to the right move, and its explanation
+- **Spaced repetition (SM-2)** per line: flawless → the interval grows, 2+ mistakes → due again tomorrow
+- **PGN import** (file or paste), stored in the browser's IndexedDB
 
-- `[Side "White"]` oder `[Side "Black"]` = die Seite, die gelernt wird
-- `{Kommentar}` nach einem Zug = Erklärung, die die App anzeigt
+All progress and imports live only in the browser (IndexedDB `chess-trainer`).
 
-Neue Datei hinzufügen → `npm test` prüft automatisch, dass alle Züge legal sind.
+## Repertoire files
 
-## Was die App kann (Stand Schritt 2)
+Lines are PGN files in `data/`. Per game:
 
-- **Repertoire-Übersicht**: alle Linien mit Status (Neu / Fällig / in X Tagen)
-- **Lernen**: Linie Zug für Zug, Erklärung aus dem PGN-Kommentar, blauer Pfeil = nächster Zug,
-  Pfeile aus `[%cal Ge2e4,Rd1h5]` in Kommentaren werden angezeigt (G/R/Y/B = grün/rot/gelb/blau)
-- **Drill**: eigene Seite spielen (ziehen oder Feld antippen), App spielt den Gegner.
-  Falscher Zug → rote Felder, grüner Pfeil zum richtigen Zug, Erklärung
-- **Wiederholungsplan (SM-2)** pro Linie: fehlerfrei → Intervall wächst, ≥ 2 Fehler → morgen wieder
-- **PGN-Import** (Datei oder einfügen), gespeichert in IndexedDB im Browser
+- `[Side "White"]` or `[Side "Black"]` = the side you are learning
+- `{comment}` after a move = the explanation the app shows
 
-Daten (Fortschritt, Importe) liegen nur lokal im Browser (IndexedDB `chess-trainer`).
+Add a file → `npm test` checks that every move is legal.
 
 ## Deploy (GitHub Pages)
 
-Jeder Push auf `main` baut, testet und veröffentlicht über `.github/workflows/deploy.yml`.
-Die App liegt dann unter `https://<github-user>.github.io/chess-trainer/`.
+Every push to `main` builds, tests and publishes via `.github/workflows/deploy.yml`.
 
-Einmalig: Repo → Settings → Pages → Source: **GitHub Actions**.
-GitHub Pages braucht entweder ein **öffentliches** Repo oder GitHub Pro (bei privaten Repos).
+One-time setup: repo → Settings → Pages → Source: **GitHub Actions**.
+GitHub Pages needs a **public** repo or GitHub Pro (for private repos).
 
-Lokal den Pages-Build testen:
+Test the Pages build locally:
 
 ```bash
 BASE_PATH=/chess-trainer/ npm run build
 BASE_PATH=/chess-trainer/ npx vite preview   # http://localhost:4173/chess-trainer/
 ```
 
-## Am Handy installieren
+## Install on a phone
 
-Seite im Browser öffnen → „Zum Home-Bildschirm" (iOS: Teilen-Menü, Android: Menü ⋮ → „App installieren").
+Open the site → “Add to Home Screen” (iOS: Share menu, Android: menu ⋮ → “Install app”).
 
-## Worker für Erklärungen (Schritt 5)
+## Explanation worker (step 5)
 
-Kommt mit Modul 3: ein Cloudflare Worker in `/worker` als Proxy zur Claude API.
-Der API-Key wird nur als Worker-Secret gesetzt (`wrangler secret put ANTHROPIC_API_KEY`), nie im Frontend.
+Comes with module 3: a Cloudflare Worker in `/worker` that proxies the Claude API.
+The API key is set only as a worker secret (`wrangler secret put ANTHROPIC_API_KEY`), never in the frontend.

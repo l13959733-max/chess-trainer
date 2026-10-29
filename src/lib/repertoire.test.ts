@@ -3,20 +3,20 @@ import { readFileSync, readdirSync } from 'node:fs'
 import { join } from 'node:path'
 import { describe, expect, it } from 'vitest'
 
-// Jede Linie in data/*.pgn muss legal sein, sonst lernt Lu falsche Züge.
+// Every line in data/*.pgn must be legal, otherwise Lu learns wrong moves.
 const dataDir = join(__dirname, '../../data')
 
 for (const file of readdirSync(dataDir).filter((f) => f.endsWith('.pgn'))) {
   const games = readFileSync(join(dataDir, file), 'utf8').split(/\n(?=\[Event )/).filter((g) => g.trim())
 
   describe(file, () => {
-    it('enthält Linien', () => {
+    it('contains lines', () => {
       expect(games.length).toBeGreaterThan(0)
     })
 
     for (const pgn of games) {
       const title = pgn.match(/\[Event "([^"]+)"\]/)?.[1] ?? '?'
-      it(`${title}: alle Züge legal, Side-Header gesetzt`, () => {
+      it(`${title}: all moves legal, Side header set`, () => {
         const chess = new Chess()
         expect(() => chess.loadPgn(pgn)).not.toThrow()
         expect(chess.history().length).toBeGreaterThan(0)
@@ -26,8 +26,8 @@ for (const file of readdirSync(dataDir).filter((f) => f.endsWith('.pgn'))) {
   })
 }
 
-it('Seekadettenmatt endet wirklich mit Matt', () => {
-  const pgn = readFileSync(join(dataDir, 'repertoire_italienisch.pgn'), 'utf8').split(/\n(?=\[Event )/).find((g) => g.includes('Légal'))!
+it("Légal's Mate really ends in checkmate", () => {
+  const pgn = readFileSync(join(dataDir, 'repertoire_italian.pgn'), 'utf8').split(/\n(?=\[Event )/).find((g) => g.includes('Légal'))!
   const chess = new Chess()
   chess.loadPgn(pgn)
   expect(chess.isCheckmate()).toBe(true)

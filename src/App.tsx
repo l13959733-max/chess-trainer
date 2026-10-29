@@ -14,8 +14,8 @@ function App() {
   const line = id ? rep.lines.find((l) => l.id === id) : undefined
 
   let body: React.ReactNode
-  if (!rep.ready) body = <p className="loading">Lade Repertoire …</p>
-  else if (page === 'lernen' && line) body = <Learn line={line} />
+  if (!rep.ready) body = <p className="loading">Loading repertoire …</p>
+  else if (page === 'learn' && line) body = <Learn line={line} />
   else if (page === 'drill' && line)
     body = (
       <Drill
@@ -24,13 +24,13 @@ function App() {
         onDone={(m) => rep.recordDrill(line.id, m)}
         after={(restart) => (
           <>
-            <button type="button" onClick={restart}>Nochmal</button>
-            <button type="button" className="primary" onClick={() => go('')}>Zur Übersicht</button>
+            <button type="button" onClick={restart}>Again</button>
+            <button type="button" className="primary" onClick={() => go('')}>Overview</button>
           </>
         )}
       />
     )
-  else if (page === 'wiederholen') body = <Review rep={rep} />
+  else if (page === 'review') body = <Review rep={rep} />
   else if (page === 'import') body = <Import rep={rep} />
   else body = <Home rep={rep} />
 
@@ -45,7 +45,7 @@ function App() {
   )
 }
 
-// Alle fälligen Linien nacheinander drillen. Die Liste wird beim Start festgehalten.
+// Drill all due lines one after another. The list is fixed when the session starts.
 function Review({ rep }: { rep: ReturnType<typeof useRepertoire> }) {
   const [queue] = useState(() => rep.lines.filter((l) => isDue(rep.srs.get(l.id), Date.now())).map((l) => l.id))
   const [index, setIndex] = useState(0)
@@ -55,9 +55,9 @@ function Review({ rep }: { rep: ReturnType<typeof useRepertoire> }) {
     return (
       <div className="screen">
         <div className="done">
-          <div className="done-title">{queue.length ? 'Alle fälligen Linien wiederholt' : 'Nichts fällig'}</div>
+          <div className="done-title">{queue.length ? 'All due lines reviewed' : 'Nothing due'}</div>
           <div className="done-actions">
-            <button type="button" className="primary" onClick={() => go('')}>Zur Übersicht</button>
+            <button type="button" className="primary" onClick={() => go('')}>Overview</button>
           </div>
         </div>
       </div>
@@ -68,13 +68,13 @@ function Review({ rep }: { rep: ReturnType<typeof useRepertoire> }) {
     <Drill
       key={line.id}
       line={line}
-      progress={`${index + 1} von ${queue.length}`}
+      progress={`${index + 1} of ${queue.length}`}
       onDone={(m) => rep.recordDrill(line.id, m)}
       after={(restart) => (
         <>
-          <button type="button" onClick={restart}>Nochmal</button>
+          <button type="button" onClick={restart}>Again</button>
           <button type="button" className="primary" onClick={() => setIndex(index + 1)}>
-            {index + 1 < queue.length ? 'Nächste Linie' : 'Fertig'}
+            {index + 1 < queue.length ? 'Next line' : 'Finish'}
           </button>
         </>
       )}

@@ -8,7 +8,8 @@
 ## Ziel
 Persönliche Trainings-App für Lu (Chess.com: **l0o2**, Rapid ~574, Puzzles ~604).
 Langfristiges Ziel: 2000 Elo. Die App soll spielerisch Eröffnungen beibringen,
-aus eigenen Fehlern lernen lassen und **jeden Fehler verständlich auf Deutsch erklären**.
+aus eigenen Fehlern lernen lassen und **jeden Fehler verständlich erklären**.
+**Sprache: App komplett Englisch** (UI, Repertoire-Kommentare, Erklärungen, Notation N/B/R/Q) – Lus Entscheidung vom 29.10.2026.
 Hauptnutzung: am Handy.
 
 ## Tech-Stack
@@ -21,7 +22,7 @@ Hauptnutzung: am Handy.
   Der API-Key liegt NUR als Worker-Secret, niemals im Frontend.
 
 ## Modul 1 – Eröffnungs-Trainer (zuerst bauen)
-- Repertoire aus `data/*.pgn` laden (Start: `data/repertoire_italienisch.pgn`).
+- Repertoire aus `data/*.pgn` laden (Start: `data/repertoire_italian.pgn`).
   Header `[Side "White"|"Black"]` = Seite, die ich lerne. `{Kommentare}` = Erklärungen.
 - **Lernen-Modus:** Linie Zug für Zug, Erklärung zu jedem Zug anzeigen, Pfeile für Ideen.
 - **Drill-Modus:** Ich spiele meine Seite, App spielt die Gegnerzüge.
@@ -41,12 +42,12 @@ Hauptnutzung: am Handy.
 ## Modul 3 – Erklärungen (das Herzstück)
 - Zu jedem Blunder und jedem Drill-Fehler: Anfrage an den Worker mit
   FEN, gespieltem Zug, Stockfish-Bestzug, Hauptvariante (5 Halbzüge), Eval vorher/nachher.
-- Systemprompt für Claude: Antwort auf Deutsch, max. 4 Sätze, einfach für ~600 Elo,
+- Systemprompt für Claude: Antwort auf Englisch, max. 4 Sätze, einfach für ~600 Elo,
   KEINE Engine-Zahlen. Inhalt: (1) was übersehen wurde, (2) warum der Bestzug besser ist,
   (3) welches allgemeine Prinzip dahintersteckt.
 - Antwort enthält zusätzlich ein Prinzip-Tag (JSON): `haengende_figur`, `gabel`,
   `fesselung`, `spiess`, `koenigssicherheit`, `entwicklung`, `zentrum`, `endspiel`, `sonstiges`.
-- „Frag nach"-Button: freie Frage zur aktuellen Stellung („Warum nicht Sxe5?").
+- „Frag nach"-Button ("Ask"): freie Frage zur aktuellen Stellung („Why not Nxe5?").
 - Erklärungen in IndexedDB cachen (Key = FEN + Zug).
 - Seite „Meine Schwächen": Tags nach Häufigkeit, je mit kurzer Regel und Beispielen aus meinen Partien.
 
@@ -56,7 +57,7 @@ Hauptnutzung: am Handy.
 - Kurze Erfolgsanimation, Streak-Anzeige auf der Startseite.
 
 ## UI
-- Deutsch, dunkles Theme, große Touch-Ziele, Brett füllt Bildschirmbreite.
+- Englisch, dunkles Theme, große Touch-Ziele, Brett füllt Bildschirmbreite.
 - Startseite: Tagesziel, Streak, fällige Linien, fällige Puzzles, „Meine Schwächen".
 
 ## Reihenfolge
