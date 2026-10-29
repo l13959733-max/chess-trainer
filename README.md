@@ -1,6 +1,6 @@
 # Chess Trainer
 
-Personal chess training app (PWA, mobile-first). Spec and build order: [CLAUDE.md](CLAUDE.md).
+Personal chess training app (PWA, mobile-first) with a bright, kid-friendly look and a knight mascot called Hoppy. Spec and build order: [CLAUDE.md](CLAUDE.md).
 
 Live: https://l13959733-max.github.io/chess-trainer/
 
@@ -57,6 +57,12 @@ The voice server only accepts browser requests from this app's address (CORS lis
 A new sentence takes about 10–20 s on the Mac CPU; the app requests one sentence at a time and starts as soon as an
 explanation has been on screen for a second. Repeated sentences come from the server cache instantly.
 No audio with the cloned voice is ever stored in this (public) repo.
+
+## Sound and vibration
+
+Moves click like wooden pieces (synthesised with Web Audio, no audio files), captures sound heavier, mistakes get a
+soft low tone and finished lines/puzzles a short chime. Vibration uses the Vibration API on Android and the native
+switch haptic on iOS 18+. Both can be turned off in Settings (stored per device).
 
 ## Repertoire files
 

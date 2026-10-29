@@ -57,7 +57,11 @@ Hauptnutzung: am Handy.
 - Kurze Erfolgsanimation, Streak-Anzeige auf der Startseite.
 
 ## UI
-- Englisch, dunkles Theme, große Touch-Ziele, Brett füllt Bildschirmbreite.
+- Englisch, große Touch-Ziele, Brett füllt Bildschirmbreite.
+- **Design: kinderfreundlich, hell, im Stil von Lern-Apps wie Duolingo** (Lus Entscheidung 29.10.2026, auch um seinen Sohn
+  für Schach zu begeistern): Maskottchen „Hoppy" (Springer-Pferdchen, `src/components/Mascot.tsx`), Lernpfad auf der
+  Startseite, dicke drückbare Knöpfe, Schrift Nunito, Styles in `src/theme-kids.css`. Keine fremden Marken/Figuren.
+- Sound (synthetisiertes Klacken) und Vibration bei Zügen, abschaltbar in Settings.
 - Startseite: Tagesziel, Streak, fällige Linien, fällige Puzzles, „Meine Schwächen".
 
 ## Reihenfolge
