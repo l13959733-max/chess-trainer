@@ -20,21 +20,21 @@
 1. e4 e5 2. Nf3 Nc6 3. Bc4 Bc5 4. c3 Nf6 5. d4 exd4 6. e5 {White attacks your knight.} d5 {Counter attack! Hit the bishop instead of running.} 7. Bb5 Ne4 {Your knight jumps to a great square.} 8. cxd4 Bb4+ 9. Bd2 Bxd2+ 10. Nbxd2 O-O {Castle – your pieces are active.} *
 
 [Event "Two Knights (Black): 4.Ng5 d5 5.exd5 Na5"]
-[Opening "Italian Game"]
+[Opening "Two Knights Defense"]
 [Side "Black"]
 [Result "*"]
 
 1. e4 e5 2. Nf3 Nc6 3. Bc4 Nf6 {The Two Knights: fight back!} 4. Ng5 {White attacks f7 twice.} d5 {Block the bishop.} 5. exd5 Na5 {Important! Never 5...Nxd5? – that allows the Fried Liver Attack. Attack the bishop instead.} 6. Bb5+ c6 7. dxc6 bxc6 {You are a pawn down, but you get fast development.} 8. Be2 h6 {Kick the knight.} 9. Nf3 e4 {Chase it again!} 10. Ne5 Bd6 {Develop and attack the knight.} 11. d4 exd3 12. Nxd3 Qc7 {Your pieces are very active for the pawn.} *
 
 [Event "Two Knights (Black): Calm 4.d3"]
-[Opening "Italian Game"]
+[Opening "Two Knights Defense"]
 [Side "Black"]
 [Result "*"]
 
 1. e4 e5 2. Nf3 Nc6 3. Bc4 Nf6 4. d3 Be7 {Calm and safe: get ready to castle.} 5. O-O O-O 6. Re1 d6 {Protect e5.} 7. c3 Na5 {Chase the strong bishop.} 8. Bb5 a6 9. Ba4 b5 10. Bc2 c5 {Take space on the queen side.} *
 
 [Event "Two Knights (Black): 4.d4"]
-[Opening "Italian Game"]
+[Opening "Two Knights Defense"]
 [Side "Black"]
 [Result "*"]
 
@@ -48,7 +48,7 @@
 1. e4 e5 2. Nf3 Nc6 3. Bc4 Bc5 4. b4 {The Evans Gambit: White gives a pawn.} Bxb4 {Take it.} 5. c3 Ba5 {Keep the bishop on the long diagonal.} 6. d4 d6 {Hold e5 solidly.} 7. O-O Bb6 {Bring the bishop to safety.} 8. dxe5 dxe5 9. Qxd8+ Nxd8 {Queens are off – no attack on your king!} 10. Nxe5 Be6 {You are fine, and White's pawns are weak.} *
 
 [Event "Philidor (Black): Avoid Légal's Mate"]
-[Opening "Italian Game"]
+[Opening "Philidor Defense"]
 [Side "Black"]
 [Result "*"]
 

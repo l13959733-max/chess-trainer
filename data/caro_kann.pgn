@@ -1,0 +1,76 @@
+[Event "Caro-Kann: Advance 3.e5"]
+[Opening "Caro-Kann"]
+[Side "Black"]
+[Result "*"]
+
+1. e4 c6 {The Caro-Kann: prepare ...d5 with a pawn behind it. Very solid!} 2. d4 d5 {Now you attack e4.} 3. e5 {The Advance Variation: White takes space.} Bf5 {Your light bishop comes out BEFORE you play ...e6.} 4. Nf3 e6 {Now the pawns make a strong wall.} 5. Be2 c5 {Hit White's pawn chain at the base.} 6. Be3 cxd4 7. Nxd4 Ne7 {The knight goes to c6 and hits the knight on d4.} 8. c4 Nbc6 {Develop and challenge the center.} *
+
+[Event "Caro-Kann: Advance 4.Bd3"]
+[Opening "Caro-Kann"]
+[Side "Black"]
+[Result "*"]
+
+1. e4 c6 2. d4 d5 3. e5 Bf5 4. Bd3 {White wants to trade your good bishop.} Bxd3 5. Qxd3 e6 6. Nf3 Qb6 {Pressure on d4 and b2.} 7. O-O c5 {Attack the center again.} 8. c3 Nc6 {Everything hits d4. Good game for Black.} *
+
+[Event "Caro-Kann: Classical 4...Bf5"]
+[Opening "Caro-Kann"]
+[Side "Black"]
+[Result "*"]
+
+1. e4 c6 2. d4 d5 3. Nc3 dxe4 {Take on e4.} 4. Nxe4 Bf5 {The Classical: chase the knight with your bishop.} 5. Ng3 Bg6 6. h4 h6 {Make room so the bishop is not trapped.} 7. Nf3 Nd7 {Stop Ne5.} 8. h5 Bh7 9. Bd3 Bxd3 10. Qxd3 e6 11. Bd2 Ngf6 12. O-O-O Be7 {Castle soon. Solid as a rock.} *
+
+[Event "Caro-Kann: 4...Nd7 and the Smothered Mate"]
+[Opening "Caro-Kann"]
+[Side "Black"]
+[Result "*"]
+
+1. e4 c6 2. d4 d5 3. Nc3 dxe4 4. Nxe4 Nd7 {Get ready for ...Ngf6.} 5. Qe2 {A trap! If you play 5...Ngf6??, then 6.Nd6 is checkmate – your king is stuck between its own pieces.} Ndf6 {The safe way: this knight goes to f6.} 6. Nxf6+ Nxf6 7. Nf3 Bg4 {Pin the knight. Now everything is safe.} *
+
+[Event "Caro-Kann: Exchange 3.exd5"]
+[Opening "Caro-Kann"]
+[Side "Black"]
+[Result "*"]
+
+1. e4 c6 2. d4 d5 3. exd5 cxd5 {Take back with the c-pawn.} 4. Bd3 Nc6 {Develop and hit d4.} 5. c3 Nf6 6. Bf4 Bg4 {Your bishop comes out actively.} 7. Qb3 Qd7 {Protect b7 calmly.} 8. Nd2 e6 9. Ngf3 Bxf3 10. Nxf3 Bd6 {Trade off White's strong bishop. Equal game.} *
+
+[Event "Caro-Kann: Panov 4.c4"]
+[Opening "Caro-Kann"]
+[Side "Black"]
+[Result "*"]
+
+1. e4 c6 2. d4 d5 3. exd5 cxd5 4. c4 {The Panov Attack: an open, fast game.} Nf6 5. Nc3 e6 6. Nf3 Be7 7. cxd5 Nxd5 {Your knight takes back – a great square in the center.} 8. Bd3 Nc6 9. O-O O-O {Both kings safe. Your pieces are free.} *
+
+[Event "Caro-Kann: Two Knights 2.Nc3 3.Nf3"]
+[Opening "Caro-Kann"]
+[Side "Black"]
+[Result "*"]
+
+1. e4 c6 2. Nc3 d5 3. Nf3 {The Two Knights.} Bg4 {Pin the knight.} 4. h3 Bxf3 5. Qxf3 e6 {Solid. Now ...Nf6 and ...Bc5 or ...Bb4.} 6. d4 dxe4 7. Nxe4 Nd7 {Protect your king side with ...Ngf6 next.} *
+
+[Event "Caro-Kann: Fantasy 3.f3"]
+[Opening "Caro-Kann"]
+[Side "Black"]
+[Result "*"]
+
+1. e4 c6 2. d4 d5 3. f3 {The Fantasy Variation: White holds e4 with a pawn.} dxe4 {Take it.} 4. fxe4 e5 {Hit back in the center right away!} 5. Nf3 Bg4 {Pin the knight.} 6. Bc4 Nd7 {Protect e5 and develop.} 7. c3 Bd6 {Protect e5 with the bishop. Next ...Ngf6 – solid and active.} *
+
+[Event "vs Caro-Kann: Classical 4...Bf5"]
+[Opening "Caro-Kann"]
+[Side "White"]
+[Result "*"]
+
+1. e4 c6 2. d4 d5 3. Nc3 {Protect e4 with a piece.} dxe4 4. Nxe4 Bf5 5. Ng3 {Chase the bishop with tempo.} Bg6 6. h4 {Threaten h5 to trap the bishop!} h6 7. Nf3 Nd7 8. h5 {Push it back.} Bh7 9. Bd3 {Trade Black's best bishop.} Bxd3 10. Qxd3 e6 11. Bd2 Ngf6 12. O-O-O {Castle long. You have more space.} *
+
+[Event "vs Caro-Kann: Exchange 3.exd5"]
+[Opening "Caro-Kann"]
+[Side "White"]
+[Result "*"]
+
+1. e4 c6 2. d4 d5 3. exd5 {A calm, easy plan.} cxd5 4. Bd3 {Bishop on the best diagonal.} Nc6 5. c3 {Make d4 strong.} Nf6 6. Bf4 {Develop the other bishop before e3.} Bg4 7. Qb3 {Attack b7!} Qd7 8. Nd2 e6 9. Ngf3 Bxf3 10. Nxf3 Bd6 11. Bxd6 Qxd6 12. O-O *
+
+[Event "Trap: Smothered Mate in the Caro-Kann"]
+[Opening "Caro-Kann"]
+[Side "White"]
+[Result "*"]
+
+1. e4 c6 2. d4 d5 3. Nc3 dxe4 4. Nxe4 Nd7 5. Qe2 {Set the trap! The queen looks at e7 and d6.} Ngf6 {A big mistake – it looks natural.} 6. Nd6# {Checkmate! The king can't move: its own pieces block every square. This is a smothered mate.} *

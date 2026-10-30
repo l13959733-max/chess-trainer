@@ -316,3 +316,8 @@ button:focus-visible { outline: 3px solid var(--idea); }
 @media (max-width: 300px) {
   .chip-stat { flex-direction: column; text-align: center; gap: 2px; }
 }
+
+/* Sections of chapters on the overview */
+.chapter-group { margin: 22px 4px 4px; font-size: 0.8rem; font-weight: 900; letter-spacing: 0.08em; text-transform: uppercase; color: var(--grape); }
+.chapter-title { display: flex; flex-direction: column; }
+.chapter-moves { color: var(--muted); font-weight: 800; font-size: 0.78rem; letter-spacing: 0; }

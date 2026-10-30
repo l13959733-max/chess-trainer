@@ -3,45 +3,77 @@ import type { Line, Side } from './pgn'
 export interface Chapter {
   key: string
   title: string
+  moves: string // the first moves that lead into it, e.g. "1.e4 e5 2.Nf3 Nc6 3.Bc4"
+  group: string // section heading on the overview
   side: Side | null // null = mixed (imports)
   lines: Line[]
 }
 
-// Order on the overview: White openings from the first move on, then Black.
-const ORDER: [string, Side][] = [
-  ['Italian Game', 'w'],
-  ['Vienna Game', 'w'],
-  ["Bishop's Opening", 'w'],
-  ['Scandinavian', 'w'],
-  ['Other replies to 1.e4', 'w'],
-  ['Scandinavian', 'b'],
-  ['Italian Game', 'b'],
-  ["Queen's Gambit Declined", 'b'],
+// The overview, in order: section → chapters. `opening` is the [Opening "…"] header of the lines.
+const LAYOUT: { group: string; side: Side; chapters: { opening: string; title?: string; moves: string }[] }[] = [
+  {
+    group: 'White · 1.e4 e5',
+    side: 'w',
+    chapters: [
+      { opening: 'Italian Game', moves: '1.e4 e5 2.Nf3 Nc6 3.Bc4' },
+      { opening: 'Two Knights Defense', moves: '3.Bc4 Nf6 – grows out of the Italian' },
+      { opening: 'Petrov Defense', moves: '1.e4 e5 2.Nf3 Nf6' },
+      { opening: 'Philidor Defense', moves: '1.e4 e5 2.Nf3 d6' },
+      { opening: 'Vienna Game', moves: '1.e4 e5 2.Nc3' },
+      { opening: "Bishop's Opening", moves: '1.e4 e5 2.Bc4' },
+    ],
+  },
+  {
+    group: 'White · other answers to 1.e4',
+    side: 'w',
+    chapters: [
+      { opening: 'Scandinavian', title: 'vs Scandinavian', moves: '1.e4 d5' },
+      { opening: 'Caro-Kann', title: 'vs Caro-Kann', moves: '1.e4 c6' },
+      { opening: 'French Defense', title: 'vs French', moves: '1.e4 e6' },
+      { opening: 'Sicilian Defense', title: 'vs Sicilian', moves: '1.e4 c5' },
+      { opening: 'Pirc & Modern', title: 'vs Pirc & Modern', moves: '1.e4 d6 · 1.e4 g6' },
+      { opening: 'Nimzowitsch Defense', title: 'vs Nimzowitsch', moves: '1.e4 Nc6' },
+      { opening: 'Other replies to 1.e4', title: 'vs other moves', moves: '1.e4 …' },
+    ],
+  },
+  {
+    group: 'Black · against 1.e4',
+    side: 'b',
+    chapters: [
+      { opening: 'Scandinavian', moves: '1.e4 d5' },
+      { opening: 'Caro-Kann', moves: '1.e4 c6' },
+      { opening: 'Italian Game', moves: '1.e4 e5 2.Nf3 Nc6 3.Bc4 Bc5' },
+      { opening: 'Two Knights Defense', moves: '1.e4 e5 2.Nf3 Nc6 3.Bc4 Nf6' },
+      { opening: 'Philidor Defense', moves: '1.e4 e5 2.Nf3 d6' },
+    ],
+  },
+  {
+    group: 'Black · against 1.d4',
+    side: 'b',
+    chapters: [
+      { opening: "Queen's Gambit Declined", moves: '1.d4 d5 2.c4 e6' },
+      { opening: 'London & 2.Nf3', title: 'London System & 2.Nf3', moves: '1.d4 d5 2.Bf4 · 2.Nf3' },
+    ],
+  },
 ]
 
-const rank = (opening: string, side: Side) => {
-  const i = ORDER.findIndex(([o, s]) => o === opening && s === side)
-  return i < 0 ? ORDER.length : i
-}
-
-// Groups lines into chapters by opening and side. Imported lines get their own chapter at the end.
+// Groups lines into chapters in the order above. Unknown openings go to "More lines" of their side,
+// imported lines get their own chapter at the end.
 export function chapters(lines: Line[]): Chapter[] {
-  const map = new Map<string, Chapter>()
-  const imports: Line[] = []
-  for (const line of lines) {
-    if (line.source === 'import') {
-      imports.push(line)
-      continue
+  const out: Chapter[] = []
+  const used = new Set<Line>()
+  for (const g of LAYOUT) {
+    for (const c of g.chapters) {
+      const own = lines.filter((l) => l.source !== 'import' && l.side === g.side && l.opening === c.opening)
+      own.forEach((l) => used.add(l))
+      if (own.length) out.push({ key: `${c.opening}|${g.side}`, title: c.title ?? c.opening, moves: c.moves, group: g.group, side: g.side, lines: own })
     }
-    const opening = line.opening ?? 'More lines'
-    const key = `${opening}|${line.side}`
-    if (!map.has(key)) {
-      const title = line.side === 'b' ? `${opening} · as Black` : opening === 'Scandinavian' ? 'Scandinavian · vs 1...d5' : opening
-      map.set(key, { key, title, side: line.side, lines: [] })
-    }
-    map.get(key)!.lines.push(line)
   }
-  const out = [...map.values()].sort((a, b) => rank(a.lines[0].opening ?? '', a.side!) - rank(b.lines[0].opening ?? '', b.side!))
-  if (imports.length) out.push({ key: 'imports', title: 'Your imports', side: null, lines: imports })
+  for (const side of ['w', 'b'] as const) {
+    const rest = lines.filter((l) => l.source !== 'import' && l.side === side && !used.has(l))
+    if (rest.length) out.push({ key: `more|${side}`, title: 'More lines', moves: '', group: side === 'w' ? 'White · more' : 'Black · more', side, lines: rest })
+  }
+  const imports = lines.filter((l) => l.source === 'import')
+  if (imports.length) out.push({ key: 'imports', title: 'Your imports', moves: '', group: 'Imported', side: null, lines: imports })
   return out
 }

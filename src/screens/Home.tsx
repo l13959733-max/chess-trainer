@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { Fragment, useMemo, useState } from 'react'
 import { Mascot } from '../components/Mascot'
 import { go } from '../hooks/useHashRoute'
 import type { Achievements } from '../hooks/useAchievements'
@@ -113,15 +113,21 @@ export function Home({ rep, progress, puzzles, analyzer, player, trophies }: { r
           <h2>Your path</h2>
           <button type="button" onClick={() => go('import')}>Import PGN</button>
         </div>
-        {chapterList.map((ch) => {
+        {chapterList.map((ch, ci) => {
           const isOpen = openChapters.has(ch.key)
+          const newGroup = ci === 0 || chapterList[ci - 1].group !== ch.group
           const played = ch.lines.filter((l) => rep.srs.get(l.id)).length
           const dueHere = ch.lines.filter((l) => isDue(rep.srs.get(l.id), now)).length
           return (
-            <div key={ch.key} className={`chapter ${isOpen ? 'open' : ''}`}>
+            <Fragment key={ch.key}>
+            {newGroup && <h3 className="chapter-group">{ch.group}</h3>}
+            <div className={`chapter ${isOpen ? 'open' : ''}`}>
               <button type="button" className="chapter-head" aria-expanded={isOpen} onClick={() => toggleChapter(ch.key)}>
                 <span className={`side-dot ${ch.side === 'b' ? 'black' : ch.side === 'w' ? 'white' : ''}`} aria-hidden="true" />
-                <span className="chapter-title">{ch.title}</span>
+                <span className="chapter-title">
+                  {ch.title}
+                  {ch.moves && <small className="chapter-moves">{ch.moves}</small>}
+                </span>
                 <span className="chapter-count">
                   {played}/{ch.lines.length}
                   {dueHere > 0 && <b className="chapter-due">{dueHere} due</b>}
@@ -136,6 +142,7 @@ export function Home({ rep, progress, puzzles, analyzer, player, trophies }: { r
                 </div>
               )}
             </div>
+            </Fragment>
           )
         })}
       </section>

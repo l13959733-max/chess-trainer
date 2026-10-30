@@ -32,3 +32,10 @@ it("Légal's Mate really ends in checkmate", () => {
   chess.loadPgn(pgn)
   expect(chess.isCheckmate()).toBe(true)
 })
+
+it('the Caro-Kann smothered mate trap really ends in checkmate', () => {
+  const pgn = readFileSync(join(dataDir, 'caro_kann.pgn'), 'utf8').split(/\n(?=\[Event )/).find((g) => g.includes('Trap: Smothered'))!
+  const chess = new Chess()
+  chess.loadPgn(pgn)
+  expect(chess.isCheckmate()).toBe(true)
+})
