@@ -64,6 +64,15 @@ Hauptnutzung: am Handy.
 - Sound (synthetisiertes Klacken) und Vibration bei Zügen, abschaltbar in Settings.
 - Startseite: Tagesziel, Streak, fällige Linien, fällige Puzzles, „Meine Schwächen".
 
+## Ausbau 30.10.2026 (Lus Auftrag nach der Gesamtanalyse aller Partien)
+- Repertoire stark erweitert, nach Kapiteln (`[Opening]`-Header): Italienisch Weiß+Schwarz, Wiener, Läuferspiel,
+  Skandinavisch Weiß+Schwarz, andere Antworten auf 1.e4, Damengambit abgelehnt. **Jede neue Linie mit
+  `npm run check-lines` prüfen** (kein Lern-Zug > 0,6 Bauern schlechter als Stockfish). Nichts Bestehendes löschen.
+- Hoppy-Bot (`src/lib/bot.ts`): Fehlerraten pro Wertung an echten Partien gemessen (300–799), darüber geschätzt.
+  Adaptive Bot-Wertung, Safety Check, Play on nach Linien, „Win it" aus Gewinnstellungen, Partie-Fehler → Puzzles.
+- „My weaknesses" + „What's the threat?" (Hauptfehler laut Analyse: Gegnerdrohung nicht geprüft).
+- Trophäen + „Today's cards" (alles Fällige gemischt).
+
 ## Reihenfolge
 1. Projekt-Setup, PWA, GitHub-Pages-Deploy
 2. Modul 1 komplett (Lernen, Drill, SRS) mit dem Italienisch-Repertoire

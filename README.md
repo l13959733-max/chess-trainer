@@ -30,6 +30,48 @@ Regenerate the app icons: `npm run icons` (writes `public/pwa-*.png`).
 
 All progress and imports live only in the browser (IndexedDB `chess-trainer`).
 
+## Repertoire
+
+`data/*.pgn`, one file per opening family. Headers: `[Side "White"|"Black"]` = the side you learn,
+`[Opening "…"]` = the chapter on the overview (order in `src/lib/chapters.ts`). 59 lines (30.10.2026):
+Italian Game for both sides (incl. Petrov, Philidor, Two Knights, Evans, traps), Vienna Game and Bishop's Opening,
+Scandinavian for White (vs 1...d5) and Black, replies to other first moves (French, Caro-Kann, Sicilian Alapin,
+Pirc/Modern, Nimzowitsch) and the Queen's Gambit Declined / London for Black.
+
+`npm run check-lines` lets Stockfish (depth 16) check every move of the learner's side: no move may lose more than
+0.6 pawns against the engine's best move, and it prints the evaluation at the end of each line. Run it after every
+change to the PGN files (all 59 lines pass).
+
+## Hoppy-Bot (play games)
+
+`#/play`: games against a bot that plays like a human of a given rating. Stockfish rates every legal move
+(MultiPV, depth 8, 10 from 1200), the bot then picks from the quality class a human of that rating plays:
+best move / near-best / inaccuracy / mistake / blunder (lost winning chance < 3, 3–10, 10–30, ≥ 30 points) and how
+often free material after the opponent's blunder is taken. These frequencies are **measured for 300–799** on 1,279
+analysed rapid games of l0o2 (opponents' moves by their rating); above that they are **estimates** (`src/lib/bot.ts`).
+Opening moves come from the repertoire (traps and moves the lines call mistakes excluded).
+
+- **Rating**: the Hoppy-Bot rating starts at the player's chess.com rapid rating and moves like Elo after every
+  rated game (K = 48 for the first 10 games, then 32). Rated = a full game without take-backs.
+- **Safety check** (on by default): marks your pieces that can be taken for free or by a cheaper piece.
+- **Play on**: from the end of any line (Learn and Drill). **Win it**: from positions of your games where you were
+  clearly winning (≥ +3) before a blunder.
+- After each game Stockfish (depth 12) looks for your blunders; they become puzzles like the chess.com ones.
+
+## My weaknesses
+
+`#/weaknesses`: every puzzle gets a category from the opponent's best answer (`src/lib/weakness.ts`): piece left
+hanging, threat not seen, protection taken away, fork or pin not seen, checkmate allowed, free piece not taken,
+checkmate missed, winning trick missed, other. Older puzzles get it once in the background (one engine look each).
+Each category shows its rule and trains just those puzzles. **What's the threat?** (`#/threats`) shows the position
+right after your mistake; you play the opponent and find the punishment (its own review schedule, `t:` keys).
+
+## Trophies and today's cards
+
+`#/trophies`: 32 trophies (lines, perfect lines, each chapter, puzzles, threats, streaks, levels, bot wins and
+ratings), computed from stored progress. `#/daily`: everything due today – lines, puzzles, threats – mixed in one
+round of at most 20 cards.
+
 ## Blunder trainer (step 4)
 
 - **Analyse games** loads the games of this device's chess.com player (default `l0o2`; Settings → Chess.com account,
