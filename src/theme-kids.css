@@ -18,7 +18,7 @@
   --grape: #8a5cf6;
   --board-light: #f3f7e4;
   --board-dark: #86bf5f;
-  color-scheme: light;
+  color-scheme: only light; /* never auto-darkened by the phone's dark mode */
   font-family: 'Nunito', ui-rounded, 'SF Pro Rounded', system-ui, sans-serif;
 }
 
@@ -131,9 +131,9 @@ button:focus-visible { outline: 3px solid var(--idea); }
 
 /* Learning path */
 .path { display: flex; flex-direction: column; align-items: center; gap: 22px; padding-block: 8px 16px; }
-.path-step { display: flex; flex-direction: column; align-items: center; gap: 6px; width: 220px; }
-.path-step.offset-1 { transform: translateX(56px); }
-.path-step.offset-3 { transform: translateX(-56px); }
+.path-step { display: flex; flex-direction: column; align-items: center; gap: 6px; width: min(220px, 62vw); }
+.path-step.offset-1 { transform: translateX(min(56px, 11vw)); }
+.path-step.offset-3 { transform: translateX(max(-56px, -11vw)); }
 .path-node {
   width: 76px;
   height: 70px;
@@ -301,3 +301,18 @@ button:focus-visible { outline: 3px solid var(--idea); }
 .daily-card { display: grid; gap: 8px; border: 2px solid var(--accent); border-radius: 20px; padding: 14px; background: #f3fbe9; }
 .daily-card p { margin: 0; }
 .daily-card .big { font-size: 2rem; color: var(--accent-dark); }
+
+/* Small screens, or a large font setting on the phone (which makes the page narrower) */
+@media (max-width: 380px) {
+  .chips { gap: 6px; }
+  .chip-stat { padding: 8px; gap: 6px; font-size: 1rem; border-radius: 14px; }
+  .chip-stat svg { width: 20px; height: 20px; }
+  .chip-stat small { font-size: 0.6rem; letter-spacing: 0.02em; }
+  .screen > .explain, .screen > .greet { margin-left: 76px; }
+  .explain > .mascot, .greet > .mascot { left: -70px; width: 60px; height: 60px; }
+  .quick-text { font-size: 0.9rem; }
+  .trophies { gap: 8px; }
+}
+@media (max-width: 300px) {
+  .chip-stat { flex-direction: column; text-align: center; gap: 2px; }
+}
