@@ -30,7 +30,7 @@ const LAYOUT: { group: string; side: Side; chapters: { opening: string; title?: 
       { opening: 'Scandinavian', title: 'vs Scandinavian', moves: '1.e4 d5' },
       { opening: 'Caro-Kann', title: 'vs Caro-Kann', moves: '1.e4 c6' },
       { opening: 'French Defense', title: 'vs French', moves: '1.e4 e6' },
-      { opening: 'Sicilian Defense', title: 'vs Sicilian', moves: '1.e4 c5' },
+      { opening: 'Sicilian Defense', title: 'vs Sicilian', moves: '1.e4 c5 · Alapin, Smith-Morra, Wing Gambit' },
       { opening: 'Pirc & Modern', title: 'vs Pirc & Modern', moves: '1.e4 d6 · 1.e4 g6' },
       { opening: 'Nimzowitsch Defense', title: 'vs Nimzowitsch', moves: '1.e4 Nc6' },
       { opening: 'Other replies to 1.e4', title: 'vs other moves', moves: '1.e4 …' },
@@ -42,6 +42,8 @@ const LAYOUT: { group: string; side: Side; chapters: { opening: string; title?: 
     chapters: [
       { opening: 'Scandinavian', moves: '1.e4 d5' },
       { opening: 'Caro-Kann', moves: '1.e4 c6' },
+      { opening: 'Sicilian Dragon', moves: '1.e4 c5 2.Nf3 d6 3.d4 cxd4 4.Nxd4 Nf6 5.Nc3 g6' },
+      { opening: "Sicilian: White's other tries", title: 'Sicilian · other White moves', moves: 'Smith-Morra, Alapin, 3.Bb5+, Grand Prix' },
       { opening: 'Italian Game', moves: '1.e4 e5 2.Nf3 Nc6 3.Bc4 Bc5' },
       { opening: 'Two Knights Defense', moves: '1.e4 e5 2.Nf3 Nc6 3.Bc4 Nf6' },
       { opening: 'Philidor Defense', moves: '1.e4 e5 2.Nf3 d6' },

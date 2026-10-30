@@ -10,6 +10,7 @@ const require = createRequire(import.meta.url)
 const enginePath = require('stockfish').findEngine('lite-single')
 const DEPTH = +(process.argv[2] ?? 16)
 const MAX_LOSS = 60 // centipawns
+const GAMBIT_LOSS = 150 // lines marked [Check "gambit"] or [Check "trap"]: a sacrifice or a trap setup is meant, but no real blunders
 const PROCS = 8
 
 function engine() {
@@ -48,7 +49,7 @@ for (const file of readdirSync('data').filter((f) => f.endsWith('.pgn'))) {
     const c = new Chess()
     c.loadPgn(pgn)
     const h = c.getHeaders()
-    jobs.push({ file, title: h.Event, side: h.Side === 'Black' ? 'b' : 'w', moves: c.history({ verbose: true }), finalFen: c.fen() })
+    jobs.push({ file, title: h.Event, side: h.Side === 'Black' ? 'b' : 'w', moves: c.history({ verbose: true }), finalFen: c.fen(), max: h.Check === 'gambit' || h.Check === 'trap' ? GAMBIT_LOSS : MAX_LOSS })
   }
 }
 
@@ -66,7 +67,7 @@ await Promise.all(Array.from({ length: PROCS }, async () => {
       const after = await e.score(m.after)
       const afterS = typeof after === 'number' ? after : after.s
       const loss = before.s - -afterS
-      if (loss > MAX_LOSS && before.best !== m.from + m.to + (m.promotion ?? '')) {
+      if (loss > j.max && before.best !== m.from + m.to + (m.promotion ?? '')) {
         const best = new Chess(m.before).move({ from: before.best.slice(0, 2), to: before.best.slice(2, 4), promotion: before.best[4] }).san
         notes.push(`${m.san} loses ${loss} (best ${best})`)
       }
