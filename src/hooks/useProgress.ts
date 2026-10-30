@@ -55,6 +55,7 @@ export function useProgress() {
   }, [])
 
   return {
+    days,
     today: days.get(today),
     goal,
     setGoal,

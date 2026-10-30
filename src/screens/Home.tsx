@@ -1,8 +1,10 @@
 import { useMemo, useState } from 'react'
 import { Mascot } from '../components/Mascot'
 import { go } from '../hooks/useHashRoute'
+import type { Achievements } from '../hooks/useAchievements'
 import type { Progress } from '../hooks/useProgress'
 import type { Puzzles } from '../hooks/usePuzzles'
+import { dailyQueue } from '../lib/daily'
 import { pause, start, type AnalyzerState } from '../lib/analyzer'
 import type { Repertoire } from '../hooks/useRepertoire'
 import { clampScore } from '../lib/blunders'
@@ -11,7 +13,7 @@ import type { Line } from '../lib/pgn'
 import { PUZZLES_AVAILABLE } from '../lib/progress'
 import { daysUntil, isDue, lineResult } from '../lib/srs'
 
-export function Home({ rep, progress, puzzles, analyzer, player }: { rep: Repertoire; progress: Progress; puzzles: Puzzles; analyzer: AnalyzerState; player: string }) {
+export function Home({ rep, progress, puzzles, analyzer, player, trophies }: { rep: Repertoire; progress: Progress; puzzles: Puzzles; analyzer: AnalyzerState; player: string; trophies: Achievements }) {
   const now = Date.now()
   const due = rep.lines.filter((l) => isDue(rep.srs.get(l.id), now))
   const fresh = rep.lines.filter((l) => !rep.srs.get(l.id))
@@ -25,6 +27,7 @@ export function Home({ rep, progress, puzzles, analyzer, player }: { rep: Repert
   const activeToday = doneLines + (progress.today?.puzzles ?? 0) > 0
   const { goal } = progress
   const [open, setOpen] = useState<string | null>(null)
+  const cards = dailyQueue(rep.lines, rep.srs, puzzles.puzzles, puzzles.srs, now).length
   // Positions from your games where you were clearly winning before a mistake: win them again vs the bot
   const winning = useMemo(() => puzzles.puzzles.filter((p) => clampScore(p.scoreBefore) >= 300), [puzzles.puzzles])
   const chapterList = useMemo(() => chapters(rep.lines), [rep.lines])
@@ -63,6 +66,24 @@ export function Home({ rep, progress, puzzles, analyzer, player }: { rep: Repert
         {activeToday ? 'Great job today! Want to play one more?' : progress.streak ? `Hi! Play today to keep your ${progress.streak}-day streak!` : 'Hi, I’m Hoppy! Let’s learn some chess together.'}
       </div>
 
+      {trophies.fresh.length > 0 && (
+        <button type="button" className="trophy-banner" onClick={() => go('trophies')}>
+          <span className="medal" aria-hidden="true">{trophies.fresh[0].icon}</span>
+          <span>
+            <b>{trophies.fresh.length === 1 ? 'New trophy: ' + trophies.fresh[0].title : `${trophies.fresh.length} new trophies!`}</b>
+            <br />
+            <small>Tap to see your trophies</small>
+          </span>
+        </button>
+      )}
+
+      <section className="daily-card" aria-label="Today's cards">
+        <div className="label">Today's cards</div>
+        <div><span className="big">{cards}</span> {cards === 1 ? 'card' : 'cards'} to repeat</div>
+        <p className="note">Lines, puzzles and threats come back just before you would forget them.</p>
+        <button type="button" className="primary wide" disabled={!cards} onClick={() => go('daily')}>{cards ? 'Start' : 'All done for today'}</button>
+      </section>
+
       <section className="quick" aria-label="Train">
         <button type="button" className="quick-tile play" onClick={() => go('play')}>
           <span className="quick-icon" aria-hidden="true">♞</span>
@@ -81,6 +102,11 @@ export function Home({ rep, progress, puzzles, analyzer, player }: { rep: Repert
           <span className="quick-text">Win it<small>{winning.length ? `${winning.length} won positions` : 'from your games'}</small></span>
         </button>
       </section>
+
+      <button type="button" className="trophy-row" onClick={() => go('trophies')}>
+        <span><span className="label">Trophies</span><br /><b>{trophies.list.filter((a) => a.earned).length} of {trophies.list.length}</b> collected</span>
+        <span className="chevron" aria-hidden="true">▸</span>
+      </button>
 
       <section className="lines" aria-label="Repertoire">
         <div className="section-head">

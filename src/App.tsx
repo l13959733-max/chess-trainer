@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { go, useHashRoute } from './hooks/useHashRoute'
+import { useAchievements } from './hooks/useAchievements'
 import { useAnalyzer } from './hooks/useAnalyzer'
 import { useProgress } from './hooks/useProgress'
 import { usePuzzles } from './hooks/usePuzzles'
@@ -7,8 +8,10 @@ import { useRepertoire } from './hooks/useRepertoire'
 import { getPlayer } from './lib/chesscom'
 import type { Puzzle } from './lib/db'
 import { isDbBlocked } from './lib/db'
+import { dailyQueue } from './lib/daily'
 import { isDue } from './lib/srs'
 import { isUnlocked, stop as stopVoice, unlockAudio } from './lib/voice'
+import { Mascot } from './components/Mascot'
 import { Drill } from './screens/Drill'
 import { Home } from './screens/Home'
 import { Import } from './screens/Import'
@@ -17,6 +20,7 @@ import { Play } from './screens/Play'
 import { PuzzleView } from './screens/PuzzleScreen'
 import { Settings } from './screens/Settings'
 import { ThreatView } from './screens/Threat'
+import { Trophies } from './screens/Trophies'
 import { Weaknesses } from './screens/Weaknesses'
 import type { Category } from './lib/weakness'
 import { CATEGORY } from './lib/weakness'
@@ -31,6 +35,7 @@ function App() {
   const [botFound, setBotFound] = useState(0)
   const puzzles = usePuzzles(analyzer.analyzed + botFound, player)
   const [page, id, arg] = useHashRoute()
+  const trophies = useAchievements(rep, progress, puzzles, player, page ?? '')
 
   // Reading stops when the screen changes; the first tap unlocks audio for automatic reading (iOS)
   useEffect(() => stopVoice, [page, id, arg])
@@ -77,7 +82,9 @@ function App() {
   } else if (page === 'puzzles') body = <PuzzleSession key={id ?? 'all'} puzzles={puzzles} progress={progress} category={id && id in CATEGORY ? (id as Category) : undefined} />
   else if (page === 'threats') body = <ThreatSession key={id ?? 'all'} puzzles={puzzles} progress={progress} category={id && id in CATEGORY ? (id as Category) : undefined} />
   else if (page === 'weaknesses') body = <Weaknesses puzzles={puzzles} player={player} />
-  else body = <Home rep={rep} progress={progress} puzzles={puzzles} analyzer={analyzer} player={player} />
+  else if (page === 'trophies') body = <Trophies achievements={trophies} />
+  else if (page === 'daily') body = <DailySession rep={rep} puzzles={puzzles} progress={progress} />
+  else body = <Home rep={rep} progress={progress} puzzles={puzzles} analyzer={analyzer} player={player} trophies={trophies} />
 
   return (
     <main className="app">
@@ -210,6 +217,59 @@ function ThreatSession({ puzzles, progress, category }: { puzzles: ReturnType<ty
       isLast={index + 1 >= queue.length}
     />
   )
+}
+
+// "Today's cards": everything the review schedule says is due today – lines, puzzles and threats –
+// in one mixed round, like flash cards. Fixed when the round starts.
+function DailySession({ rep, puzzles, progress }: { rep: ReturnType<typeof useRepertoire>; puzzles: ReturnType<typeof usePuzzles>; progress: ReturnType<typeof useProgress> }) {
+  const [queue] = useState(() => dailyQueue(rep.lines, rep.srs, puzzles.puzzles, puzzles.srs))
+  const [index, setIndex] = useState(0)
+  const item = queue[index]
+  const label = `Card ${index + 1} of ${queue.length}`
+  const next = () => setIndex(index + 1)
+
+  if (!item) {
+    return (
+      <div className="screen">
+        <div className="done">
+          <Mascot mood="cheer" />
+          <div className="done-title">{queue.length ? 'All cards done for today!' : 'No cards due today'}</div>
+          <p>{queue.length ? 'Everything you learned is fresh again. Come back tomorrow for new cards.' : 'Learn a new line or play a game – new cards come from everything you practise.'}</p>
+          <div className="done-actions">
+            <button type="button" onClick={() => go('play')}>Play a game</button>
+            <button type="button" className="primary" onClick={() => go('')}>Overview</button>
+          </div>
+        </div>
+      </div>
+    )
+  }
+  if (item.kind === 'line') {
+    const line = rep.lines.find((l) => l.id === item.id)
+    if (!line) return <SkipCard onNext={next} />
+    return (
+      <Drill
+        key={`${index}-${line.id}`}
+        line={line}
+        progress={label}
+        onDone={async (m) => ({ srs: await rep.recordDrill(line.id, m), reward: await progress.recordDrill(m) })}
+        after={() => <button type="button" className="primary" onClick={next}>{index + 1 < queue.length ? 'Next card' : 'Finish'}</button>}
+      />
+    )
+  }
+  const puzzle = puzzles.puzzles.find((p) => p.id === item.id)
+  if (!puzzle) return <SkipCard onNext={next} />
+  const isLast = index + 1 >= queue.length
+  return item.kind === 'puzzle' ? (
+    <PuzzleView key={`${index}-${puzzle.id}`} puzzle={puzzle} progress={label} onSolved={async (m) => ({ srs: await puzzles.record(puzzle.id, m), reward: await progress.recordPuzzle(m) })} onNext={next} isLast={isLast} />
+  ) : (
+    <ThreatView key={`${index}-${puzzle.id}`} puzzle={puzzle} progress={label} onSolved={async (m) => ({ srs: await puzzles.record(puzzle.id, m, 't:'), reward: await progress.recordPuzzle(m) })} onNext={next} isLast={isLast} />
+  )
+}
+
+// A card whose line or puzzle is gone (e.g. an import was deleted): just move on
+function SkipCard({ onNext }: { onNext: () => void }) {
+  useEffect(() => onNext(), [onNext])
+  return null
 }
 
 // Normally gone in a blink. If it takes longer, say why and what helps.
