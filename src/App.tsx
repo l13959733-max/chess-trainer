@@ -5,6 +5,7 @@ import { useProgress } from './hooks/useProgress'
 import { usePuzzles } from './hooks/usePuzzles'
 import { useRepertoire } from './hooks/useRepertoire'
 import { getPlayer } from './lib/chesscom'
+import type { Puzzle } from './lib/db'
 import { isDbBlocked } from './lib/db'
 import { isDue } from './lib/srs'
 import { isUnlocked, stop as stopVoice, unlockAudio } from './lib/voice'
@@ -15,6 +16,10 @@ import { Learn } from './screens/Learn'
 import { Play } from './screens/Play'
 import { PuzzleView } from './screens/PuzzleScreen'
 import { Settings } from './screens/Settings'
+import { ThreatView } from './screens/Threat'
+import { Weaknesses } from './screens/Weaknesses'
+import type { Category } from './lib/weakness'
+import { CATEGORY } from './lib/weakness'
 import './App.css'
 
 function App() {
@@ -69,7 +74,9 @@ function App() {
     const playPuzzle = id === 'puzzle' ? puzzles.puzzles.find((p) => p.id === decodeURIComponent(arg ?? '')) : undefined
     const mode = playLine ? { kind: 'line' as const, line: playLine } : playPuzzle ? { kind: 'puzzle' as const, puzzle: playPuzzle } : { kind: 'new' as const }
     body = <Play key={`${id ?? ''}/${arg ?? ''}`} mode={mode} lines={rep.lines} player={player} onGame={progress.recordGame} onPuzzlesFound={() => setBotFound((n) => n + 1)} />
-  } else if (page === 'puzzles') body = <PuzzleSession puzzles={puzzles} progress={progress} />
+  } else if (page === 'puzzles') body = <PuzzleSession key={id ?? 'all'} puzzles={puzzles} progress={progress} category={id && id in CATEGORY ? (id as Category) : undefined} />
+  else if (page === 'threats') body = <ThreatSession key={id ?? 'all'} puzzles={puzzles} progress={progress} category={id && id in CATEGORY ? (id as Category) : undefined} />
+  else if (page === 'weaknesses') body = <Weaknesses puzzles={puzzles} player={player} />
   else body = <Home rep={rep} progress={progress} puzzles={puzzles} analyzer={analyzer} player={player} />
 
   return (
@@ -123,8 +130,24 @@ function Review({ rep, progress }: { rep: ReturnType<typeof useRepertoire>; prog
 // Due puzzles first, then up to 10 new ones (newest games first). The list is fixed when the session starts.
 const NEW_PER_SESSION = 10
 
-function PuzzleSession({ puzzles, progress }: { puzzles: ReturnType<typeof usePuzzles>; progress: ReturnType<typeof useProgress> }) {
-  const [queue] = useState(() => [...puzzles.due, ...puzzles.fresh.slice(0, NEW_PER_SESSION)].map((p) => p.id))
+// With a category: only that kind of mistake – and when none is due, practise the oldest ones anyway.
+function sessionQueue(puzzles: ReturnType<typeof usePuzzles>, prefix: 'p:' | 't:', keep: (p: Puzzle) => boolean): string[] {
+  const now = Date.now()
+  const pool = puzzles.puzzles.filter(keep)
+  const due = pool.filter((p) => { const s = puzzles.srs.get(prefix + p.id); return s && isDue(s, now) })
+  const fresh = pool.filter((p) => !puzzles.srs.get(prefix + p.id))
+  const queue = [...due, ...fresh.slice(0, NEW_PER_SESSION)]
+  if (!queue.length) {
+    const rest = pool.map((p) => ({ p, at: puzzles.srs.get(prefix + p.id)?.due ?? 0 })).sort((a, b) => a.at - b.at)
+    queue.push(...rest.slice(0, NEW_PER_SESSION).map((x) => x.p))
+  }
+  return queue.map((p) => p.id)
+}
+
+function PuzzleSession({ puzzles, progress, category }: { puzzles: ReturnType<typeof usePuzzles>; progress: ReturnType<typeof useProgress>; category?: Category }) {
+  const [queue] = useState(() =>
+    category ? sessionQueue(puzzles, 'p:', (p) => p.category === category) : [...puzzles.due, ...puzzles.fresh.slice(0, NEW_PER_SESSION)].map((p) => p.id),
+  )
   const [index, setIndex] = useState(0)
   const puzzle = puzzles.puzzles.find((p) => p.id === queue[index])
 
@@ -148,6 +171,41 @@ function PuzzleSession({ puzzles, progress }: { puzzles: ReturnType<typeof usePu
       puzzle={puzzle}
       progress={`${index + 1} of ${queue.length}`}
       onSolved={async (m) => ({ srs: await puzzles.record(puzzle.id, m), reward: await progress.recordPuzzle(m) })}
+      onNext={() => setIndex(index + 1)}
+      isLast={index + 1 >= queue.length}
+    />
+  )
+}
+
+// "What's the threat?" positions: mistakes where the opponent could punish, with the stored answer
+function ThreatSession({ puzzles, progress, category }: { puzzles: ReturnType<typeof usePuzzles>; progress: ReturnType<typeof useProgress>; category?: Category }) {
+  const [queue] = useState(() =>
+    sessionQueue(puzzles, 't:', (p) => !!p.refutation && !!p.category && CATEGORY[p.category].family === 'opponent' && (!category || p.category === category)),
+  )
+  const [index, setIndex] = useState(0)
+  const puzzle = puzzles.puzzles.find((p) => p.id === queue[index])
+
+  if (!puzzle) {
+    return (
+      <div className="screen">
+        <div className="done">
+          <div className="done-title">{queue.length ? 'Well done – that was the whole round' : 'Nothing here yet'}</div>
+          {!queue.length && <p>These positions come from your analysed games. Older ones are still being sorted – try again in a few minutes.</p>}
+          <div className="done-actions">
+            <button type="button" onClick={() => go('')}>Overview</button>
+            <button type="button" className="primary" onClick={() => go('weaknesses')}>My weaknesses</button>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  return (
+    <ThreatView
+      key={puzzle.id}
+      puzzle={puzzle}
+      progress={`${index + 1} of ${queue.length}`}
+      onSolved={async (m) => ({ srs: await puzzles.record(puzzle.id, m, 't:'), reward: await progress.recordPuzzle(m) })}
       onNext={() => setIndex(index + 1)}
       isLast={index + 1 >= queue.length}
     />

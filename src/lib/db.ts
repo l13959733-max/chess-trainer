@@ -4,6 +4,7 @@ import type { Blunder, Score } from './blunders'
 import { ownerOfKey } from './chesscom'
 import type { DayActivity, Goal } from './progress'
 import type { SrsState } from './srs'
+import type { Category, Refutation } from './weakness'
 
 export interface VoiceSettings {
   serverUrl: string // e.g. https://….trycloudflare.com – stays on this device only
@@ -39,6 +40,8 @@ export interface Puzzle extends Blunder {
   bestSan: string
   player?: string // chess.com username; missing = Lu (l0o2)
   source?: 'bot' // a game against Hoppy-Bot (no chess.com link)
+  refutation?: Refutation // the opponent's best answer to the mistake (older puzzles get it later)
+  category?: Category
 }
 
 // Explanations in Lu's cloned voice, kept on the device so the voice works without the Mac.
@@ -173,6 +176,10 @@ export async function saveAnalyzedGame(game: GameRecord, puzzles: Puzzle[]): Pro
 
 export async function getPuzzles(): Promise<Puzzle[]> {
   return (await db()).getAll('puzzles')
+}
+
+export async function putPuzzle(p: Puzzle): Promise<void> {
+  await (await db()).put('puzzles', p)
 }
 
 export async function countAnalyzedGames(player: string): Promise<number> {

@@ -227,7 +227,7 @@ button:focus-visible { outline: 3px solid var(--idea); }
 
 /* Big training tiles on the overview */
 .screen > .quick { margin-inline: 16px; }
-.quick { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+.quick { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
 .quick-tile {
   display: flex;
   flex-direction: column;
@@ -236,11 +236,12 @@ button:focus-visible { outline: 3px solid var(--idea); }
   padding: 12px 6px;
   border-radius: 20px;
   color: #fff;
-  min-height: 104px;
+  min-height: 96px;
 }
 .quick-tile.play { background: var(--accent); border-color: var(--accent-dark); }
 .quick-tile.puzzles { background: var(--idea); border-color: var(--idea-dark); }
 .quick-tile.win { background: var(--grape); border-color: #6b3fd6; }
+.quick-tile.weak { background: #ff9f1c; border-color: #d97c00; }
 .quick-tile:disabled { opacity: 0.5; }
 .quick-icon { font-size: 2rem; line-height: 1; }
 .quick-text { display: flex; flex-direction: column; font-size: 1rem; font-weight: 900; line-height: 1.15; text-align: center; }
@@ -263,3 +264,14 @@ button:focus-visible { outline: 3px solid var(--idea); }
 .play-controls button.on { background: var(--sun); border-color: var(--sun-dark); }
 .play-controls button.danger { color: #fff; }
 .rating-change { font-weight: 800; }
+
+/* My weaknesses */
+.weak-row { display: grid; gap: 6px; padding-top: 8px; border-top: 2px solid var(--line); }
+.weak-row:first-of-type { border-top: 0; }
+.weak-head { display: flex; justify-content: space-between; gap: 8px; }
+.weak-head .count { color: var(--muted); font-weight: 900; }
+.weak-row .note { margin: 0; }
+.weak-row .row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.weak-row .row button { min-height: 44px; font-size: 0.85rem; padding: 6px; }
+.threat-card { border-color: #ff9f1c; }
+.rule-card { border-color: var(--sun); background: #fffbea; }

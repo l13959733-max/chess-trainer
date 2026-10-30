@@ -72,6 +72,10 @@ export function Home({ rep, progress, puzzles, analyzer, player }: { rep: Repert
           <span className="quick-icon" aria-hidden="true">♜</span>
           <span className="quick-text">Puzzles<small>{puzzles.due.length + puzzles.fresh.length} waiting</small></span>
         </button>
+        <button type="button" className="quick-tile weak" onClick={() => go('weaknesses')}>
+          <span className="quick-icon" aria-hidden="true">♝</span>
+          <span className="quick-text">My weaknesses<small>train them</small></span>
+        </button>
         <button type="button" className="quick-tile win" disabled={!winning.length} onClick={() => go('play/puzzle/' + encodeURIComponent(winning[Math.floor(Math.random() * winning.length)].id))}>
           <span className="quick-icon" aria-hidden="true">♛</span>
           <span className="quick-text">Win it<small>{winning.length ? `${winning.length} won positions` : 'from your games'}</small></span>

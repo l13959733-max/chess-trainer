@@ -245,7 +245,7 @@ export function PuzzleView({ puzzle, progress, onSolved, onNext, isLast }: Props
   )
 }
 
-function ExplainCard({ title, ex, onShow }: { title: string; ex: Explanation | 'loading'; onShow: (line: LineStep[]) => void }) {
+export function ExplainCard({ title, ex, onShow }: { title: string; ex: Explanation | 'loading'; onShow: (line: LineStep[]) => void }) {
   // The board is at the top of the screen: bring it into view when a line is shown
   const show = (line: LineStep[]) => {
     onShow(line)

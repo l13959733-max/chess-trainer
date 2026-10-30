@@ -3,11 +3,13 @@
 import { Chess } from 'chess.js'
 import { findBlunders, gamePositions, terminalScore, uciToSan, type PositionEval } from './blunders'
 import { fetchArchives, fetchMonth, gameKey, getPlayer, isTrainingGame, myColor, type ChessComGame } from './chesscom'
-import { getAnalyzedGameIds, saveAnalyzedGame, type Puzzle } from './db'
+import { getAnalyzedGameIds, putPuzzle, saveAnalyzedGame, type Puzzle } from './db'
 import { evaluate, newGame } from './engine'
+import { categorize, type Refutation } from './weakness'
 
 export const DEPTH = 14
 const BOT_GAME_DEPTH = 12 // quicker, right after the game
+const CATEGORY_DEPTH = 12
 
 export interface AnalyzerState {
   status: 'idle' | 'loading' | 'running' | 'paused' | 'done' | 'error'
@@ -78,8 +80,9 @@ async function analyzeGame(g: ChessComGame, player: string): Promise<Puzzle[]> {
     const done = terminalScore(fens[i])
     evals.push(done ? { score: done, pv: [] } : await evaluate(fens[i], DEPTH))
   }
-  return findBlunders(moves, evals, me).map((b) => ({
+  return findBlunders(moves, evals, me).map((b) => withCategory({
     ...b,
+    refutation: refutationOf(evals[b.ply + 1]),
     id: `${gameKey(player, g.uuid)}:${b.ply}`,
     player,
     gameUuid: g.uuid,
@@ -90,6 +93,37 @@ async function analyzeGame(g: ChessComGame, player: string): Promise<Puzzle[]> {
     scoreBefore: evals[b.ply].score,
     bestSan: uciToSan(b.fen, b.best) ?? b.best,
   }))
+}
+
+function refutationOf(e: PositionEval | undefined): Refutation | undefined {
+  return e?.best ? { best: e.best, pv: e.pv, score: e.score } : undefined
+}
+
+function withCategory(p: Puzzle): Puzzle {
+  return { ...p, category: categorize(p) }
+}
+
+// Older puzzles were stored without the opponent's answer: look it up once and sort them into
+// weaknesses. Runs in the background, one puzzle at a time.
+let upgrading = false
+export async function categorizeOld(puzzles: Puzzle[], onProgress: (done: number, total: number) => void): Promise<void> {
+  if (upgrading) return
+  upgrading = true
+  try {
+    const todo = puzzles.filter((p) => !p.category)
+    for (let i = 0; i < todo.length; i++) {
+      onProgress(i, todo.length)
+      const p = todo[i]
+      const after = new Chess(p.fen)
+      after.move(p.played)
+      const done = terminalScore(after.fen())
+      const ev = done ? undefined : await evaluate(after.fen(), CATEGORY_DEPTH)
+      await putPuzzle(withCategory({ ...p, refutation: refutationOf(ev) }))
+    }
+    onProgress(todo.length, todo.length)
+  } finally {
+    upgrading = false
+  }
 }
 
 export async function start() {
@@ -151,8 +185,9 @@ export async function analyzeBotGame(
     evals.push(done ? { score: done, pv: [] } : await evaluate(fens[i], BOT_GAME_DEPTH))
   }
   const now = Math.floor(Date.now() / 1000)
-  const puzzles: Puzzle[] = findBlunders(moves, evals, game.me).map((b) => ({
+  const puzzles: Puzzle[] = findBlunders(moves, evals, game.me).map((b) => withCategory({
     ...b,
+    refutation: refutationOf(evals[b.ply + 1]),
     id: `bot-${player}:${game.id}:${b.ply}`,
     player,
     source: 'bot',
