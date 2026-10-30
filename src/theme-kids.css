@@ -321,3 +321,15 @@ button:focus-visible { outline: 3px solid var(--idea); }
 .chapter-group { margin: 22px 4px 4px; font-size: 0.8rem; font-weight: 900; letter-spacing: 0.08em; text-transform: uppercase; color: var(--grape); }
 .chapter-title { display: flex; flex-direction: column; }
 .chapter-moves { color: var(--muted); font-weight: 800; font-size: 0.78rem; letter-spacing: 0; }
+
+/* Coach in games against Hoppy-Bot */
+.screen > .coach-bar, .screen > .ideas-card, .screen > .coach-note { margin-inline: 16px; }
+.coach-bar { display: grid; grid-template-columns: 1fr 1.4fr; gap: 8px; }
+.coach-bar button { min-height: 48px; font-size: 0.9rem; padding: 6px; }
+.coach-bar button.on { background: var(--grape); border-color: #6b3fd6; color: #fff; }
+.coach-note { margin-top: -4px; }
+.coach-verdict.great .move, .coach-verdict.good .move { color: var(--accent-dark); }
+.coach-verdict.inaccuracy .move { color: #d97c00; }
+.coach-verdict.mistake, .coach-verdict.blunder { border-color: var(--bad); }
+.coach-verdict.mistake .move, .coach-verdict.blunder .move { color: var(--bad); }
+.ideas-card .idea-dot { display: inline-block; width: 12px; height: 12px; border-radius: 50%; vertical-align: middle; }

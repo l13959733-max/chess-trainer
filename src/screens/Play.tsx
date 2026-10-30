@@ -1,5 +1,6 @@
 import { Chess } from 'chess.js'
 import { useEffect, useMemo, useRef, useState } from 'react'
+import type { Arrow } from 'react-chessboard'
 import { Board, LAST_MOVE } from '../components/Board'
 import { Celebrate } from '../components/Celebrate'
 import { Mascot } from '../components/Mascot'
@@ -7,7 +8,9 @@ import { go } from '../hooks/useHashRoute'
 import type { Reward } from '../hooks/useProgress'
 import { analyzeBotGame } from '../lib/analyzer'
 import { bookMove, buildBook } from '../lib/book'
-import { isMeasured, pickMove, updateRating, winChance } from '../lib/bot'
+import { isMeasured, pickMove, updateRating, winChance, type Candidate } from '../lib/bot'
+import { plans, reason, verdict, type Verdict } from '../lib/coach'
+import { uciToSan } from '../lib/blunders'
 import { fetchRapidRating } from '../lib/chesscom'
 import { getBotStats, putBotStats, type BotStats, type Puzzle } from '../lib/db'
 import { allMoves } from '../lib/engine'
@@ -32,6 +35,14 @@ const START = new Chess().fen()
 const SAVE_KEY = 'chess-trainer-game'
 const LEVELS = [200, 400, 600, 800, 1000, 1200, 1500, 2000]
 const MIN_THINK = 650 // ms – an instant answer feels like a machine
+const IDEA_COLORS = ['rgba(79, 196, 20, 0.9)', 'rgba(46, 167, 240, 0.85)', 'rgba(255, 197, 49, 0.9)']
+const VERDICT_TEXT: Record<Verdict, string> = {
+  great: 'great move!',
+  good: 'good move.',
+  inaccuracy: 'OK, but there was something better.',
+  mistake: 'a mistake.',
+  blunder: 'careful – this loses a lot!',
+}
 const DANGER = { boxShadow: 'inset 0 0 0 4px rgba(239, 74, 90, 0.95)', backgroundColor: 'rgba(239, 74, 90, 0.25)' }
 
 function loadSaved(): Game | null {
@@ -247,6 +258,23 @@ function GameView({ game, setGame, book, thinking, setThinking, lastBotWin, safe
   const [result, setResult] = useState<{ before: number; after: number; reward: Reward } | null>(null)
   const [analysis, setAnalysis] = useState<{ done: number; total: number; found?: number } | null>(null)
   const finished = useRef(false)
+  // Coach: on by default when playing on from a line or a won position (practice); never in rated games
+  const [coach, setCoach] = useState(!game.rated)
+  const [cands, setCands] = useState<{ fen: string; list: Candidate[] } | null>(null)
+  const [showIdeas, setShowIdeas] = useState(false)
+  const [lastVerdict, setLastVerdict] = useState<{ san: string; verdict: Verdict; bestSan: string; why: string[]; ply: number } | null>(null)
+
+  // The coach looks at the player's position as soon as it is their turn
+  useEffect(() => {
+    if (!coach || over || turn !== game.me) return
+    let alive = true
+    allMoves(fen, 10)
+      .then((list) => alive && setCands({ fen, list }))
+      .catch(() => {})
+    return () => {
+      alive = false
+    }
+  }, [coach, fen, over, turn, game.me])
 
   // Hoppy-Bot's move
   useEffect(() => {
@@ -308,7 +336,17 @@ function GameView({ game, setGame, book, thinking, setThinking, lastBotWin, safe
       return false
     }
     feedback.move(m.san)
-    setGame({ ...game, moves: [...game.moves, m.from + m.to + (m.promotion ?? '')] })
+    const uci = m.from + m.to + (m.promotion ?? '')
+    if (coach && cands?.fen === fen) {
+      const v = verdict(cands.list, uci)
+      if (v) {
+        const bestSan = uciToSan(fen, v.best.uci) ?? v.best.uci
+        const why = v.verdict === 'great' || v.verdict === 'good' ? [] : [`${bestSan} ${reason(fen, v.best.uci)}`]
+        setLastVerdict({ san: m.san, verdict: v.verdict, bestSan, why, ply: game.moves.length })
+      }
+    } else setLastVerdict(null)
+    setShowIdeas(false)
+    setGame({ ...game, moves: [...game.moves, uci] })
     return true
   }
 
@@ -326,6 +364,9 @@ function GameView({ game, setGame, book, thinking, setThinking, lastBotWin, safe
   const styles: Record<string, React.CSSProperties> = last ? { [last.from]: LAST_MOVE, [last.to]: LAST_MOVE } : {}
   const danger = safety && !over && turn === game.me ? piecesInDanger(fen, game.me) : []
   for (const sq of danger) styles[sq] = { ...styles[sq], ...DANGER }
+  const ready = coach && cands?.fen === fen && turn === game.me && !over
+  const ideas = ready ? [...cands!.list].sort((a, b) => winChance(b.score) - winChance(a.score)).slice(0, 3) : []
+  const arrows: Arrow[] = showIdeas ? ideas.map((c, i) => ({ startSquare: c.uci.slice(0, 2), endSquare: c.uci.slice(2, 4), color: IDEA_COLORS[i] })) : []
 
   const score = over ? (game.resigned ? 0 : chess.isCheckmate() ? (chess.turn() === game.me ? 0 : 1) : 0.5) : null
   const history = chess.history()
@@ -342,7 +383,7 @@ function GameView({ game, setGame, book, thinking, setThinking, lastBotWin, safe
         </div>
       </div>
 
-      <Board fen={fen} orientation={game.me === 'w' ? 'white' : 'black'} onMove={!over && turn === game.me ? onMove : undefined} squareStyles={styles} />
+      <Board fen={fen} orientation={game.me === 'w' ? 'white' : 'black'} onMove={!over && turn === game.me ? onMove : undefined} squareStyles={styles} arrows={arrows} />
 
       <div className="drill-status">
         <span>
@@ -361,6 +402,52 @@ function GameView({ game, setGame, book, thinking, setThinking, lastBotWin, safe
           <button type="button" className={safety ? 'on' : ''} onClick={() => setSafety(!safety)}>🛡 Safety {safety ? 'on' : 'off'}</button>
           <button type="button" className="danger" onClick={() => setGame({ ...game, resigned: true })}>Resign</button>
         </div>
+      )}
+
+      {!over && (
+        <div className="coach-bar">
+          <button type="button" className={coach ? 'on' : ''} onClick={() => {
+            if (!coach && game.rated) setGame({ ...game, rated: false })
+            setCoach(!coach)
+            setShowIdeas(false)
+          }}>🎓 Coach {coach ? 'on' : 'off'}</button>
+          {coach && (
+            <button type="button" className="primary" disabled={!ready} onClick={() => setShowIdeas(!showIdeas)}>
+              {!ready ? (turn === game.me ? 'Thinking …' : 'Wait for your move') : showIdeas ? 'Hide ideas' : 'Show ideas'}
+            </button>
+          )}
+        </div>
+      )}
+      {!over && !coach && game.rated && <p className="note small coach-note">Turning the coach on makes this a practice game (no rating change).</p>}
+
+      {coach && lastVerdict && !over && (
+        <div className={`explain coach-verdict ${lastVerdict.verdict}`}>
+          <Mascot mood={lastVerdict.verdict === 'great' || lastVerdict.verdict === 'good' ? 'cheer' : 'oops'} />
+          <div className="move">{lastVerdict.san}: {VERDICT_TEXT[lastVerdict.verdict]}</div>
+          {lastVerdict.verdict !== 'great' && <p>Best was <b>{lastVerdict.bestSan}</b>. {lastVerdict.why.join(' ')}</p>}
+          {(lastVerdict.verdict === 'mistake' || lastVerdict.verdict === 'blunder') && turn === game.me && (
+            <button type="button" className="speak-btn" onClick={() => { takeBack(); setLastVerdict(null) }}>Take back and try again</button>
+          )}
+        </div>
+      )}
+
+      {showIdeas && ideas.length > 0 && (
+        <section className="explain-card ideas-card">
+          <div className="label">Ideas for this position</div>
+          {ideas.map((c, i) => {
+            const san = uciToSan(fen, c.uci) ?? c.uci
+            const s = reason(fen, c.uci)
+            return (
+              <p key={c.uci}>
+                <span className="idea-dot" style={{ background: IDEA_COLORS[i] }} /> <b>{san}</b>{i === 0 ? ' (best)' : ''} – {s}
+              </p>
+            )
+          })}
+          <div className="label">Plans</div>
+          {plans(fen, game.me).map((p) => (
+            <p key={p}>• {p}</p>
+          ))}
+        </section>
       )}
 
       {!over && danger.length > 0 && (
