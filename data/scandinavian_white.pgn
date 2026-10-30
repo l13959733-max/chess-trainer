@@ -1,0 +1,41 @@
+[Event "vs Scandinavian: 3...Qa5 Main Line"]
+[Opening "Scandinavian"]
+[Side "White"]
+[Result "*"]
+
+1. e4 d5 {The Scandinavian: Black attacks e4 at once.} 2. exd5 {Take it! This is the best answer – better than 2.e5 or 2.Nc3, which you often play.} Qxd5 3. Nc3 {Attack the queen – you develop with tempo.} Qa5 4. d4 {Take the center.} Nf6 5. Nf3 c6 6. Bc4 Bf5 7. Bd2 {Now Nd5 or Nb5 can hit the queen.} e6 8. Qe2 {Get ready to castle long.} Bb4 9. O-O-O Nbd7 10. a3 Bxc3 11. Bxc3 Qc7 12. Ne5 {Your pieces are more active.} *
+
+[Event "vs Scandinavian: Bishop Chase 5...Bg4"]
+[Opening "Scandinavian"]
+[Side "White"]
+[Result "*"]
+
+1. e4 d5 2. exd5 Qxd5 3. Nc3 Qa5 4. d4 Nf6 5. Nf3 Bg4 6. h3 {Ask the bishop!} Bh5 7. g4 {Chase it again.} Bg6 8. Ne5 {The knight jumps in. Black's queen side is slow.} e6 9. h4 {Threatens h5, trapping the bishop.} *
+
+[Event "vs Scandinavian: 3...Qd6"]
+[Opening "Scandinavian"]
+[Side "White"]
+[Result "*"]
+
+1. e4 d5 2. exd5 Qxd5 3. Nc3 Qd6 {The queen is safer on d6.} 4. d4 Nf6 5. Nf3 a6 {Black stops Nb5.} 6. g3 {The bishop will be strong on g2.} Bg4 7. Bg2 Nc6 8. O-O {Your king is safe and Black's king is still in the middle.} O-O-O *
+
+[Event "vs Scandinavian: 3...Qd8"]
+[Opening "Scandinavian"]
+[Side "White"]
+[Result "*"]
+
+1. e4 d5 2. exd5 Qxd5 3. Nc3 Qd8 {The queen goes all the way home.} 4. d4 Nf6 5. Nf3 Bg4 6. h3 Bxf3 7. Qxf3 {You keep the bishop pair.} c6 8. Be3 e6 9. Bd3 Nbd7 10. O-O {You have more space and two bishops.} *
+
+[Event "vs Scandinavian: 3...Qe5+?"]
+[Opening "Scandinavian"]
+[Side "White"]
+[Result "*"]
+
+1. e4 d5 2. exd5 Qxd5 3. Nc3 Qe5+ {A check that helps nobody.} 4. Be2 {Block the check and develop.} c6 5. Nf3 {Attack the queen again – free time for you!} Qc7 6. d4 Bf5 7. O-O e6 8. Re1 {Your rook is on the open file and you are well ahead in development.} *
+
+[Event "vs Scandinavian: 2...Nf6"]
+[Opening "Scandinavian"]
+[Side "White"]
+[Result "*"]
+
+1. e4 d5 2. exd5 Nf6 {Black takes back later with the knight.} 3. d4 {Take the center.} Nxd5 4. Nf3 g6 5. Be2 Bg7 6. O-O O-O 7. c4 {Kick the knight from the middle.} Nb6 8. Nc3 Nc6 9. d5 {Push again!} Ne5 10. Nxe5 Bxe5 *

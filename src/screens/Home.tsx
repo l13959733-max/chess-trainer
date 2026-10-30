@@ -1,10 +1,12 @@
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { Mascot } from '../components/Mascot'
 import { go } from '../hooks/useHashRoute'
 import type { Progress } from '../hooks/useProgress'
 import type { Puzzles } from '../hooks/usePuzzles'
 import { pause, start, type AnalyzerState } from '../lib/analyzer'
 import type { Repertoire } from '../hooks/useRepertoire'
+import { chapters, type Chapter } from '../lib/chapters'
+import type { Line } from '../lib/pgn'
 import { PUZZLES_AVAILABLE } from '../lib/progress'
 import { daysUntil, isDue, lineResult } from '../lib/srs'
 
@@ -22,6 +24,19 @@ export function Home({ rep, progress, puzzles, analyzer, player }: { rep: Repert
   const activeToday = doneLines + (progress.today?.puzzles ?? 0) > 0
   const { goal } = progress
   const [open, setOpen] = useState<string | null>(null)
+  const chapterList = useMemo(() => chapters(rep.lines), [rep.lines])
+  const [openChapters, setOpenChapters] = useState<Set<string>>(() => loadOpen(chapterList, rep, now))
+  function toggleChapter(key: string) {
+    const next = new Set(openChapters)
+    if (next.has(key)) next.delete(key)
+    else next.add(key)
+    setOpenChapters(next)
+    try {
+      localStorage.setItem(OPEN_KEY, JSON.stringify([...next]))
+    } catch {
+      // private mode: the choice is just not remembered
+    }
+  }
 
   return (
     <div className="screen">
@@ -50,46 +65,31 @@ export function Home({ rep, progress, puzzles, analyzer, player }: { rep: Repert
           <h2>Your path</h2>
           <button type="button" onClick={() => go('import')}>Import PGN</button>
         </div>
-        <div className="path">
-          {rep.lines.map((line, i) => {
-            const s = rep.srs.get(line.id)
-            const r = lineResult(s, now)
-            const last = r.kind === 'new' ? 'Not played yet' : r.kind === 'perfect' ? 'Last time: perfect' : `Last time: ${r.mistakes} ${r.mistakes === 1 ? 'mistake' : 'mistakes'}`
-            const next = !s || r.kind === 'new' ? '' : r.due ? 'Practice again now' : daysUntil(s, now) <= 1 ? 'Again tomorrow' : `Again in ${daysUntil(s, now)} days`
-            const cls = r.kind === 'new' ? 'new' : r.kind === 'perfect' ? 'perfect' : 'mistakes'
-            return (
-              <div key={line.id} className={`path-step offset-${i % 4}`}>
-                <button
-                  type="button"
-                  className={`path-node ${cls} ${r.due ? 'is-due' : ''} ${line.side === 'b' ? 'black' : ''}`}
-                  aria-expanded={open === line.id}
-                  aria-label={line.title}
-                  onClick={() => setOpen(open === line.id ? null : line.id)}
-                >
-                  {r.kind === 'new' ? '★' : r.kind === 'perfect' ? '✓' : r.mistakes}
-                </button>
-                <div className="path-label">{line.title}</div>
-                {r.kind !== 'new' && (
-                  <div className={`path-result ${cls}`}>{r.kind === 'perfect' ? 'Perfect' : `${r.mistakes} ${r.mistakes === 1 ? 'mistake' : 'mistakes'}`}{r.due ? ' · practice again' : ''}</div>
-                )}
-                {open === line.id && (
-                  <div className="path-pop">
-                    <div className="meta">
-                      <span className={`side side-${line.side}`}>{line.side === 'w' ? 'White' : 'Black'}</span>
-                      <span>{Math.ceil(line.moves.length / 2)} moves</span>
-                      <span className={`status ${cls}`}>{last}</span>
-                      {next && <span className={r.due ? 'status due' : ''}>{next}</span>}
-                    </div>
-                    <div className="row">
-                      <button type="button" onClick={() => go('learn/' + line.id)}>Learn</button>
-                      <button type="button" className="primary" onClick={() => go('drill/' + line.id)}>Play</button>
-                    </div>
-                  </div>
-                )}
-              </div>
-            )
-          })}
-        </div>
+        {chapterList.map((ch) => {
+          const isOpen = openChapters.has(ch.key)
+          const played = ch.lines.filter((l) => rep.srs.get(l.id)).length
+          const dueHere = ch.lines.filter((l) => isDue(rep.srs.get(l.id), now)).length
+          return (
+            <div key={ch.key} className={`chapter ${isOpen ? 'open' : ''}`}>
+              <button type="button" className="chapter-head" aria-expanded={isOpen} onClick={() => toggleChapter(ch.key)}>
+                <span className={`side-dot ${ch.side === 'b' ? 'black' : ch.side === 'w' ? 'white' : ''}`} aria-hidden="true" />
+                <span className="chapter-title">{ch.title}</span>
+                <span className="chapter-count">
+                  {played}/{ch.lines.length}
+                  {dueHere > 0 && <b className="chapter-due">{dueHere} due</b>}
+                </span>
+                <span className="chevron" aria-hidden="true">{isOpen ? '▾' : '▸'}</span>
+              </button>
+              {isOpen && (
+                <div className="path">
+                  {ch.lines.map((line, i) => (
+                    <PathStep key={line.id} line={line} i={i} rep={rep} now={now} open={open === line.id} onToggle={() => setOpen(open === line.id ? null : line.id)} />
+                  ))}
+                </div>
+              )}
+            </div>
+          )
+        })}
       </section>
 
       <section className={`goal-card ${progress.goalReached ? 'reached' : ''}`} aria-label="Daily goal">
@@ -181,6 +181,59 @@ function AnalysisStatus({ analyzer, analyzedGames }: { analyzer: AnalyzerState; 
       {analyzer.status === 'paused' && <p className="note">Paused. Finished games are saved.</p>}
       {analyzer.status === 'error' && <p className="note bad">Stopped: {analyzer.error}. Tap Continue to try again.</p>}
       <p className="note small">Newest games first. Runs while the app is open; keep it in front on your phone.</p>
+    </div>
+  )
+}
+
+const OPEN_KEY = 'chess-trainer-open-chapters'
+
+// Chapters that were open last time; the first time, the chapters with due lines (or the first chapter)
+function loadOpen(list: Chapter[], rep: Repertoire, now: number): Set<string> {
+  try {
+    const saved = localStorage.getItem(OPEN_KEY)
+    if (saved) return new Set(JSON.parse(saved) as string[])
+  } catch {
+    // ignore
+  }
+  const withDue = list.filter((c) => c.lines.some((l) => isDue(rep.srs.get(l.id), now))).map((c) => c.key)
+  return new Set(withDue.length ? withDue : list.slice(0, 1).map((c) => c.key))
+}
+
+function PathStep({ line, i, rep, now, open, onToggle }: { line: Line; i: number; rep: Repertoire; now: number; open: boolean; onToggle: () => void }) {
+  const s = rep.srs.get(line.id)
+  const r = lineResult(s, now)
+  const last = r.kind === 'new' ? 'Not played yet' : r.kind === 'perfect' ? 'Last time: perfect' : `Last time: ${r.mistakes} ${r.mistakes === 1 ? 'mistake' : 'mistakes'}`
+  const next = !s || r.kind === 'new' ? '' : r.due ? 'Practice again now' : daysUntil(s, now) <= 1 ? 'Again tomorrow' : `Again in ${daysUntil(s, now)} days`
+  const cls = r.kind === 'new' ? 'new' : r.kind === 'perfect' ? 'perfect' : 'mistakes'
+  return (
+    <div className={`path-step offset-${i % 4}`}>
+      <button
+        type="button"
+        className={`path-node ${cls} ${r.due ? 'is-due' : ''} ${line.side === 'b' ? 'black' : ''}`}
+        aria-expanded={open}
+        aria-label={line.title}
+        onClick={onToggle}
+      >
+        {r.kind === 'new' ? '★' : r.kind === 'perfect' ? '✓' : r.mistakes}
+      </button>
+      <div className="path-label">{line.title}</div>
+      {r.kind !== 'new' && (
+        <div className={`path-result ${cls}`}>{r.kind === 'perfect' ? 'Perfect' : `${r.mistakes} ${r.mistakes === 1 ? 'mistake' : 'mistakes'}`}{r.due ? ' · practice again' : ''}</div>
+      )}
+      {open && (
+        <div className="path-pop">
+          <div className="meta">
+            <span className={`side side-${line.side}`}>{line.side === 'w' ? 'White' : 'Black'}</span>
+            <span>{Math.ceil(line.moves.length / 2)} moves</span>
+            <span className={`status ${cls}`}>{last}</span>
+            {next && <span className={r.due ? 'status due' : ''}>{next}</span>}
+          </div>
+          <div className="row">
+            <button type="button" onClick={() => go('learn/' + line.id)}>Learn</button>
+            <button type="button" className="primary" onClick={() => go('drill/' + line.id)}>Play</button>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

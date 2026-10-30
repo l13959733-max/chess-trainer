@@ -201,3 +201,26 @@ button:focus-visible { outline: 3px solid var(--idea); }
 .line-viewer { border: 2px solid var(--idea); border-radius: 18px; padding: 12px; display: grid; gap: 10px; background: #f2f9ff; }
 .line-viewer-head { display: flex; justify-content: space-between; font-weight: 800; }
 .line-moves { display: flex; flex-wrap: wrap; gap: 6px; }
+
+/* Chapters on the learning path: one per opening and side */
+.chapter { border: 2px solid var(--line); border-radius: 20px; background: #fff; margin-top: 10px; }
+.chapter.open { box-shadow: 0 5px 0 var(--line); }
+.chapter-head {
+  width: 100%;
+  display: grid;
+  grid-template-columns: auto 1fr auto auto;
+  align-items: center;
+  gap: 10px;
+  border: 0;
+  border-radius: 18px;
+  background: none;
+  padding: 14px;
+  text-align: left;
+}
+.chapter-head:active:not(:disabled) { transform: none; margin: 0; }
+.chapter-title { font-weight: 900; font-size: 1.02rem; }
+.chapter-count { color: var(--muted); font-weight: 800; font-size: 0.85rem; display: flex; gap: 6px; align-items: center; }
+.chapter-due { color: #fff; background: #ff9f1c; border-radius: 999px; padding: 2px 8px; font-size: 0.75rem; }
+.chevron { color: var(--muted); font-size: 1.1rem; }
+.side-dot { width: 18px; height: 18px; border-radius: 50%; border: 3px solid var(--text); background: #fff; }
+.side-dot.black { background: var(--text); }

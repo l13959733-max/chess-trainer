@@ -1,47 +1,104 @@
 [Event "Italian: Giuoco Piano Main Line"]
+[Opening "Italian Game"]
 [Side "White"]
 [Result "*"]
 
 1. e4 {Take the center and open lines for the bishop and queen.} e5 2. Nf3 {Attacks e5 and develops a piece.} Nc6 3. Bc4 {Aims at f7, the weakest point in Black's camp.} Bc5 4. c3 {Prepares d4 – a big pawn center.} Nf6 5. d4 {Open the center before Black can castle.} exd4 6. cxd4 Bb4+ 7. Bd2 Bxd2+ 8. Nbxd2 d5 {Black has to hit back at the center right away.} 9. exd5 Nxd5 10. Qb3 {Pressure on d5 and b7.} Nce7 11. O-O O-O 12. Rfe1 {Rook to the open file.} c6 *
 
 [Event "Italian: Giuoco Pianissimo (Quiet)"]
+[Opening "Italian Game"]
 [Side "White"]
 [Result "*"]
 
 1. e4 e5 2. Nf3 Nc6 3. Bc4 Bc5 4. c3 Nf6 5. d3 {Quiet setup: keep e4 safely protected and maneuver slowly.} d6 6. O-O O-O 7. Re1 a6 8. Bb3 {Moves the bishop out of reach of ...Na5.} Ba7 9. h3 {Prevents the ...Bg4 pin.} *
 
 [Event "Evans Gambit Accepted"]
+[Opening "Italian Game"]
 [Side "White"]
 [Result "*"]
 
 1. e4 e5 2. Nf3 Nc6 3. Bc4 Bc5 4. b4 {Pawn sacrifice for fast development and tempo.} Bxb4 5. c3 {Gains a tempo on the bishop and prepares d4.} Ba5 6. d4 exd4 7. O-O {Castle first – attack matters more than material.} Nge7 8. cxd4 d5 {Black gives the pawn back to free their position.} 9. exd5 Nxd5 10. Ba3 {Stops Black from castling.} *
 
 [Event "Evans Gambit Declined"]
+[Opening "Italian Game"]
 [Side "White"]
 [Result "*"]
 
 1. e4 e5 2. Nf3 Nc6 3. Bc4 Bc5 4. b4 Bb6 5. a4 {Threatens a5, trapping the bishop.} a6 6. Nc3 {Just develop – White has space on the queenside.} *
 
 [Event "Two Knights: Fried Liver Attack"]
+[Opening "Italian Game"]
 [Side "White"]
 [Result "*"]
 
 1. e4 e5 2. Nf3 Nc6 3. Bc4 Nf6 4. Ng5 {Knight and bishop both attack f7.} d5 5. exd5 Nxd5 {A mistake! Now comes the sacrifice.} 6. Nxf7 {Knight sacrifice: the king has to come out.} Kxf7 7. Qf3+ {Pins the knight on d5; the king must go to e6.} Ke6 8. Nc3 {One more attacker on d5 – Black's king is stuck in the center and White attacks.} *
 
 [Event "Two Knights: Main Line 5...Na5"]
+[Opening "Italian Game"]
 [Side "White"]
 [Result "*"]
 
 1. e4 e5 2. Nf3 Nc6 3. Bc4 Nf6 4. Ng5 d5 5. exd5 Na5 {The best reply: attack the bishop.} 6. Bb5+ c6 7. dxc6 bxc6 8. Be2 {White is a pawn up; Black is ahead in development.} h6 9. Nf3 e4 10. Ne5 Bd6 *
 
 [Event "Two Knights: Avoiding the Traxler"]
+[Opening "Italian Game"]
 [Side "White"]
 [Result "*"]
 
 1. e4 e5 2. Nf3 Nc6 3. Bc4 Nf6 4. Ng5 Bc5 {The Traxler: if White plays 5.Nxf7, then 5...Bxf2+ starts a wild counterattack.} 5. Bxf7+ {Safer: take the pawn with check; the king has to move.} Ke7 6. Bb3 {Bishop back. White is a pawn up and Black can no longer castle.} *
 
 [Event "Trap: Légal's Mate"]
+[Opening "Italian Game"]
 [Side "White"]
 [Result "*"]
 
 1. e4 e5 2. Nf3 d6 3. Bc4 Nc6 4. Nc3 Bg4 5. h3 Bh5 {A mistake – the bishop leaves its post.} 6. Nxe5 {Queen sacrifice!} Bxd1 {Greedy. 6...Nxe5 was better.} 7. Bxf7+ Ke7 8. Nd5# {Checkmate with three minor pieces.} *
+
+[Event "Italian: Two Knights, Calm 4.d3"]
+[Opening "Italian Game"]
+[Side "White"]
+[Result "*"]
+
+1. e4 e5 2. Nf3 Nc6 3. Bc4 Nf6 4. d3 {The calm way: protect e4 and keep all your pieces safe. Strong players play this a lot.} Be7 5. O-O O-O 6. Re1 {The rook supports e4.} d6 7. c3 {Gives the bishop a hiding square on c2 and prepares d4 later.} Na5 8. Bb5 {Out of the knight's reach.} a6 9. Ba4 b5 10. Bc2 {The bishop is safe here and still aims at the king side.} c5 11. Nbd2 {The knight goes to f1 and g3 later.} *
+
+[Event "Italian: Blackburne Shilling Trap 3...Nd4"]
+[Opening "Italian Game"]
+[Side "White"]
+[Result "*"]
+
+1. e4 e5 2. Nf3 Nc6 3. Bc4 Nd4 {A trap! If you grab the pawn with 4.Nxe5?, then 4...Qg5 attacks your knight and g2 at the same time.} 4. Nxd4 {Simple and good: trade the knight.} exd4 5. O-O {Castle and enjoy your lead in development.} Bc5 {A mistake! The bishop is not protected.} 6. Bxf7+ {Check! The king must take.} Kxf7 7. Qh5+ {A fork: check AND attack on the bishop on c5.} g6 8. Qxc5 {You win the bishop.} *
+
+[Event "Italian vs Petrov 2...Nf6"]
+[Opening "Italian Game"]
+[Side "White"]
+[Result "*"]
+
+1. e4 e5 2. Nf3 Nf6 {The Petrov: Black's knight comes out on the other side and attacks e4.} 3. Nxe5 {Take the pawn first.} d6 {Correct: push your knight away before taking back.} 4. Nf3 Nxe4 5. d4 {Take the center.} d5 6. Bd3 {Hit the knight on e4.} Nc6 7. O-O Be7 8. c4 {Attack Black's center pawn.} Nf6 9. Nc3 O-O 10. h3 {Stops ...Bg4.} *
+
+[Event "Trap: Petrov 3...Nxe4?"]
+[Opening "Italian Game"]
+[Side "White"]
+[Result "*"]
+
+1. e4 e5 2. Nf3 Nf6 3. Nxe5 Nxe4 {A mistake! Black copies you too early.} 4. Qe2 {Attacks the knight on e4 and lines up with Black's king.} Nf6 {Big mistake.} 5. Nc6+ {Discovered check! Your queen gives check and your knight attacks Black's queen.} Be7 6. Nxd8 {You win the queen.} Kxd8 *
+
+[Event "Italian vs Philidor 2...d6"]
+[Opening "Italian Game"]
+[Side "White"]
+[Result "*"]
+
+1. e4 e5 2. Nf3 d6 {The Philidor: solid, but a bit passive.} 3. d4 {Hit the center right away.} exd4 4. Nxd4 Nf6 5. Nc3 {Develop and protect e4.} Be7 6. Be2 O-O 7. O-O Re8 8. f4 {Gain space – your pieces have more room.} Bf8 9. Bf3 *
+
+[Event "Italian vs Hungarian 3...Be7"]
+[Opening "Italian Game"]
+[Side "White"]
+[Result "*"]
+
+1. e4 e5 2. Nf3 Nc6 3. Bc4 Be7 {A shy move: the bishop stays at home.} 4. d4 {Use the time to take the center.} d6 5. d5 {Gain space and push the knight away.} Nb8 6. Bd3 {The bishop guards e4.} Nf6 7. c4 {Big space on the queen side.} O-O 8. Nc3 *
+
+[Event "Italian vs 3...h6"]
+[Opening "Italian Game"]
+[Side "White"]
+[Result "*"]
+
+1. e4 e5 2. Nf3 Nc6 3. Bc4 h6 {Stops Ng5, but it does nothing for development.} 4. c3 {Prepare d4.} Nf6 5. d3 {Protect e4. Calm and safe.} d6 6. O-O Be7 7. Re1 O-O 8. Nbd2 {The knight goes to f1 and g3. You have an easy game.} *

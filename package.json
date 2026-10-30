@@ -12,7 +12,8 @@
     "icons": "node scripts/make-icons.mjs",
     "predev": "node scripts/copy-stockfish.mjs",
     "prebuild": "node scripts/copy-stockfish.mjs",
-    "voice": "node scripts/build-voice.mjs"
+    "voice": "node scripts/build-voice.mjs",
+    "check-lines": "node scripts/check-lines.mjs"
   },
   "dependencies": {
     "chess.js": "^1.4.0",

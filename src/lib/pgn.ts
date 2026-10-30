@@ -27,6 +27,7 @@ export interface Line {
   moves: LineMove[]
   source: 'builtin' | 'import'
   importId?: number
+  opening?: string // [Opening "…"] header: the chapter on the overview
 }
 
 export interface ParseResult {
@@ -96,7 +97,8 @@ export function parseGame(pgn: string, fallbackSide: Side, source: Line['source'
     }
   })
 
-  return { id: hash(side + title + moves.map((m) => m.san).join(' ')), title, side, moves, source }
+  const opening = headers.Opening && headers.Opening !== '?' ? headers.Opening : undefined
+  return { id: hash(side + title + moves.map((m) => m.san).join(' ')), title, side, moves, source, opening }
 }
 
 export function parsePgn(pgn: string, fallbackSide: Side = 'w', source: Line['source'] = 'import'): ParseResult {

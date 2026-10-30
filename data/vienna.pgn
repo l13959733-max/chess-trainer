@@ -1,0 +1,62 @@
+[Event "Vienna: Gambit 3.f4 d5"]
+[Opening "Vienna Game"]
+[Side "White"]
+[Result "*"]
+
+1. e4 e5 2. Nc3 {The Vienna: develop the knight and protect e4.} Nf6 {Black's knight attacks e4.} 3. f4 {The Vienna Gambit: attack e5 right away!} d5 {The best answer: strike back in the center.} 4. fxe5 Nxe4 5. Nf3 {Develop and protect e5.} Be7 6. d4 {A big center.} O-O 7. Bd3 {Hit the knight on e4.} f5 8. exf6 Bxf6 9. O-O {Castle. Your pieces are well placed.} *
+
+[Event "Vienna: Gambit 3...exf4"]
+[Opening "Vienna Game"]
+[Side "White"]
+[Result "*"]
+
+1. e4 e5 2. Nc3 Nf6 3. f4 exf4 {Black takes the pawn – that is a mistake.} 4. e5 {Kick the knight! It has to go back home.} Ng8 5. Nf3 {Develop and get ready to take back f4.} d6 6. d4 dxe5 7. Qe2 {Pin the pawn: your queen looks at Black's king.} Be7 8. Qxe5 {Win the pawn back with a better position.} Nf6 9. Bxf4 *
+
+[Event "Vienna: 2...Nf6 3.Bc4 Nxe4"]
+[Opening "Vienna Game"]
+[Side "White"]
+[Result "*"]
+
+1. e4 e5 2. Nc3 Nf6 3. Bc4 Nxe4 {Black grabs the pawn.} 4. Qh5 {Attack! The queen threatens Qxf7 checkmate.} Nd6 {The only defense.} 5. Qxe5+ {Win the pawn back with check.} Qe7 6. Qxe7+ Bxe7 7. Bb3 {The bishop steps away from the knight.} Nf5 8. Nf3 {Develop. Equal and easy to play.} *
+
+[Event "Vienna: 2...Nf6 3.Bc4 Bc5"]
+[Opening "Vienna Game"]
+[Side "White"]
+[Result "*"]
+
+1. e4 e5 2. Nc3 Nf6 3. Bc4 {Bishop to the best diagonal.} Bc5 4. d3 {Protect e4 – now nothing is hanging.} O-O 5. Nf3 d6 6. O-O c6 7. Bb3 {Step back before ...b5 or ...d5 hits the bishop.} *
+
+[Event "Vienna: 2...Nc6 3.Bc4"]
+[Opening "Vienna Game"]
+[Side "White"]
+[Result "*"]
+
+1. e4 e5 2. Nc3 Nc6 3. Bc4 Nf6 4. d3 Bb4 {The bishop pins your knight.} 5. Bg5 {Pin back!} h6 6. Bxf6 Bxc3+ 7. bxc3 Qxf6 8. Ne2 {Your knight goes to g3, the bishop pair is gone but your pawns cover the center.} d6 9. O-O *
+
+[Event "Vienna: 2...Bc5"]
+[Opening "Vienna Game"]
+[Side "White"]
+[Result "*"]
+
+1. e4 e5 2. Nc3 Bc5 3. Nf3 {Attack e5.} d6 4. d4 {Open the center and gain time on the bishop.} exd4 5. Nxd4 Nf6 6. Bg5 {Pin the knight.} h6 7. Bh4 O-O 8. Nb3 {Attack the bishop with tempo.} Bb6 9. Qe2 {Get ready to castle long.} *
+
+[Event "Bishop's Opening: 2...Nf6 3.d3"]
+[Opening "Bishop's Opening"]
+[Side "White"]
+[Result "*"]
+
+1. e4 e5 2. Bc4 {The bishop aims at f7 right away.} Nf6 3. d3 {Protect e4. Calm and safe.} Bc5 4. Nf3 d6 5. c3 {Prepare d4 later and give the bishop a retreat.} O-O 6. O-O a6 7. Bb3 Ba7 8. h3 *
+
+[Event "Bishop's Opening: 2...Nc6 into the Italian"]
+[Opening "Bishop's Opening"]
+[Side "White"]
+[Result "*"]
+
+1. e4 e5 2. Bc4 Nc6 3. Nf3 {Now it is the Italian Game – and you already know it!} Nf6 4. d3 Be7 5. O-O O-O 6. Re1 d6 7. c3 *
+
+[Event "Bishop's Opening: 2...Bc5"]
+[Opening "Bishop's Opening"]
+[Side "White"]
+[Result "*"]
+
+1. e4 e5 2. Bc4 Bc5 3. Nf3 {Attack e5 and develop.} d6 4. c3 {Prepare d4.} Nf6 5. d3 O-O 6. O-O {Castle. Calm and safe – no early queen trips!} *
