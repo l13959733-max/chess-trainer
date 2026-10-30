@@ -18,6 +18,16 @@ export interface GameRecord {
   blunders: number
 }
 
+// Hoppy-Bot rating per chess.com player on this device
+export interface BotStats {
+  rating: number
+  games: number
+  wins: number
+  draws: number
+  losses: number
+  history: { t: number; r: number }[]
+}
+
 export interface Puzzle extends Blunder {
   id: string // game uuid + ply
   gameUuid: string
@@ -28,6 +38,7 @@ export interface Puzzle extends Blunder {
   scoreBefore: Score
   bestSan: string
   player?: string // chess.com username; missing = Lu (l0o2)
+  source?: 'bot' // a game against Hoppy-Bot (no chess.com link)
 }
 
 // Explanations in Lu's cloned voice, kept on the device so the voice works without the Mac.
@@ -51,7 +62,7 @@ interface TrainerDB extends DBSchema {
   srs: { key: string; value: SrsState }
   imports: { key: number; value: ImportRecord }
   activity: { key: string; value: DayActivity }
-  settings: { key: string; value: Goal | VoiceSettings }
+  settings: { key: string; value: Goal | VoiceSettings | BotStats }
   games: { key: string; value: GameRecord }
   puzzles: { key: string; value: Puzzle }
   voiceClips: { key: string; value: VoiceClip }
@@ -139,6 +150,14 @@ export async function getVoiceSettings(): Promise<VoiceSettings | undefined> {
 
 export async function putVoiceSettings(v: VoiceSettings): Promise<void> {
   await (await db()).put('settings', v, 'voice')
+}
+
+export async function getBotStats(player: string): Promise<BotStats | undefined> {
+  return (await db()).get('settings', 'bot:' + player) as Promise<BotStats | undefined>
+}
+
+export async function putBotStats(player: string, s: BotStats): Promise<void> {
+  await (await db()).put('settings', s, 'bot:' + player)
 }
 
 // Game uuids already analysed for this player

@@ -54,9 +54,19 @@ describe('daily goal', () => {
     const goal = { lines: 2, puzzles: 1 }
     let d = addToDay(undefined, '2026-10-29', { lines: 1, xp: 20 })
     d = addToDay(d, '2026-10-29', { lines: 1, xp: 15 })
-    expect(d).toEqual({ date: '2026-10-29', lines: 2, puzzles: 0, xp: 35 })
+    expect(d).toEqual({ date: '2026-10-29', lines: 2, puzzles: 0, games: 0, xp: 35 })
     expect(goalReached(d, goal)).toBe(false)
     d = addToDay(d, '2026-10-29', { puzzles: 1, xp: 15 })
     expect(goalReached(d, goal)).toBe(true)
+  })
+})
+
+describe('games against the bot', () => {
+  it('count for the streak and give more XP for a win', async () => {
+    const { xpForGame } = await import('./progress')
+    const d = addToDay(undefined, '2026-10-30', { games: 1, xp: 30 })
+    expect(streak(new Map([[d.date, d]]), '2026-10-30')).toBe(1)
+    expect(xpForGame(1)).toBeGreaterThan(xpForGame(0.5))
+    expect(xpForGame(0.5)).toBeGreaterThan(xpForGame(0))
   })
 })

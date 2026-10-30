@@ -1,11 +1,13 @@
 // Background analysis of Lu's chess.com games: newest first, one position at a time,
 // pausable, and resumable because every finished game is stored.
+import { Chess } from 'chess.js'
 import { findBlunders, gamePositions, terminalScore, uciToSan, type PositionEval } from './blunders'
 import { fetchArchives, fetchMonth, gameKey, getPlayer, isTrainingGame, myColor, type ChessComGame } from './chesscom'
 import { getAnalyzedGameIds, saveAnalyzedGame, type Puzzle } from './db'
 import { evaluate, newGame } from './engine'
 
 export const DEPTH = 14
+const BOT_GAME_DEPTH = 12 // quicker, right after the game
 
 export interface AnalyzerState {
   status: 'idle' | 'loading' | 'running' | 'paused' | 'done' | 'error'
@@ -127,4 +129,41 @@ export async function start() {
     stopRequested = false
     holdScreen(false)
   }
+}
+
+// A finished game against Hoppy-Bot: find the player's mistakes and store them as puzzles.
+// Uses the same engine queue as the background analysis (they take turns).
+export async function analyzeBotGame(
+  game: { id: string; startFen: string; moves: string[]; me: 'w' | 'b'; botRating: number },
+  onProgress?: (done: number, total: number) => void,
+): Promise<Puzzle[]> {
+  const player = getPlayer()
+  const c = new Chess(game.startFen)
+  const moves = game.moves.map((uci) => {
+    const m = c.move({ from: uci.slice(0, 2), to: uci.slice(2, 4), promotion: uci[4] })
+    return { san: m.san, uci, color: m.color, fenBefore: m.before }
+  })
+  const fens = [...moves.map((m) => m.fenBefore), c.fen()]
+  const evals: PositionEval[] = []
+  for (let i = 0; i < fens.length; i++) {
+    onProgress?.(i, fens.length)
+    const done = terminalScore(fens[i])
+    evals.push(done ? { score: done, pv: [] } : await evaluate(fens[i], BOT_GAME_DEPTH))
+  }
+  const now = Math.floor(Date.now() / 1000)
+  const puzzles: Puzzle[] = findBlunders(moves, evals, game.me).map((b) => ({
+    ...b,
+    id: `bot-${player}:${game.id}:${b.ply}`,
+    player,
+    source: 'bot',
+    gameUuid: game.id,
+    gameUrl: '',
+    endTime: now,
+    opponent: `Hoppy-Bot ${game.botRating}`,
+    myColor: game.me,
+    scoreBefore: evals[b.ply].score,
+    bestSan: uciToSan(b.fen, b.best) ?? b.best,
+  }))
+  await saveAnalyzedGame({ uuid: `bot-${player}:${game.id}`, endTime: now, analyzedAt: Date.now(), plies: moves.length, blunders: puzzles.length }, puzzles)
+  return puzzles
 }

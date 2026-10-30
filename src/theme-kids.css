@@ -224,3 +224,42 @@ button:focus-visible { outline: 3px solid var(--idea); }
 .chevron { color: var(--muted); font-size: 1.1rem; }
 .side-dot { width: 18px; height: 18px; border-radius: 50%; border: 3px solid var(--text); background: #fff; }
 .side-dot.black { background: var(--text); }
+
+/* Big training tiles on the overview */
+.screen > .quick { margin-inline: 16px; }
+.quick { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+.quick-tile {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 12px 6px;
+  border-radius: 20px;
+  color: #fff;
+  min-height: 104px;
+}
+.quick-tile.play { background: var(--accent); border-color: var(--accent-dark); }
+.quick-tile.puzzles { background: var(--idea); border-color: var(--idea-dark); }
+.quick-tile.win { background: var(--grape); border-color: #6b3fd6; }
+.quick-tile:disabled { opacity: 0.5; }
+.quick-icon { font-size: 2rem; line-height: 1; }
+.quick-text { display: flex; flex-direction: column; font-size: 1rem; font-weight: 900; line-height: 1.15; text-align: center; }
+.quick-text small { font-size: 0.72rem; font-weight: 800; opacity: 0.9; }
+
+/* Playing against Hoppy-Bot */
+.screen > .play-card, .screen > .play-controls { margin-inline: 16px; }
+.play-card { display: grid; gap: 10px; border: 2px solid var(--line); border-radius: 20px; padding: 14px; background: #fff; }
+.play-card p { margin: 0; }
+.bot-rating { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+.bot-rating .big { font-size: 2.2rem; color: var(--grape); }
+.seg { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.seg.wrap { grid-template-columns: repeat(3, 1fr); }
+.seg button { min-height: 44px; padding: 6px; font-size: 0.9rem; }
+.seg button.on { background: var(--idea); border-color: var(--idea-dark); color: #fff; }
+.toggle { display: flex; align-items: center; gap: 10px; font-weight: 800; }
+.toggle input { width: 22px; height: 22px; accent-color: var(--accent); }
+.play-controls { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
+.play-controls button { min-height: 48px; font-size: 0.9rem; padding: 6px; }
+.play-controls button.on { background: var(--sun); border-color: var(--sun-dark); }
+.play-controls button.danger { color: #fff; }
+.rating-change { font-weight: 800; }

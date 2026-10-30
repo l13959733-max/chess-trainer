@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import * as store from '../lib/db'
-import { addToDay, dateKey, DEFAULT_GOAL, goalReached, levelInfo, streak, XP, xpForDrill, xpForPuzzle, type DayActivity, type Goal } from '../lib/progress'
+import { addToDay, dateKey, DEFAULT_GOAL, goalReached, levelInfo, streak, XP, xpForDrill, xpForGame, xpForPuzzle, type DayActivity, type Goal } from '../lib/progress'
 
 export interface Reward {
   xp: number
@@ -26,7 +26,7 @@ export function useProgress() {
   const totalXp = useMemo(() => [...days.values()].reduce((s, d) => s + d.xp, 0), [days])
 
   const add = useCallback(
-    async (delta: { lines?: number; puzzles?: number; xp: number }): Promise<Reward> => {
+    async (delta: { lines?: number; puzzles?: number; games?: number; xp: number }): Promise<Reward> => {
       const key = dateKey(new Date())
       const before = days.get(key)
       const after = addToDay(before, key, delta)
@@ -47,6 +47,7 @@ export function useProgress() {
   const recordDrill = useCallback((mistakes: number) => add({ lines: 1, xp: xpForDrill(mistakes) }), [add])
   const recordLearn = useCallback(() => add({ xp: XP.learnLine }), [add])
   const recordPuzzle = useCallback((mistakes: number) => add({ puzzles: 1, xp: xpForPuzzle(mistakes) }), [add])
+  const recordGame = useCallback((score: number) => add({ games: 1, xp: xpForGame(score) }), [add])
 
   const setGoal = useCallback(async (g: Goal) => {
     setGoalState(g)
@@ -64,6 +65,7 @@ export function useProgress() {
     recordDrill,
     recordLearn,
     recordPuzzle,
+    recordGame,
   }
 }
 

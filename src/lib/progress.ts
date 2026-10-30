@@ -4,6 +4,7 @@ export interface DayActivity {
   date: string // local date, YYYY-MM-DD
   lines: number // completed drills
   puzzles: number // solved blunder puzzles (step 4)
+  games?: number // games against Hoppy-Bot
   xp: number
 }
 
@@ -17,7 +18,12 @@ export const DEFAULT_GOAL: Goal = { lines: 10, puzzles: 10 }
 // Blunder puzzles exist since step 4 and count towards the daily goal.
 export const PUZZLES_AVAILABLE = true
 
-export const XP = { learnLine: 5, drillBase: 10, flawlessBonus: 10, oneMistakeBonus: 5, puzzleBase: 10, puzzleFirstTry: 5 }
+export const XP = { learnLine: 5, drillBase: 10, flawlessBonus: 10, oneMistakeBonus: 5, puzzleBase: 10, puzzleFirstTry: 5, gamePlayed: 10, gameWon: 20, gameDraw: 10 }
+
+// Playing counts; winning counts more
+export function xpForGame(score: number): number {
+  return XP.gamePlayed + (score === 1 ? XP.gameWon : score === 0.5 ? XP.gameDraw : 0)
+}
 
 export function dateKey(d: Date): string {
   const p = (n: number) => String(n).padStart(2, '0')
@@ -51,7 +57,7 @@ export function levelInfo(totalXp: number) {
 }
 
 function active(day: DayActivity | undefined): boolean {
-  return !!day && day.lines + day.puzzles > 0
+  return !!day && day.lines + day.puzzles + (day.games ?? 0) > 0
 }
 
 // Consecutive active days up to today. A streak stays alive until today ends,
@@ -77,6 +83,7 @@ export function addToDay(day: DayActivity | undefined, date: string, delta: Part
     date,
     lines: base.lines + (delta.lines ?? 0),
     puzzles: base.puzzles + (delta.puzzles ?? 0),
+    games: (base.games ?? 0) + (delta.games ?? 0),
     xp: base.xp + (delta.xp ?? 0),
   }
 }

@@ -28,6 +28,14 @@ export async function findPlayer(name: string): Promise<string | null> {
   return ((await res.json()).username as string).toLowerCase()
 }
 
+// Current rapid rating on chess.com (null if the player has none)
+export async function fetchRapidRating(user: string): Promise<number | null> {
+  const res = await fetch(`${API}${encodeURIComponent(user)}/stats`)
+  if (!res.ok) return null
+  const rating = (await res.json()).chess_rapid?.last?.rating
+  return typeof rating === 'number' ? rating : null
+}
+
 // Storage keys: Lu's records keep their original keys, other players' records are prefixed
 export function gameKey(player: string, uuid: string): string {
   return player === USERNAME ? uuid : `${player}:${uuid}`

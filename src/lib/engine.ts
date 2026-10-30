@@ -1,7 +1,8 @@
 // Stockfish 19 lite (single-threaded WASM) in a Web Worker, spoken to over UCI.
 import type { PositionEval, Score } from './blunders'
 
-type Job = { fen: string; depth: number; fresh: boolean; resolve: (e: PositionEval) => void; reject: (e: Error) => void }
+// multipv > 1: every move line is reported in `lines` (first move + score), best first
+type Job = { fen: string; depth: number; fresh: boolean; multipv: number; resolve: (e: PositionEval & { lines?: { uci: string; score: Score }[] }) => void; reject: (e: Error) => void }
 
 let worker: Worker | null = null
 let ready: Promise<void> | null = null
@@ -39,25 +40,33 @@ async function next() {
   try {
     await start()
     const w = worker!
-    const result = await new Promise<PositionEval>((resolve) => {
+    const result = await new Promise<PositionEval & { lines?: { uci: string; score: Score }[] }>((resolve) => {
       let score: Score = { cp: 0 }
       let pv: string[] = []
+      const multi = new Map<number, { uci: string; score: Score }>()
       const onMsg = (e: MessageEvent<string>) => {
         const line = e.data
         if (line.startsWith('info depth') && !line.includes(' lowerbound') && !line.includes(' upperbound')) {
           const s = parseScore(line)
-          if (s) score = s
           const p = line.match(/ pv (.+)$/)
-          if (p) pv = p[1].trim().split(/\s+/)
+          const k = +(line.match(/ multipv (\d+)/)?.[1] ?? 1)
+          if (k === 1) {
+            if (s) score = s
+            if (p) pv = p[1].trim().split(/\s+/)
+          }
+          if (job.multipv > 1 && s && p) multi.set(k, { uci: p[1].trim().split(/\s+/)[0], score: s })
         } else if (line.startsWith('bestmove')) {
           w.removeEventListener('message', onMsg)
           const best = line.split(' ')[1]
-          resolve({ score, best: best && best !== '(none)' ? best : undefined, pv })
+          const lines = job.multipv > 1 ? [...multi.entries()].sort((a, b) => a[0] - b[0]).map(([, v]) => v) : undefined
+          if (job.multipv > 1) w.postMessage('setoption name MultiPV value 1')
+          resolve({ score, best: best && best !== '(none)' ? best : undefined, pv, lines })
         }
       }
       w.addEventListener('message', onMsg)
       // A cleared hash makes the result depend only on position and depth, so comparisons are repeatable
       if (job.fresh) w.postMessage('ucinewgame')
+      if (job.multipv > 1) w.postMessage('setoption name MultiPV value ' + job.multipv)
       w.postMessage('position fen ' + job.fen)
       w.postMessage('go depth ' + job.depth)
     })
@@ -74,9 +83,17 @@ async function next() {
 // and start from a cleared hash.
 export function evaluate(fen: string, depth = 14, urgent = false): Promise<PositionEval> {
   return new Promise((resolve, reject) => {
-    const job = { fen, depth, fresh: urgent, resolve, reject }
+    const job = { fen, depth, fresh: urgent, multipv: 1, resolve, reject }
     if (urgent) queue.unshift(job)
     else queue.push(job)
+    next()
+  })
+}
+
+// Scores for every legal move (best first), for the bot. Jumps the queue like a puzzle check.
+export function allMoves(fen: string, depth = 8): Promise<{ uci: string; score: Score }[]> {
+  return new Promise((resolve, reject) => {
+    queue.unshift({ fen, depth, fresh: false, multipv: 256, resolve: (r) => resolve(r.lines ?? []), reject })
     next()
   })
 }

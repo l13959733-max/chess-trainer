@@ -17,6 +17,7 @@ import { daysUntil, type SrsState } from '../lib/srs'
 const GOOD_ENOUGH = 50
 const CHECK_DEPTH = 14
 const REVEAL_AFTER = 2
+const WINNING = 300 // centipawns: clearly winning before the mistake
 
 type Phase = 'solving' | 'checking' | 'solved'
 
@@ -220,9 +221,18 @@ export function PuzzleView({ puzzle, progress, onSolved, onNext, isLast }: Props
             {solvedWith?.exact ? `${solvedWith.san} – the best move` : `${solvedWith?.san} works too`}
           </div>
           {!solvedWith?.exact && <p>The engine's first choice was {puzzle.bestSan}.</p>}
-          <p>
-            <a href={`${puzzle.gameUrl}?move=${puzzle.ply}`} target="_blank" rel="noreferrer">Open the game on chess.com</a>
-          </p>
+          {puzzle.gameUrl && (
+            <p>
+              <a href={`${puzzle.gameUrl}?move=${puzzle.ply}`} target="_blank" rel="noreferrer">Open the game on chess.com</a>
+            </p>
+          )}
+          {clampScore(puzzle.scoreBefore) >= WINNING && (
+            <p>
+              <button type="button" className="link-btn" onClick={() => go('play/puzzle/' + encodeURIComponent(puzzle.id))}>
+                You were winning here. Win it for real vs Hoppy-Bot →
+              </button>
+            </p>
+          )}
           {result && <Celebrate reward={result.reward} />}
           {result && <p>Next review: {result.days <= 1 ? 'tomorrow' : `in ${result.days} days`}</p>}
           <div className="done-actions">

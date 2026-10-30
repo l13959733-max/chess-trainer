@@ -5,6 +5,7 @@ import type { Progress } from '../hooks/useProgress'
 import type { Puzzles } from '../hooks/usePuzzles'
 import { pause, start, type AnalyzerState } from '../lib/analyzer'
 import type { Repertoire } from '../hooks/useRepertoire'
+import { clampScore } from '../lib/blunders'
 import { chapters, type Chapter } from '../lib/chapters'
 import type { Line } from '../lib/pgn'
 import { PUZZLES_AVAILABLE } from '../lib/progress'
@@ -24,6 +25,8 @@ export function Home({ rep, progress, puzzles, analyzer, player }: { rep: Repert
   const activeToday = doneLines + (progress.today?.puzzles ?? 0) > 0
   const { goal } = progress
   const [open, setOpen] = useState<string | null>(null)
+  // Positions from your games where you were clearly winning before a mistake: win them again vs the bot
+  const winning = useMemo(() => puzzles.puzzles.filter((p) => clampScore(p.scoreBefore) >= 300), [puzzles.puzzles])
   const chapterList = useMemo(() => chapters(rep.lines), [rep.lines])
   const [openChapters, setOpenChapters] = useState<Set<string>>(() => loadOpen(chapterList, rep, now))
   function toggleChapter(key: string) {
@@ -59,6 +62,21 @@ export function Home({ rep, progress, puzzles, analyzer, player }: { rep: Repert
         <Mascot mood={activeToday ? 'cheer' : 'happy'} />
         {activeToday ? 'Great job today! Want to play one more?' : progress.streak ? `Hi! Play today to keep your ${progress.streak}-day streak!` : 'Hi, I’m Hoppy! Let’s learn some chess together.'}
       </div>
+
+      <section className="quick" aria-label="Train">
+        <button type="button" className="quick-tile play" onClick={() => go('play')}>
+          <span className="quick-icon" aria-hidden="true">♞</span>
+          <span className="quick-text">Play<small>vs Hoppy-Bot</small></span>
+        </button>
+        <button type="button" className="quick-tile puzzles" onClick={() => go('puzzles')}>
+          <span className="quick-icon" aria-hidden="true">♜</span>
+          <span className="quick-text">Puzzles<small>{puzzles.due.length + puzzles.fresh.length} waiting</small></span>
+        </button>
+        <button type="button" className="quick-tile win" disabled={!winning.length} onClick={() => go('play/puzzle/' + encodeURIComponent(winning[Math.floor(Math.random() * winning.length)].id))}>
+          <span className="quick-icon" aria-hidden="true">♛</span>
+          <span className="quick-text">Win it<small>{winning.length ? `${winning.length} won positions` : 'from your games'}</small></span>
+        </button>
+      </section>
 
       <section className="lines" aria-label="Repertoire">
         <div className="section-head">

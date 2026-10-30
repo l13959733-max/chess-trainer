@@ -12,6 +12,7 @@ import { Drill } from './screens/Drill'
 import { Home } from './screens/Home'
 import { Import } from './screens/Import'
 import { Learn } from './screens/Learn'
+import { Play } from './screens/Play'
 import { PuzzleView } from './screens/PuzzleScreen'
 import { Settings } from './screens/Settings'
 import './App.css'
@@ -21,11 +22,13 @@ function App() {
   const progress = useProgress()
   const analyzer = useAnalyzer()
   const [player, setPlayerState] = useState(getPlayer)
-  const puzzles = usePuzzles(analyzer.analyzed, player)
-  const [page, id] = useHashRoute()
+  // Bumped when a game against Hoppy-Bot added puzzles
+  const [botFound, setBotFound] = useState(0)
+  const puzzles = usePuzzles(analyzer.analyzed + botFound, player)
+  const [page, id, arg] = useHashRoute()
 
   // Reading stops when the screen changes; the first tap unlocks audio for automatic reading (iOS)
-  useEffect(() => stopVoice, [page, id])
+  useEffect(() => stopVoice, [page, id, arg])
   useEffect(() => {
     // iOS: only the end of a tap counts, so listen to those and keep trying until sound is allowed
     const events = ['touchend', 'pointerup', 'click', 'keydown'] as const
@@ -50,6 +53,7 @@ function App() {
         after={(restart) => (
           <>
             <button type="button" onClick={restart}>Again</button>
+            <button type="button" onClick={() => go('play/line/' + line.id)}>Play on</button>
             <button type="button" className="primary" onClick={() => go('')}>Overview</button>
           </>
         )}
@@ -60,7 +64,12 @@ function App() {
   else if (page === 'settings') body = <Settings lines={rep.lines} player={player} onPlayer={setPlayerState} />
   else if (page === 'voice') body = <Settings lines={rep.lines} player={player} onPlayer={setPlayerState} incoming={id ? decodeURIComponent(id) : undefined} />
   else if (page === 'player') body = <Settings lines={rep.lines} player={player} onPlayer={setPlayerState} incomingPlayer={id ? decodeURIComponent(id) : undefined} />
-  else if (page === 'puzzles') body = <PuzzleSession puzzles={puzzles} progress={progress} />
+  else if (page === 'play') {
+    const playLine = id === 'line' ? rep.lines.find((l) => l.id === arg) : undefined
+    const playPuzzle = id === 'puzzle' ? puzzles.puzzles.find((p) => p.id === decodeURIComponent(arg ?? '')) : undefined
+    const mode = playLine ? { kind: 'line' as const, line: playLine } : playPuzzle ? { kind: 'puzzle' as const, puzzle: playPuzzle } : { kind: 'new' as const }
+    body = <Play key={`${id ?? ''}/${arg ?? ''}`} mode={mode} lines={rep.lines} player={player} onGame={progress.recordGame} onPuzzlesFound={() => setBotFound((n) => n + 1)} />
+  } else if (page === 'puzzles') body = <PuzzleSession puzzles={puzzles} progress={progress} />
   else body = <Home rep={rep} progress={progress} puzzles={puzzles} analyzer={analyzer} player={player} />
 
   return (

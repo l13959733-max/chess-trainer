@@ -167,6 +167,11 @@ export function Learn({ line, onComplete }: { line: Line; onComplete: () => Prom
           Now play it yourself (drill)
         </button>
       )}
+      {!next && (
+        <button type="button" className="wide" onClick={() => go('play/line/' + line.id)}>
+          Play on from here vs Hoppy-Bot
+        </button>
+      )}
     </div>
   )
 }
