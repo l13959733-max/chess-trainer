@@ -25,7 +25,7 @@ export function sanToSpeech(san: string): string {
 }
 
 // Sample sentence on the Settings screen
-export const TRY_IT = 'Knight to f3. This is your chess trainer, speaking in your own voice.'
+export const TRY_IT = 'Knight to f3. This is Hoppy, your chess trainer.'
 
 // Every sentence the app may read for a set of lines: each explanation, and the correction
 // ("The right move is …") for each of the player's own moves in a drill.

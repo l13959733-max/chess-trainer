@@ -6,7 +6,7 @@ import { findPlayer, setPlayer } from '../lib/chesscom'
 import { feedback, getFeedbackPrefs, setFeedbackPrefs } from '../lib/feedback'
 import type { Line } from '../lib/pgn'
 import { TRY_IT, voiceTexts } from '../lib/speech'
-import { isAllowedVoiceUrl, loadVoiceSettings, saveAll, savedCount, saveVoiceSettings } from '../lib/voice'
+import { CLONE_VOICE, isAllowedVoiceUrl, loadVoiceSettings, saveAll, savedCount, saveVoiceSettings } from '../lib/voice'
 
 type Check = { kind: 'idle' } | { kind: 'checking' } | { kind: 'ok' } | { kind: 'fail'; why: string }
 
@@ -153,6 +153,8 @@ export function Settings({ incoming, lines, player, onPlayer, incomingPlayer }: 
         </label>
         <p className="note">On an iPhone, sounds follow the silent switch, and vibration needs iOS 18 or newer.</p>
 
+        {CLONE_VOICE ? (
+          <>
         <div className="label">Read-aloud voice</div>
         <p className="note">
           Explanations are read in your own voice from the voice changer on your Mac. When the Mac is off, your phone's voice
@@ -225,10 +227,17 @@ export function Settings({ incoming, lines, player, onPlayer, incomingPlayer }: 
           )}
         </div>
 
+          </>
+        ) : (
+          <>
+            <div className="label">Read-aloud voice</div>
+            <p className="note">Explanations are read by your phone's standard English voice.</p>
+          </>
+        )}
         <div className="label">Try it</div>
         <SpeakButton auto={false} text={TRY_IT} />
         <p className="note small">App version {__APP_VERSION__}</p>
-        <p className="note">The address is stored only on this device. The first sentence can take 10–20 seconds; repeated sentences play instantly.</p>
+        {CLONE_VOICE && <p className="note">The address is stored only on this device. The first sentence can take 10–20 seconds; repeated sentences play instantly.</p>}
       </div>
     </div>
   )

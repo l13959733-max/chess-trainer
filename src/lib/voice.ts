@@ -1,11 +1,12 @@
-// Reads explanations aloud in Lu's cloned voice. Order: clips already saved on this device,
-// then the voice changer on the Mac (XTTS, via the tunnel), and the phone's own voice only when
-// neither has the sentence. Every clip that comes from the Mac is saved, so the cloned voice
-// becomes the standard voice on this device, also when the Mac is off.
+// Reads explanations aloud. Since 31.10.2026 (Lu's decision) the phone's standard female English voice
+// reads everything. The cloned-voice path below stays switchable via CLONE_VOICE: clips saved on this
+// device, then the voice changer on the Mac (XTTS, via the tunnel), the phone's voice as fallback.
 import { getClip, getClipKeys, getVoiceSettings, putClip, putVoiceSettings, type VoiceSettings } from './db'
 import { pickVoice } from './voicePick'
 
 export type VoiceSource = 'clone' | 'phone'
+
+export const CLONE_VOICE = false
 
 const TIMEOUT_MS = 60_000
 const DEFAULT: VoiceSettings = { serverUrl: '', voiceName: 'stimme1' }
@@ -165,7 +166,7 @@ function fetchClone(text: string, isPrefetch: boolean): Promise<string> {
 
 // Start generating in the background so the audio is ready when Lu taps "Listen".
 export function prefetch(text: string) {
-  if (!settings.serverUrl || !text) return
+  if (!CLONE_VOICE || !settings.serverUrl || !text) return
   savedClip(text).then((url) => {
     if (url) {
       if (url.startsWith('blob:')) URL.revokeObjectURL(url)
@@ -228,6 +229,11 @@ async function playClip(url: string, text: string) {
 async function playOne(text: string, id: number) {
   set({ text, phase: 'loading' })
   await loaded
+  if (!CLONE_VOICE) {
+    set({ text, phase: 'playing', source: 'phone' })
+    await speakPhone(text)
+    return
+  }
   const saved = await savedClip(text)
   if (saved && id === run) {
     try {

@@ -1,7 +1,7 @@
-// Picks the nicest English system voice for the phone fallback. Browsers list voices in an
+// Picks the nicest female English system voice (the app's read-aloud voice). Browsers list voices in an
 // arbitrary order, and on Apple devices that list includes novelty voices (Albert, Bubbles, Zarvox …).
 const NOVELTY = /albert|bad news|bahh|bells|boing|bubbles|cellos|good news|jester|organ|superstar|trinoids|whisper|wobble|zarvox|fred|junior|kathy|ralph|grandma|grandpa|rocko|shelley|eddy|flo|reed|sandy/i
-const PREFERRED = ['ava', 'samantha', 'allison', 'susan', 'zoe', 'serena', 'karen', 'daniel', 'google us english', 'google uk english female', 'microsoft aria', 'microsoft jenny']
+const PREFERRED = ['ava', 'samantha', 'allison', 'susan', 'zoe', 'serena', 'karen', 'google us english', 'google uk english female', 'microsoft aria', 'microsoft jenny']
 
 export interface VoiceLike {
   name: string

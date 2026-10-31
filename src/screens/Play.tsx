@@ -134,7 +134,6 @@ export function Play({ mode, lines, player, onGame, onPuzzlesFound }: Props) {
     const botRating = level === 'auto' ? stats.rating : level
     const g: Game = { id: String(Date.now()), title: 'Game vs Hoppy-Bot', startFen: START, moves: [], me, botRating, rated: true }
     lastBotWin.current = null
-    feedback.gameStart()
     setGame(g)
     save(g)
   }
@@ -336,7 +335,6 @@ function GameView({ game, setGame, book, thinking, setThinking, lastBotWin, safe
     finished.current = true
     const score = game.resigned ? 0 : chess.isCheckmate() ? (chess.turn() === game.me ? 0 : 1) : 0.5
     if (score === 1) feedback.success()
-    else feedback.gameEnd()
     onFinished(score).then(setResult)
     if (game.moves.length >= 2) {
       setAnalysis({ done: 0, total: game.moves.length + 1 })

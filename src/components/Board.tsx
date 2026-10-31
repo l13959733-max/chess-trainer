@@ -1,7 +1,6 @@
 import { Chess, type Square } from 'chess.js'
 import { useLayoutEffect, useMemo, useState, type CSSProperties } from 'react'
 import { Chessboard, type Arrow } from 'react-chessboard'
-import { feedback } from '../lib/feedback'
 
 interface Props {
   fen: string
@@ -47,13 +46,10 @@ export function Board({ fen, orientation, onMove, arrows = [], squareStyles = {}
     }
   }, [fen])
 
-  // Illegal moves never reach the screen: the piece goes back with a soft bump
+  // Illegal moves never reach the screen: the piece simply goes back
   function tryMove(from: string, to: string): boolean {
     if (!onMove || from === to) return false
-    if (!new Chess(fen).moves({ square: from as Square, verbose: true }).some((m) => m.to === to)) {
-      feedback.illegal()
-      return false
-    }
+    if (!new Chess(fen).moves({ square: from as Square, verbose: true }).some((m) => m.to === to)) return false
     return onMove(from, to)
   }
 
