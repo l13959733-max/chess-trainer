@@ -1,17 +1,10 @@
-import { useEffect } from 'react'
 import type { Reward } from '../hooks/useProgress'
-import { feedback } from '../lib/feedback'
 
 const BITS = 16
 
 // Short success animation: XP pops in, and a burst of board-colored squares when the daily goal is reached or a level is gained.
 export function Celebrate({ reward }: { reward: Reward }) {
   const big = reward.goalJustReached || reward.levelUp
-  // Coins sparkle for XP; a level-up or the daily goal gets a fanfare (shortly after the move sound)
-  useEffect(() => {
-    const t = window.setTimeout(() => feedback.reward(big), 350)
-    return () => window.clearTimeout(t)
-  }, [big])
   return (
     <div className="celebrate" role="status">
       <div className="xp-pop">+{reward.xp} XP</div>

@@ -1,7 +1,6 @@
 import { Chess, type Square } from 'chess.js'
 import { useMemo, useState, type CSSProperties } from 'react'
 import { Chessboard, type Arrow } from 'react-chessboard'
-import { feedback } from '../lib/feedback'
 
 interface Props {
   fen: string
@@ -40,9 +39,7 @@ export function Board({ fen, orientation, onMove, arrows = [], squareStyles = {}
       setSelected(null)
       return
     }
-    const pick = own && sel !== square
-    if (pick) feedback.pick()
-    setSelected(pick ? { square, fen } : null)
+    setSelected(own && sel !== square ? { square, fen } : null)
   }
 
   const styles: Record<string, CSSProperties> = { ...squareStyles }
@@ -66,12 +63,11 @@ export function Board({ fen, orientation, onMove, arrows = [], squareStyles = {}
         },
         lightSquareStyle: { backgroundColor: 'var(--board-light)' },
         darkSquareStyle: { backgroundColor: 'var(--board-dark)' },
-        // Feel: pieces glide quickly, lift up while dragged, and the target square lights up
+        // Feel: pieces glide, lift up while dragged, and the target square lights up
         animationDurationInMs: 190,
         draggingPieceStyle: { transform: 'scale(1.22)', filter: 'drop-shadow(0 10px 8px rgba(40, 30, 60, 0.35))' },
         draggingPieceGhostStyle: { opacity: 0.22 },
         dropSquareStyle: { boxShadow: 'inset 0 0 0 4px rgba(255, 197, 49, 0.95)' },
-        onPieceDrag: () => feedback.pick(),
       }}
     />
     </div>

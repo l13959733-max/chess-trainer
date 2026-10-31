@@ -10,7 +10,6 @@ import type { Puzzle } from './lib/db'
 import { isDbBlocked } from './lib/db'
 import { dailyQueue } from './lib/daily'
 import { isDue } from './lib/srs'
-import { feedback } from './lib/feedback'
 import { isUnlocked, stop as stopVoice, unlockAudio } from './lib/voice'
 import { Mascot } from './components/Mascot'
 import { Attacks } from './screens/Attacks'
@@ -50,17 +49,6 @@ function App() {
     }
     events.forEach((e) => window.addEventListener(e, tryUnlock))
     return () => events.forEach((e) => window.removeEventListener(e, tryUnlock))
-  }, [])
-  // Every tap on a button or tile clicks softly (sound + haptic), like a click wheel. The board has its own sounds.
-  useEffect(() => {
-    const onDown = (e: PointerEvent) => {
-      const el = e.target as Element | null
-      if (!el?.closest || el.closest('.board-wrap')) return
-      const hit = el.closest('button, a, .toggle')
-      if (hit && !(hit as HTMLButtonElement).disabled) feedback.tap()
-    }
-    window.addEventListener('pointerdown', onDown)
-    return () => window.removeEventListener('pointerdown', onDown)
   }, [])
   const line = id ? rep.lines.find((l) => l.id === id) : undefined
 
