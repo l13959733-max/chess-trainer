@@ -11,6 +11,7 @@ import { isDbBlocked } from './lib/db'
 import { dailyQueue } from './lib/daily'
 import { isDue } from './lib/srs'
 import { isUnlocked, stop as stopVoice, unlockAudio } from './lib/voice'
+import { InstallBanner } from './components/InstallBanner'
 import { Mascot } from './components/Mascot'
 import { Attacks } from './screens/Attacks'
 import { Drill } from './screens/Drill'
@@ -94,6 +95,7 @@ function App() {
         <button type="button" className="brand" onClick={() => go('')}>Chess Trainer</button>
         <button type="button" className="settings-link" onClick={() => go('settings')}>Settings</button>
       </header>
+      {!page && <InstallBanner />}
       {body}
     </main>
   )

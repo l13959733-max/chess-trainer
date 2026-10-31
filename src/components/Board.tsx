@@ -1,5 +1,5 @@
 import { Chess, type Square } from 'chess.js'
-import { useMemo, useState, type CSSProperties } from 'react'
+import { useLayoutEffect, useMemo, useState, type CSSProperties } from 'react'
 import { Chessboard, type Arrow } from 'react-chessboard'
 import { feedback } from '../lib/feedback'
 
@@ -20,6 +20,9 @@ const RING: CSSProperties = { background: 'radial-gradient(circle, transparent 5
 
 // Board with dragging AND tapping (tap a piece, then the target square) – often easier on a phone.
 export function Board({ fen, orientation, onMove, arrows = [], squareStyles = {} }: Props) {
+  // A board always opens at the top of the screen, ready to play – also when it appears on the same page
+  // (e.g. after "Start game"), where the browser would otherwise stay scrolled down at the button.
+  useLayoutEffect(() => window.scrollTo(0, 0), [])
   const [selected, setSelected] = useState<{ square: string; fen: string } | null>(null)
   const sel = selected && selected.fen === fen ? selected.square : null
 
