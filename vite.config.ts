@@ -33,7 +33,7 @@ export default defineConfig({
       includeAssets: ['favicon.svg', 'apple-touch-icon.png'],
       manifest: {
         name: preview ? 'Chess Trainer (Preview)' : 'Chess Trainer',
-        short_name: preview ? 'Chess Preview' : 'Chess',
+        short_name: preview ? 'Chess Preview' : 'Chess Trainer',
         description: 'Learn openings and learn from your own mistakes, with every mistake explained.',
         lang: 'en',
         start_url: base,
