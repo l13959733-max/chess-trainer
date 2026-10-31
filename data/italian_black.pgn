@@ -53,3 +53,12 @@
 [Result "*"]
 
 1. e4 e5 2. Nf3 d6 3. Bc4 Nc6 4. Nc3 Bg4 5. h3 Bxf3 {Take the knight – don't play 5...Bh5? which allows the Légal trap.} 6. Qxf3 Nf6 {Develop and block the queen's attack on f7.} 7. d3 Be7 8. Be3 O-O {Castle. Safe and solid.} *
+
+[Event "Traxler Counterattack (Black)"]
+[Opening "Two Knights Defense"]
+[Side "Black"]
+[Check "gambit"]
+[Result "*"]
+
+1. e4 e5 2. Nf3 Nc6 3. Bc4 Nf6 4. Ng5 Bc5 {The Traxler! Instead of defending f7, you counter-attack f2. Risky: it is a gamble, not a safe defense.} 5. Nxf7 {White falls for it and takes on f7.} Bxf2+ {Check! Now the fun begins.} 6. Kf1 {The best try. After 6.Kxf2 Nxe4+ the white king gets chased all over the board.} Qe7 {Bring the queen into the attack.} 7. Nxh8 d5 {Open lines – your bishop and queen are aiming at the white king.} 8. exd5 Nd4 {The knight jumps in towards White's king.} 9. d6 Qxd6 10. Nf7 Qe7 {You gave a rook, but White's king is stuck in the middle and your pieces attack. Honest truth: with perfect defense White is better (Stockfish about +1.5) – but in a fast game this attack is very hard to survive.} *
+

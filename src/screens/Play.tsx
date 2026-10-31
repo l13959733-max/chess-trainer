@@ -35,6 +35,7 @@ const START = new Chess().fen()
 const SAVE_KEY = 'chess-trainer-game'
 const LEVELS = [200, 400, 600, 800, 1000, 1200, 1500, 2000]
 const MIN_THINK = 650 // ms – an instant answer feels like a machine
+const IDEAS_KEY = 'chess-trainer-ideas'
 const IDEA_COLORS = ['rgba(79, 196, 20, 0.9)', 'rgba(46, 167, 240, 0.85)', 'rgba(255, 197, 49, 0.9)']
 const VERDICT_TEXT: Record<Verdict, string> = {
   great: 'great move!',
@@ -252,7 +253,12 @@ interface GameViewProps {
 
 function GameView({ game, setGame, book, thinking, setThinking, lastBotWin, safety, setSafety, onFinished, onPuzzlesFound, onAgain }: GameViewProps) {
   const chess = useMemo(() => replay(game), [game])
-  const fen = chess.fen()
+  const liveFen = chess.fen()
+  // Looking back through the game: null = the live position, otherwise the number of moves shown
+  const [view, setView] = useState<number | null>(null)
+  const viewing = view !== null && view < game.moves.length
+  const viewChess = useMemo(() => (viewing ? replay({ ...game, moves: game.moves.slice(0, view!) }) : null), [game, view, viewing])
+  const fen = liveFen
   const turn = chess.turn()
   const over = game.resigned || chess.isGameOver()
   const [result, setResult] = useState<{ before: number; after: number; reward: Reward } | null>(null)
@@ -261,7 +267,22 @@ function GameView({ game, setGame, book, thinking, setThinking, lastBotWin, safe
   // Coach: on by default when playing on from a line or a won position (practice); never in rated games
   const [coach, setCoach] = useState(!game.rated)
   const [cands, setCands] = useState<{ fen: string; list: Candidate[] } | null>(null)
-  const [showIdeas, setShowIdeas] = useState(false)
+  // Ideas stay on until turned off (remembered for the next game)
+  const [showIdeas, setShowIdeasState] = useState(() => {
+    try {
+      return localStorage.getItem(IDEAS_KEY) === '1'
+    } catch {
+      return false
+    }
+  })
+  const setShowIdeas = (on: boolean) => {
+    setShowIdeasState(on)
+    try {
+      localStorage.setItem(IDEAS_KEY, on ? '1' : '0')
+    } catch {
+      // not remembered
+    }
+  }
   const [lastVerdict, setLastVerdict] = useState<{ san: string; verdict: Verdict; bestSan: string; why: string[]; ply: number } | null>(null)
 
   // The coach looks at the player's position as soon as it is their turn
@@ -345,7 +366,7 @@ function GameView({ game, setGame, book, thinking, setThinking, lastBotWin, safe
         setLastVerdict({ san: m.san, verdict: v.verdict, bestSan, why, ply: game.moves.length })
       }
     } else setLastVerdict(null)
-    setShowIdeas(false)
+    setView(null)
     setGame({ ...game, moves: [...game.moves, uci] })
     return true
   }
@@ -364,9 +385,11 @@ function GameView({ game, setGame, book, thinking, setThinking, lastBotWin, safe
   const styles: Record<string, React.CSSProperties> = last ? { [last.from]: LAST_MOVE, [last.to]: LAST_MOVE } : {}
   const danger = safety && !over && turn === game.me ? piecesInDanger(fen, game.me) : []
   for (const sq of danger) styles[sq] = { ...styles[sq], ...DANGER }
-  const ready = coach && cands?.fen === fen && turn === game.me && !over
+  const ready = coach && cands?.fen === fen && turn === game.me && !over && !viewing
+  const viewLast = viewing && view! > 0 ? viewChess!.history({ verbose: true }).at(-1) : null
+  const viewStyles: Record<string, React.CSSProperties> = viewLast ? { [viewLast.from]: LAST_MOVE, [viewLast.to]: LAST_MOVE } : {}
   const ideas = ready ? [...cands!.list].sort((a, b) => winChance(b.score) - winChance(a.score)).slice(0, 3) : []
-  const arrows: Arrow[] = showIdeas ? ideas.map((c, i) => ({ startSquare: c.uci.slice(0, 2), endSquare: c.uci.slice(2, 4), color: IDEA_COLORS[i] })) : []
+  const arrows: Arrow[] = showIdeas && coach ? ideas.map((c, i) => ({ startSquare: c.uci.slice(0, 2), endSquare: c.uci.slice(2, 4), color: IDEA_COLORS[i] })) : []
 
   const score = over ? (game.resigned ? 0 : chess.isCheckmate() ? (chess.turn() === game.me ? 0 : 1) : 0.5) : null
   const history = chess.history()
@@ -383,7 +406,20 @@ function GameView({ game, setGame, book, thinking, setThinking, lastBotWin, safe
         </div>
       </div>
 
-      <Board fen={fen} orientation={game.me === 'w' ? 'white' : 'black'} onMove={!over && turn === game.me ? onMove : undefined} squareStyles={styles} arrows={arrows} />
+      <Board
+        fen={viewing ? viewChess!.fen() : fen}
+        orientation={game.me === 'w' ? 'white' : 'black'}
+        onMove={!over && !viewing && turn === game.me ? onMove : undefined}
+        squareStyles={viewing ? viewStyles : styles}
+        arrows={viewing ? [] : arrows}
+      />
+      <div className="nav-row" role="group" aria-label="Look through the game">
+        <button type="button" aria-label="First position" disabled={(view ?? game.moves.length) === 0} onClick={() => setView(0)}>⏮</button>
+        <button type="button" aria-label="Previous move" disabled={(view ?? game.moves.length) === 0} onClick={() => setView((view ?? game.moves.length) - 1)}>◀</button>
+        <span className="nav-pos">{viewing ? `Move ${view} of ${game.moves.length}` : 'Live'}</span>
+        <button type="button" aria-label="Next move" disabled={!viewing} onClick={() => setView(view! + 1 >= game.moves.length ? null : view! + 1)}>▶</button>
+        <button type="button" aria-label="Back to the game" disabled={!viewing} onClick={() => setView(null)}>⏭</button>
+      </div>
 
       <div className="drill-status">
         <span>
@@ -409,11 +445,10 @@ function GameView({ game, setGame, book, thinking, setThinking, lastBotWin, safe
           <button type="button" className={coach ? 'on' : ''} onClick={() => {
             if (!coach && game.rated) setGame({ ...game, rated: false })
             setCoach(!coach)
-            setShowIdeas(false)
           }}>🎓 Coach {coach ? 'on' : 'off'}</button>
           {coach && (
-            <button type="button" className="primary" disabled={!ready} onClick={() => setShowIdeas(!showIdeas)}>
-              {!ready ? (turn === game.me ? 'Thinking …' : 'Wait for your move') : showIdeas ? 'Hide ideas' : 'Show ideas'}
+            <button type="button" className={showIdeas ? 'primary' : ''} onClick={() => setShowIdeas(!showIdeas)}>
+              {showIdeas ? (ready ? '💡 Ideas: on' : '💡 Ideas: on · thinking …') : '💡 Ideas: off'}
             </button>
           )}
         </div>
@@ -431,7 +466,7 @@ function GameView({ game, setGame, book, thinking, setThinking, lastBotWin, safe
         </div>
       )}
 
-      {showIdeas && ideas.length > 0 && (
+      {coach && showIdeas && ideas.length > 0 && (
         <section className="explain-card ideas-card">
           <div className="label">Ideas for this position</div>
           {ideas.map((c, i) => {
@@ -497,7 +532,9 @@ function GameView({ game, setGame, book, thinking, setThinking, lastBotWin, safe
             const no = startNo + Math.floor(ply / 2)
             return (
               <li key={i}>
-                <span className={`chip ${i === history.length - 1 ? 'current' : ''}`}>{ply % 2 === 0 ? `${no}. ` : i === 0 ? `${no}... ` : ''}{san}</span>
+                <button type="button" className={`chip ${(viewing ? i === view! - 1 : i === history.length - 1) ? 'current' : ''}`} onClick={() => setView(i + 1 >= history.length ? null : i + 1)}>
+                  {ply % 2 === 0 ? `${no}. ` : i === 0 ? `${no}... ` : ''}{san}
+                </button>
               </li>
             )
           })}

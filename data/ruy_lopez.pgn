@@ -1,0 +1,49 @@
+[Event "Ruy Lopez: Closed Main Line"]
+[Opening "Ruy Lopez"]
+[Side "White"]
+[Result "*"]
+
+1. e4 e5 2. Nf3 Nc6 3. Bb5 {The Ruy Lopez (Spanish Game): attack the knight that protects e5.} a6 {Black asks the bishop at once.} 4. Ba4 {Keep the pin – the bishop stays on the long diagonal.} Nf6 5. O-O {Castle first. If Black takes e4, you win it back.} Be7 6. Re1 {Protect e4.} b5 7. Bb3 d6 8. c3 {Prepare d4 and give the bishop a way back to c2.} O-O 9. h3 {Stop ...Bg4 before playing d4.} Na5 10. Bc2 c5 11. d4 {Now the big center.} Qc7 12. Nbd2 {The knight goes to f1 and g3 – the classical Spanish plan.} *
+
+[Event "Ruy Lopez: Berlin 4.d3"]
+[Opening "Ruy Lopez"]
+[Side "White"]
+[Result "*"]
+
+1. e4 e5 2. Nf3 Nc6 3. Bb5 Nf6 {The Berlin Defense – very solid.} 4. d3 {Simple and good: protect e4 and keep pieces on the board.} Bc5 5. c3 {Prepare d4 and a retreat square for the bishop.} O-O 6. O-O d6 7. h3 {No ...Bg4.} a6 8. Ba4 *
+
+[Event "Ruy Lopez: Exchange Variation"]
+[Opening "Ruy Lopez"]
+[Side "White"]
+[Result "*"]
+
+1. e4 e5 2. Nf3 Nc6 3. Bb5 a6 4. Bxc6 {Give the bishop for the knight.} dxc6 {Black has doubled pawns – in an endgame your extra king-side pawn can win.} 5. O-O {Now e5 is really threatened.} f6 6. d4 exd4 7. Nxd4 c5 8. Nb3 Qxd1 9. Rxd1 {Queens are off. Your pawn majority on the king side is the long-term plan.} *
+
+[Event "Ruy Lopez: Open Variation"]
+[Opening "Ruy Lopez"]
+[Side "White"]
+[Result "*"]
+
+1. e4 e5 2. Nf3 Nc6 3. Bb5 a6 4. Ba4 Nf6 5. O-O Nxe4 {The Open Variation: Black takes the pawn.} 6. d4 {Open the center while Black's king is still there.} b5 7. Bb3 d5 8. dxe5 Be6 9. c3 {A safe home for the bishop on c2. Your e5 pawn gives you space.} *
+
+[Event "Ruy Lopez: The Marshall Attack"]
+[Opening "Ruy Lopez"]
+[Side "White"]
+[Result "*"]
+
+1. e4 e5 2. Nf3 Nc6 3. Bb5 a6 4. Ba4 Nf6 5. O-O Be7 6. Re1 b5 7. Bb3 O-O 8. c3 d5 {The Marshall Attack! Black gives a pawn to attack your king.} 9. exd5 Nxd5 10. Nxe5 Nxe5 11. Rxe5 c6 {Black's pieces come flying at your king.} 12. Re1 {Bring the rook home to defend.} Bd6 13. d4 Qh4 14. g3 {Block the queen.} Qh3 {Your king is under pressure, but you are a pawn up. Defend calmly with Be3, Qd3 and Nd2.} *
+
+[Event "Trap (Black): Noah's Ark"]
+[Opening "Ruy Lopez"]
+[Side "Black"]
+[Check "trap"]
+[Result "*"]
+
+1. e4 e5 2. Nf3 Nc6 3. Bb5 a6 4. Ba4 d6 5. d4 b5 6. Bb3 Nxd4 {Set the trap!} 7. Nxd4 exd4 8. Qxd4 {A mistake – White grabs the pawn.} c5 {Kick the queen.} 9. Qd5 Be6 10. Qc6+ Bd7 11. Qd5 c4 {The bishop on b3 is trapped by your pawns – like animals locked in Noah's Ark!} *
+
+[Event "Ruy Lopez (Black): Closed Main Line"]
+[Opening "Ruy Lopez"]
+[Side "Black"]
+[Result "*"]
+
+1. e4 e5 2. Nf3 Nc6 3. Bb5 a6 {Ask the bishop right away.} 4. Ba4 Nf6 {Attack e4.} 5. O-O Be7 {Get ready to castle.} 6. Re1 b5 {Push the bishop back.} 7. Bb3 d6 8. c3 O-O 9. h3 Na5 {Chase the strong bishop.} 10. Bc2 c5 {Take space on the queen side.} 11. d4 Qc7 {Hold e5. A rock-solid setup played for over 100 years.} *

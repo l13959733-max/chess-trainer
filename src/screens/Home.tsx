@@ -1,5 +1,6 @@
 import { Fragment, useMemo, useState } from 'react'
 import { Mascot } from '../components/Mascot'
+import { OpponentsCard } from '../components/OpponentsCard'
 import { go } from '../hooks/useHashRoute'
 import type { Achievements } from '../hooks/useAchievements'
 import type { Progress } from '../hooks/useProgress'
@@ -9,6 +10,7 @@ import { pause, start, type AnalyzerState } from '../lib/analyzer'
 import type { Repertoire } from '../hooks/useRepertoire'
 import { clampScore } from '../lib/blunders'
 import { chapters, type Chapter } from '../lib/chapters'
+import { branchMove, guideFor, type Guide } from '../lib/guide'
 import type { Line } from '../lib/pgn'
 import { PUZZLES_AVAILABLE } from '../lib/progress'
 import { daysUntil, isDue, lineResult } from '../lib/srs'
@@ -32,6 +34,19 @@ export function Home({ rep, progress, puzzles, analyzer, player, trophies }: { r
   const winning = useMemo(() => puzzles.puzzles.filter((p) => clampScore(p.scoreBefore) >= 300), [puzzles.puzzles])
   const chapterList = useMemo(() => chapters(rep.lines), [rep.lines])
   const [openChapters, setOpenChapters] = useState<Set<string>>(() => loadOpen(chapterList, rep, now))
+  // The finder opens chapters and scrolls to the first one
+  function openAndScroll(keys: string[]) {
+    if (!keys.length) return
+    const next = new Set(openChapters)
+    keys.forEach((k) => next.add(k))
+    setOpenChapters(next)
+    try {
+      localStorage.setItem(OPEN_KEY, JSON.stringify([...next]))
+    } catch {
+      // not remembered
+    }
+    window.setTimeout(() => document.getElementById('ch-' + keys[0])?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 60)
+  }
   function toggleChapter(key: string) {
     const next = new Set(openChapters)
     if (next.has(key)) next.delete(key)
@@ -108,11 +123,19 @@ export function Home({ rep, progress, puzzles, analyzer, player, trophies }: { r
         <span className="chevron" aria-hidden="true">▸</span>
       </button>
 
+      <OpponentsCard player={player} lines={rep.lines} srs={rep.srs} onOpen={openAndScroll} />
+
       <section className="lines" aria-label="Repertoire">
         <div className="section-head">
           <h2>Your path</h2>
           <button type="button" onClick={() => go('import')}>Import PGN</button>
         </div>
+        <button type="button" className="attacks-row" onClick={() => go('attacks')}>
+          <span className="quick-icon" aria-hidden="true">⚔️</span>
+          <span><b>Attacks & Traps</b><br /><small>Every famous attack together with its defense</small></span>
+          <span className="chevron" aria-hidden="true">▸</span>
+        </button>
+        <Finder chapters={chapterList} lines={rep.lines} onOpen={openAndScroll} />
         {chapterList.map((ch, ci) => {
           const isOpen = openChapters.has(ch.key)
           const newGroup = ci === 0 || chapterList[ci - 1].group !== ch.group
@@ -121,7 +144,7 @@ export function Home({ rep, progress, puzzles, analyzer, player, trophies }: { r
           return (
             <Fragment key={ch.key}>
             {newGroup && <h3 className="chapter-group">{ch.group}</h3>}
-            <div className={`chapter ${isOpen ? 'open' : ''}`}>
+            <div id={'ch-' + ch.key} className={`chapter ${isOpen ? 'open' : ''}`}>
               <button type="button" className="chapter-head" aria-expanded={isOpen} onClick={() => toggleChapter(ch.key)}>
                 <span className={`side-dot ${ch.side === 'b' ? 'black' : ch.side === 'w' ? 'white' : ''}`} aria-hidden="true" />
                 <span className="chapter-title">
@@ -134,10 +157,11 @@ export function Home({ rep, progress, puzzles, analyzer, player, trophies }: { r
                 </span>
                 <span className="chevron" aria-hidden="true">{isOpen ? '▾' : '▸'}</span>
               </button>
+              {isOpen && <GuideCard guide={guideFor(ch.lines[0].opening, ch.side)} />}
               {isOpen && (
                 <div className="path">
                   {ch.lines.map((line, i) => (
-                    <PathStep key={line.id} line={line} i={i} rep={rep} now={now} open={open === line.id} onToggle={() => setOpen(open === line.id ? null : line.id)} />
+                    <PathStep key={line.id} line={line} i={i} rep={rep} now={now} branch={branchMove(line, ch.lines)} open={open === line.id} onToggle={() => setOpen(open === line.id ? null : line.id)} />
                   ))}
                 </div>
               )}
@@ -254,7 +278,7 @@ function loadOpen(list: Chapter[], rep: Repertoire, now: number): Set<string> {
   return new Set(withDue.length ? withDue : list.slice(0, 1).map((c) => c.key))
 }
 
-function PathStep({ line, i, rep, now, open, onToggle }: { line: Line; i: number; rep: Repertoire; now: number; open: boolean; onToggle: () => void }) {
+function PathStep({ line, i, rep, now, branch, open, onToggle }: { line: Line; i: number; rep: Repertoire; now: number; branch: string | null; open: boolean; onToggle: () => void }) {
   const s = rep.srs.get(line.id)
   const r = lineResult(s, now)
   const last = r.kind === 'new' ? 'Not played yet' : r.kind === 'perfect' ? 'Last time: perfect' : `Last time: ${r.mistakes} ${r.mistakes === 1 ? 'mistake' : 'mistakes'}`
@@ -272,6 +296,7 @@ function PathStep({ line, i, rep, now, open, onToggle }: { line: Line; i: number
         {r.kind === 'new' ? '★' : r.kind === 'perfect' ? '✓' : r.mistakes}
       </button>
       <div className="path-label">{line.title}</div>
+      {branch && <div className="path-branch">differs at {branch}</div>}
       {r.kind !== 'new' && (
         <div className={`path-result ${cls}`}>{r.kind === 'perfect' ? 'Perfect' : `${r.mistakes} ${r.mistakes === 1 ? 'mistake' : 'mistakes'}`}{r.due ? ' · practice again' : ''}</div>
       )}
@@ -289,6 +314,80 @@ function PathStep({ line, i, rep, now, open, onToggle }: { line: Line; i: number
           </div>
         </div>
       )}
+    </div>
+  )
+}
+
+function GuideCard({ guide }: { guide?: Guide }) {
+  if (!guide) return null
+  return (
+    <div className="guide-card">
+      <span className={`style-chip ${guide.style.toLowerCase()}`}>{guide.style}</span>
+      <p>{guide.about}</p>
+      <ul>
+        {guide.ideas.map((i) => (
+          <li key={i}>{i}</li>
+        ))}
+      </ul>
+      {guide.fact && (
+        <p className="fun-fact">
+          <b>Fun fact:</b> {guide.fact}
+        </p>
+      )}
+    </div>
+  )
+}
+
+// "Find your answer": pick the opponent's first move, or search by name
+const WHITE_ANSWERS: { label: string; keys: string[] }[] = [
+  { label: '1...e5', keys: ['Italian Game|w', 'Two Knights Defense|w', 'Ruy Lopez|w', 'Petrov Defense|w', 'Philidor Defense|w', 'Vienna Game|w', "Bishop's Opening|w"] },
+  { label: '1...d5', keys: ['Scandinavian|w'] },
+  { label: '1...c6', keys: ['Caro-Kann|w'] },
+  { label: '1...c5', keys: ['Sicilian Defense|w'] },
+  { label: '1...e6', keys: ['French Defense|w'] },
+  { label: '1...d6 / g6', keys: ['Pirc & Modern|w'] },
+  { label: '1...Nc6', keys: ['Nimzowitsch Defense|w'] },
+]
+const BLACK_ANSWERS: { label: string; keys: string[] }[] = [
+  { label: '1.e4', keys: ['Scandinavian|b', 'Caro-Kann|b', 'Sicilian Dragon|b', "Sicilian: White's other tries|b", 'Italian Game|b', 'Two Knights Defense|b', 'Philidor Defense|b', 'Ruy Lopez|b'] },
+  { label: '1.d4', keys: ["Queen's Gambit Declined|b", 'London & 2.Nf3|b'] },
+  { label: '1.c4 · 1.Nf3 · other', keys: ['Other first moves|b'] },
+]
+
+function Finder({ chapters, lines, onOpen }: { chapters: Chapter[]; lines: Line[]; onOpen: (keys: string[]) => void }) {
+  const [side, setSide] = useState<'w' | 'b'>('w')
+  const [q, setQ] = useState('')
+  const known = new Set(chapters.map((c) => c.key))
+  const answers = (side === 'w' ? WHITE_ANSWERS : BLACK_ANSWERS).map((a) => ({ ...a, keys: a.keys.filter((k) => known.has(k)) })).filter((a) => a.keys.length)
+  const query = q.trim().toLowerCase()
+  const hits = query.length < 2 ? [] : lines.filter((l) => `${l.title} ${l.opening ?? ''}`.toLowerCase().includes(query)).slice(0, 8)
+  return (
+    <div className="finder">
+      <div className="label">Find your answer</div>
+      <div className="seg two" role="group" aria-label="My color">
+        <button type="button" className={side === 'w' ? 'on' : ''} onClick={() => setSide('w')}>I play White</button>
+        <button type="button" className={side === 'b' ? 'on' : ''} onClick={() => setSide('b')}>I play Black</button>
+      </div>
+      <div className="note small">{side === 'w' ? 'Black answers 1.e4 with …' : 'White starts with …'}</div>
+      <div className="finder-chips">
+        {answers.map((a) => (
+          <button key={a.label} type="button" onClick={() => onOpen(a.keys)}>{a.label}</button>
+        ))}
+      </div>
+      <input className="finder-search" type="search" placeholder="Search: Dragon, Fried Liver, trap, gambit …" value={q} onChange={(e) => setQ(e.target.value)} />
+      {hits.length > 0 && (
+        <ul className="finder-hits">
+          {hits.map((l) => (
+            <li key={l.id}>
+              <span className={`side-dot ${l.side === 'b' ? 'black' : 'white'}`} aria-hidden="true" />
+              <span className="hit-title">{l.title}</span>
+              <button type="button" onClick={() => go('learn/' + l.id)}>Learn</button>
+              <button type="button" className="primary" onClick={() => go('drill/' + l.id)}>Play</button>
+            </li>
+          ))}
+        </ul>
+      )}
+      {query.length >= 2 && !hits.length && <p className="note small">Nothing found for “{q}”.</p>}
     </div>
   )
 }
