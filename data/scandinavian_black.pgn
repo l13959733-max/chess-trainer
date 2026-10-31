@@ -53,3 +53,17 @@
 [Result "*"]
 
 1. e4 d5 2. exd5 Nf6 {Don't hurry – take the pawn back with the knight.} 3. d4 Nxd5 4. Nf3 g6 {Your bishop will be strong on g7.} 5. Be2 Bg7 6. O-O O-O {Safe king, then fight for the center.} 7. c4 Nb6 8. Nc3 Bg4 {Pressure on d4.} *
+
+[Event "Scandinavian: Blackmar-Diemer Gambit 2.d4"]
+[Opening "Scandinavian"]
+[Side "Black"]
+[Result "*"]
+
+1. e4 d5 2. d4 {The Blackmar-Diemer Gambit: White offers a pawn for a fast attack.} dxe4 {Take it.} 3. Nc3 Nf6 {Protect e4 and develop.} 4. f3 exf3 {Take again – now White has an open f-file but you are a pawn up.} 5. Nxf3 Bg4 {Pin the knight.} 6. h3 Bxf3 7. Qxf3 c6 {Close the long diagonal to b7.} 8. Be3 e6 {A solid wall. Next ...Nbd7 and ...Be7.} 9. Bd3 Nbd7 10. O-O Be7 *
+
+[Event "Scandinavian: 3.Nc3 Qa5 4.Bc4"]
+[Opening "Scandinavian"]
+[Side "Black"]
+[Result "*"]
+
+1. e4 d5 2. exd5 Qxd5 3. Nc3 Qa5 4. Bc4 {The bishop aims at f7.} Nf6 5. d3 c6 {Give your queen a way back to c7.} 6. Bd2 Qc7 {Out of the pin line – no tricks with Nd5 or Nb5.} 7. Nf3 Bg4 {Pin the knight.} 8. h3 Bh5 9. Qe2 e6 *

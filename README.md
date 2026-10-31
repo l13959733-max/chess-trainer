@@ -33,14 +33,14 @@ All progress and imports live only in the browser (IndexedDB `chess-trainer`).
 ## Repertoire
 
 `data/*.pgn`, one file per opening family. Headers: `[Side "White"|"Black"]` = the side you learn,
-`[Opening "…"]` = the chapter on the overview (order in `src/lib/chapters.ts`). 83 lines (31.10.2026):
+`[Opening "…"]` = the chapter on the overview (order in `src/lib/chapters.ts`). 97 lines (31.10.2026):
 Italian Game for both sides (incl. Petrov, Philidor, Two Knights, Evans, traps), Vienna Game and Bishop's Opening,
 Scandinavian for White (vs 1...d5) and Black, replies to other first moves (French, Caro-Kann, Sicilian Alapin,
 Pirc/Modern, Nimzowitsch), Caro-Kann for both sides, the Sicilian Dragon and anti-Sicilians for Black, the Smith-Morra and Wing Gambits for White, and the Queen's Gambit Declined / London for Black. `[Check "gambit"]` or `[Check "trap"]` allows up to 1.5 pawns for an intended sacrifice or trap setup.
 
 `npm run check-lines` lets Stockfish (depth 16) check every move of the learner's side: no move may lose more than
 0.6 pawns against the engine's best move, and it prints the evaluation at the end of each line. Run it after every
-change to the PGN files (all 83 lines pass).
+change to the PGN files (all 97 lines pass).
 
 ## Hoppy-Bot (play games)
 

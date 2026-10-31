@@ -39,3 +39,17 @@
 [Result "*"]
 
 1. e4 d5 2. exd5 Nf6 {Black takes back later with the knight.} 3. d4 {Take the center.} Nxd5 4. Nf3 g6 5. Be2 Bg7 6. O-O O-O 7. c4 {Kick the knight from the middle.} Nb6 8. Nc3 Nc6 9. d5 {Push again!} Ne5 10. Nxe5 Bxe5 *
+
+[Event "vs Scandinavian: Portuguese 3...Bg4"]
+[Opening "Scandinavian"]
+[Side "White"]
+[Result "*"]
+
+1. e4 d5 2. exd5 Nf6 3. d4 Bg4 {The Portuguese Variation: Black wants to attack fast.} 4. f3 {Kick the bishop.} Bf5 5. Bb5+ {Check first, then c4.} Nbd7 6. c4 e6 7. dxe6 Bxe6 8. d5 {Push with tempo.} Bf5 9. Nc3 {You are a pawn up with a good position.} *
+
+[Event "vs Scandinavian: Icelandic Gambit 3.c4 e6"]
+[Opening "Scandinavian"]
+[Side "White"]
+[Result "*"]
+
+1. e4 d5 2. exd5 Nf6 3. c4 e6 {The Icelandic Gambit: Black gives a pawn for development.} 4. dxe6 Bxe6 5. Nf3 {Develop first – don't rush with d4.} Nc6 6. Be2 Bc5 7. O-O Qd7 8. d3 {Safe and solid. You are a pawn up; now finish development.} O-O-O 9. Nc3 *

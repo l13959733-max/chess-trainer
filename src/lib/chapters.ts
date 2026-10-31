@@ -57,6 +57,11 @@ const LAYOUT: { group: string; side: Side; chapters: { opening: string; title?: 
       { opening: 'London & 2.Nf3', title: 'London System & 2.Nf3', moves: '1.d4 d5 2.Bf4 · 2.Nf3' },
     ],
   },
+  {
+    group: 'Black · against other first moves',
+    side: 'b',
+    chapters: [{ opening: 'Other first moves', title: '1.c4, 1.Nf3, 1.f4, 1.b3, 1.g3', moves: 'English, Réti, Bird, Nimzo-Larsen' }],
+  },
 ]
 
 // Groups lines into chapters in the order above. Unknown openings go to "More lines" of their side,

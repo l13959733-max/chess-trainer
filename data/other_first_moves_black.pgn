@@ -1,0 +1,48 @@
+[Event "vs 1.c4: into the Queen's Gambit"]
+[Opening "Other first moves"]
+[Side "Black"]
+[Result "*"]
+
+1. c4 {The English Opening.} e6 {Calm: get ready for ...d5.} 2. Nc3 d5 3. d4 Nf6 {Now it is the Queen's Gambit Declined – and you already know it!} 4. Bg5 Be7 5. e3 O-O 6. Nf3 h6 7. Bh4 b6 *
+
+[Event "vs 1.c4: White fianchettoes"]
+[Opening "Other first moves"]
+[Side "Black"]
+[Result "*"]
+
+1. c4 e6 2. g3 d5 {Take the center.} 3. Bg2 Nf6 4. Nf3 Be7 5. O-O O-O {Castle. Simple and safe.} 6. b3 c5 {Take more space.} 7. Bb2 Nc6 *
+
+[Event "vs 1.Nf3: King's Indian Attack"]
+[Opening "Other first moves"]
+[Side "Black"]
+[Result "*"]
+
+1. Nf3 d5 {Take the center.} 2. g3 Nf6 3. Bg2 e6 4. O-O Be7 5. d3 O-O 6. Nbd2 c5 {Space on the queen side – that is where you play.} 7. e4 Nc6 8. Re1 b5 {Go forward on the queen side!} *
+
+[Event "vs 1.Nf3: 2.c4"]
+[Opening "Other first moves"]
+[Side "Black"]
+[Result "*"]
+
+1. Nf3 d5 2. c4 e6 {Hold d5 with a pawn.} 3. g3 Nf6 4. Bg2 Be7 5. O-O O-O 6. d4 dxc4 {Take the pawn now – White has to spend time getting it back.} 7. Qc2 a6 8. Qxc4 b5 {Kick the queen.} 9. Qc2 Bb7 *
+
+[Event "vs 1.f4: Bird's Opening"]
+[Opening "Other first moves"]
+[Side "Black"]
+[Result "*"]
+
+1. f4 {Bird's Opening.} d5 2. Nf3 Nf6 3. e3 g6 {Your bishop on g7 looks at the long diagonal.} 4. Be2 Bg7 5. O-O O-O 6. d3 c5 {Take space. Equal game.} *
+
+[Event "vs 1.b3: Nimzo-Larsen"]
+[Opening "Other first moves"]
+[Side "Black"]
+[Result "*"]
+
+1. b3 {The bishop will go to b2 and look at e5.} e5 {Take the center anyway.} 2. Bb2 Nc6 {Protect e5.} 3. e3 d5 4. Bb5 Bd6 {Protect e5 again and develop.} 5. f4 Qh4+ {A useful check!} 6. g3 Qe7 7. Nf3 f6 {e5 is rock solid.} *
+
+[Event "vs 1.g3"]
+[Opening "Other first moves"]
+[Side "Black"]
+[Result "*"]
+
+1. g3 d5 {Take the center.} 2. Bg2 Nf6 3. Nf3 e6 4. O-O Be7 5. d3 O-O 6. Nbd2 c5 {The same plan as against 1.Nf3.} *
