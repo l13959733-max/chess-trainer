@@ -35,6 +35,7 @@ export function Drill({ line, onDone, after, progress }: Props) {
   const [feedback, setFeedback] = useState<Feedback>(null)
   const [nextDays, setNextDays] = useState<number | null>(null)
   const [reward, setReward] = useState<Reward | null>(null)
+  const [review, setReview] = useState<number | null>(null)
   const timer = useRef<number | undefined>(undefined)
   const recorded = useRef(false)
 
@@ -50,6 +51,7 @@ export function Drill({ line, onDone, after, progress }: Props) {
     setFeedback(null)
     setNextDays(null)
     setReward(null)
+    setReview(null)
   }, [])
 
   // Play the opponent's move automatically
@@ -101,6 +103,10 @@ export function Drill({ line, onDone, after, progress }: Props) {
   }
 
   const mistakes = mistakePlies.size
+  // After the line: look back through it move by move (null = final position)
+  const shown = finished && review !== null ? line.moves[review - 1] : null
+  const boardFen = finished && review !== null ? (review === 0 ? line.moves[0].fenBefore : line.moves[review - 1].fenAfter) : fen
+  const boardStyles = finished && review !== null ? (shown ? { [shown.from]: LAST_MOVE, [shown.to]: LAST_MOVE } : {}) : styles
 
   return (
     <div className="screen">
@@ -112,7 +118,7 @@ export function Drill({ line, onDone, after, progress }: Props) {
         </div>
       </div>
 
-      <Board fen={fen} orientation={line.side === 'w' ? 'white' : 'black'} onMove={finished ? undefined : onMove} arrows={arrows} squareStyles={styles} />
+      <Board fen={boardFen} orientation={line.side === 'w' ? 'white' : 'black'} onMove={finished ? undefined : onMove} arrows={finished ? [] : arrows} squareStyles={boardStyles} />
 
       <div className="drill-status">
         <span>{finished ? 'Line complete' : myTurn ? 'Your move' : 'Opponent is moving …'}</span>
@@ -144,6 +150,38 @@ export function Drill({ line, onDone, after, progress }: Props) {
           {nextDays !== null && <p>Next review: {nextDays <= 1 ? 'tomorrow' : `in ${nextDays} days`}</p>}
           <div className="done-actions">{after(restart)}</div>
         </div>
+      )}
+
+      {finished && (
+        <section className="review-card">
+          <div className="label">Look back through the line</div>
+          <div className="nav-row" role="group" aria-label="Look through the line">
+            <button type="button" aria-label="Start position" onClick={() => setReview(0)}>⏮</button>
+            <button type="button" aria-label="Previous move" disabled={review === 0} onClick={() => setReview((review ?? line.moves.length) - 1)}>◀</button>
+            <span className="nav-pos">{review === null ? 'End of the line' : review === 0 ? 'Start' : `Move ${review} of ${line.moves.length}`}</span>
+            <button type="button" aria-label="Next move" disabled={review === null} onClick={() => setReview(review! + 1 >= line.moves.length ? null : review! + 1)}>▶</button>
+            <button type="button" aria-label="End of the line" disabled={review === null} onClick={() => setReview(null)}>⏭</button>
+          </div>
+          <ol className="movelist" aria-label="Moves of the line">
+            {line.moves.map((m, i) => (
+              <li key={i}>
+                <button
+                  type="button"
+                  className={`chip ${m.color === line.side ? (mistakePlies.has(i) ? 'missed' : 'right') : ''} ${(review === null ? i === line.moves.length - 1 : i === review - 1) ? 'current' : ''}`}
+                  onClick={() => setReview(i + 1 >= line.moves.length ? null : i + 1)}
+                >
+                  {moveLabel(line, i)}
+                </button>
+              </li>
+            ))}
+          </ol>
+          {shown?.comment && (
+            <p>
+              <b>{moveLabel(line, review! - 1)}</b> {shown.comment}
+            </p>
+          )}
+          <p className="note small">Green = you played it right. Red = you needed a second try.</p>
+        </section>
       )}
     </div>
   )

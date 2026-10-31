@@ -10,8 +10,10 @@ import type { Puzzle } from './lib/db'
 import { isDbBlocked } from './lib/db'
 import { dailyQueue } from './lib/daily'
 import { isDue } from './lib/srs'
+import { feedback } from './lib/feedback'
 import { isUnlocked, stop as stopVoice, unlockAudio } from './lib/voice'
 import { Mascot } from './components/Mascot'
+import { Attacks } from './screens/Attacks'
 import { Drill } from './screens/Drill'
 import { Home } from './screens/Home'
 import { Import } from './screens/Import'
@@ -49,6 +51,17 @@ function App() {
     events.forEach((e) => window.addEventListener(e, tryUnlock))
     return () => events.forEach((e) => window.removeEventListener(e, tryUnlock))
   }, [])
+  // Every tap on a button or tile clicks softly (sound + haptic), like a click wheel. The board has its own sounds.
+  useEffect(() => {
+    const onDown = (e: PointerEvent) => {
+      const el = e.target as Element | null
+      if (!el?.closest || el.closest('.board-wrap')) return
+      const hit = el.closest('button, a, .toggle')
+      if (hit && !(hit as HTMLButtonElement).disabled) feedback.tap()
+    }
+    window.addEventListener('pointerdown', onDown)
+    return () => window.removeEventListener('pointerdown', onDown)
+  }, [])
   const line = id ? rep.lines.find((l) => l.id === id) : undefined
 
   let body: React.ReactNode
@@ -83,6 +96,7 @@ function App() {
   else if (page === 'threats') body = <ThreatSession key={id ?? 'all'} puzzles={puzzles} progress={progress} category={id && id in CATEGORY ? (id as Category) : undefined} />
   else if (page === 'weaknesses') body = <Weaknesses puzzles={puzzles} player={player} />
   else if (page === 'trophies') body = <Trophies achievements={trophies} />
+  else if (page === 'attacks') body = <Attacks rep={rep} />
   else if (page === 'daily') body = <DailySession rep={rep} puzzles={puzzles} progress={progress} />
   else body = <Home rep={rep} progress={progress} puzzles={puzzles} analyzer={analyzer} player={player} trophies={trophies} />
 

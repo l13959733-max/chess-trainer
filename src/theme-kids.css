@@ -333,3 +333,72 @@ button:focus-visible { outline: 3px solid var(--idea); }
 .coach-verdict.mistake, .coach-verdict.blunder { border-color: var(--bad); }
 .coach-verdict.mistake .move, .coach-verdict.blunder .move { color: var(--bad); }
 .ideas-card .idea-dot { display: inline-block; width: 12px; height: 12px; border-radius: 50%; vertical-align: middle; }
+
+/* ---- Feel: motion that makes every tap and move feel physical (respects reduced motion) ---- */
+@keyframes dot-pop { from { transform: scale(0.3); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+@keyframes sq-glow { 0%, 100% { box-shadow: inset 0 0 0 4px rgba(255, 214, 102, 0.95); } 50% { box-shadow: inset 0 0 0 6px rgba(255, 214, 102, 0.6); } }
+@keyframes board-shake { 0%, 100% { transform: translateX(0); } 20% { transform: translateX(-7px); } 40% { transform: translateX(6px); } 60% { transform: translateX(-4px); } 80% { transform: translateX(2px); } }
+@keyframes screen-in { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+@keyframes pop-in { 0% { transform: scale(0.6); opacity: 0; } 60% { transform: scale(1.08); opacity: 1; } 100% { transform: scale(1); } }
+.board-wrap.shake { animation: board-shake 0.38s ease; }
+.screen { animation: screen-in 0.22s cubic-bezier(0.2, 0.8, 0.2, 1); }
+/* Buttons: press down fast, spring back with a tiny overshoot */
+button { transition: transform 0.16s cubic-bezier(0.34, 1.8, 0.5, 1), border-bottom-width 0.16s, margin 0.16s, filter 0.12s; -webkit-tap-highlight-color: transparent; }
+button:active:not(:disabled) { transition-duration: 0.04s; filter: brightness(0.96); }
+.path-node:active:not(:disabled) { transform: translateY(3px) scale(0.94); }
+.xp-pop, .level-up, .goal-hit, .trophy.is-new .medal { animation: pop-in 0.42s cubic-bezier(0.34, 1.6, 0.5, 1); }
+@media (prefers-reduced-motion: reduce) {
+  .screen, .xp-pop, .level-up, .goal-hit, .trophy.is-new .medal { animation: none; }
+}
+
+/* Opening guide, finder and attacks */
+.guide-card { margin: 0 12px 4px; padding: 12px 14px; border-radius: 16px; background: #f7f5fd; display: grid; gap: 6px; }
+.guide-card p { margin: 0; line-height: 1.45; }
+.guide-card ul { margin: 0; padding-left: 18px; display: grid; gap: 2px; }
+.guide-card .fun-fact { background: #fffbea; border-radius: 12px; padding: 8px 10px; font-size: 0.9rem; }
+.style-chip { justify-self: start; font-size: 0.72rem; font-weight: 900; text-transform: uppercase; letter-spacing: 0.06em; border-radius: 999px; padding: 3px 10px; color: #fff; background: var(--idea); }
+.style-chip.solid { background: var(--idea); }
+.style-chip.active { background: var(--accent); }
+.style-chip.sharp { background: #ff9f1c; }
+.style-chip.gambit { background: var(--bad); }
+.path-branch { font-size: 0.75rem; font-weight: 800; color: var(--muted); margin-top: -4px; }
+.finder { display: grid; gap: 8px; border: 2px solid var(--line); border-radius: 20px; padding: 12px 14px; margin-top: 10px; background: #fff; }
+.seg.two { grid-template-columns: 1fr 1fr; }
+.finder-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.finder-chips button { min-height: 40px; padding: 4px 12px; border-radius: 999px; font-size: 0.9rem; }
+.finder-search { font: inherit; font-weight: 700; border: 2px solid var(--line); border-radius: 14px; padding: 10px 12px; min-height: 44px; width: 100%; background: #fff; color: var(--text); }
+.finder-hits { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
+.finder-hits li { display: grid; grid-template-columns: auto 1fr auto auto; gap: 8px; align-items: center; }
+.finder-hits button { min-height: 38px; padding: 4px 10px; font-size: 0.8rem; }
+.hit-title { font-weight: 800; font-size: 0.9rem; line-height: 1.2; }
+.attacks-row { display: grid; grid-template-columns: auto 1fr auto; gap: 12px; align-items: center; width: 100%; text-align: left; margin-top: 10px; padding: 12px 14px; border-radius: 20px; background: #fff1f2; border-color: #ffc9ce; }
+.attacks-row .quick-icon { color: var(--bad); }
+.attacks-row small { color: var(--muted); font-weight: 700; }
+.attack-card { gap: 8px; }
+.attack-name { font-weight: 900; font-size: 1.1rem; }
+.attack-line { display: grid; grid-template-columns: auto 1fr auto auto; gap: 8px; align-items: center; }
+.attack-line button { min-height: 38px; padding: 4px 10px; font-size: 0.8rem; }
+.hit-title small { display: block; color: var(--muted); font-weight: 700; font-size: 0.75rem; }
+.screen > .nav-row { margin-inline: 16px; }
+.nav-row { display: grid; grid-template-columns: 48px 48px 1fr 48px 48px; gap: 6px; align-items: center; }
+.nav-row button { min-height: 44px; padding: 0; font-size: 1rem; }
+.nav-pos { text-align: center; font-weight: 800; color: var(--muted); font-size: 0.85rem; }
+.screen > .review-card { margin-inline: 16px; }
+.review-card { display: grid; gap: 10px; border: 2px solid var(--line); border-radius: 20px; padding: 14px; background: #fff; }
+.review-card p { margin: 0; line-height: 1.45; }
+.review-card .movelist { margin: 0; }
+.chip.right { background: #e9f8dc; border-color: var(--accent); color: var(--accent-dark); }
+.chip.missed { background: #ffe4e7; border-color: var(--bad); color: var(--bad-dark); }
+
+/* What your opponents play */
+.screen > .opp-card { margin-inline: 16px; }
+.opp-card { display: grid; gap: 8px; border: 2px solid var(--idea); border-radius: 20px; padding: 14px; background: #eef8ff; }
+.opp-card p { margin: 0; }
+.opp-row { display: grid; gap: 4px; }
+.opp-head { font-weight: 800; font-size: 0.9rem; }
+.opp-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.opp-chip { background: #fff; border: 2px solid var(--line); border-radius: 999px; padding: 3px 10px; font-weight: 800; font-size: 0.85rem; }
+.opp-chip b { color: var(--idea-dark); }
+.opp-next { display: grid; grid-template-columns: auto 1fr auto; gap: 10px; align-items: center; text-align: left; width: 100%; padding: 10px 12px; border-radius: 16px; background: #fff; }
+.opp-next small { display: block; color: var(--muted); font-weight: 700; font-size: 0.78rem; }
+.opp-x { font-size: 1.2rem; color: #ff9f1c; }

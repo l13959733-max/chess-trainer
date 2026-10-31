@@ -17,6 +17,7 @@ const LAYOUT: { group: string; side: Side; chapters: { opening: string; title?: 
     chapters: [
       { opening: 'Italian Game', moves: '1.e4 e5 2.Nf3 Nc6 3.Bc4' },
       { opening: 'Two Knights Defense', moves: '3.Bc4 Nf6 – grows out of the Italian' },
+      { opening: 'Ruy Lopez', title: 'Ruy Lopez (Spanish)', moves: '1.e4 e5 2.Nf3 Nc6 3.Bb5' },
       { opening: 'Petrov Defense', moves: '1.e4 e5 2.Nf3 Nf6' },
       { opening: 'Philidor Defense', moves: '1.e4 e5 2.Nf3 d6' },
       { opening: 'Vienna Game', moves: '1.e4 e5 2.Nc3' },
@@ -47,6 +48,7 @@ const LAYOUT: { group: string; side: Side; chapters: { opening: string; title?: 
       { opening: 'Italian Game', moves: '1.e4 e5 2.Nf3 Nc6 3.Bc4 Bc5' },
       { opening: 'Two Knights Defense', moves: '1.e4 e5 2.Nf3 Nc6 3.Bc4 Nf6' },
       { opening: 'Philidor Defense', moves: '1.e4 e5 2.Nf3 d6' },
+      { opening: 'Ruy Lopez', title: 'Ruy Lopez (Spanish)', moves: '1.e4 e5 2.Nf3 Nc6 3.Bb5' },
     ],
   },
   {
