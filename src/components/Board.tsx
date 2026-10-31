@@ -1,6 +1,7 @@
 import { Chess, type Square } from 'chess.js'
 import { useMemo, useState, type CSSProperties } from 'react'
 import { Chessboard, type Arrow } from 'react-chessboard'
+import { feedback } from '../lib/feedback'
 
 interface Props {
   fen: string
@@ -11,7 +12,9 @@ interface Props {
   squareStyles?: Record<string, CSSProperties>
 }
 
-const SELECTED: CSSProperties = { boxShadow: 'inset 0 0 0 4px rgba(255, 214, 102, 0.9)', animation: 'sq-glow 1.2s ease-in-out infinite' }
+const SELECTED: CSSProperties = { backgroundColor: 'rgba(255, 214, 102, 0.6)' }
+// The king in check glows red, so a check is never missed
+const CHECK: CSSProperties = { background: 'radial-gradient(circle, rgba(255, 40, 40, 0.85) 0%, rgba(231, 0, 0, 0.5) 45%, transparent 75%)' }
 const DOT: CSSProperties = { background: 'radial-gradient(circle, rgba(20,23,28,0.35) 22%, transparent 24%)', animation: 'dot-pop 0.16s ease-out' }
 const RING: CSSProperties = { background: 'radial-gradient(circle, transparent 58%, rgba(20,23,28,0.35) 60%)', animation: 'dot-pop 0.16s ease-out' }
 
@@ -31,11 +34,31 @@ export function Board({ fen, orientation, onMove, arrows = [], squareStyles = {}
 
   const turn = fen.split(' ')[1]
 
+  const checkSquare = useMemo(() => {
+    try {
+      const c = new Chess(fen)
+      if (!c.inCheck()) return null
+      return c.findPiece({ type: 'k', color: c.turn() })[0] ?? null
+    } catch {
+      return null
+    }
+  }, [fen])
+
+  // Illegal moves never reach the screen: the piece goes back with a soft bump
+  function tryMove(from: string, to: string): boolean {
+    if (!onMove || from === to) return false
+    if (!new Chess(fen).moves({ square: from as Square, verbose: true }).some((m) => m.to === to)) {
+      feedback.illegal()
+      return false
+    }
+    return onMove(from, to)
+  }
+
   function onSquareClick({ piece, square }: { piece: { pieceType: string } | null; square: string }) {
     if (!onMove) return
     const own = piece && piece.pieceType[0] === turn
     if (sel && sel !== square && !own) {
-      onMove(sel, square)
+      tryMove(sel, square)
       setSelected(null)
       return
     }
@@ -43,6 +66,7 @@ export function Board({ fen, orientation, onMove, arrows = [], squareStyles = {}
   }
 
   const styles: Record<string, CSSProperties> = { ...squareStyles }
+  if (checkSquare) styles[checkSquare] = { ...styles[checkSquare], ...CHECK }
   if (sel) styles[sel] = { ...styles[sel], ...SELECTED }
   for (const t of targets) styles[t.to] = { ...styles[t.to], ...(t.capture ? RING : DOT) }
 
@@ -59,15 +83,15 @@ export function Board({ fen, orientation, onMove, arrows = [], squareStyles = {}
         onSquareClick,
         onPieceDrop: ({ sourceSquare, targetSquare }) => {
           setSelected(null)
-          return !!(onMove && targetSquare && onMove(sourceSquare, targetSquare))
+          return !!(targetSquare && tryMove(sourceSquare, targetSquare))
         },
         lightSquareStyle: { backgroundColor: 'var(--board-light)' },
         darkSquareStyle: { backgroundColor: 'var(--board-dark)' },
-        // Feel: pieces glide, lift up while dragged, and the target square lights up
+        // Feel: pieces glide, lift up while dragged, and the square under the finger gets a white frame
         animationDurationInMs: 190,
         draggingPieceStyle: { transform: 'scale(1.22)', filter: 'drop-shadow(0 10px 8px rgba(40, 30, 60, 0.35))' },
         draggingPieceGhostStyle: { opacity: 0.22 },
-        dropSquareStyle: { boxShadow: 'inset 0 0 0 4px rgba(255, 197, 49, 0.95)' },
+        dropSquareStyle: { boxShadow: 'inset 0 0 0 4px rgba(255, 255, 255, 0.85)' },
       }}
     />
     </div>
