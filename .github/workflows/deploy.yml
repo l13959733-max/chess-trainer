@@ -28,6 +28,19 @@ jobs:
       - run: npm run build
         env:
           BASE_PATH: /${{ github.event.repository.name }}/
+      # Draft for Lu to try next to the real app: the branch `preview`, if it exists, goes to /preview/
+      - uses: actions/checkout@v4
+        id: preview
+        continue-on-error: true
+        with:
+          ref: preview
+          path: preview-src
+      - if: steps.preview.outcome == 'success'
+        working-directory: preview-src
+        run: npm ci && npm run build && cp -r dist ../dist/preview
+        env:
+          BASE_PATH: /${{ github.event.repository.name }}/preview/
+          PREVIEW: '1'
       - uses: actions/upload-pages-artifact@v3
         with:
           path: dist

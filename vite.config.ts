@@ -7,17 +7,21 @@ import { VitePWA } from 'vite-plugin-pwa'
 const base = process.env.BASE_PATH ?? '/'
 // Shown in Settings, so Lu can see whether the phone runs the newest version
 const version = new Date().toISOString().slice(0, 19).replace('T', ' ') + ' UTC'
+// PREVIEW=1: a draft version served next to the real app under /chess-trainer/preview/
+const preview = process.env.PREVIEW === '1'
 
 export default defineConfig({
   base,
-  define: { __APP_VERSION__: JSON.stringify(version) },
+  define: { __APP_VERSION__: JSON.stringify(preview ? version + ' · PREVIEW' : version) },
   plugins: [
     react(),
     VitePWA({
       registerType: 'autoUpdate',
       // Lu's voice clips (public/voice) are cached on first play, not downloaded all at install
       workbox: {
-        globIgnores: ['voice/**'],
+        globIgnores: ['voice/**', 'preview/**'],
+        // The draft under /preview/ is its own app: never answer its pages with this app's index.html
+        navigateFallbackDenylist: [/\/preview\//],
         runtimeCaching: [
           {
             urlPattern: ({ url }) => url.pathname.includes('/voice/'),
@@ -28,8 +32,8 @@ export default defineConfig({
       },
       includeAssets: ['favicon.svg', 'apple-touch-icon.png'],
       manifest: {
-        name: 'Chess Trainer',
-        short_name: 'Chess',
+        name: preview ? 'Chess Trainer (Preview)' : 'Chess Trainer',
+        short_name: preview ? 'Chess Preview' : 'Chess',
         description: 'Learn openings and learn from your own mistakes, with every mistake explained.',
         lang: 'en',
         start_url: base,
