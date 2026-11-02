@@ -1,5 +1,5 @@
 import { Chess } from 'chess.js'
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
 import type { Arrow } from 'react-chessboard'
 import { Board, LAST_MOVE } from '../components/Board'
 import { Celebrate } from '../components/Celebrate'
@@ -15,21 +15,13 @@ import { fetchRapidRating } from '../lib/chesscom'
 import { getBotStats, putBotStats, type BotStats, type Puzzle } from '../lib/db'
 import { allMoves } from '../lib/engine'
 import { feedback } from '../lib/feedback'
+import { deviceId, isOver, replay, shareGame, useBeat, useLive, type LiveGame } from '../lib/live'
 import type { Line } from '../lib/pgn'
 import { piecesInDanger } from '../lib/safety'
 
 export type PlayMode = { kind: 'new' } | { kind: 'line'; line: Line } | { kind: 'puzzle'; puzzle: Puzzle }
 
-interface Game {
-  id: string
-  title: string
-  startFen: string
-  moves: string[] // UCI
-  me: 'w' | 'b'
-  botRating: number
-  rated: boolean // only full games without take-backs change the rating
-  resigned?: boolean
-}
+type Game = LiveGame // only full games without take-backs change the rating (`rated`)
 
 const START = new Chess().fen()
 const SAVE_KEY = 'chess-trainer-game'
@@ -64,14 +56,8 @@ function save(game: Game | null) {
   }
 }
 
-function replay(game: Game) {
-  const c = new Chess(game.startFen)
-  for (const uci of game.moves) c.move({ from: uci.slice(0, 2), to: uci.slice(2, 4), promotion: uci[4] })
-  return c
-}
-
 // Book from the repertoire, without trap lines and moves the lines call a mistake
-function bookLines(lines: Line[]): Line[] {
+export function bookLines(lines: Line[]): Line[] {
   return lines
     .filter((l) => !/trap/i.test(l.title))
     .map((l) => {
@@ -98,6 +84,29 @@ export function Play({ mode, lines, player, onGame, onPuzzlesFound }: Props) {
   const book = useMemo(() => buildBook(bookLines(lines)), [lines])
   // The bot's winning chance after its own last move – a sudden jump means the player blundered
   const lastBotWin = useRef<number | null>(null)
+  const live = useLive()
+  const me = deviceId()
+  const shared = live.states.find((s) => s.owner === me)
+  const sharedGame = shared?.game
+  // Someone else plays this game right now (see lib/live.ts)
+  const away = !!game && sharedGame?.id === game.id && shared?.driver !== me
+  useBeat(me, !!game && !away && !isOver(game))
+
+  function begin(g: Game) {
+    lastBotWin.current = null
+    setGame(g)
+    save(g)
+    shareGame(me, g)
+  }
+
+  // A move or a take-over from another device; also when this device was away while it happened
+  useEffect(() => {
+    if (!sharedGame) return
+    const saved = loadSaved()
+    if (game?.id === sharedGame.id && JSON.stringify(game) !== JSON.stringify(sharedGame)) setGame(sharedGame)
+    if (saved?.id === sharedGame.id) save(isOver(sharedGame) ? null : sharedGame)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [sharedGame, game?.id])
 
   // Rating: stored on this device per player; the first time it starts from the chess.com rapid rating
   useEffect(() => {
@@ -123,9 +132,8 @@ export function Play({ mode, lines, player, onGame, onPuzzlesFound }: Props) {
       mode.kind === 'line'
         ? { id: String(Date.now()), title: `Play on: ${mode.line.title}`, startFen: mode.line.moves[mode.line.moves.length - 1].fenAfter, moves: [], me: mode.line.side, botRating: stats.rating, rated: false }
         : { id: String(Date.now()), title: 'Win it again', startFen: mode.puzzle.fen, moves: [], me: mode.puzzle.myColor, botRating: stats.rating, rated: false }
-    lastBotWin.current = null
-    setGame(g)
-    save(g)
+    begin(g)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [stats, game, mode])
 
   function startNew() {
@@ -133,9 +141,7 @@ export function Play({ mode, lines, player, onGame, onPuzzlesFound }: Props) {
     const me = color === 'random' ? (Math.random() < 0.5 ? 'w' : 'b') : color
     const botRating = level === 'auto' ? stats.rating : level
     const g: Game = { id: String(Date.now()), title: 'Game vs Hoppy-Bot', startFen: START, moves: [], me, botRating, rated: true }
-    lastBotWin.current = null
-    setGame(g)
-    save(g)
+    begin(g)
   }
 
   if (!stats) return <div className="screen"><p className="loading">Getting Hoppy-Bot ready …</p></div>
@@ -159,7 +165,12 @@ export function Play({ mode, lines, player, onGame, onPuzzlesFound }: Props) {
           <section className="play-card">
             <div className="label">Unfinished game</div>
             <p>{saved.title} · {saved.moves.length} moves played</p>
-            <button type="button" className="primary wide" onClick={() => { lastBotWin.current = null; setGame(saved) }}>Continue</button>
+            <button type="button" className="primary wide" onClick={() => {
+              lastBotWin.current = null
+              setGame(saved)
+              // Unless someone else holds this game, the others can see it again
+              if (sharedGame?.id !== saved.id || shared?.driver === me) shareGame(me, saved)
+            }}>Continue</button>
           </section>
         )}
         <section className="play-card">
@@ -200,14 +211,22 @@ export function Play({ mode, lines, player, onGame, onPuzzlesFound }: Props) {
       setGame={(g) => {
         setGame(g)
         save(g)
+        shareGame(me, g)
       }}
+      driving={!away}
+      driverName={shared?.driverName}
+      control={away ? (
+        <div className="live-bar">
+          <span><span className="live-dot" /> <b>{shared!.driverName}</b> is playing for you</span>
+          <button type="button" className="primary" onClick={() => shareGame(me, game)}>Take back</button>
+        </div>
+      ) : null}
       book={book}
       thinking={thinking}
       setThinking={setThinking}
       lastBotWin={lastBotWin}
       safety={safety}
       setSafety={setSafety}
-      stats={stats}
       onFinished={async (score) => {
         save(null)
         let next = stats
@@ -245,13 +264,17 @@ interface GameViewProps {
   lastBotWin: React.MutableRefObject<number | null>
   safety: boolean
   setSafety: (b: boolean) => void
-  stats: BotStats
-  onFinished: (score: number) => Promise<{ before: number; after: number; reward: Reward }>
+  // Without it (playing for someone else) the game gives no rating or XP and finds no puzzles
+  onFinished?: (score: number) => Promise<{ before: number; after: number; reward: Reward }>
+  driving?: boolean // false: someone else plays, this device only looks
+  forName?: string // whose game this is, if not this device's
+  driverName?: string
+  control?: ReactNode
   onPuzzlesFound: () => void
   onAgain: () => void
 }
 
-function GameView({ game, setGame, book, thinking, setThinking, lastBotWin, safety, setSafety, onFinished, onPuzzlesFound, onAgain }: GameViewProps) {
+export function GameView({ game, setGame, book, thinking, setThinking, lastBotWin, safety, setSafety, onFinished, onPuzzlesFound, onAgain, driving = true, forName, driverName, control }: GameViewProps) {
   const chess = useMemo(() => replay(game), [game])
   const liveFen = chess.fen()
   // Looking back through the game: null = the live position, otherwise the number of moves shown
@@ -287,7 +310,7 @@ function GameView({ game, setGame, book, thinking, setThinking, lastBotWin, safe
 
   // The coach looks at the player's position as soon as it is their turn
   useEffect(() => {
-    if (!coach || over || turn !== game.me) return
+    if (!driving || !coach || over || turn !== game.me) return
     let alive = true
     allMoves(fen, 10)
       .then((list) => alive && setCands({ fen, list }))
@@ -295,11 +318,14 @@ function GameView({ game, setGame, book, thinking, setThinking, lastBotWin, safe
     return () => {
       alive = false
     }
-  }, [coach, fen, over, turn, game.me])
+  }, [driving, coach, fen, over, turn, game.me])
 
   // Hoppy-Bot's move
   useEffect(() => {
-    if (over || turn === game.me) return
+    if (!driving || over || turn === game.me) {
+      setThinking(false) // also when sharing the bot's move re-rendered before it could finish below
+      return
+    }
     let cancelled = false
     setThinking(true)
     const t0 = Date.now()
@@ -327,11 +353,19 @@ function GameView({ game, setGame, book, thinking, setThinking, lastBotWin, safe
       cancelled = true
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [fen, over])
+  }, [fen, over, driving])
+
+  // Moves arriving from the other device sound like the bot's
+  const heard = useRef(game.moves.length)
+  useEffect(() => {
+    if (!driving && game.moves.length > heard.current) feedback.move(chess.history().at(-1) ?? '', false)
+    heard.current = game.moves.length
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [game.moves.length])
 
   // Game over: rating, XP, then look for the player's mistakes (once)
   useEffect(() => {
-    if (!over || finished.current) return
+    if (!over || finished.current || !driving || !onFinished) return
     finished.current = true
     const score = game.resigned ? 0 : chess.isCheckmate() ? (chess.turn() === game.me ? 0 : 1) : 0.5
     if (score === 1) feedback.success()
@@ -349,7 +383,7 @@ function GameView({ game, setGame, book, thinking, setThinking, lastBotWin, safe
   }, [over])
 
   function onMove(from: string, to: string): boolean {
-    if (over || turn !== game.me || thinking) return false
+    if (!driving || over || turn !== game.me || thinking) return false
     let m
     try {
       m = new Chess(fen).move({ from, to, promotion: 'q' })
@@ -383,7 +417,7 @@ function GameView({ game, setGame, book, thinking, setThinking, lastBotWin, safe
 
   const last = chess.history({ verbose: true }).at(-1)
   const styles: Record<string, React.CSSProperties> = last ? { [last.from]: LAST_MOVE, [last.to]: LAST_MOVE } : {}
-  const danger = safety && !over && turn === game.me ? piecesInDanger(fen, game.me) : []
+  const danger = driving && safety && !over && turn === game.me ? piecesInDanger(fen, game.me) : []
   for (const sq of danger) styles[sq] = { ...styles[sq], ...DANGER }
   const ready = coach && cands?.fen === fen && turn === game.me && !over && !viewing
   const viewLast = viewing && view! > 0 ? viewChess!.history({ verbose: true }).at(-1) : null
@@ -401,15 +435,17 @@ function GameView({ game, setGame, book, thinking, setThinking, lastBotWin, safe
       <div className="screen-head">
         <button type="button" className="back" onClick={() => go('')} aria-label="Back to overview">←</button>
         <div>
-          <div className="eyebrow">vs Hoppy-Bot {game.botRating}{game.rated ? ' · rated' : ' · practice'}</div>
+          <div className="eyebrow">{forName ? `${forName}'s game · ` : ''}vs Hoppy-Bot {game.botRating}{game.rated ? ' · rated' : ' · practice'}</div>
           <h2>{game.title}</h2>
         </div>
       </div>
 
+      {control}
+
       <Board
         fen={viewing ? viewChess!.fen() : fen}
         orientation={game.me === 'w' ? 'white' : 'black'}
-        onMove={!over && !viewing && turn === game.me ? onMove : undefined}
+        onMove={driving && !over && !viewing && turn === game.me ? onMove : undefined}
         squareStyles={viewing ? viewStyles : styles}
         arrows={viewing ? [] : arrows}
       />
@@ -425,22 +461,24 @@ function GameView({ game, setGame, book, thinking, setThinking, lastBotWin, safe
         <span>
           {over
             ? 'Game over'
-            : turn === game.me
-              ? chess.inCheck() ? 'Check! Protect your king' : 'Your move'
-              : 'Hoppy-Bot is thinking …'}
+            : turn !== game.me
+              ? 'Hoppy-Bot is thinking …'
+              : !driving
+                ? driverName ? `${driverName} is thinking …` : 'Nobody is playing right now'
+                : chess.inCheck() ? 'Check! Protect your king' : 'Your move'}
         </span>
         {danger.length > 0 && <span className="bad">{danger.length === 1 ? '1 piece in danger' : `${danger.length} pieces in danger`}</span>}
       </div>
 
-      {!over && (
+      {!over && driving && (
         <div className="play-controls">
           <button type="button" onClick={takeBack} disabled={thinking || game.moves.length < 1 || turn !== game.me}>Take back</button>
           <button type="button" className={safety ? 'on' : ''} onClick={() => setSafety(!safety)}>🛡 Safety {safety ? 'on' : 'off'}</button>
-          <button type="button" className="danger" onClick={() => setGame({ ...game, resigned: true })}>Resign</button>
+          {!forName && <button type="button" className="danger" onClick={() => setGame({ ...game, resigned: true })}>Resign</button>}
         </div>
       )}
 
-      {!over && (
+      {!over && driving && (
         <div className="coach-bar">
           <button type="button" className={coach ? 'on' : ''} onClick={() => {
             if (!coach && game.rated) setGame({ ...game, rated: false })
@@ -453,9 +491,9 @@ function GameView({ game, setGame, book, thinking, setThinking, lastBotWin, safe
           )}
         </div>
       )}
-      {!over && !coach && game.rated && <p className="note small coach-note">Turning the coach on makes this a practice game (no rating change).</p>}
+      {!over && driving && !coach && game.rated && <p className="note small coach-note">Turning the coach on makes this a practice game (no rating change).</p>}
 
-      {coach && lastVerdict && !over && (
+      {driving && coach && lastVerdict && !over && (
         <div className={`explain coach-verdict ${lastVerdict.verdict}`}>
           <Mascot mood={lastVerdict.verdict === 'great' || lastVerdict.verdict === 'good' ? 'cheer' : 'oops'} />
           <div className="move">{lastVerdict.san}: {VERDICT_TEXT[lastVerdict.verdict]}</div>
@@ -495,7 +533,7 @@ function GameView({ game, setGame, book, thinking, setThinking, lastBotWin, safe
       {over && (
         <div className="done">
           <Mascot mood={score === 1 ? 'cheer' : score === 0.5 ? 'happy' : 'oops'} />
-          <div className="done-title">{score === 1 ? 'You won!' : score === 0.5 ? 'Draw' : game.resigned ? 'You resigned' : 'Hoppy-Bot won'}</div>
+          <div className="done-title">{score === 1 ? (forName ? `${forName} won!` : 'You won!') : score === 0.5 ? 'Draw' : game.resigned ? (forName ? `${forName} resigned` : 'You resigned') : 'Hoppy-Bot won'}</div>
           <p>
             {chess.isCheckmate() ? 'Checkmate.' : chess.isStalemate() ? 'Stalemate – the king has no move but is not in check.' : chess.isThreefoldRepetition() ? 'The same position three times.' : chess.isInsufficientMaterial() ? 'Not enough pieces left to checkmate.' : chess.isDraw() ? '50 moves without a capture or pawn move.' : ''}
           </p>

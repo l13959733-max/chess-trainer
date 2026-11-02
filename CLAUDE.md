@@ -73,6 +73,12 @@ Hauptnutzung: am Handy.
 - „My weaknesses" + „What's the threat?" (Hauptfehler laut Analyse: Gegnerdrohung nicht geprüft).
 - Trophäen + „Today's cards" (alles Fällige gemischt).
 
+## Watch: zuschauen + füreinander weiterspielen (Lus Wunsch 01.11.2026)
+- `src/lib/live.ts` + `src/screens/Watch.tsx`, Route `#/watch`. Nur Partien gegen Hoppy-Bot (`#/play`), nicht Drill/Puzzles, nicht chess.com.
+- Kein Server: Spielstand läuft über zwei öffentliche MQTT-Broker (HiveMQ, EMQX), AES-GCM-verschlüsselt mit Schlüssel aus dem Einladungscode. Ohne Einladung keine Verbindung.
+- `driver` = Gerät, das gerade zieht und den Bot rechnet. Übernehmen = Stand mit höherer `rev` veröffentlichen; ganzer Spielstand steckt in der Nachricht, darum geht es auch, wenn der andere weg ist.
+- Geholfene Partie: keine Wertung, Züge des Helfers (`helped`) werden nicht zu Puzzles des Besitzers; Helfer bekommt kein XP.
+
 ## Reihenfolge
 1. Projekt-Setup, PWA, GitHub-Pages-Deploy
 2. Modul 1 komplett (Lernen, Drill, SRS) mit dem Italienisch-Repertoire

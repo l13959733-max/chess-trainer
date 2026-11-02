@@ -421,3 +421,20 @@ button:active:not(:disabled) { transition-duration: 0.04s; filter: brightness(0.
   .install-head { grid-template-columns: 1fr auto; }
   .install-banner .install-icon { display: none; }
 }
+
+/* Watching each other */
+.screen > .live-row, .screen > .live-bar, .screen > .live-status { margin-inline: 16px; }
+.live-row { display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 12px 14px; text-align: left; border-radius: 20px; font-weight: 700; }
+.live-row small { font-weight: 700; color: var(--muted, #777); }
+.live-row.now { border-color: var(--accent-dark); }
+.live-go { color: var(--accent-dark); font-weight: 900; }
+.live-dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; background: #ef4a5a; animation: live-pulse 1.4s ease-in-out infinite; }
+@keyframes live-pulse { 50% { opacity: 0.35; } }
+.live-status { margin-block: 0; font-weight: 800; }
+.live-status .live-dot { background: #aaa; animation: none; }
+.live-status.on .live-dot { background: var(--accent); }
+.live-bar { display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 10px 14px; margin-bottom: 8px; border: 2px solid var(--line); border-radius: 16px; background: #fff; font-weight: 700; }
+.live-bar.mine { border-color: var(--accent-dark); }
+.live-bar button { flex: none; }
+.room-code { display: block; padding: 10px; text-align: center; font-size: 1.05rem; font-weight: 800; letter-spacing: 0.04em; background: #f4f4f7; border-radius: 12px; user-select: all; }
+.room-input { width: 100%; box-sizing: border-box; min-height: 48px; padding: 10px; font-size: 16px; text-align: center; border: 2px solid var(--line); border-radius: 12px; }

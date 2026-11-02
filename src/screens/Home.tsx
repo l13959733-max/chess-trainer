@@ -14,9 +14,12 @@ import { branchMove, guideFor, type Guide } from '../lib/guide'
 import type { Line } from '../lib/pgn'
 import { PUZZLES_AVAILABLE } from '../lib/progress'
 import { daysUntil, isDue, lineResult } from '../lib/srs'
+import { othersGames, useLive } from '../lib/live'
+import { GameRow } from './Watch'
 
 export function Home({ rep, progress, puzzles, analyzer, player, trophies }: { rep: Repertoire; progress: Progress; puzzles: Puzzles; analyzer: AnalyzerState; player: string; trophies: Achievements }) {
   const now = Date.now()
+  const games = othersGames(useLive(), now)
   const due = rep.lines.filter((l) => isDue(rep.srs.get(l.id), now))
   const fresh = rep.lines.filter((l) => !rep.srs.get(l.id))
   const upcoming = rep.lines
@@ -92,6 +95,8 @@ export function Home({ rep, progress, puzzles, analyzer, player, trophies }: { r
         </button>
       )}
 
+      {games.map((s) => <GameRow key={s.owner} state={s} />)}
+
       <section className="daily-card" aria-label="Today's cards">
         <div className="label">Today's cards</div>
         <div><span className="big">{cards}</span> {cards === 1 ? 'card' : 'cards'} to repeat</div>
@@ -117,6 +122,11 @@ export function Home({ rep, progress, puzzles, analyzer, player, trophies }: { r
           <span className="quick-text">Win it<small>{winning.length ? `${winning.length} won positions` : 'from your games'}</small></span>
         </button>
       </section>
+
+      <button type="button" className="trophy-row" onClick={() => go('watch')}>
+        <span><span className="label">Watch</span><br /><b>Watch each other</b> and play for each other</span>
+        <span className="chevron" aria-hidden="true">▸</span>
+      </button>
 
       <button type="button" className="trophy-row" onClick={() => go('trophies')}>
         <span><span className="label">Trophies</span><br /><b>{trophies.list.filter((a) => a.earned).length} of {trophies.list.length}</b> collected</span>

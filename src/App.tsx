@@ -6,9 +6,11 @@ import { useProgress } from './hooks/useProgress'
 import { usePuzzles } from './hooks/usePuzzles'
 import { useRepertoire } from './hooks/useRepertoire'
 import { getPlayer } from './lib/chesscom'
+import { getName } from './lib/profile'
 import type { Puzzle } from './lib/db'
 import { isDbBlocked } from './lib/db'
 import { dailyQueue } from './lib/daily'
+import { startLive } from './lib/live'
 import { isDue } from './lib/srs'
 import { isUnlocked, stop as stopVoice, unlockAudio } from './lib/voice'
 import { InstallBanner } from './components/InstallBanner'
@@ -23,6 +25,8 @@ import { PuzzleView } from './screens/PuzzleScreen'
 import { Settings } from './screens/Settings'
 import { ThreatView } from './screens/Threat'
 import { Trophies } from './screens/Trophies'
+import { Watch } from './screens/Watch'
+import { Welcome } from './screens/Welcome'
 import { Weaknesses } from './screens/Weaknesses'
 import type { Category } from './lib/weakness'
 import { CATEGORY } from './lib/weakness'
@@ -33,6 +37,7 @@ function App() {
   const progress = useProgress()
   const analyzer = useAnalyzer()
   const [player, setPlayerState] = useState(getPlayer)
+  const [named, setNamed] = useState(() => !!getName())
   // Bumped when a game against Hoppy-Bot added puzzles
   const [botFound, setBotFound] = useState(0)
   const puzzles = usePuzzles(analyzer.analyzed + botFound, player)
@@ -51,10 +56,12 @@ function App() {
     events.forEach((e) => window.addEventListener(e, tryUnlock))
     return () => events.forEach((e) => window.removeEventListener(e, tryUnlock))
   }, [])
+  useEffect(() => void startLive(), [])
   const line = id ? rep.lines.find((l) => l.id === id) : undefined
 
   let body: React.ReactNode
   if (!rep.ready) body = <Loading />
+  else if (!named) body = <Welcome player={player} hasPlayer={hasStoredPlayer()} onDone={(p) => { setPlayerState(p); setNamed(true) }} />
   else if (page === 'learn' && line) body = <Learn line={line} onComplete={progress.recordLearn} />
   else if (page === 'drill' && line)
     body = (
@@ -86,6 +93,7 @@ function App() {
   else if (page === 'weaknesses') body = <Weaknesses puzzles={puzzles} player={player} />
   else if (page === 'trophies') body = <Trophies achievements={trophies} />
   else if (page === 'attacks') body = <Attacks rep={rep} />
+  else if (page === 'watch') body = <Watch id={id} arg={arg} lines={rep.lines} />
   else if (page === 'daily') body = <DailySession rep={rep} puzzles={puzzles} progress={progress} />
   else body = <Home rep={rep} progress={progress} puzzles={puzzles} analyzer={analyzer} player={player} trophies={trophies} />
 
@@ -95,10 +103,18 @@ function App() {
         <button type="button" className="brand" onClick={() => go('')}>Chess Trainer</button>
         <button type="button" className="settings-link" onClick={() => go('settings')}>Settings</button>
       </header>
-      {!page && <InstallBanner />}
+      {!page && named && <InstallBanner />}
       {body}
     </main>
   )
+}
+
+function hasStoredPlayer() {
+  try {
+    return !!localStorage.getItem('chess-trainer-player')
+  } catch {
+    return false
+  }
 }
 
 // Drill all due lines one after another. The list is fixed when the session starts.

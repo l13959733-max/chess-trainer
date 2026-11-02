@@ -168,7 +168,7 @@ export async function start() {
 // A finished game against Hoppy-Bot: find the player's mistakes and store them as puzzles.
 // Uses the same engine queue as the background analysis (they take turns).
 export async function analyzeBotGame(
-  game: { id: string; startFen: string; moves: string[]; me: 'w' | 'b'; botRating: number },
+  game: { id: string; startFen: string; moves: string[]; me: 'w' | 'b'; botRating: number; helped?: number[] },
   onProgress?: (done: number, total: number) => void,
 ): Promise<Puzzle[]> {
   const player = getPlayer()
@@ -185,7 +185,7 @@ export async function analyzeBotGame(
     evals.push(done ? { score: done, pv: [] } : await evaluate(fens[i], BOT_GAME_DEPTH))
   }
   const now = Math.floor(Date.now() / 1000)
-  const puzzles: Puzzle[] = findBlunders(moves, evals, game.me).map((b) => withCategory({
+  const puzzles: Puzzle[] = findBlunders(moves, evals, game.me).filter((b) => !game.helped?.includes(b.ply)).map((b) => withCategory({
     ...b,
     refutation: refutationOf(evals[b.ply + 1]),
     id: `bot-${player}:${game.id}:${b.ply}`,
