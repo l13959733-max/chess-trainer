@@ -1,6 +1,7 @@
 import { Chess } from 'chess.js'
 import { useEffect, useState, useSyncExternalStore } from 'react'
 import { getPlayer } from './chesscom'
+import { getName } from './profile'
 
 // Watching each other and playing for each other. The app has no server, so moves travel through two
 // public MQTT brokers (either one may be down). Everything is encrypted with a key derived from the
@@ -241,7 +242,7 @@ export function shareGame(owner: string, game: LiveGame) {
   if (!room) return
   const prev = states.get(owner)
   const same = prev?.game.id === game.id
-  const name = getPlayer()
+  const name = getName() ?? getPlayer()
   const state: LiveState = {
     owner,
     ownerName: same ? prev.ownerName : name,

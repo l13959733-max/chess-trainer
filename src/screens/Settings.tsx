@@ -5,6 +5,7 @@ import { reset as resetAnalyzer } from '../lib/analyzer'
 import { findPlayer, setPlayer } from '../lib/chesscom'
 import { feedback, getFeedbackPrefs, setFeedbackPrefs } from '../lib/feedback'
 import type { Line } from '../lib/pgn'
+import { cleanName, getName, MAX_NAME, setName } from '../lib/profile'
 import { TRY_IT, voiceTexts } from '../lib/speech'
 import { CLONE_VOICE, isAllowedVoiceUrl, loadVoiceSettings, saveAll, savedCount, saveVoiceSettings } from '../lib/voice'
 
@@ -34,6 +35,8 @@ export function Settings({ incoming, lines, player, onPlayer, incomingPlayer }: 
   }
 
   const [rejected, setRejected] = useState(false)
+  const [name, setNameText] = useState(() => getName() ?? '')
+  const [nameSaved, setNameSaved] = useState(false)
   const [account, setAccount] = useState(incomingPlayer ?? player)
   const [accountMsg, setAccountMsg] = useState<{ ok: boolean; text: string } | null>(null)
 
@@ -120,6 +123,11 @@ export function Settings({ incoming, lines, player, onPlayer, incomingPlayer }: 
       </div>
 
       <div className="form">
+        <label className="label" htmlFor="profile-name">Your name</label>
+        <p className="note">Friends see it when they watch you play.</p>
+        <input id="profile-name" type="text" value={name} maxLength={MAX_NAME} onChange={(e) => { setNameText(e.target.value); setNameSaved(false) }} />
+        <button type="button" className="wide" disabled={!cleanName(name)} onClick={() => { setName(name); setNameSaved(true) }}>{nameSaved ? 'Saved ✓' : 'Save name'}</button>
+
         <div className="label">Chess.com account</div>
         <p className="note">Blunder puzzles come from this player's rapid and daily games. Each phone can have its own player.</p>
         <input
