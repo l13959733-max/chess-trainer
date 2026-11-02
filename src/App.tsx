@@ -9,6 +9,7 @@ import { getPlayer } from './lib/chesscom'
 import type { Puzzle } from './lib/db'
 import { isDbBlocked } from './lib/db'
 import { dailyQueue } from './lib/daily'
+import { startLive } from './lib/live'
 import { isDue } from './lib/srs'
 import { isUnlocked, stop as stopVoice, unlockAudio } from './lib/voice'
 import { InstallBanner } from './components/InstallBanner'
@@ -23,6 +24,7 @@ import { PuzzleView } from './screens/PuzzleScreen'
 import { Settings } from './screens/Settings'
 import { ThreatView } from './screens/Threat'
 import { Trophies } from './screens/Trophies'
+import { Watch } from './screens/Watch'
 import { Weaknesses } from './screens/Weaknesses'
 import type { Category } from './lib/weakness'
 import { CATEGORY } from './lib/weakness'
@@ -51,6 +53,7 @@ function App() {
     events.forEach((e) => window.addEventListener(e, tryUnlock))
     return () => events.forEach((e) => window.removeEventListener(e, tryUnlock))
   }, [])
+  useEffect(() => void startLive(), [])
   const line = id ? rep.lines.find((l) => l.id === id) : undefined
 
   let body: React.ReactNode
@@ -86,6 +89,7 @@ function App() {
   else if (page === 'weaknesses') body = <Weaknesses puzzles={puzzles} player={player} />
   else if (page === 'trophies') body = <Trophies achievements={trophies} />
   else if (page === 'attacks') body = <Attacks rep={rep} />
+  else if (page === 'watch') body = <Watch id={id} arg={arg} lines={rep.lines} />
   else if (page === 'daily') body = <DailySession rep={rep} puzzles={puzzles} progress={progress} />
   else body = <Home rep={rep} progress={progress} puzzles={puzzles} analyzer={analyzer} player={player} trophies={trophies} />
 
