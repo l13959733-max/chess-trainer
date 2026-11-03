@@ -10,6 +10,7 @@ Persönliche Trainings-App für Lu (Chess.com: **l0o2**, Rapid ~574, Puzzles ~60
 Langfristiges Ziel: 2000 Elo. Die App soll spielerisch Eröffnungen beibringen,
 aus eigenen Fehlern lernen lassen und **jeden Fehler verständlich erklären**.
 **Sprache: App komplett Englisch** (UI, Repertoire-Kommentare, Erklärungen, Notation N/B/R/Q) – Lus Entscheidung vom 29.10.2026.
+Eine spanische Version wurde am 03.11.2026 versehentlich gebaut (Auftrag war für ein anderes Projekt) und sofort zurückgenommen (Commit beb5511, Revert danach). Nicht wieder einbauen, außer Lu verlangt es ausdrücklich für Hoppy.
 Hauptnutzung: am Handy.
 
 ## Tech-Stack
