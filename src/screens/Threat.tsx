@@ -14,7 +14,6 @@ import { feedback } from '../lib/feedback'
 import { daysUntil, type SrsState } from '../lib/srs'
 import { CATEGORY } from '../lib/weakness'
 import { ExplainCard } from './PuzzleScreen'
-import { t, notation } from '../lib/i18n'
 
 const GOOD_ENOUGH = 80 // centipawns – another punishing move counts too
 const REVEAL_AFTER = 2
@@ -83,7 +82,7 @@ export function ThreatView({ puzzle, progress, onSolved, onNext, isLast }: Props
       } else {
         feedback.wrong()
         setMistakes((m) => m + 1)
-        setWrong({ from, to, note: t("{move} doesn't punish it. Look again: what did {played} leave unprotected?", { move: notation(move.san), played: notation(puzzle.played) }) })
+        setWrong({ from, to, note: `${move.san} doesn't punish it. Look again: what did ${puzzle.played} leave unprotected?` })
         setPhase('solving')
       }
     })
@@ -117,10 +116,10 @@ export function ThreatView({ puzzle, progress, onSolved, onNext, isLast }: Props
   return (
     <div className="screen">
       <div className="screen-head">
-        <button type="button" className="back" onClick={() => go('weaknesses')} aria-label={t('Back to my weaknesses')}>←</button>
+        <button type="button" className="back" onClick={() => go('weaknesses')} aria-label="Back to my weaknesses">←</button>
         <div>
-          <div className="eyebrow">{t("What's the threat? ·")} {progress}</div>
-          <h2>{t('Play {color}: punish {move}', { color: t(oppColor), move: notation(puzzle.played) })}</h2>
+          <div className="eyebrow">What's the threat? · {progress}</div>
+          <h2>Play {oppColor}: punish {puzzle.played}</h2>
         </div>
       </div>
 
@@ -129,53 +128,53 @@ export function ThreatView({ puzzle, progress, onSolved, onNext, isLast }: Props
       {viewer && (
         <div className="line-viewer">
           <div className="line-viewer-head">
-            <span className="label">{t('After {move}', { move: notation(puzzle.played) })}</span>
+            <span className="label">After {puzzle.played}</span>
             <span className="count">{viewer.idx + 1} / {viewer.line.length}</span>
           </div>
           <div className="controls">
-            <button type="button" onClick={() => setViewer(null)} aria-label={t('Close')}>✕</button>
-            <button type="button" disabled={viewer.idx < 0} onClick={() => setViewer({ ...viewer, idx: viewer.idx - 1 })}>{t('Back')}</button>
-            <button type="button" className="primary" disabled={viewer.idx >= viewer.line.length - 1} onClick={() => setViewer({ ...viewer, idx: viewer.idx + 1 })}>{t('Next')}</button>
+            <button type="button" onClick={() => setViewer(null)} aria-label="Close">✕</button>
+            <button type="button" disabled={viewer.idx < 0} onClick={() => setViewer({ ...viewer, idx: viewer.idx - 1 })}>Back</button>
+            <button type="button" className="primary" disabled={viewer.idx >= viewer.line.length - 1} onClick={() => setViewer({ ...viewer, idx: viewer.idx + 1 })}>Next</button>
           </div>
         </div>
       )}
 
       <div className="drill-status">
-        <span>{phase === 'solved' ? t('Found it') : phase === 'checking' ? t('Checking …') : t("You move {oppColor}'s pieces", { oppColor: t(oppColor) })}</span>
-        <span className={mistakes ? 'bad' : 'good'}>{mistakes === 1 ? t('1 mistake') : t('{n} mistakes', { n: mistakes })}</span>
+        <span>{phase === 'solved' ? 'Found it' : phase === 'checking' ? 'Checking …' : `You move ${oppColor}'s pieces`}</span>
+        <span className={mistakes ? 'bad' : 'good'}>{mistakes === 1 ? '1 mistake' : `${mistakes} mistakes`}</span>
       </div>
 
       {phase !== 'solved' && (
         <div className={`explain ${wrong ? 'wrong' : ''}`}>
           <Mascot mood={wrong ? 'oops' : 'happy'} />
-          <div className="move">{t('vs')} {puzzle.opponent} · {new Date(puzzle.endTime * 1000).toLocaleDateString('en-GB')}</div>
+          <div className="move">vs {puzzle.opponent} · {new Date(puzzle.endTime * 1000).toLocaleDateString('en-GB')}</div>
           <p>
-            {t('In your game you played')} <b>{notation(puzzle.played)}</b> {t('(yellow). Now switch sides: you are {color}. Find the move that punishes it.', { color: t(oppColor) })}
+            In your game you played <b>{puzzle.played}</b> (yellow). Now switch sides: you are {oppColor}. Find the move that punishes it.
           </p>
           {wrong && <p className="bad">{wrong.note}</p>}
-          {revealed && <p>{t('The answer is')} <b>{notation(answerSan)}</b> {t('– play the green arrow.')}</p>}
+          {revealed && <p>The answer is <b>{answerSan}</b> – play the green arrow.</p>}
         </div>
       )}
 
       {phase === 'solved' && (
         <>
-          <ExplainCard title={t('What {played} allowed', { played: notation(puzzle.played) })} ex={ex} onShow={(line) => setViewer({ line, idx: -1 })} />
+          <ExplainCard title={`What ${puzzle.played} allowed`} ex={ex} onShow={(line) => setViewer({ line, idx: -1 })} />
           {cat && (
             <section className="explain-card rule-card">
-              <div className="label">{t(cat.title)} {t('· the rule')}</div>
-              <p><b>{t(cat.rule)}</b></p>
+              <div className="label">{cat.title} · the rule</div>
+              <p><b>{cat.rule}</b></p>
             </section>
           )}
           <div className="done">
             <Mascot mood="cheer" />
-            <div className="done-title">{solved?.exact ? t("{san} – that's the threat!", { san: notation(solved.san) }) : t('{san} works too', { san: notation(solved?.san ?? '') })}</div>
-            {!solved?.exact && <p>{t('The strongest answer was')} {notation(answerSan)}.</p>}
-            <p>{t('Better in your game:')} <b>{notation(puzzle.bestSan)}</b>.</p>
+            <div className="done-title">{solved?.exact ? `${solved.san} – that's the threat!` : `${solved?.san} works too`}</div>
+            {!solved?.exact && <p>The strongest answer was {answerSan}.</p>}
+            <p>Better in your game: <b>{puzzle.bestSan}</b>.</p>
             {result && <Celebrate reward={result.reward} />}
-            {result && <p>{t('Next review:')} {result.days <= 1 ? t('tomorrow') : t('in {days} days', { days: result.days })}</p>}
+            {result && <p>Next review: {result.days <= 1 ? 'tomorrow' : `in ${result.days} days`}</p>}
             <div className="done-actions">
-              <button type="button" onClick={() => go('weaknesses')}>{t('My weaknesses')}</button>
-              <button type="button" className="primary" onClick={onNext}>{isLast ? t('Finish') : t('Next')}</button>
+              <button type="button" onClick={() => go('weaknesses')}>My weaknesses</button>
+              <button type="button" className="primary" onClick={onNext}>{isLast ? 'Finish' : 'Next'}</button>
             </div>
           </div>
         </>

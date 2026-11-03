@@ -1,7 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { getFeedbackPrefs } from '../lib/feedback'
 import { enqueue, onPlayback, prefetch, speakNow, stop, type Playback } from '../lib/voice'
-import { t } from '../lib/i18n'
 
 // Listen button under an explanation. With "read aloud automatically" on (the default),
 // the explanation is queued for reading as soon as it appears.
@@ -28,10 +27,10 @@ export function SpeakButton({ text, auto = true }: { text: string; auto?: boolea
   return (
     <div className="speak">
       <button type="button" className="speak-btn" onClick={() => (state === 'idle' || state === 'blocked' ? speakNow(text) : stop())} aria-live="polite">
-        {state === 'idle' ? t('▶ Listen') : state === 'loading' ? t('Loading your voice … tap to stop') : state === 'blocked' ? t('▶ Tap to hear it') : t('■ Stop')}
+        {state === 'idle' ? '▶ Listen' : state === 'loading' ? 'Loading your voice … tap to stop' : state === 'blocked' ? '▶ Tap to hear it' : '■ Stop'}
       </button>
-      {mine && p.source === 'phone' && <span className="speak-note">{t('Phone voice – your Mac voice is not reachable')}</span>}
-      {mine && p.source === 'clone' && <span className="speak-note">{t('Your voice')}</span>}
+      {mine && p.source === 'phone' && <span className="speak-note">Phone voice – your Mac voice is not reachable</span>}
+      {mine && p.source === 'clone' && <span className="speak-note">Your voice</span>}
     </div>
   )
 }

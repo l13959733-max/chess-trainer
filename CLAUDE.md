@@ -9,7 +9,7 @@
 Persönliche Trainings-App für Lu (Chess.com: **l0o2**, Rapid ~574, Puzzles ~604).
 Langfristiges Ziel: 2000 Elo. Die App soll spielerisch Eröffnungen beibringen,
 aus eigenen Fehlern lernen lassen und **jeden Fehler verständlich erklären**.
-**Sprache: Englisch + Spanisch** (seit 03.11.2026, Lu: „wir sind auf Teneriffa“). Code-Texte bleiben Englisch und laufen durch `t()` (`src/lib/i18n.ts`); Spanisch steht in `src/locales/es.ts`, Schlüssel = englischer Text. Jedes Handy wählt (Welcome/Settings, Standard = Handysprache). Spanische Notation R/D/T/A/C über `notation()`. **Jeder neue Text braucht einen Eintrag in es.ts** – `src/locales/es.test.ts` schlägt sonst fehl (prüft Code-Texte, PGN-Titel/Kommentare, Kapitel, Guide, Trophäen).
+**Sprache: App komplett Englisch** (UI, Repertoire-Kommentare, Erklärungen, Notation N/B/R/Q) – Lus Entscheidung vom 29.10.2026.
 Hauptnutzung: am Handy.
 
 ## Tech-Stack

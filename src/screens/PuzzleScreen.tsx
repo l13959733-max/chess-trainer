@@ -12,7 +12,6 @@ import { evaluate } from '../lib/engine'
 import { explainBest, explainMistake, type Explanation, type LineStep } from '../lib/explain'
 import { feedback } from '../lib/feedback'
 import { daysUntil, type SrsState } from '../lib/srs'
-import { t, notation } from '../lib/i18n'
 
 // A move within this many centipawns of the engine's best move also solves the puzzle.
 const GOOD_ENOUGH = 50
@@ -109,7 +108,7 @@ export function PuzzleView({ puzzle, progress, onSolved, onNext, isLast }: Props
       } else {
         feedback.wrong()
         setMistakes((m) => m + 1)
-        setWrong({ from, to, note: t('{move} is not good enough here. Try again.', { move: notation(move.san) }) })
+        setWrong({ from, to, note: `${move.san} is not good enough here. Try again.` })
         setPhase('solving')
       }
     })
@@ -150,10 +149,10 @@ export function PuzzleView({ puzzle, progress, onSolved, onNext, isLast }: Props
   return (
     <div className="screen">
       <div className="screen-head">
-        <button type="button" className="back" onClick={() => go('')} aria-label={t('Back to overview')}>←</button>
+        <button type="button" className="back" onClick={() => go('')} aria-label="Back to overview">←</button>
         <div>
-          <div className="eyebrow">{t('Blunder puzzle ·')} {progress}</div>
-          <h2>{t('Find a better move')}</h2>
+          <div className="eyebrow">Blunder puzzle · {progress}</div>
+          <h2>Find a better move</h2>
         </div>
       </div>
 
@@ -173,72 +172,72 @@ export function PuzzleView({ puzzle, progress, onSolved, onNext, isLast }: Props
             ))}
           </div>
           <div className="controls">
-            <button type="button" onClick={() => setViewer(null)} aria-label={t('Close')}>✕</button>
-            <button type="button" disabled={viewer.idx < 0} onClick={() => setViewer({ ...viewer, idx: viewer.idx - 1 })}>{t('Back')}</button>
-            <button type="button" className="primary" disabled={viewer.idx >= viewer.line.length - 1} onClick={() => setViewer({ ...viewer, idx: viewer.idx + 1 })}>{t('Next')}</button>
+            <button type="button" onClick={() => setViewer(null)} aria-label="Close">✕</button>
+            <button type="button" disabled={viewer.idx < 0} onClick={() => setViewer({ ...viewer, idx: viewer.idx - 1 })}>Back</button>
+            <button type="button" className="primary" disabled={viewer.idx >= viewer.line.length - 1} onClick={() => setViewer({ ...viewer, idx: viewer.idx + 1 })}>Next</button>
           </div>
         </div>
       )}
 
       <div className="drill-status">
         <span>
-          {phase === 'solved' ? t('Solved') : phase === 'checking' ? t('Checking your move …') : puzzle.myColor === 'w' ? t('You play White') : t('You play Black')}
+          {phase === 'solved' ? 'Solved' : phase === 'checking' ? 'Checking your move …' : `You play ${puzzle.myColor === 'w' ? 'White' : 'Black'}`}
         </span>
-        <span className={mistakes ? 'bad' : 'good'}>{mistakes === 1 ? t('1 mistake') : t('{n} mistakes', { n: mistakes })}</span>
+        <span className={mistakes ? 'bad' : 'good'}>{mistakes === 1 ? '1 mistake' : `${mistakes} mistakes`}</span>
       </div>
 
       {phase !== 'solved' && (
         <div className={`explain ${wrong ? 'wrong' : ''}`}>
           <Mascot mood={wrong ? 'oops' : 'happy'} />
           <div className="move">
-            {t('vs')} {puzzle.opponent} · {new Date(puzzle.endTime * 1000).toLocaleDateString('en-GB')}
+            vs {puzzle.opponent} · {new Date(puzzle.endTime * 1000).toLocaleDateString('en-GB')}
           </div>
           <p>
-            {t('In the game you played')} <b>{notation(puzzle.played)}</b> {t('(red arrow).')} {why}
+            In the game you played <b>{puzzle.played}</b> (red arrow). {why}
           </p>
           {wrong && <p className="bad">{wrong.note}</p>}
-          {revealed && <p>{t('The best move is')} <b>{notation(puzzle.bestSan)}</b> {t('– play the green arrow.')}</p>}
+          {revealed && <p>The best move is <b>{puzzle.bestSan}</b> – play the green arrow.</p>}
           {!mistakeEx && (
-            <button type="button" className="speak-btn" onClick={loadMistake}>{t('Why is {move} bad?', { move: notation(puzzle.played) })}</button>
+            <button type="button" className="speak-btn" onClick={loadMistake}>Why is {puzzle.played} bad?</button>
           )}
         </div>
       )}
 
       {mistakeEx && (
         <ExplainCard
-          title={t('Why {played} was a mistake', { played: notation(puzzle.played) })}
+          title={`Why ${puzzle.played} was a mistake`}
           ex={mistakeEx}
-          onShow={(line) => setViewer({ line, idx: -1, title: t('After {move}', { move: notation(puzzle.played) }) })}
+          onShow={(line) => setViewer({ line, idx: -1, title: `After ${puzzle.played}` })}
         />
       )}
       {(phase === 'solved' || revealed) && bestEx.sentences.length > 0 && (
-        <ExplainCard title={t('Why {bestSan} is better', { bestSan: notation(puzzle.bestSan) })} ex={bestEx} onShow={(line) => setViewer({ line, idx: -1, title: t('After {move}', { move: notation(puzzle.bestSan) }) })} />
+        <ExplainCard title={`Why ${puzzle.bestSan} is better`} ex={bestEx} onShow={(line) => setViewer({ line, idx: -1, title: `After ${puzzle.bestSan}` })} />
       )}
 
       {phase === 'solved' && (
         <div className="done">
           <Mascot mood="cheer" />
           <div className="done-title">
-            {solvedWith?.exact ? t('{san} – the best move', { san: notation(solvedWith.san) }) : t('{san} works too', { san: notation(solvedWith?.san ?? '') })}
+            {solvedWith?.exact ? `${solvedWith.san} – the best move` : `${solvedWith?.san} works too`}
           </div>
-          {!solvedWith?.exact && <p>{t("The engine's first choice was")} {notation(puzzle.bestSan)}.</p>}
+          {!solvedWith?.exact && <p>The engine's first choice was {puzzle.bestSan}.</p>}
           {puzzle.gameUrl && (
             <p>
-              <a href={`${puzzle.gameUrl}?move=${puzzle.ply}`} target="_blank" rel="noreferrer">{t('Open the game on chess.com')}</a>
+              <a href={`${puzzle.gameUrl}?move=${puzzle.ply}`} target="_blank" rel="noreferrer">Open the game on chess.com</a>
             </p>
           )}
           {clampScore(puzzle.scoreBefore) >= WINNING && (
             <p>
               <button type="button" className="link-btn" onClick={() => go('play/puzzle/' + encodeURIComponent(puzzle.id))}>
-                {t('You were winning here. Win it for real vs Hoppy-Bot →')}
+                You were winning here. Win it for real vs Hoppy-Bot →
               </button>
             </p>
           )}
           {result && <Celebrate reward={result.reward} />}
-          {result && <p>{t('Next review:')} {result.days <= 1 ? t('tomorrow') : t('in {days} days', { days: result.days })}</p>}
+          {result && <p>Next review: {result.days <= 1 ? 'tomorrow' : `in ${result.days} days`}</p>}
           <div className="done-actions">
-            <button type="button" onClick={() => go('')}>{t('Overview')}</button>
-            <button type="button" className="primary" onClick={onNext}>{isLast ? t('Finish') : t('Next puzzle')}</button>
+            <button type="button" onClick={() => go('')}>Overview</button>
+            <button type="button" className="primary" onClick={onNext}>{isLast ? 'Finish' : 'Next puzzle'}</button>
           </div>
         </div>
       )}
@@ -256,14 +255,14 @@ export function ExplainCard({ title, ex, onShow }: { title: string; ex: Explanat
     <section className="explain-card">
       <div className="label">{title}</div>
       {ex === 'loading' ? (
-        <p className="note">{t('Looking at the position …')}</p>
+        <p className="note">Looking at the position …</p>
       ) : (
         <>
           {ex.sentences.map((s) => (
             <p key={s}>{s}</p>
           ))}
           {ex.line.length > 0 && (
-            <button type="button" className="speak-btn" onClick={() => show(ex.line)}>{t('▶ Show it on the board')}</button>
+            <button type="button" className="speak-btn" onClick={() => show(ex.line)}>▶ Show it on the board</button>
           )}
         </>
       )}

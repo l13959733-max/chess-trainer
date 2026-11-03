@@ -10,7 +10,6 @@ import { checkMove } from '../lib/drill'
 import { feedback } from '../lib/feedback'
 import type { Line, LineArrow } from '../lib/pgn'
 import { explanationText } from '../lib/speech'
-import { t, notation } from '../lib/i18n'
 
 const CAL: Record<LineArrow['color'], string> = {
   G: ARROW.idea,
@@ -22,7 +21,7 @@ const CAL: Record<LineArrow['color'], string> = {
 export function moveLabel(line: Line, i: number) {
   const m = line.moves[i]
   const no = Math.floor(i / 2) + 1
-  return `${no}.${m.color === 'b' ? '..' : ''} ${notation(m.san)}`
+  return `${no}.${m.color === 'b' ? '..' : ''} ${m.san}`
 }
 
 const OPPONENT_DELAY = 700
@@ -99,18 +98,18 @@ export function Learn({ line, onComplete }: { line: Line; onComplete: () => Prom
   return (
     <div className="screen">
       <div className="screen-head">
-        <button type="button" className="back" onClick={() => go('')} aria-label={t('Back to overview')}>←</button>
+        <button type="button" className="back" onClick={() => go('')} aria-label="Back to overview">←</button>
         <div>
-          <div className="eyebrow">{t('Learn ·')} {line.side === 'w' ? t('White') : t('Black')}</div>
-          <h2>{t(line.title)}</h2>
+          <div className="eyebrow">Learn · {line.side === 'w' ? 'White' : 'Black'}</div>
+          <h2>{line.title}</h2>
         </div>
       </div>
 
       <Board fen={fen} orientation={line.side === 'w' ? 'white' : 'black'} onMove={myTurn ? onMove : undefined} arrows={arrows} squareStyles={styles} />
 
       <div className="drill-status">
-        <span>{!next ? t('Line complete') : myTurn ? t('Your move: follow the blue arrow') : waiting ? t('Opponent is moving …') : t('Opponent’s move – tap Next')}</span>
-        {wrongNow && <span className="bad">{t('Not this one')}</span>}
+        <span>{!next ? 'Line complete' : myTurn ? 'Your move: follow the blue arrow' : waiting ? 'Opponent is moving …' : 'Opponent’s move – tap Next'}</span>
+        {wrongNow && <span className="bad">Not this one</span>}
       </div>
 
       <div className="explain">
@@ -118,17 +117,17 @@ export function Learn({ line, onComplete }: { line: Line; onComplete: () => Prom
         {shown ? (
           <>
             <div className={`move ${shown.color === line.side ? 'mine' : ''}`}>{moveLabel(line, shownIndex)}</div>
-            <p>{shown.comment ? t(shown.comment) : (shown.color === line.side ? t('Your move in this line.') : t("Your opponent's move."))}</p>
+            <p>{shown.comment ?? (shown.color === line.side ? 'Your move in this line.' : 'Your opponent\'s move.')}</p>
             {shown.comment && <SpeakButton text={explanationText(shown.san, shown.comment)} />}
           </>
         ) : (
-          <p>{myTurn ? t('Starting position. Move your piece along the blue arrow.') : t('Starting position. Your opponent starts.')}</p>
+          <p>{myTurn ? 'Starting position. Move your piece along the blue arrow.' : 'Starting position. Your opponent starts.'}</p>
         )}
       </div>
 
       <div className="controls">
-        <button type="button" onClick={() => jump(0)} disabled={ply === 0} aria-label={t('To the start')}>⏮</button>
-        <button type="button" onClick={() => jump(ply - 1)} disabled={ply === 0}>{t('Back')}</button>
+        <button type="button" onClick={() => jump(0)} disabled={ply === 0} aria-label="To the start">⏮</button>
+        <button type="button" onClick={() => jump(ply - 1)} disabled={ply === 0}>Back</button>
         <button
           type="button"
           className="primary"
@@ -140,11 +139,11 @@ export function Learn({ line, onComplete }: { line: Line; onComplete: () => Prom
           }}
           disabled={!next}
         >
-          {t('Next')}
+          Next
         </button>
       </div>
 
-      <ol className="movelist" aria-label={t('Moves of the line')}>
+      <ol className="movelist" aria-label="Moves of the line">
         {line.moves.map((m, i) => (
           <li key={i}>
             <button
@@ -165,12 +164,12 @@ export function Learn({ line, onComplete }: { line: Line; onComplete: () => Prom
       )}
       {!next && (
         <button type="button" className="primary wide" onClick={() => go('drill/' + line.id)}>
-          {t('Now play it yourself (drill)')}
+          Now play it yourself (drill)
         </button>
       )}
       {!next && (
         <button type="button" className="wide" onClick={() => go('play/line/' + line.id)}>
-          {t('Play on from here – with Coach')}
+          Play on from here – with Coach
         </button>
       )}
     </div>

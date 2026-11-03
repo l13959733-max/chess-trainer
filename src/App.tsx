@@ -31,7 +31,6 @@ import { Weaknesses } from './screens/Weaknesses'
 import type { Category } from './lib/weakness'
 import { CATEGORY } from './lib/weakness'
 import './App.css'
-import { t } from './lib/i18n'
 
 function App() {
   const rep = useRepertoire()
@@ -72,9 +71,9 @@ function App() {
         onDone={async (m) => ({ srs: await rep.recordDrill(line.id, m), reward: await progress.recordDrill(m) })}
         after={(restart) => (
           <>
-            <button type="button" onClick={restart}>{t('Again')}</button>
-            <button type="button" onClick={() => go('play/line/' + line.id)}>{t('Play on')}</button>
-            <button type="button" className="primary" onClick={() => go('')}>{t('Overview')}</button>
+            <button type="button" onClick={restart}>Again</button>
+            <button type="button" onClick={() => go('play/line/' + line.id)}>Play on</button>
+            <button type="button" className="primary" onClick={() => go('')}>Overview</button>
           </>
         )}
       />
@@ -101,8 +100,8 @@ function App() {
   return (
     <main className="app">
       <header className="top">
-        <button type="button" className="brand" onClick={() => go('')}>{t('Chess Trainer')}</button>
-        <button type="button" className="settings-link" onClick={() => go('settings')}>{t('Settings')}</button>
+        <button type="button" className="brand" onClick={() => go('')}>Chess Trainer</button>
+        <button type="button" className="settings-link" onClick={() => go('settings')}>Settings</button>
       </header>
       {!page && named && <InstallBanner />}
       {body}
@@ -128,9 +127,9 @@ function Review({ rep, progress }: { rep: ReturnType<typeof useRepertoire>; prog
     return (
       <div className="screen">
         <div className="done">
-          <div className="done-title">{queue.length ? t('All due lines reviewed') : t('Nothing due')}</div>
+          <div className="done-title">{queue.length ? 'All due lines reviewed' : 'Nothing due'}</div>
           <div className="done-actions">
-            <button type="button" className="primary" onClick={() => go('')}>{t('Overview')}</button>
+            <button type="button" className="primary" onClick={() => go('')}>Overview</button>
           </div>
         </div>
       </div>
@@ -141,13 +140,13 @@ function Review({ rep, progress }: { rep: ReturnType<typeof useRepertoire>; prog
     <Drill
       key={line.id}
       line={line}
-      progress={t('{n} of {total}', { n: index + 1, total: queue.length })}
+      progress={`${index + 1} of ${queue.length}`}
       onDone={async (m) => ({ srs: await rep.recordDrill(line.id, m), reward: await progress.recordDrill(m) })}
       after={(restart) => (
         <>
-          <button type="button" onClick={restart}>{t('Again')}</button>
+          <button type="button" onClick={restart}>Again</button>
           <button type="button" className="primary" onClick={() => setIndex(index + 1)}>
-            {index + 1 < queue.length ? t('Next line') : t('Finish')}
+            {index + 1 < queue.length ? 'Next line' : 'Finish'}
           </button>
         </>
       )}
@@ -183,10 +182,10 @@ function PuzzleSession({ puzzles, progress, category }: { puzzles: ReturnType<ty
     return (
       <div className="screen">
         <div className="done">
-          <div className="done-title">{queue.length ? t('All puzzles done for now') : t('No puzzles yet')}</div>
-          {!queue.length && <p>{t('Analyse your chess.com games on the overview first.')}</p>}
+          <div className="done-title">{queue.length ? 'All puzzles done for now' : 'No puzzles yet'}</div>
+          {!queue.length && <p>Analyse your chess.com games on the overview first.</p>}
           <div className="done-actions">
-            <button type="button" className="primary" onClick={() => go('')}>{t('Overview')}</button>
+            <button type="button" className="primary" onClick={() => go('')}>Overview</button>
           </div>
         </div>
       </div>
@@ -197,7 +196,7 @@ function PuzzleSession({ puzzles, progress, category }: { puzzles: ReturnType<ty
     <PuzzleView
       key={puzzle.id}
       puzzle={puzzle}
-      progress={t('{n} of {total}', { n: index + 1, total: queue.length })}
+      progress={`${index + 1} of ${queue.length}`}
       onSolved={async (m) => ({ srs: await puzzles.record(puzzle.id, m), reward: await progress.recordPuzzle(m) })}
       onNext={() => setIndex(index + 1)}
       isLast={index + 1 >= queue.length}
@@ -217,11 +216,11 @@ function ThreatSession({ puzzles, progress, category }: { puzzles: ReturnType<ty
     return (
       <div className="screen">
         <div className="done">
-          <div className="done-title">{queue.length ? t('Well done – that was the whole round') : t('Nothing here yet')}</div>
-          {!queue.length && <p>{t('These positions come from your analysed games. Older ones are still being sorted – try again in a few minutes.')}</p>}
+          <div className="done-title">{queue.length ? 'Well done – that was the whole round' : 'Nothing here yet'}</div>
+          {!queue.length && <p>These positions come from your analysed games. Older ones are still being sorted – try again in a few minutes.</p>}
           <div className="done-actions">
-            <button type="button" onClick={() => go('')}>{t('Overview')}</button>
-            <button type="button" className="primary" onClick={() => go('weaknesses')}>{t('My weaknesses')}</button>
+            <button type="button" onClick={() => go('')}>Overview</button>
+            <button type="button" className="primary" onClick={() => go('weaknesses')}>My weaknesses</button>
           </div>
         </div>
       </div>
@@ -232,7 +231,7 @@ function ThreatSession({ puzzles, progress, category }: { puzzles: ReturnType<ty
     <ThreatView
       key={puzzle.id}
       puzzle={puzzle}
-      progress={t('{n} of {total}', { n: index + 1, total: queue.length })}
+      progress={`${index + 1} of ${queue.length}`}
       onSolved={async (m) => ({ srs: await puzzles.record(puzzle.id, m, 't:'), reward: await progress.recordPuzzle(m) })}
       onNext={() => setIndex(index + 1)}
       isLast={index + 1 >= queue.length}
@@ -246,7 +245,7 @@ function DailySession({ rep, puzzles, progress }: { rep: ReturnType<typeof useRe
   const [queue] = useState(() => dailyQueue(rep.lines, rep.srs, puzzles.puzzles, puzzles.srs))
   const [index, setIndex] = useState(0)
   const item = queue[index]
-  const label = t('Card {n} of {total}', { n: index + 1, total: queue.length })
+  const label = `Card ${index + 1} of ${queue.length}`
   const next = () => setIndex(index + 1)
 
   if (!item) {
@@ -254,11 +253,11 @@ function DailySession({ rep, puzzles, progress }: { rep: ReturnType<typeof useRe
       <div className="screen">
         <div className="done">
           <Mascot mood="cheer" />
-          <div className="done-title">{queue.length ? t('All cards done for today!') : t('No cards due today')}</div>
-          <p>{queue.length ? t('Everything you learned is fresh again. Come back tomorrow for new cards.') : t('Learn a new line or play a game – new cards come from everything you practise.')}</p>
+          <div className="done-title">{queue.length ? 'All cards done for today!' : 'No cards due today'}</div>
+          <p>{queue.length ? 'Everything you learned is fresh again. Come back tomorrow for new cards.' : 'Learn a new line or play a game – new cards come from everything you practise.'}</p>
           <div className="done-actions">
-            <button type="button" onClick={() => go('play')}>{t('Play a game')}</button>
-            <button type="button" className="primary" onClick={() => go('')}>{t('Overview')}</button>
+            <button type="button" onClick={() => go('play')}>Play a game</button>
+            <button type="button" className="primary" onClick={() => go('')}>Overview</button>
           </div>
         </div>
       </div>
@@ -273,7 +272,7 @@ function DailySession({ rep, puzzles, progress }: { rep: ReturnType<typeof useRe
         line={line}
         progress={label}
         onDone={async (m) => ({ srs: await rep.recordDrill(line.id, m), reward: await progress.recordDrill(m) })}
-        after={() => <button type="button" className="primary" onClick={next}>{index + 1 < queue.length ? t('Next card') : t('Finish')}</button>}
+        after={() => <button type="button" className="primary" onClick={next}>{index + 1 < queue.length ? 'Next card' : 'Finish'}</button>}
       />
     )
   }
@@ -302,16 +301,16 @@ function Loading() {
   }, [])
   return (
     <div className="screen">
-      <p className="loading">{t('Loading repertoire …')}</p>
+      <p className="loading">Loading repertoire …</p>
       {slow && (
         <div className="explain wrong">
-          <div className="move">{t('This takes too long')}</div>
+          <div className="move">This takes too long</div>
           <p>
             {isDbBlocked()
-              ? t('Another Chess Trainer tab or window is still open with an older version. Close all other Chess Trainer tabs, then reload this one.')
-              : t('Close all other Chess Trainer tabs, then reload this page.')}
+              ? 'Another Chess Trainer tab or window is still open with an older version. Close all other Chess Trainer tabs, then reload this one.'
+              : 'Close all other Chess Trainer tabs, then reload this page.'}
           </p>
-          <button type="button" className="primary" onClick={() => window.location.reload()}>{t('Reload')}</button>
+          <button type="button" className="primary" onClick={() => window.location.reload()}>Reload</button>
         </div>
       )}
     </div>

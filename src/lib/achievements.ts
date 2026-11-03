@@ -1,5 +1,4 @@
 // Trophies: collectable goals for kids (and grown-ups). Pure: computed from what is already stored.
-import { t } from './i18n'
 
 export interface AchievementInput {
   linesPlayed: number // lines drilled at least once
@@ -29,7 +28,7 @@ export interface Achievement {
 const PIECES = ['♞', '♝', '♜', '♛', '♚', '♟']
 
 function make(id: string, title: string, desc: string, icon: string, tier: Achievement['tier'], value: number, goal: number): Achievement {
-  return { id, title: t(title), desc: t(desc), icon, tier, value: Math.min(value, goal), goal, earned: value >= goal }
+  return { id, title, desc, icon, tier, value: Math.min(value, goal), goal, earned: value >= goal }
 }
 
 export function achievements(s: AchievementInput): Achievement[] {
@@ -55,10 +54,10 @@ export function achievements(s: AchievementInput): Achievement[] {
     make('win-10', 'Bot tamer', 'Beat Hoppy-Bot 10 times', '♚', 'silver', s.gamesWon, 10),
   ]
   for (const r of [800, 1000, 1200, 1500, 2000]) {
-    out.push(make(`rating-${r}`, t('Rating {r}', { r }), t('Reach a Hoppy-Bot rating of {r}', { r }), '♛', r >= 1500 ? 'gold' : r >= 1000 ? 'silver' : 'bronze', s.botRating, r))
+    out.push(make(`rating-${r}`, `Rating ${r}`, `Reach a Hoppy-Bot rating of ${r}`, '♛', r >= 1500 ? 'gold' : r >= 1000 ? 'silver' : 'bronze', s.botRating, r))
   }
   s.chaptersDone.forEach((c, i) => {
-    out.push(make(`chapter-${c.title}`, t(c.title), t('Play every line of “{title}”', { title: t(c.title) }), PIECES[i % PIECES.length], 'silver', c.done ? 1 : 0, 1))
+    out.push(make(`chapter-${c.title}`, c.title, `Play every line of “${c.title}”`, PIECES[i % PIECES.length], 'silver', c.done ? 1 : 0, 1))
   })
   return out
 }

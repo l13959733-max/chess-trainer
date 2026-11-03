@@ -2,16 +2,17 @@
 import { Chess, type Color, type Square } from 'chess.js'
 import type { Candidate } from './bot'
 import { winChance } from './bot'
-import { piece, t } from './i18n'
 import { piecesInDanger } from './safety'
+
+const NAME: Record<string, string> = { p: 'pawn', n: 'knight', b: 'bishop', r: 'rook', q: 'queen', k: 'king' }
 
 // Plans a beginner can follow, most urgent first (at most 3)
 export function plans(fen: string, me: Color): string[] {
   const c = new Chess(fen)
   const out: string[] = []
   const danger = piecesInDanger(fen, me)
-  if (danger.length) out.push(t('First save your {piece} on {sq} – it can be taken.', { piece: piece(c.get(danger[0])!.type), sq: danger[0] }))
-  if (c.inCheck()) out.push(t('You are in check: move the king, block, or take the checking piece.'))
+  if (danger.length) out.push(`First save your ${NAME[c.get(danger[0])!.type]} on ${danger[0]} – it can be taken.`)
+  if (c.inCheck()) out.push('You are in check: move the king, block, or take the checking piece.')
   const home = me === 'w' ? 1 : 8
   const minors = (['b', 'c', 'f', 'g'] as const)
     .map((f) => `${f}${home}` as Square)
@@ -19,13 +20,13 @@ export function plans(fen: string, me: Color): string[] {
       const p = c.get(sq)
       return p && p.color === me && (p.type === 'n' || p.type === 'b')
     })
-  if (minors.length >= 3) out.push(t('Bring out your knights and bishops – most of them are still at home.'))
-  else if (minors.length) out.push(t('Bring out {list}.', { list: minors.map((sq) => t('your {piece} on {sq}', { piece: piece(c.get(sq)!.type), sq })).join(t(' and ')) }))
+  if (minors.length >= 3) out.push('Bring out your knights and bishops – most of them are still at home.')
+  else if (minors.length) out.push(`Bring out your ${minors.map((sq) => `${NAME[c.get(sq)!.type]} on ${sq}`).join(' and ')}.`)
   const castling = fen.split(' ')[2]
   const canCastle = me === 'w' ? /[KQ]/.test(castling) : /[kq]/.test(castling)
   const king = c.board().flat().find((p) => p && p.type === 'k' && p.color === me)
-  if (canCastle && king && (king.square === 'e1' || king.square === 'e8')) out.push(t('Castle soon: it brings your king to safety and your rook into the game.'))
-  if (!out.length) out.push(t('Look for a piece that does little and find it a better square. Check what your opponent attacks before every move.'))
+  if (canCastle && king && (king.square === 'e1' || king.square === 'e8')) out.push('Castle soon: it brings your king to safety and your rook into the game.')
+  if (!out.length) out.push('Look for a piece that does little and find it a better square. Check what your opponent attacks before every move.')
   return out.slice(0, 3)
 }
 
@@ -58,22 +59,22 @@ export function reason(fen: string, uci: string): string {
   } catch {
     return ''
   }
-  if (c.isCheckmate()) return t('checkmate!')
-  if (m.captured) return t('takes {the} on {sq}{check}.', { the: piece(m.captured, 'the'), sq: m.to, check: c.inCheck() ? t(' with check') : '' })
-  if (dangerBefore.includes(m.from as Square)) return t('saves your {piece} – it was in danger on {sq}.', { piece: piece(m.piece), sq: m.from })
+  if (c.isCheckmate()) return 'checkmate!'
+  if (m.captured) return `takes the ${NAME[m.captured]} on ${m.to}${c.inCheck() ? ' with check' : ''}.`
+  if (dangerBefore.includes(m.from as Square)) return `saves your ${NAME[m.piece]} – it was in danger on ${m.from}.`
   const dangerAfter = piecesInDanger(c.fen(), me)
-  if (dangerBefore.length > dangerAfter.length) return t('protects your {piece} on {sq}.', { piece: piece(new Chess(fen).get(dangerBefore[0])!.type), sq: dangerBefore[0] })
-  if (m.san.startsWith('O-O')) return t('castles: your king is safe and your rook joins the game.')
-  if (c.inCheck()) return t('gives check, so your opponent has to answer it.')
+  if (dangerBefore.length > dangerAfter.length) return `protects your ${NAME[new Chess(fen).get(dangerBefore[0])!.type]} on ${dangerBefore[0]}.`
+  if (m.san.startsWith('O-O')) return 'castles: your king is safe and your rook joins the game.'
+  if (c.inCheck()) return 'gives check, so your opponent has to answer it.'
   // attacks an enemy piece that is unprotected or worth more than the attacker
   const targets = c.moves({ square: m.to as Square, verbose: true }).filter((x) => x.captured).map((x) => ({ sq: x.to as Square, type: x.captured! }))
-  const juicy = targets.filter((x) => x.type !== 'p' && (VALUE[x.type] > VALUE[m.piece] || c.attackers(x.sq, opp).length === 0))
-  if (juicy.length >= 2) return t('attacks two things at once: {a} on {sq} and {b} on {sq2} – a fork!', { a: piece(juicy[0].type, 'the'), sq: juicy[0].sq, b: piece(juicy[1].type, 'the'), sq2: juicy[1].sq })
-  if (juicy.length) return t('attacks {the} on {sq}.', { the: piece(juicy[0].type, 'the'), sq: juicy[0].sq })
+  const juicy = targets.filter((t) => t.type !== 'p' && (VALUE[t.type] > VALUE[m.piece] || c.attackers(t.sq, opp).length === 0))
+  if (juicy.length >= 2) return `attacks two things at once: the ${NAME[juicy[0].type]} on ${juicy[0].sq} and the ${NAME[juicy[1].type]} on ${juicy[1].sq} – a fork!`
+  if (juicy.length) return `attacks the ${NAME[juicy[0].type]} on ${juicy[0].sq}.`
   const home = me === 'w' ? '1' : '8'
-  if ((m.piece === 'n' || m.piece === 'b') && m.from[1] === home) return t('develops your {piece} to a good square.', { piece: piece(m.piece) })
-  if (m.piece === 'p' && CENTER.includes(m.to)) return t('takes space in the center.')
-  if (m.piece === 'p' && ['c4', 'c5', 'f4', 'f5'].includes(m.to)) return t('fights for the center from the side.')
-  if (m.piece === 'r' && !c.board().flat().some((p) => p && p.type === 'p' && p.square[0] === m.to[0])) return t('puts the rook on an open file.')
-  return t('a solid move that keeps your position healthy.')
+  if ((m.piece === 'n' || m.piece === 'b') && m.from[1] === home) return `develops your ${NAME[m.piece]} to a good square.`
+  if (m.piece === 'p' && CENTER.includes(m.to)) return 'takes space in the center.'
+  if (m.piece === 'p' && ['c4', 'c5', 'f4', 'f5'].includes(m.to)) return 'fights for the center from the side.'
+  if (m.piece === 'r' && !c.board().flat().some((p) => p && p.type === 'p' && p.square[0] === m.to[0])) return 'puts the rook on an open file.'
+  return 'a solid move that keeps your position healthy.'
 }
