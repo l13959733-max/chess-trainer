@@ -18,6 +18,7 @@ import { feedback } from '../lib/feedback'
 import { deviceId, isOver, replay, shareGame, useBeat, useLive, type LiveGame } from '../lib/live'
 import type { Line } from '../lib/pgn'
 import { piecesInDanger } from '../lib/safety'
+import { t, notation } from '../lib/i18n'
 
 export type PlayMode = { kind: 'new' } | { kind: 'line'; line: Line } | { kind: 'puzzle'; puzzle: Puzzle }
 
@@ -30,11 +31,11 @@ const MIN_THINK = 650 // ms – an instant answer feels like a machine
 const IDEAS_KEY = 'chess-trainer-ideas'
 const IDEA_COLORS = ['rgba(79, 196, 20, 0.9)', 'rgba(46, 167, 240, 0.85)', 'rgba(255, 197, 49, 0.9)']
 const VERDICT_TEXT: Record<Verdict, string> = {
-  great: 'great move!',
-  good: 'good move.',
-  inaccuracy: 'OK, but there was something better.',
-  mistake: 'a mistake.',
-  blunder: 'careful – this loses a lot!',
+  great: t('great move!'),
+  good: t('good move.'),
+  inaccuracy: t('OK, but there was something better.'),
+  mistake: t('a mistake.'),
+  blunder: t('careful – this loses a lot!'),
 }
 const DANGER = { boxShadow: 'inset 0 0 0 4px rgba(239, 74, 90, 0.95)', backgroundColor: 'rgba(239, 74, 90, 0.25)' }
 
@@ -130,8 +131,8 @@ export function Play({ mode, lines, player, onGame, onPuzzlesFound }: Props) {
     if (!stats || game || mode.kind === 'new') return
     const g: Game =
       mode.kind === 'line'
-        ? { id: String(Date.now()), title: `Play on: ${mode.line.title}`, startFen: mode.line.moves[mode.line.moves.length - 1].fenAfter, moves: [], me: mode.line.side, botRating: stats.rating, rated: false }
-        : { id: String(Date.now()), title: 'Win it again', startFen: mode.puzzle.fen, moves: [], me: mode.puzzle.myColor, botRating: stats.rating, rated: false }
+        ? { id: String(Date.now()), title: t('Play on: {title}', { title: t(mode.line.title) }), startFen: mode.line.moves[mode.line.moves.length - 1].fenAfter, moves: [], me: mode.line.side, botRating: stats.rating, rated: false }
+        : { id: String(Date.now()), title: t('Win it again'), startFen: mode.puzzle.fen, moves: [], me: mode.puzzle.myColor, botRating: stats.rating, rated: false }
     begin(g)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [stats, game, mode])
@@ -140,65 +141,65 @@ export function Play({ mode, lines, player, onGame, onPuzzlesFound }: Props) {
     if (!stats) return
     const me = color === 'random' ? (Math.random() < 0.5 ? 'w' : 'b') : color
     const botRating = level === 'auto' ? stats.rating : level
-    const g: Game = { id: String(Date.now()), title: 'Game vs Hoppy-Bot', startFen: START, moves: [], me, botRating, rated: true }
+    const g: Game = { id: String(Date.now()), title: t('Game vs Hoppy-Bot'), startFen: START, moves: [], me, botRating, rated: true }
     begin(g)
   }
 
-  if (!stats) return <div className="screen"><p className="loading">Getting Hoppy-Bot ready …</p></div>
+  if (!stats) return <div className="screen"><p className="loading">{t('Getting Hoppy-Bot ready …')}</p></div>
 
   if (!game) {
     const saved = loadSaved()
     return (
       <div className="screen">
         <div className="screen-head">
-          <button type="button" className="back" onClick={() => go('')} aria-label="Back to overview">←</button>
+          <button type="button" className="back" onClick={() => go('')} aria-label={t('Back to overview')}>←</button>
           <div>
-            <div className="eyebrow">Play</div>
-            <h2>Game vs Hoppy-Bot</h2>
+            <div className="eyebrow">{t('Play')}</div>
+            <h2>{t('Game vs Hoppy-Bot')}</h2>
           </div>
         </div>
         <div className="greet">
           <Mascot mood="happy" />
-          Hoppy-Bot plays like a real person of the same rating – and it makes the same kind of mistakes. Can you catch them?
+          {t('Hoppy-Bot plays like a real person of the same rating – and it makes the same kind of mistakes. Can you catch them?')}
         </div>
         {saved && (
           <section className="play-card">
-            <div className="label">Unfinished game</div>
-            <p>{saved.title} · {saved.moves.length} moves played</p>
+            <div className="label">{t('Unfinished game')}</div>
+            <p>{t(saved.title)} · {t('{n} moves played', { n: saved.moves.length })}</p>
             <button type="button" className="primary wide" onClick={() => {
               lastBotWin.current = null
               setGame(saved)
               // Unless someone else holds this game, the others can see it again
               if (sharedGame?.id !== saved.id || shared?.driver === me) shareGame(me, saved)
-            }}>Continue</button>
+            }}>{t('Continue')}</button>
           </section>
         )}
         <section className="play-card">
-          <div className="label">Your Hoppy-Bot rating</div>
-          <div className="bot-rating"><span className="big">{stats.rating}</span><span className="note">{stats.games} games · {stats.wins} won · {stats.draws} draws · {stats.losses} lost</span></div>
-          <div className="label">You play</div>
-          <div className="seg" role="group" aria-label="Color">
+          <div className="label">{t('Your Hoppy-Bot rating')}</div>
+          <div className="bot-rating"><span className="big">{stats.rating}</span><span className="note">{t('{games} games · {wins} won · {draws} draws · {losses} lost', { games: stats.games, wins: stats.wins, draws: stats.draws, losses: stats.losses })}</span></div>
+          <div className="label">{t('You play')}</div>
+          <div className="seg" role="group" aria-label={t('Color')}>
             {(['w', 'b', 'random'] as const).map((c) => (
-              <button key={c} type="button" className={color === c ? 'on' : ''} onClick={() => setColor(c)}>{c === 'w' ? 'White' : c === 'b' ? 'Black' : 'Random'}</button>
+              <button key={c} type="button" className={color === c ? 'on' : ''} onClick={() => setColor(c)}>{c === 'w' ? t('White') : c === 'b' ? t('Black') : t('Random')}</button>
             ))}
           </div>
-          <div className="label">Strength</div>
-          <div className="seg wrap" role="group" aria-label="Strength">
-            <button type="button" className={level === 'auto' ? 'on' : ''} onClick={() => setLevel('auto')}>Like me ({stats.rating})</button>
+          <div className="label">{t('Strength')}</div>
+          <div className="seg wrap" role="group" aria-label={t('Strength')}>
+            <button type="button" className={level === 'auto' ? 'on' : ''} onClick={() => setLevel('auto')}>{t('Like me ({rating})', { rating: stats.rating })}</button>
             {LEVELS.map((l) => (
               <button key={l} type="button" className={level === l ? 'on' : ''} onClick={() => setLevel(l)}>{l}</button>
             ))}
           </div>
           <p className="note small">
             {isMeasured(level === 'auto' ? stats.rating : level)
-              ? 'This strength is measured: it copies how often real players of this rating find the best move, make mistakes and grab free pieces.'
-              : 'Strengths from 300 to 799 are measured on real games. This one is an estimate.'}
+              ? t('This strength is measured: it copies how often real players of this rating find the best move, make mistakes and grab free pieces.')
+              : t('Strengths from 300 to 799 are measured on real games. This one is an estimate.')}
           </p>
           <label className="toggle">
             <input type="checkbox" checked={safety} onChange={(e) => setSafety(e.target.checked)} />
-            <span>Safety check: show my pieces in danger</span>
+            <span>{t('Safety check: show my pieces in danger')}</span>
           </label>
-          <button type="button" className="primary wide" onClick={startNew}>Start game</button>
+          <button type="button" className="primary wide" onClick={startNew}>{t('Start game')}</button>
         </section>
       </div>
     )
@@ -217,8 +218,8 @@ export function Play({ mode, lines, player, onGame, onPuzzlesFound }: Props) {
       driverName={shared?.driverName}
       control={away ? (
         <div className="live-bar">
-          <span><span className="live-dot" /> <b>{shared!.driverName}</b> is playing for you</span>
-          <button type="button" className="primary" onClick={() => shareGame(me, game)}>Take back</button>
+          <span><span className="live-dot" /> <b>{shared!.driverName}</b> {t('is playing for you')}</span>
+          <button type="button" className="primary" onClick={() => shareGame(me, game)}>{t('Take back')}</button>
         </div>
       ) : null}
       book={book}
@@ -396,7 +397,7 @@ export function GameView({ game, setGame, book, thinking, setThinking, lastBotWi
       const v = verdict(cands.list, uci)
       if (v) {
         const bestSan = uciToSan(fen, v.best.uci) ?? v.best.uci
-        const why = v.verdict === 'great' || v.verdict === 'good' ? [] : [`${bestSan} ${reason(fen, v.best.uci)}`]
+        const why = v.verdict === 'great' || v.verdict === 'good' ? [] : [`${notation(bestSan)} ${reason(fen, v.best.uci)}`]
         setLastVerdict({ san: m.san, verdict: v.verdict, bestSan, why, ply: game.moves.length })
       }
     } else setLastVerdict(null)
@@ -433,10 +434,10 @@ export function GameView({ game, setGame, book, thinking, setThinking, lastBotWi
   return (
     <div className="screen">
       <div className="screen-head">
-        <button type="button" className="back" onClick={() => go('')} aria-label="Back to overview">←</button>
+        <button type="button" className="back" onClick={() => go('')} aria-label={t('Back to overview')}>←</button>
         <div>
-          <div className="eyebrow">{forName ? `${forName}'s game · ` : ''}vs Hoppy-Bot {game.botRating}{game.rated ? ' · rated' : ' · practice'}</div>
-          <h2>{game.title}</h2>
+          <div className="eyebrow">{forName ? t("{forName}'s game · ", { forName }) : ''}{t('vs Hoppy-Bot')} {game.botRating}{game.rated ? t(' · rated') : t(' · practice')}</div>
+          <h2>{t(game.title)}</h2>
         </div>
       </div>
 
@@ -449,32 +450,32 @@ export function GameView({ game, setGame, book, thinking, setThinking, lastBotWi
         squareStyles={viewing ? viewStyles : styles}
         arrows={viewing ? [] : arrows}
       />
-      <div className="nav-row" role="group" aria-label="Look through the game">
-        <button type="button" aria-label="First position" disabled={(view ?? game.moves.length) === 0} onClick={() => setView(0)}>⏮</button>
-        <button type="button" aria-label="Previous move" disabled={(view ?? game.moves.length) === 0} onClick={() => setView((view ?? game.moves.length) - 1)}>◀</button>
-        <span className="nav-pos">{viewing ? `Move ${view} of ${game.moves.length}` : 'Live'}</span>
-        <button type="button" aria-label="Next move" disabled={!viewing} onClick={() => setView(view! + 1 >= game.moves.length ? null : view! + 1)}>▶</button>
-        <button type="button" aria-label="Back to the game" disabled={!viewing} onClick={() => setView(null)}>⏭</button>
+      <div className="nav-row" role="group" aria-label={t('Look through the game')}>
+        <button type="button" aria-label={t('First position')} disabled={(view ?? game.moves.length) === 0} onClick={() => setView(0)}>⏮</button>
+        <button type="button" aria-label={t('Previous move')} disabled={(view ?? game.moves.length) === 0} onClick={() => setView((view ?? game.moves.length) - 1)}>◀</button>
+        <span className="nav-pos">{viewing ? t('Move {view} of {length}', { view, length: game.moves.length }) : t('Live')}</span>
+        <button type="button" aria-label={t('Next move')} disabled={!viewing} onClick={() => setView(view! + 1 >= game.moves.length ? null : view! + 1)}>▶</button>
+        <button type="button" aria-label={t('Back to the game')} disabled={!viewing} onClick={() => setView(null)}>⏭</button>
       </div>
 
       <div className="drill-status">
         <span>
           {over
-            ? 'Game over'
+            ? t('Game over')
             : turn !== game.me
-              ? 'Hoppy-Bot is thinking …'
+              ? t('Hoppy-Bot is thinking …')
               : !driving
-                ? driverName ? `${driverName} is thinking …` : 'Nobody is playing right now'
-                : chess.inCheck() ? 'Check! Protect your king' : 'Your move'}
+                ? driverName ? t('{driverName} is thinking …', { driverName }) : t('Nobody is playing right now')
+                : chess.inCheck() ? t('Check! Protect your king') : t('Your move')}
         </span>
-        {danger.length > 0 && <span className="bad">{danger.length === 1 ? '1 piece in danger' : `${danger.length} pieces in danger`}</span>}
+        {danger.length > 0 && <span className="bad">{danger.length === 1 ? t('1 piece in danger') : t('{length} pieces in danger', { length: danger.length })}</span>}
       </div>
 
       {!over && driving && (
         <div className="play-controls">
-          <button type="button" onClick={takeBack} disabled={thinking || game.moves.length < 1 || turn !== game.me}>Take back</button>
-          <button type="button" className={safety ? 'on' : ''} onClick={() => setSafety(!safety)}>🛡 Safety {safety ? 'on' : 'off'}</button>
-          {!forName && <button type="button" className="danger" onClick={() => setGame({ ...game, resigned: true })}>Resign</button>}
+          <button type="button" onClick={takeBack} disabled={thinking || game.moves.length < 1 || turn !== game.me}>{t('Take back')}</button>
+          <button type="button" className={safety ? 'on' : ''} onClick={() => setSafety(!safety)}>{safety ? t('🛡 Safety on') : t('🛡 Safety off')}</button>
+          {!forName && <button type="button" className="danger" onClick={() => setGame({ ...game, resigned: true })}>{t('Resign')}</button>}
         </div>
       )}
 
@@ -483,40 +484,40 @@ export function GameView({ game, setGame, book, thinking, setThinking, lastBotWi
           <button type="button" className={coach ? 'on' : ''} onClick={() => {
             if (!coach && game.rated) setGame({ ...game, rated: false })
             setCoach(!coach)
-          }}>🎓 Coach {coach ? 'on' : 'off'}</button>
+          }}>{coach ? t('🎓 Coach on') : t('🎓 Coach off')}</button>
           {coach && (
             <button type="button" className={showIdeas ? 'primary' : ''} onClick={() => setShowIdeas(!showIdeas)}>
-              {showIdeas ? (ready ? '💡 Ideas: on' : '💡 Ideas: on · thinking …') : '💡 Ideas: off'}
+              {showIdeas ? (ready ? t('💡 Ideas: on') : t('💡 Ideas: on · thinking …')) : t('💡 Ideas: off')}
             </button>
           )}
         </div>
       )}
-      {!over && driving && !coach && game.rated && <p className="note small coach-note">Turning the coach on makes this a practice game (no rating change).</p>}
+      {!over && driving && !coach && game.rated && <p className="note small coach-note">{t('Turning the coach on makes this a practice game (no rating change).')}</p>}
 
       {driving && coach && lastVerdict && !over && (
         <div className={`explain coach-verdict ${lastVerdict.verdict}`}>
           <Mascot mood={lastVerdict.verdict === 'great' || lastVerdict.verdict === 'good' ? 'cheer' : 'oops'} />
-          <div className="move">{lastVerdict.san}: {VERDICT_TEXT[lastVerdict.verdict]}</div>
-          {lastVerdict.verdict !== 'great' && <p>Best was <b>{lastVerdict.bestSan}</b>. {lastVerdict.why.join(' ')}</p>}
+          <div className="move">{notation(lastVerdict.san)}: {VERDICT_TEXT[lastVerdict.verdict]}</div>
+          {lastVerdict.verdict !== 'great' && <p>{t('Best was')} <b>{notation(lastVerdict.bestSan)}</b>. {lastVerdict.why.join(' ')}</p>}
           {(lastVerdict.verdict === 'mistake' || lastVerdict.verdict === 'blunder') && turn === game.me && (
-            <button type="button" className="speak-btn" onClick={() => { takeBack(); setLastVerdict(null) }}>Take back and try again</button>
+            <button type="button" className="speak-btn" onClick={() => { takeBack(); setLastVerdict(null) }}>{t('Take back and try again')}</button>
           )}
         </div>
       )}
 
       {coach && showIdeas && ideas.length > 0 && (
         <section className="explain-card ideas-card">
-          <div className="label">Ideas for this position</div>
+          <div className="label">{t('Ideas for this position')}</div>
           {ideas.map((c, i) => {
             const san = uciToSan(fen, c.uci) ?? c.uci
             const s = reason(fen, c.uci)
             return (
               <p key={c.uci}>
-                <span className="idea-dot" style={{ background: IDEA_COLORS[i] }} /> <b>{san}</b>{i === 0 ? ' (best)' : ''} – {s}
+                <span className="idea-dot" style={{ background: IDEA_COLORS[i] }} /> <b>{notation(san)}</b>{i === 0 ? t(' (best)') : ''} – {s}
               </p>
             )
           })}
-          <div className="label">Plans</div>
+          <div className="label">{t('Plans')}</div>
           {plans(fen, game.me).map((p) => (
             <p key={p}>• {p}</p>
           ))}
@@ -526,52 +527,52 @@ export function GameView({ game, setGame, book, thinking, setThinking, lastBotWi
       {!over && danger.length > 0 && (
         <div className="explain wrong">
           <Mascot mood="oops" />
-          <p>Careful! The red {danger.length === 1 ? 'piece can' : 'pieces can'} be taken for free – or by a cheaper piece. Move {danger.length === 1 ? 'it' : 'them'} to safety or protect {danger.length === 1 ? 'it' : 'them'}.</p>
+          <p>{danger.length === 1 ? t('Careful! The red piece can be taken for free – or by a cheaper piece. Move it to safety or protect it.') : t('Careful! The red pieces can be taken for free – or by a cheaper piece. Move them to safety or protect them.')}</p>
         </div>
       )}
 
       {over && (
         <div className="done">
           <Mascot mood={score === 1 ? 'cheer' : score === 0.5 ? 'happy' : 'oops'} />
-          <div className="done-title">{score === 1 ? (forName ? `${forName} won!` : 'You won!') : score === 0.5 ? 'Draw' : game.resigned ? (forName ? `${forName} resigned` : 'You resigned') : 'Hoppy-Bot won'}</div>
+          <div className="done-title">{score === 1 ? (forName ? t('{forName} won!', { forName }) : t('You won!')) : score === 0.5 ? t('Draw') : game.resigned ? (forName ? t('{forName} resigned', { forName }) : t('You resigned')) : t('Hoppy-Bot won')}</div>
           <p>
-            {chess.isCheckmate() ? 'Checkmate.' : chess.isStalemate() ? 'Stalemate – the king has no move but is not in check.' : chess.isThreefoldRepetition() ? 'The same position three times.' : chess.isInsufficientMaterial() ? 'Not enough pieces left to checkmate.' : chess.isDraw() ? '50 moves without a capture or pawn move.' : ''}
+            {chess.isCheckmate() ? t('Checkmate.') : chess.isStalemate() ? t('Stalemate – the king has no move but is not in check.') : chess.isThreefoldRepetition() ? t('The same position three times.') : chess.isInsufficientMaterial() ? t('Not enough pieces left to checkmate.') : chess.isDraw() ? t('50 moves without a capture or pawn move.') : ''}
           </p>
           {result && game.rated && (
             <p className="rating-change">
-              Your Hoppy-Bot rating: {result.before} → <b>{result.after}</b> ({result.after >= result.before ? '+' : ''}{result.after - result.before})
+              {t('Your Hoppy-Bot rating:')} {result.before} → <b>{result.after}</b> ({result.after >= result.before ? '+' : ''}{result.after - result.before})
             </p>
           )}
           {result && <Celebrate reward={result.reward} />}
           {analysis && (
             <p className="note">
               {analysis.found === undefined
-                ? `Looking for your mistakes … ${Math.round((analysis.done / analysis.total) * 100)}%`
+                ? t('Looking for your mistakes … {0}%', { 0: Math.round((analysis.done / analysis.total) * 100) })
                 : analysis.found
-                  ? `${analysis.found} ${analysis.found === 1 ? 'mistake' : 'mistakes'} found – ${analysis.found === 1 ? 'it is' : 'they are'} now in your puzzles.`
-                  : game.resigned ? 'No big mistakes found in this game.' : 'No big mistakes in this game. Well played!'}
+                  ? analysis.found === 1 ? t('1 mistake found – it is now in your puzzles.') : t('{n} mistakes found – they are now in your puzzles.', { n: analysis.found })
+                  : game.resigned ? t('No big mistakes found in this game.') : t('No big mistakes in this game. Well played!')}
             </p>
           )}
           <div className="done-actions">
             {analysis?.found ? (
-              <button type="button" onClick={() => go('puzzles')}>Solve my mistakes</button>
+              <button type="button" onClick={() => go('puzzles')}>{t('Solve my mistakes')}</button>
             ) : (
-              <button type="button" onClick={() => go('')}>Overview</button>
+              <button type="button" onClick={() => go('')}>{t('Overview')}</button>
             )}
-            <button type="button" className="primary" onClick={onAgain}>New game</button>
+            <button type="button" className="primary" onClick={onAgain}>{t('New game')}</button>
           </div>
         </div>
       )}
 
       {history.length > 0 && (
-        <ol className="movelist" aria-label="Moves of the game">
+        <ol className="movelist" aria-label={t('Moves of the game')}>
           {history.map((san, i) => {
             const ply = i + (startBlack ? 1 : 0)
             const no = startNo + Math.floor(ply / 2)
             return (
               <li key={i}>
                 <button type="button" className={`chip ${(viewing ? i === view! - 1 : i === history.length - 1) ? 'current' : ''}`} onClick={() => setView(i + 1 >= history.length ? null : i + 1)}>
-                  {ply % 2 === 0 ? `${no}. ` : i === 0 ? `${no}... ` : ''}{san}
+                  {ply % 2 === 0 ? `${no}. ` : i === 0 ? `${no}... ` : ''}{notation(san)}
                 </button>
               </li>
             )

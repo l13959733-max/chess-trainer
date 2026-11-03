@@ -8,6 +8,7 @@ import type { Line } from '../lib/pgn'
 import { cleanName, getName, MAX_NAME, setName } from '../lib/profile'
 import { TRY_IT, voiceTexts } from '../lib/speech'
 import { CLONE_VOICE, isAllowedVoiceUrl, loadVoiceSettings, saveAll, savedCount, saveVoiceSettings } from '../lib/voice'
+import { lang, setLang, t } from '../lib/i18n'
 
 type Check = { kind: 'idle' } | { kind: 'checking' } | { kind: 'ok' } | { kind: 'fail'; why: string }
 
@@ -115,21 +116,26 @@ export function Settings({ incoming, lines, player, onPlayer, incomingPlayer }: 
   return (
     <div className="screen">
       <div className="screen-head">
-        <button type="button" className="back" onClick={() => go('')} aria-label="Back to overview">←</button>
+        <button type="button" className="back" onClick={() => go('')} aria-label={t('Back to overview')}>←</button>
         <div>
-          <div className="eyebrow">Settings</div>
-          <h2>Sound &amp; voice</h2>
+          <div className="eyebrow">{t('Settings')}</div>
+          <h2>{t('Sound & voice')}</h2>
         </div>
       </div>
 
       <div className="form">
-        <label className="label" htmlFor="profile-name">Your name</label>
-        <p className="note">Friends see it when they watch you play.</p>
+        <div className="label">{t('Language')}</div>
+        <div className="seg two" role="group" aria-label={t('Language')}>
+          <button type="button" className={lang === 'en' ? 'on' : ''} onClick={() => setLang('en')}>English</button>
+          <button type="button" className={lang === 'es' ? 'on' : ''} onClick={() => setLang('es')}>Español</button>
+        </div>
+        <label className="label" htmlFor="profile-name">{t('Your name')}</label>
+        <p className="note">{t('Friends see it when they watch you play.')}</p>
         <input id="profile-name" type="text" value={name} maxLength={MAX_NAME} onChange={(e) => { setNameText(e.target.value); setNameSaved(false) }} />
-        <button type="button" className="wide" disabled={!cleanName(name)} onClick={() => { setName(name); setNameSaved(true) }}>{nameSaved ? 'Saved ✓' : 'Save name'}</button>
+        <button type="button" className="wide" disabled={!cleanName(name)} onClick={() => { setName(name); setNameSaved(true) }}>{nameSaved ? t('Saved ✓') : t('Save name')}</button>
 
-        <div className="label">Chess.com account</div>
-        <p className="note">Blunder puzzles come from this player's rapid and daily games. Each phone can have its own player.</p>
+        <div className="label">{t('Chess.com account')}</div>
+        <p className="note">{t("Blunder puzzles come from this player's rapid and daily games. Each phone can have its own player.")}</p>
         <input
           id="chesscom-name"
           type="text"
@@ -141,39 +147,38 @@ export function Settings({ incoming, lines, player, onPlayer, incomingPlayer }: 
             setAccount(e.target.value)
             setAccountMsg(null)
           }}
-          placeholder="chess.com username"
+          placeholder={t('chess.com username')}
         />
-        <button type="button" className="primary wide" onClick={() => saveAccount()}>Use this account</button>
+        <button type="button" className="primary wide" onClick={() => saveAccount()}>{t('Use this account')}</button>
         {accountMsg && <p className={accountMsg.ok ? 'good' : 'bad'} role="status">{accountMsg.text}</p>}
 
-        <div className="label">Sound &amp; vibration</div>
+        <div className="label">{t('Sound & vibration')}</div>
         <label className="toggle" htmlFor="fb-sound">
-          <span>Move sounds</span>
+          <span>{t('Move sounds')}</span>
           <input id="fb-sound" type="checkbox" checked={fb.sound} onChange={() => toggle('sound')} />
         </label>
         <label className="toggle" htmlFor="fb-haptics">
-          <span>Vibration</span>
+          <span>{t('Vibration')}</span>
           <input id="fb-haptics" type="checkbox" checked={fb.haptics} onChange={() => toggle('haptics')} />
         </label>
         <label className="toggle" htmlFor="fb-autoread">
-          <span>Read explanations aloud</span>
+          <span>{t('Read explanations aloud')}</span>
           <input id="fb-autoread" type="checkbox" checked={fb.autoRead} onChange={() => toggle('autoRead')} />
         </label>
-        <p className="note">On an iPhone, sounds follow the silent switch, and vibration needs iOS 18 or newer.</p>
+        <p className="note">{t('On an iPhone, sounds follow the silent switch, and vibration needs iOS 18 or newer.')}</p>
 
         {CLONE_VOICE ? (
           <>
-        <div className="label">Read-aloud voice</div>
+        <div className="label">{t('Read-aloud voice')}</div>
         <p className="note">
-          Explanations are read in your own voice from the voice changer on your Mac. When the Mac is off, your phone's voice
-          reads them instead.
+          {t("Explanations are read in your own voice from the voice changer on your Mac. When the Mac is off, your phone's voice reads them instead.")}
         </p>
         <ol className="steps">
-          <li>On the Mac: double-click <code>Chess-Voice.command</code> in the voice changer folder. It starts the voice changer and the tunnel together.</li>
-          <li>Paste the <code>https://….trycloudflare.com</code> address here, or open the voice link the starter shows – it fills this in for you. The address changes every time the tunnel restarts.</li>
+          <li>{t('On the Mac: double-click')} <code>{t('Chess-Voice.command')}</code> {t('in the voice changer folder. It starts the voice changer and the tunnel together.')}</li>
+          <li>{t('Paste the')} <code>{t('https://….trycloudflare.com')}</code> {t('address here, or open the voice link the starter shows – it fills this in for you. The address changes every time the tunnel restarts.')}</li>
         </ol>
 
-        <label htmlFor="voice-url">Voice server address</label>
+        <label htmlFor="voice-url">{t('Voice server address')}</label>
         <input
           id="voice-url"
           type="url"
@@ -186,10 +191,10 @@ export function Settings({ incoming, lines, player, onPlayer, incomingPlayer }: 
             setUrl(e.target.value)
             setSaved(false)
           }}
-          placeholder="https://example.trycloudflare.com"
+          placeholder={t('https://example.trycloudflare.com')}
         />
 
-        <label htmlFor="voice-name">Voice name</label>
+        <label htmlFor="voice-name">{t('Voice name')}</label>
         <input
           id="voice-name"
           type="text"
@@ -200,37 +205,36 @@ export function Settings({ incoming, lines, player, onPlayer, incomingPlayer }: 
           }}
         />
 
-        {rejected && <p className="bad" role="status">That link did not contain a voice changer address, so nothing was changed.</p>}
-        <button type="button" className="primary wide" onClick={() => save()}>Save</button>
-        {saved && check.kind === 'idle' && <p className="good" role="status">Saved. Without an address, your phone's voice reads aloud.</p>}
-        {check.kind === 'checking' && <p className="note" role="status">Checking the connection …</p>}
-        {check.kind === 'ok' && <p className="good" role="status">Saved. Your Mac voice is reachable.</p>}
-        {check.kind === 'fail' && <p className="bad" role="status">Saved, but the Mac voice is not reachable. {check.why}</p>}
+        {rejected && <p className="bad" role="status">{t('That link did not contain a voice changer address, so nothing was changed.')}</p>}
+        <button type="button" className="primary wide" onClick={() => save()}>{t('Save')}</button>
+        {saved && check.kind === 'idle' && <p className="good" role="status">{t("Saved. Without an address, your phone's voice reads aloud.")}</p>}
+        {check.kind === 'checking' && <p className="note" role="status">{t('Checking the connection …')}</p>}
+        {check.kind === 'ok' && <p className="good" role="status">{t('Saved. Your Mac voice is reachable.')}</p>}
+        {check.kind === 'fail' && <p className="bad" role="status">{t('Saved, but the Mac voice is not reachable.')} {check.why}</p>}
 
-        <div className="label">Your voice on this phone</div>
+        <div className="label">{t('Your voice on this phone')}</div>
         <div className="voice-store">
           <div className="goal-row">
-            <span>Explanations saved in your voice</span>
+            <span>{t('Explanations saved in your voice')}</span>
             <span className="count">{clipCount ?? '…'} / {texts.length}</span>
           </div>
           <div className="bar"><span style={{ width: `${((clipCount ?? 0) / texts.length) * 100}%` }} /></div>
           {clipCount === texts.length ? (
-            <p className="good">All explanations are in your voice – for everyone who opens the app, even when your Mac is off.</p>
+            <p className="good">{t('All explanations are in your voice – for everyone who opens the app, even when your Mac is off.')}</p>
           ) : saving === 'running' ? (
             <>
-              <p className="note">Saving … keep this screen open. New sentences take 10–20 seconds each on the Mac.</p>
-              <button type="button" onClick={() => (stopSaving.current = true)}>Pause</button>
+              <p className="note">{t('Saving … keep this screen open. New sentences take 10–20 seconds each on the Mac.')}</p>
+              <button type="button" onClick={() => (stopSaving.current = true)}>{t('Pause')}</button>
             </>
           ) : (
             <>
               <p className="note">
-                Saves every explanation once in your voice on this phone. Afterwards it reads in your voice without the Mac.
-                Needs the Mac voice for the download.
+                {t('Saves every explanation once in your voice on this phone. Afterwards it reads in your voice without the Mac. Needs the Mac voice for the download.')}
               </p>
               <button type="button" className="primary wide" disabled={!url.trim()} onClick={saveVoice}>
-                Save my voice on this phone
+                {t('Save my voice on this phone')}
               </button>
-              {saving === 'error' && <p className="bad">The Mac voice stopped answering. Check the Chess-Voice window on the Mac, then tap again – saved sentences are kept.</p>}
+              {saving === 'error' && <p className="bad">{t('The Mac voice stopped answering. Check the Chess-Voice window on the Mac, then tap again – saved sentences are kept.')}</p>}
             </>
           )}
         </div>
@@ -238,14 +242,14 @@ export function Settings({ incoming, lines, player, onPlayer, incomingPlayer }: 
           </>
         ) : (
           <>
-            <div className="label">Read-aloud voice</div>
-            <p className="note">Explanations are read by your phone's standard English voice.</p>
+            <div className="label">{t('Read-aloud voice')}</div>
+            <p className="note">{t("Explanations are read by your phone's standard English voice.")}</p>
           </>
         )}
-        <div className="label">Try it</div>
+        <div className="label">{t('Try it')}</div>
         <SpeakButton auto={false} text={TRY_IT} />
-        <p className="note small">App version {__APP_VERSION__}</p>
-        {CLONE_VOICE && <p className="note">The address is stored only on this device. The first sentence can take 10–20 seconds; repeated sentences play instantly.</p>}
+        <p className="note small">{t('App version')} {__APP_VERSION__}</p>
+        {CLONE_VOICE && <p className="note">{t('The address is stored only on this device. The first sentence can take 10–20 seconds; repeated sentences play instantly.')}</p>}
       </div>
     </div>
   )

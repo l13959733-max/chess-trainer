@@ -16,6 +16,7 @@ import { PUZZLES_AVAILABLE } from '../lib/progress'
 import { daysUntil, isDue, lineResult } from '../lib/srs'
 import { othersGames, useLive } from '../lib/live'
 import { GameRow } from './Watch'
+import { notation, t } from '../lib/i18n'
 
 export function Home({ rep, progress, puzzles, analyzer, player, trophies }: { rep: Repertoire; progress: Progress; puzzles: Puzzles; analyzer: AnalyzerState; player: string; trophies: Achievements }) {
   const now = Date.now()
@@ -64,85 +65,85 @@ export function Home({ rep, progress, puzzles, analyzer, player, trophies }: { r
 
   return (
     <div className="screen">
-      <section className="chips" aria-label="Your progress">
+      <section className="chips" aria-label={t('Your progress')}>
         <div className="chip-stat streak">
           <svg viewBox="0 0 24 24"><path d="M12 2c1 4 6 6 6 12a6 6 0 0 1-12 0c0-3 2-5 3-6 0 2 1 3 2 3 0-4-1-6 1-9z" fill="#ff8a1e" /><path d="M12 13c1 2 3 3 3 5a3 3 0 0 1-6 0c0-1 1-2 1.5-2.5.2 1 .8 1.5 1.5 1.5 0-1.5-.5-2.5 0-4z" fill="#ffd166" /></svg>
-          <span>{progress.streak}<small>day streak</small></span>
+          <span>{progress.streak}<small>{t('day streak')}</small></span>
         </div>
         <div className="chip-stat xp">
           <svg viewBox="0 0 24 24"><path d="M12 2l3 6.5 7 .8-5.2 4.8 1.4 7L12 17.6 5.8 21.1l1.4-7L2 9.3l7-.8z" fill="#ffc531" /></svg>
-          <span>{progress.totalXp}<small>XP</small></span>
+          <span>{progress.totalXp}<small>{t('XP')}</small></span>
         </div>
         <div className="chip-stat level">
           <svg viewBox="0 0 24 24"><path d="M12 2l8 3v6c0 5-3.5 9-8 11-4.5-2-8-6-8-11V5z" fill="#8a5cf6" /><text x="12" y="15.5" textAnchor="middle" fontSize="9" fontWeight="900" fill="#fff">{progress.level.level}</text></svg>
-          <span>Lvl {progress.level.level}<small>{progress.level.needed - progress.level.into} XP to go</small></span>
+          <span>{t('Lvl')} {progress.level.level}<small>{progress.level.needed - progress.level.into} {t('XP to go')}</small></span>
         </div>
       </section>
 
       <div className="greet">
         <Mascot mood={activeToday ? 'cheer' : 'happy'} />
-        {activeToday ? 'Great job today! Want to play one more?' : progress.streak ? `Hi! Play today to keep your ${progress.streak}-day streak!` : 'Hi, I’m Hoppy! Let’s learn some chess together.'}
+        {activeToday ? t('Great job today! Want to play one more?') : progress.streak ? t('Hi! Play today to keep your {streak}-day streak!', { streak: progress.streak }) : t('Hi, I’m Hoppy! Let’s learn some chess together.')}
       </div>
 
       {trophies.fresh.length > 0 && (
         <button type="button" className="trophy-banner" onClick={() => go('trophies')}>
           <span className="medal" aria-hidden="true">{trophies.fresh[0].icon}</span>
           <span>
-            <b>{trophies.fresh.length === 1 ? 'New trophy: ' + trophies.fresh[0].title : `${trophies.fresh.length} new trophies!`}</b>
+            <b>{trophies.fresh.length === 1 ? t('New trophy: {title}', { title: trophies.fresh[0].title }) : t('{length} new trophies!', { length: trophies.fresh.length })}</b>
             <br />
-            <small>Tap to see your trophies</small>
+            <small>{t('Tap to see your trophies')}</small>
           </span>
         </button>
       )}
 
       {games.map((s) => <GameRow key={s.owner} state={s} />)}
 
-      <section className="daily-card" aria-label="Today's cards">
-        <div className="label">Today's cards</div>
-        <div><span className="big">{cards}</span> {cards === 1 ? 'card' : 'cards'} to repeat</div>
-        <p className="note">Lines, puzzles and threats come back just before you would forget them.</p>
-        <button type="button" className="primary wide" disabled={!cards} onClick={() => go('daily')}>{cards ? 'Start' : 'All done for today'}</button>
+      <section className="daily-card" aria-label={t("Today's cards")}>
+        <div className="label">{t("Today's cards")}</div>
+        <div><span className="big">{cards}</span> {cards === 1 ? t('card to repeat') : t('cards to repeat')}</div>
+        <p className="note">{t('Lines, puzzles and threats come back just before you would forget them.')}</p>
+        <button type="button" className="primary wide" disabled={!cards} onClick={() => go('daily')}>{cards ? t('Start') : t('All done for today')}</button>
       </section>
 
-      <section className="quick" aria-label="Train">
+      <section className="quick" aria-label={t('Train')}>
         <button type="button" className="quick-tile play" onClick={() => go('play')}>
           <span className="quick-icon" aria-hidden="true">♞</span>
-          <span className="quick-text">Play<small>vs Hoppy-Bot</small></span>
+          <span className="quick-text">{t('Play')}<small>{t('vs Hoppy-Bot')}</small></span>
         </button>
         <button type="button" className="quick-tile puzzles" onClick={() => go('puzzles')}>
           <span className="quick-icon" aria-hidden="true">♜</span>
-          <span className="quick-text">Puzzles<small>{puzzles.due.length + puzzles.fresh.length} waiting</small></span>
+          <span className="quick-text">{t('Puzzles')}<small>{puzzles.due.length + puzzles.fresh.length} {t('waiting')}</small></span>
         </button>
         <button type="button" className="quick-tile weak" onClick={() => go('weaknesses')}>
           <span className="quick-icon" aria-hidden="true">♝</span>
-          <span className="quick-text">My weaknesses<small>train them</small></span>
+          <span className="quick-text">{t('My weaknesses')}<small>{t('train them')}</small></span>
         </button>
         <button type="button" className="quick-tile win" disabled={!winning.length} onClick={() => go('play/puzzle/' + encodeURIComponent(winning[Math.floor(Math.random() * winning.length)].id))}>
           <span className="quick-icon" aria-hidden="true">♛</span>
-          <span className="quick-text">Win it<small>{winning.length ? `${winning.length} won positions` : 'from your games'}</small></span>
+          <span className="quick-text">{t('Win it')}<small>{winning.length ? t('{length} won positions', { length: winning.length }) : t('from your games')}</small></span>
         </button>
       </section>
 
       <button type="button" className="trophy-row" onClick={() => go('watch')}>
-        <span><span className="label">Watch</span><br /><b>Watch each other</b> and play for each other</span>
+        <span><span className="label">{t('Watch')}</span><br /><b>{t('Watch each other')}</b> {t('and play for each other')}</span>
         <span className="chevron" aria-hidden="true">▸</span>
       </button>
 
       <button type="button" className="trophy-row" onClick={() => go('trophies')}>
-        <span><span className="label">Trophies</span><br /><b>{trophies.list.filter((a) => a.earned).length} of {trophies.list.length}</b> collected</span>
+        <span><span className="label">{t('Trophies')}</span><br /><b>{trophies.list.filter((a) => a.earned).length} {t('of')} {trophies.list.length}</b> {t('collected')}</span>
         <span className="chevron" aria-hidden="true">▸</span>
       </button>
 
       <OpponentsCard player={player} lines={rep.lines} srs={rep.srs} onOpen={openAndScroll} />
 
-      <section className="lines" aria-label="Repertoire">
+      <section className="lines" aria-label={t('Repertoire')}>
         <div className="section-head">
-          <h2>Your path</h2>
-          <button type="button" onClick={() => go('import')}>Import PGN</button>
+          <h2>{t('Your path')}</h2>
+          <button type="button" onClick={() => go('import')}>{t('Import PGN')}</button>
         </div>
         <button type="button" className="attacks-row" onClick={() => go('attacks')}>
           <span className="quick-icon" aria-hidden="true">⚔️</span>
-          <span><b>Attacks & Traps</b><br /><small>Every famous attack together with its defense</small></span>
+          <span><b>{t('Attacks & Traps')}</b><br /><small>{t('Every famous attack together with its defense')}</small></span>
           <span className="chevron" aria-hidden="true">▸</span>
         </button>
         <Finder chapters={chapterList} lines={rep.lines} onOpen={openAndScroll} />
@@ -153,17 +154,17 @@ export function Home({ rep, progress, puzzles, analyzer, player, trophies }: { r
           const dueHere = ch.lines.filter((l) => isDue(rep.srs.get(l.id), now)).length
           return (
             <Fragment key={ch.key}>
-            {newGroup && <h3 className="chapter-group">{ch.group}</h3>}
+            {newGroup && <h3 className="chapter-group">{t(ch.group)}</h3>}
             <div id={'ch-' + ch.key} className={`chapter ${isOpen ? 'open' : ''}`}>
               <button type="button" className="chapter-head" aria-expanded={isOpen} onClick={() => toggleChapter(ch.key)}>
                 <span className={`side-dot ${ch.side === 'b' ? 'black' : ch.side === 'w' ? 'white' : ''}`} aria-hidden="true" />
                 <span className="chapter-title">
-                  {ch.title}
-                  {ch.moves && <small className="chapter-moves">{ch.moves}</small>}
+                  {t(ch.title)}
+                  {ch.moves && <small className="chapter-moves">{t(ch.moves)}</small>}
                 </span>
                 <span className="chapter-count">
                   {played}/{ch.lines.length}
-                  {dueHere > 0 && <b className="chapter-due">{dueHere} due</b>}
+                  {dueHere > 0 && <b className="chapter-due">{dueHere} {t('due')}</b>}
                 </span>
                 <span className="chevron" aria-hidden="true">{isOpen ? '▾' : '▸'}</span>
               </button>
@@ -181,56 +182,56 @@ export function Home({ rep, progress, puzzles, analyzer, player, trophies }: { r
         })}
       </section>
 
-      <section className={`goal-card ${progress.goalReached ? 'reached' : ''}`} aria-label="Daily goal">
+      <section className={`goal-card ${progress.goalReached ? 'reached' : ''}`} aria-label={t('Daily goal')}>
         <div className="goal-head">
-          <div className="label">Daily goal{progress.goalReached ? ' · reached' : ''}</div>
-          <div className="stepper" aria-label="Lines per day">
-            <button type="button" aria-label="Fewer lines per day" disabled={goal.lines <= 1} onClick={() => progress.setGoal({ ...goal, lines: goal.lines - 1 })}>−</button>
-            <button type="button" aria-label="More lines per day" disabled={goal.lines >= 50} onClick={() => progress.setGoal({ ...goal, lines: goal.lines + 1 })}>+</button>
+          <div className="label">{t('Daily goal')}{progress.goalReached ? t(' · reached') : ''}</div>
+          <div className="stepper" aria-label={t('Lines per day')}>
+            <button type="button" aria-label={t('Fewer lines per day')} disabled={goal.lines <= 1} onClick={() => progress.setGoal({ ...goal, lines: goal.lines - 1 })}>−</button>
+            <button type="button" aria-label={t('More lines per day')} disabled={goal.lines >= 50} onClick={() => progress.setGoal({ ...goal, lines: goal.lines + 1 })}>+</button>
           </div>
         </div>
         <div className="goal-row">
-          <span>Opening lines</span>
+          <span>{t('Opening lines')}</span>
           <span className="count">{doneLines} / {goal.lines}</span>
         </div>
         <div className="bar"><span style={{ width: `${Math.min(1, doneLines / goal.lines) * 100}%` }} /></div>
         <div className="goal-row muted">
-          <span>Blunder puzzles</span>
-          <span className="count">{PUZZLES_AVAILABLE ? `${progress.today?.puzzles ?? 0} / ${goal.puzzles}` : 'coming in step 4'}</span>
+          <span>{t('Blunder puzzles')}</span>
+          <span className="count">{PUZZLES_AVAILABLE ? `${progress.today?.puzzles ?? 0} / ${goal.puzzles}` : t('coming in step 4')}</span>
         </div>
       </section>
 
       <section className="due-card">
-        <div className="label">Lines due</div>
+        <div className="label">{t('Lines due')}</div>
         <div className="big">{rep.ready ? due.length : '…'}</div>
         {due.length > 0 ? (
           <button type="button" className="primary wide" onClick={() => go('review')}>
-            Review now
+            {t('Review now')}
           </button>
         ) : (
           <p className="note">
             {fresh.length > 0
-              ? `Nothing due. ${fresh.length} new lines are waiting – learn one, then play it in a drill.`
+              ? t('Nothing due. {length} new lines are waiting – learn one, then play it in a drill.', { length: fresh.length })
               : upcoming !== undefined
-                ? `Nothing due. Next review ${upcoming <= 1 ? 'tomorrow' : `in ${upcoming} days`}.`
-                : 'Nothing due.'}
+                ? t('Nothing due. Next review {when}.', { when: upcoming <= 1 ? t('tomorrow') : t('in {days} days', { days: upcoming }) })
+                : t('Nothing due.')}
           </p>
         )}
       </section>
 
-      <section className="due-card" aria-label="Blunder puzzles">
-        <div className="label">Blunder puzzles · {player}</div>
+      <section className="due-card" aria-label={t('Blunder puzzles')}>
+        <div className="label">{t('Blunder puzzles ·')} {player}</div>
         <div className="puzzle-counts">
-          <div><span className="big">{puzzles.due.length}</span> due</div>
-          <div><span className="big">{puzzles.fresh.length}</span> new</div>
+          <div><span className="big">{puzzles.due.length}</span> {t('due')}</div>
+          <div><span className="big">{puzzles.fresh.length}</span> {t('new')}</div>
         </div>
         {puzzles.due.length + puzzles.fresh.length > 0 ? (
-          <button type="button" className="primary wide" onClick={() => go('puzzles')}>Solve puzzles</button>
+          <button type="button" className="primary wide" onClick={() => go('puzzles')}>{t('Solve puzzles')}</button>
         ) : (
-          <p className="note">{puzzles.puzzles.length ? 'Nothing due right now.' : `Puzzles come from your own mistakes. Analyse ${player}'s chess.com games to find them.`}</p>
+          <p className="note">{puzzles.puzzles.length ? t('Nothing due right now.') : t("Puzzles come from your own mistakes. Analyse {player}'s chess.com games to find them.", { player })}</p>
         )}
         <AnalysisStatus analyzer={analyzer} analyzedGames={puzzles.analyzedGames} />
-        <button type="button" className="link-btn" onClick={() => go('settings')}>Not {player}? Change the chess.com account</button>
+        <button type="button" className="link-btn" onClick={() => go('settings')}>{t('Not {player}? Change the chess.com account', { player })}</button>
       </section>
 
     </div>
@@ -246,15 +247,15 @@ function AnalysisStatus({ analyzer, analyzedGames }: { analyzer: AnalyzerState; 
       <div className="analysis-row">
         <span>
           {analyzer.status === 'loading'
-            ? 'Loading your games from chess.com …'
+            ? t('Loading your games from chess.com …')
             : total
-              ? `${done.toLocaleString('en-GB')} of ${total.toLocaleString('en-GB')} rapid & daily games analysed`
-              : `${analyzedGames.toLocaleString('en-GB')} games analysed`}
+              ? t('{0} of {1} rapid & daily games analysed', { 0: done.toLocaleString('en-GB'), 1: total.toLocaleString('en-GB') })
+              : t('{0} games analysed', { 0: analyzedGames.toLocaleString('en-GB') })}
         </span>
         {running ? (
-          <button type="button" onClick={pause}>Pause</button>
+          <button type="button" onClick={pause}>{t('Pause')}</button>
         ) : (
-          <button type="button" onClick={() => start()}>{analyzedGames ? 'Continue' : 'Analyse games'}</button>
+          <button type="button" onClick={() => start()}>{analyzedGames ? t('Continue') : t('Analyse games')}</button>
         )}
       </div>
       {total > 0 && (
@@ -262,14 +263,14 @@ function AnalysisStatus({ analyzer, analyzedGames }: { analyzer: AnalyzerState; 
       )}
       {analyzer.current && analyzer.status === 'running' && (
         <p className="note">
-          Now: vs {analyzer.current.opponent} ({analyzer.current.date}), position {analyzer.current.ply + 1} of {analyzer.current.plies}
-          {analyzer.found ? ` · ${analyzer.found} new puzzles this session` : ''}
+          {t('Now: vs {opponent} ({date}), position {ply} of {plies}', { opponent: analyzer.current.opponent, date: analyzer.current.date, ply: analyzer.current.ply + 1, plies: analyzer.current.plies })}
+          {analyzer.found ? t(' · {found} new puzzles this session', { found: analyzer.found }) : ''}
         </p>
       )}
-      {analyzer.status === 'done' && <p className="note good">All games analysed{analyzer.found ? ` · ${analyzer.found} new puzzles` : ''}.</p>}
-      {analyzer.status === 'paused' && <p className="note">Paused. Finished games are saved.</p>}
-      {analyzer.status === 'error' && <p className="note bad">Stopped: {analyzer.error}. Tap Continue to try again.</p>}
-      <p className="note small">Newest games first. Runs while the app is open; keep it in front on your phone.</p>
+      {analyzer.status === 'done' && <p className="note good">{t('All games analysed')}{analyzer.found ? t(' · {found} new puzzles', { found: analyzer.found }) : ''}.</p>}
+      {analyzer.status === 'paused' && <p className="note">{t('Paused. Finished games are saved.')}</p>}
+      {analyzer.status === 'error' && <p className="note bad">{t('Stopped: {error}. Tap Continue to try again.', { error: analyzer.error ?? '' })}</p>}
+      <p className="note small">{t('Newest games first. Runs while the app is open; keep it in front on your phone.')}</p>
     </div>
   )
 }
@@ -300,27 +301,27 @@ function PathStep({ line, i, rep, now, branch, open, onToggle }: { line: Line; i
         type="button"
         className={`path-node ${cls} ${r.due ? 'is-due' : ''} ${line.side === 'b' ? 'black' : ''}`}
         aria-expanded={open}
-        aria-label={line.title}
+        aria-label={t(line.title)}
         onClick={onToggle}
       >
         {r.kind === 'new' ? '★' : r.kind === 'perfect' ? '✓' : r.mistakes}
       </button>
-      <div className="path-label">{line.title}</div>
-      {branch && <div className="path-branch">differs at {branch}</div>}
+      <div className="path-label">{t(line.title)}</div>
+      {branch && <div className="path-branch">{t('differs at')} {branch}</div>}
       {r.kind !== 'new' && (
-        <div className={`path-result ${cls}`}>{r.kind === 'perfect' ? 'Perfect' : `${r.mistakes} ${r.mistakes === 1 ? 'mistake' : 'mistakes'}`}{r.due ? ' · practice again' : ''}</div>
+        <div className={`path-result ${cls}`}>{r.kind === 'perfect' ? t('Perfect') : r.mistakes === 1 ? t('1 mistake') : t('{n} mistakes', { n: r.mistakes })}{r.due ? t(' · practice again') : ''}</div>
       )}
       {open && (
         <div className="path-pop">
           <div className="meta">
-            <span className={`side side-${line.side}`}>{line.side === 'w' ? 'White' : 'Black'}</span>
-            <span>{Math.ceil(line.moves.length / 2)} moves</span>
+            <span className={`side side-${line.side}`}>{line.side === 'w' ? t('White') : t('Black')}</span>
+            <span>{Math.ceil(line.moves.length / 2)} {t('moves')}</span>
             <span className={`status ${cls}`}>{last}</span>
             {next && <span className={r.due ? 'status due' : ''}>{next}</span>}
           </div>
           <div className="row">
-            <button type="button" onClick={() => go('learn/' + line.id)}>Learn</button>
-            <button type="button" className="primary" onClick={() => go('drill/' + line.id)}>Play</button>
+            <button type="button" onClick={() => go('learn/' + line.id)}>{t('Learn')}</button>
+            <button type="button" className="primary" onClick={() => go('drill/' + line.id)}>{t('Play')}</button>
           </div>
         </div>
       )}
@@ -332,16 +333,16 @@ function GuideCard({ guide }: { guide?: Guide }) {
   if (!guide) return null
   return (
     <div className="guide-card">
-      <span className={`style-chip ${guide.style.toLowerCase()}`}>{guide.style}</span>
-      <p>{guide.about}</p>
+      <span className={`style-chip ${guide.style.toLowerCase()}`}>{t(guide.style)}</span>
+      <p>{t(guide.about)}</p>
       <ul>
         {guide.ideas.map((i) => (
-          <li key={i}>{i}</li>
+          <li key={i}>{t(i)}</li>
         ))}
       </ul>
       {guide.fact && (
         <p className="fun-fact">
-          <b>Fun fact:</b> {guide.fact}
+          <b>{t('Fun fact:')}</b> {t(guide.fact)}
         </p>
       )}
     </div>
@@ -361,7 +362,7 @@ const WHITE_ANSWERS: { label: string; keys: string[] }[] = [
 const BLACK_ANSWERS: { label: string; keys: string[] }[] = [
   { label: '1.e4', keys: ['Scandinavian|b', 'Caro-Kann|b', 'Sicilian Dragon|b', "Sicilian: White's other tries|b", 'Italian Game|b', 'Two Knights Defense|b', 'Philidor Defense|b', 'Ruy Lopez|b'] },
   { label: '1.d4', keys: ["Queen's Gambit Declined|b", 'London & 2.Nf3|b'] },
-  { label: '1.c4 · 1.Nf3 · other', keys: ['Other first moves|b'] },
+  { label: t('1.c4 · 1.Nf3 · other'), keys: ['Other first moves|b'] },
 ]
 
 function Finder({ chapters, lines, onOpen }: { chapters: Chapter[]; lines: Line[]; onOpen: (keys: string[]) => void }) {
@@ -370,34 +371,34 @@ function Finder({ chapters, lines, onOpen }: { chapters: Chapter[]; lines: Line[
   const known = new Set(chapters.map((c) => c.key))
   const answers = (side === 'w' ? WHITE_ANSWERS : BLACK_ANSWERS).map((a) => ({ ...a, keys: a.keys.filter((k) => known.has(k)) })).filter((a) => a.keys.length)
   const query = q.trim().toLowerCase()
-  const hits = query.length < 2 ? [] : lines.filter((l) => `${l.title} ${l.opening ?? ''}`.toLowerCase().includes(query)).slice(0, 8)
+  const hits = query.length < 2 ? [] : lines.filter((l) => `${l.title} ${l.opening ?? ''} ${t(l.title)} ${t(l.opening ?? '')}`.toLowerCase().includes(query)).slice(0, 8)
   return (
     <div className="finder">
-      <div className="label">Find your answer</div>
-      <div className="seg two" role="group" aria-label="My color">
-        <button type="button" className={side === 'w' ? 'on' : ''} onClick={() => setSide('w')}>I play White</button>
-        <button type="button" className={side === 'b' ? 'on' : ''} onClick={() => setSide('b')}>I play Black</button>
+      <div className="label">{t('Find your answer')}</div>
+      <div className="seg two" role="group" aria-label={t('My color')}>
+        <button type="button" className={side === 'w' ? 'on' : ''} onClick={() => setSide('w')}>{t('I play White')}</button>
+        <button type="button" className={side === 'b' ? 'on' : ''} onClick={() => setSide('b')}>{t('I play Black')}</button>
       </div>
-      <div className="note small">{side === 'w' ? 'Black answers 1.e4 with …' : 'White starts with …'}</div>
+      <div className="note small">{side === 'w' ? t('Black answers 1.e4 with …') : t('White starts with …')}</div>
       <div className="finder-chips">
         {answers.map((a) => (
-          <button key={a.label} type="button" onClick={() => onOpen(a.keys)}>{a.label}</button>
+          <button key={a.label} type="button" onClick={() => onOpen(a.keys)}>{notation(a.label)}</button>
         ))}
       </div>
-      <input className="finder-search" type="search" placeholder="Search: Dragon, Fried Liver, trap, gambit …" value={q} onChange={(e) => setQ(e.target.value)} />
+      <input className="finder-search" type="search" placeholder={t('Search: Dragon, Fried Liver, trap, gambit …')} value={q} onChange={(e) => setQ(e.target.value)} />
       {hits.length > 0 && (
         <ul className="finder-hits">
           {hits.map((l) => (
             <li key={l.id}>
               <span className={`side-dot ${l.side === 'b' ? 'black' : 'white'}`} aria-hidden="true" />
-              <span className="hit-title">{l.title}</span>
-              <button type="button" onClick={() => go('learn/' + l.id)}>Learn</button>
-              <button type="button" className="primary" onClick={() => go('drill/' + l.id)}>Play</button>
+              <span className="hit-title">{t(l.title)}</span>
+              <button type="button" onClick={() => go('learn/' + l.id)}>{t('Learn')}</button>
+              <button type="button" className="primary" onClick={() => go('drill/' + l.id)}>{t('Play')}</button>
             </li>
           ))}
         </ul>
       )}
-      {query.length >= 2 && !hits.length && <p className="note small">Nothing found for “{q}”.</p>}
+      {query.length >= 2 && !hits.length && <p className="note small">{t('Nothing found for “{q}”.', { q })}</p>}
     </div>
   )
 }

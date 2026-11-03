@@ -3,6 +3,7 @@ import { Mascot } from '../components/Mascot'
 import { reset as resetAnalyzer } from '../lib/analyzer'
 import { findPlayer, setPlayer } from '../lib/chesscom'
 import { cleanName, MAX_NAME, setName } from '../lib/profile'
+import { lang, setLang, t } from '../lib/i18n'
 
 // Asked once per phone: the name others see when they watch, and optionally the chess.com account
 export function Welcome({ player, hasPlayer, onDone }: { player: string; hasPlayer: boolean; onDone: (player: string) => void }) {
@@ -42,22 +43,27 @@ export function Welcome({ player, hasPlayer, onDone }: { player: string; hasPlay
     <div className="screen">
       <div className="screen-head">
         <div>
-          <div className="eyebrow">Welcome</div>
-          <h2>Who are you?</h2>
+          <div className="eyebrow">{t('Welcome')}</div>
+          <h2>{t('Who are you?')}</h2>
         </div>
       </div>
       <div className="greet">
         <Mascot mood="happy" />
-        Hi, I'm Hoppy! Tell me your name – friends see it when they watch you play.
+        {t("Hi, I'm Hoppy! Tell me your name – friends see it when they watch you play.")}
       </div>
       <div className="form">
-        <label className="label" htmlFor="profile-name">Your name</label>
-        <input id="profile-name" type="text" value={name} maxLength={MAX_NAME} onChange={(e) => setNameText(e.target.value)} placeholder="e.g. Lu" autoComplete="nickname" />
-        <label className="label" htmlFor="profile-chesscom">Chess.com username (optional)</label>
-        <input id="profile-chesscom" type="text" value={account} onChange={(e) => { setAccount(e.target.value); setMsg(null) }} placeholder="leave empty if you have none" autoCapitalize="off" autoCorrect="off" spellCheck={false} />
-        <p className="note small">Your puzzles come from these chess.com games. You can change both later in Settings.</p>
+        <div className="label">{t('Language')}</div>
+        <div className="seg two" role="group" aria-label={t('Language')}>
+          <button type="button" className={lang === 'en' ? 'on' : ''} onClick={() => setLang('en')}>English</button>
+          <button type="button" className={lang === 'es' ? 'on' : ''} onClick={() => setLang('es')}>Español</button>
+        </div>
+        <label className="label" htmlFor="profile-name">{t('Your name')}</label>
+        <input id="profile-name" type="text" value={name} maxLength={MAX_NAME} onChange={(e) => setNameText(e.target.value)} placeholder={t('e.g. Lu')} autoComplete="nickname" />
+        <label className="label" htmlFor="profile-chesscom">{t('Chess.com username (optional)')}</label>
+        <input id="profile-chesscom" type="text" value={account} onChange={(e) => { setAccount(e.target.value); setMsg(null) }} placeholder={t('leave empty if you have none')} autoCapitalize="off" autoCorrect="off" spellCheck={false} />
+        <p className="note small">{t('Your puzzles come from these chess.com games. You can change both later in Settings.')}</p>
         {msg && <p className="bad" role="status">{msg}</p>}
-        <button type="button" className="primary wide" disabled={!cleanName(name) || busy} onClick={start}>{busy ? 'Checking chess.com …' : "Let's go"}</button>
+        <button type="button" className="primary wide" disabled={!cleanName(name) || busy} onClick={start}>{busy ? t('Checking chess.com …') : t("Let's go")}</button>
       </div>
     </div>
   )

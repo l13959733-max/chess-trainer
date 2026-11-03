@@ -2,9 +2,9 @@
 // what the opponent's answer does (fork, free piece, pin, skewer, check, mate) and what material changes hands.
 import { Chess, type Move, type Square } from 'chess.js'
 import type { Score } from './blunders'
+import { ending, notation, piece, sideName, t } from './i18n'
 
 const VALUE: Record<string, number> = { p: 1, n: 3, b: 3, r: 5, q: 9, k: 100 }
-const NAME: Record<string, string> = { p: 'pawn', n: 'knight', b: 'bishop', r: 'rook', q: 'queen', k: 'king' }
 const LINE_PLIES = 6
 
 export interface LineStep {
@@ -54,12 +54,12 @@ function materialSwing(line: LineStep[], me: 'w' | 'b'): { net: number; lost: st
 }
 
 function pieceList(types: string[]): string {
-  const names = types.map((t) => `a ${NAME[t]}`)
-  return names.length <= 1 ? names.join('') : names.slice(0, -1).join(', ') + ' and ' + names.at(-1)
+  const names = types.map((type) => piece(type, 'a'))
+  return names.length <= 1 ? names.join('') : t('{a} and {b}', { a: names.slice(0, -1).join(', '), b: names.at(-1)! })
 }
 
 function pawns(n: number): string {
-  return n === 1 ? 'a pawn' : `${n} pawns`
+  return n === 1 ? t('a pawn') : t('{n} pawns', { n })
 }
 
 // Squares between two squares on a straight line, in order from `a` (exclusive) towards `b`
@@ -94,12 +94,12 @@ function motifs(fenAfter: string, to: string, me: 'w' | 'b'): string[] {
   for (const row of c.board()) for (const p of row) {
     if (!p || p.color !== me) continue
     if (!c.attackers(p.square, mover.color).includes(to as Square)) continue
-    if (p.type === 'k' || VALUE[p.type] > VALUE[mover.type] || !defended(p.square)) targets.push(`your ${NAME[p.type]} on ${p.square}`)
+    if (p.type === 'k' || VALUE[p.type] > VALUE[mover.type] || !defended(p.square)) targets.push(t('your {piece} on {sq}', { piece: piece(p.type), sq: p.square }))
   }
-  if (targets.length >= 2) out.push(`It attacks ${targets.slice(0, -1).join(', ')} and ${targets.at(-1)} at the same time – a fork. You can't save both.`)
+  if (targets.length >= 2) out.push(t("It attacks {list} and {last} at the same time – a fork. You can't save both.", { list: targets.slice(0, -1).join(', '), last: targets.at(-1)! }))
 
   // A single attack on a piece that is unprotected or worth more than the attacker
-  if (targets.length === 1 && !out.length) out.push(`It attacks ${targets[0]}.`)
+  if (targets.length === 1 && !out.length) out.push(t('It attacks {target}.', { target: targets[0] }))
 
   // Pin / skewer along the moved piece's lines
   for (const [dx, dy] of DIRS[mover.type] ?? []) {
@@ -108,9 +108,10 @@ function motifs(fenAfter: string, to: string, me: 'w' | 'b'): string[] {
     if (pieces.length < 2) continue
     const [first, second] = pieces
     if (first.p!.color !== me || second.p!.color !== me) continue
-    if (second.p!.type === 'k') out.push(`It pins your ${NAME[first.p!.type]} on ${first.sq} to your king: the ${NAME[first.p!.type]} can't move away.`)
-    else if (first.p!.type === 'k' || VALUE[first.p!.type] > VALUE[second.p!.type]) out.push(`It attacks your ${NAME[first.p!.type]} on ${first.sq}, and when it moves, your ${NAME[second.p!.type]} on ${second.sq} behind it is lost – a skewer.`)
-    else if (VALUE[second.p!.type] > VALUE[first.p!.type] && VALUE[second.p!.type] > VALUE[mover.type]) out.push(`It pins your ${NAME[first.p!.type]} on ${first.sq}: if it moves, your ${NAME[second.p!.type]} on ${second.sq} is lost.`)
+    const front = { piece: piece(first.p!.type), the: piece(first.p!.type, 'the'), sq: first.sq, back: piece(second.p!.type), sq2: second.sq }
+    if (second.p!.type === 'k') out.push(t("It pins your {piece} on {sq} to your king: the {piece} can't move away.", front))
+    else if (first.p!.type === 'k' || VALUE[first.p!.type] > VALUE[second.p!.type]) out.push(t('It attacks your {piece} on {sq}, and when it moves, your {back} on {sq2} behind it is lost – a skewer.', front))
+    else if (VALUE[second.p!.type] > VALUE[first.p!.type] && VALUE[second.p!.type] > VALUE[mover.type]) out.push(t('It pins your {piece} on {sq}: if it moves, your {back} on {sq2} is lost.', front))
   }
   return out
 }
@@ -132,13 +133,13 @@ function trapped(fen: string, me: 'w' | 'b'): string | null {
       const after = new Chess(m.after)
       return after.attackers(m.to as Square, opp).length === 0
     })
-    if (!escapes.length) return `Your ${NAME[p.type]} on ${p.square} is attacked and has no safe square left – it is trapped.`
+    if (!escapes.length) return t('Your {piece} on {sq} is attacked and has no safe square left – it is trapped.', { piece: piece(p.type), sq: p.square, o: ending(p.type) })
   }
   return null
 }
 
 function lineText(line: LineStep[], max = 4): string {
-  return line.slice(0, max).map((s) => s.san).join(' ')
+  return line.slice(0, max).map((s) => notation(s.san)).join(' ')
 }
 
 // Why the move from the game was a mistake. `refutation` = engine line after it (opponent to move).
@@ -146,12 +147,14 @@ export function explainMistake(fen: string, played: string, refutation: { score:
   const me = new Chess(fen).turn()
   const line = playLine(fen, [played, ...refutation.pv], LINE_PLIES + 1)
   const sentences: string[] = []
-  if (line.length < 2) return { sentences: [`After ${played} the engine finds a strong answer for your opponent.`], line }
+  if (line.length < 2) return { sentences: [t('After {move} the engine finds a strong answer for your opponent.', { move: notation(played) })], line }
   const reply = line[1]
-  const opp = me === 'w' ? 'Black' : 'White'
+  const oppColor = me === 'w' ? 'b' : 'w'
+  const opp = sideName(oppColor)
+  const Opp = sideName(oppColor, true)
 
   if ('mate' in refutation.score && refutation.score.mate > 0) {
-    sentences.push(`After ${played}, ${opp} can force checkmate in ${refutation.score.mate}: ${lineText(line.slice(1, 1 + refutation.score.mate * 2))}.`)
+    sentences.push(t('After {move}, {opp} can force checkmate in {n}: {line}.', { move: notation(played), opp, n: refutation.score.mate, line: lineText(line.slice(1, 1 + refutation.score.mate * 2)) }))
     return { sentences, line }
   }
 
@@ -160,29 +163,29 @@ export function explainMistake(fen: string, played: string, refutation: { score:
   // A trade = my recapture on the same square takes back about the same value
   const back = line[2] && line[2].to === reply.to ? new Chess(line[2].fenBefore).get(reply.to as Square) : null
   const recapture = !!(answer.captured && back && Math.abs(VALUE[back.type] - VALUE[answer.captured]) <= 1)
-  const check = answer.san.includes('+') ? ' with check' : ''
+  const check = answer.san.includes('+') ? t(' with check') : ''
   if (answer.captured && recapture) {
-    sentences.push(`${opp} trades with ${reply.san}${check}, ${line[2].san}.`)
+    sentences.push(t('{Opp} trades with {move}{check}, {back}.', { Opp, move: notation(reply.san), check, back: notation(line[2].san) }))
   } else if (answer.captured) {
     const unprotected = before.attackers(reply.to as Square, me).length === 0
-    sentences.push(`${opp} answers ${reply.san}${check} and takes your ${NAME[answer.captured]} on ${reply.to}${unprotected ? ' – after your move it was not protected any more' : ''}.`)
+    sentences.push(t('{Opp} answers {move}{check} and takes your {piece} on {sq}{unprotected}.', { Opp, move: notation(reply.san), check, piece: piece(answer.captured), the: piece(answer.captured, 'the'), sq: reply.to, unprotected: unprotected ? t(' – after your move it was not protected any more', { o: ending(answer.captured) }) : '' }))
   } else {
-    sentences.push(`${opp} answers ${reply.san}${check}.`)
+    sentences.push(t('{Opp} answers {move}{check}.', { Opp, move: notation(reply.san), check }))
   }
 
   // What the answer does; if nothing obvious, the first opponent move later in the line that does something
   let found = motifs(reply.fenAfter, reply.to, me)
   for (let i = 3; !found.length && i < line.length; i += 2) {
     const m = motifs(line[i].fenAfter, line[i].to, me)
-    if (m.length) found = [`Then ${line[i].san}: ${m[0][0].toLowerCase()}${m[0].slice(1)}`, ...m.slice(1)]
+    if (m.length) found = [t('Then {move}: {what}', { move: notation(line[i].san), what: m[0][0].toLowerCase() + m[0].slice(1) }), ...m.slice(1)]
   }
   sentences.push(...found.slice(0, 2))
   const trap = trapped(reply.fenAfter, me)
   if (trap) sentences.push(trap)
 
   const { net } = materialSwing(line, me)
-  if (net <= -1) sentences.push(`Play it through: after ${lineText(line.slice(1))} you are ${pawns(-net)} down in material.`)
-  else sentences.push(`After ${lineText(line.slice(1))} ${opp} has the better position.`)
+  if (net <= -1) sentences.push(t('Play it through: after {line} you are {pawns} down in material.', { line: lineText(line.slice(1)), pawns: pawns(-net) }))
+  else sentences.push(t('After {line} {opp} has the better position.', { line: lineText(line.slice(1)), opp }))
   return { sentences, line }
 }
 
@@ -195,7 +198,7 @@ export function explainBest(fen: string, pv: string[], score: Score): Explanatio
   const sentences: string[] = []
 
   if ('mate' in score && score.mate > 0) {
-    sentences.push(`${best.san} leads to checkmate in ${score.mate}: ${lineText(line.slice(0, score.mate * 2 - 1))}.`)
+    sentences.push(t('{move} leads to checkmate in {n}: {line}.', { move: notation(best.san), n: score.mate, line: lineText(line.slice(0, score.mate * 2 - 1)) }))
     return { sentences, line }
   }
 
@@ -207,15 +210,15 @@ export function explainBest(fen: string, pv: string[], score: Score): Explanatio
   const attackers = start.attackers(best.from as Square, me === 'w' ? 'b' : 'w')
   const cheapest = Math.min(...attackers.map((sq) => VALUE[start.get(sq)!.type]))
   const inDanger = attackers.length > 0 && (start.attackers(best.from as Square, me).length === 0 || cheapest < VALUE[mover.type])
-  if (mv.captured) sentences.push(`${best.san} takes the ${NAME[mv.captured]} on ${best.to}.`)
-  else if (inDanger && mover.type !== 'k') sentences.push(`${best.san} brings your ${NAME[mover.type]} on ${best.from} out of danger.`)
-  if (mv.san.includes('+')) sentences.push(`It also gives check, so your opponent has to answer that first.`)
+  if (mv.captured) sentences.push(t('{move} takes {the} on {sq}.', { move: notation(best.san), the: piece(mv.captured, 'the'), sq: best.to }))
+  else if (inDanger && mover.type !== 'k') sentences.push(t('{move} brings your {piece} on {sq} out of danger.', { move: notation(best.san), piece: piece(mover.type), sq: best.from }))
+  if (mv.san.includes('+')) sentences.push(t('It also gives check, so your opponent has to answer that first.'))
 
   const { net, won } = materialSwing(line, me)
   const cp = 'cp' in score ? score.cp : 0
-  const verdict = cp > 150 ? 'keeps your advantage' : cp < -150 ? 'is the best defence in a difficult position' : 'keeps the game balanced'
-  if (net >= 1) sentences.push(`After ${lineText(line)} you win ${won.length ? pieceList(won) : 'material'} – ${pawns(net)} up.`)
-  else if (!sentences.length) sentences.push(`${best.san} keeps your pieces safe and ${verdict}: ${lineText(line)}.`)
-  else sentences.push(`A likely continuation: ${lineText(line)}.`)
+  const verdict = cp > 150 ? t('keeps your advantage') : cp < -150 ? t('is the best defence in a difficult position') : t('keeps the game balanced')
+  if (net >= 1) sentences.push(t('After {line} you win {what} – {pawns} up.', { line: lineText(line), what: won.length ? pieceList(won) : t('material'), pawns: pawns(net) }))
+  else if (!sentences.length) sentences.push(t('{move} keeps your pieces safe and {verdict}: {line}.', { move: notation(best.san), verdict, line: lineText(line) }))
+  else sentences.push(t('A likely continuation: {line}.', { line: lineText(line) }))
   return { sentences, line }
 }

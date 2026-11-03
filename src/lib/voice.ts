@@ -2,6 +2,7 @@
 // reads everything. The cloned-voice path below stays switchable via CLONE_VOICE: clips saved on this
 // device, then the voice changer on the Mac (XTTS, via the tunnel), the phone's voice as fallback.
 import { getClip, getClipKeys, getVoiceSettings, putClip, putVoiceSettings, type VoiceSettings } from './db'
+import { lang } from './i18n'
 import { pickVoice } from './voicePick'
 
 export type VoiceSource = 'clone' | 'phone'
@@ -183,8 +184,8 @@ function speakPhone(text: string): Promise<void> {
     if (!synth) return resolve()
     synth.cancel()
     const u = new SpeechSynthesisUtterance(text)
-    u.lang = 'en-US'
-    const nice = pickVoice(synth.getVoices())
+    u.lang = lang === 'es' ? 'es-ES' : 'en-US'
+    const nice = pickVoice(synth.getVoices(), lang)
     if (nice) u.voice = nice
     u.onend = () => resolve()
     u.onerror = () => resolve()

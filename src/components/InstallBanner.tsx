@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { canPrompt, isInstalled, isIos, isPhone, onInstallChange, promptInstall } from '../lib/install'
 import { Mascot } from './Mascot'
+import { t } from '../lib/i18n'
 
 const KEY = 'chess-trainer-install-later'
 const LATER_DAYS = 7
@@ -49,19 +50,19 @@ export function InstallBanner() {
 
   if (isIos()) {
     return (
-      <section className="install-banner ios" role="region" aria-label="Add to Home Screen">
+      <section className="install-banner ios" role="region" aria-label={t('Add to Home Screen')}>
         <div className="install-head">
           <Mascot mood="happy" className="install-icon" />
           <div className="install-text">
-            <b>Get the app: 3 taps</b>
-            <span>Full screen, Hoppy on your home screen.</span>
+            <b>{t('Get the app: 3 taps')}</b>
+            <span>{t('Full screen, Hoppy on your home screen.')}</span>
           </div>
-          <button type="button" className="install-later" onClick={later}>Later</button>
+          <button type="button" className="install-later" onClick={later}>{t('Later')}</button>
         </div>
         <ol className="ios-steps">
-          <li><span className="step-no">1</span><span>Tap <b>Share</b> <ShareIcon /> <small>(Safari: at the bottom – if you only see <b>⋯</b>, tap that first)</small></span></li>
-          <li><span className="step-no">2</span><span>Scroll down, tap <b>Add to Home Screen</b> <AddIcon /></span></li>
-          <li><span className="step-no">3</span><span>Tap <b>Add</b> at the top right. Done!</span></li>
+          <li><span className="step-no">1</span><span>{t('Tap')} <b>{t('Share')}</b> <ShareIcon /> <small>{t('(Safari: at the bottom – if you only see')} <b>⋯</b>{t(', tap that first)')}</small></span></li>
+          <li><span className="step-no">2</span><span>{t('Scroll down, tap')} <b>{t('Add to Home Screen')}</b> <AddIcon /></span></li>
+          <li><span className="step-no">3</span><span>{t('Tap')} <b>{t('Add')}</b> {t('at the top right. Done!')}</span></li>
         </ol>
       </section>
     )
@@ -73,20 +74,20 @@ export function InstallBanner() {
   }
 
   return (
-    <section className="install-banner" role="region" aria-label="Install as app">
+    <section className="install-banner" role="region" aria-label={t('Install as app')}>
       <div className="install-head">
         <Mascot mood="happy" className="install-icon" />
         <div className="install-text">
-          <b>Install as app</b>
+          <b>{t('Install as app')}</b>
           {help ? (
-            <span>Tap the menu <b>⋮</b> at the top right, then <b>“Install app”</b> or <b>“Add to Home screen”</b>.</span>
+            <span>{t('Tap the menu')} <b>⋮</b> {t('at the top right, then')} <b>{t('“Install app”')}</b> {t('or')} <b>{t('“Add to Home screen”')}</b>.</span>
           ) : (
-            <span>Full screen, Hoppy on your home screen.</span>
+            <span>{t('Full screen, Hoppy on your home screen.')}</span>
           )}
         </div>
         <div className="install-actions">
-          {!help && <button type="button" className="primary" onClick={install}>OK</button>}
-          <button type="button" className="install-later" onClick={later}>{help ? 'Done' : 'Later'}</button>
+          {!help && <button type="button" className="primary" onClick={install}>{t('OK')}</button>}
+          <button type="button" className="install-later" onClick={later}>{help ? t('Done') : t('Later')}</button>
         </div>
       </div>
     </section>

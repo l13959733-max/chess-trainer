@@ -2,6 +2,7 @@ import { useEffect } from 'react'
 import { Mascot } from '../components/Mascot'
 import { go } from '../hooks/useHashRoute'
 import type { Achievements } from '../hooks/useAchievements'
+import { t } from '../lib/i18n'
 
 export function Trophies({ achievements }: { achievements: Achievements }) {
   const { list, fresh, markSeen } = achievements
@@ -17,15 +18,15 @@ export function Trophies({ achievements }: { achievements: Achievements }) {
   return (
     <div className="screen">
       <div className="screen-head">
-        <button type="button" className="back" onClick={() => go('')} aria-label="Back to overview">←</button>
+        <button type="button" className="back" onClick={() => go('')} aria-label={t('Back to overview')}>←</button>
         <div>
-          <div className="eyebrow">{earned} of {list.length} collected</div>
-          <h2>Trophies</h2>
+          <div className="eyebrow">{earned} {t('of')} {list.length} {t('collected')}</div>
+          <h2>{t('Trophies')}</h2>
         </div>
       </div>
       <div className="greet">
         <Mascot mood={fresh.length ? 'cheer' : 'happy'} />
-        {fresh.length ? `Wow, ${fresh.length === 1 ? 'a new trophy' : `${fresh.length} new trophies`}! Keep going!` : 'Collect them all! Every lesson, puzzle and game brings you closer.'}
+        {fresh.length ? fresh.length === 1 ? t('Wow, a new trophy! Keep going!') : t('Wow, {n} new trophies! Keep going!', { n: fresh.length }) : t('Collect them all! Every lesson, puzzle and game brings you closer.')}
       </div>
       <div className="trophies">
         {sorted.map((a) => (
@@ -39,7 +40,7 @@ export function Trophies({ achievements }: { achievements: Achievements }) {
                 <div className="trophy-desc">{a.value} / {a.goal}</div>
               </>
             )}
-            {newIds.has(a.id) && <div className="new-tag">NEW</div>}
+            {newIds.has(a.id) && <div className="new-tag">{t('NEW')}</div>}
           </div>
         ))}
       </div>

@@ -10,7 +10,7 @@ export interface Chapter {
 }
 
 // The overview, in order: section → chapters. `opening` is the [Opening "…"] header of the lines.
-const LAYOUT: { group: string; side: Side; chapters: { opening: string; title?: string; moves: string }[] }[] = [
+export const LAYOUT: { group: string; side: Side; chapters: { opening: string; title?: string; moves: string }[] }[] = [
   {
     group: 'White · 1.e4 e5',
     side: 'w',

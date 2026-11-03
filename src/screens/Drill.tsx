@@ -12,6 +12,7 @@ import { daysUntil, type SrsState } from '../lib/srs'
 import { go } from '../hooks/useHashRoute'
 import type { Reward } from '../hooks/useProgress'
 import { moveLabel } from './Learn'
+import { t, notation } from '../lib/i18n'
 
 type Feedback =
   | { kind: 'wrong'; tried: { from: string; to: string }; expected: LineMove; ply: number }
@@ -111,25 +112,25 @@ export function Drill({ line, onDone, after, progress }: Props) {
   return (
     <div className="screen">
       <div className="screen-head">
-        <button type="button" className="back" onClick={() => go('')} aria-label="Back to overview">←</button>
+        <button type="button" className="back" onClick={() => go('')} aria-label={t('Back to overview')}>←</button>
         <div>
-          <div className="eyebrow">Drill · {line.side === 'w' ? 'White' : 'Black'}{progress ? ` · ${progress}` : ''}</div>
-          <h2>{line.title}</h2>
+          <div className="eyebrow">{t('Drill ·')} {line.side === 'w' ? t('White') : t('Black')}{progress ? ` · ${progress}` : ''}</div>
+          <h2>{t(line.title)}</h2>
         </div>
       </div>
 
       <Board fen={boardFen} orientation={line.side === 'w' ? 'white' : 'black'} onMove={finished ? undefined : onMove} arrows={finished ? [] : arrows} squareStyles={boardStyles} />
 
       <div className="drill-status">
-        <span>{finished ? 'Line complete' : myTurn ? 'Your move' : 'Opponent is moving …'}</span>
-        <span className={mistakes ? 'bad' : 'good'}>{mistakes === 1 ? '1 mistake' : `${mistakes} mistakes`}</span>
+        <span>{finished ? t('Line complete') : myTurn ? t('Your move') : t('Opponent is moving …')}</span>
+        <span className={mistakes ? 'bad' : 'good'}>{mistakes === 1 ? t('1 mistake') : t('{n} mistakes', { n: mistakes })}</span>
       </div>
 
       {feedback?.kind === 'wrong' && feedback.ply === ply && (
         <div className="explain wrong" role="alert">
           <Mascot mood="oops" />
-          <div className="move">The right move is {feedback.expected.san}</div>
-          <p>{feedback.expected.comment ?? 'Play the green arrow to continue.'}</p>
+          <div className="move">{t('The right move is')} {notation(feedback.expected.san)}</div>
+          <p>{feedback.expected.comment ? t(feedback.expected.comment) : t('Play the green arrow to continue.')}</p>
           <SpeakButton text={explanationText(feedback.expected.san, feedback.expected.comment, 'The right move is')} />
         </div>
       )}
@@ -137,7 +138,7 @@ export function Drill({ line, onDone, after, progress }: Props) {
         <div className="explain">
           <Mascot mood="happy" />
           <div className={`move ${feedback.move.color === line.side ? 'mine' : ''}`}>{moveLabel(line, feedback.ply)}</div>
-          <p>{feedback.move.comment}</p>
+          <p>{t(feedback.move.comment ?? '')}</p>
           <SpeakButton text={explanationText(feedback.move.san, feedback.move.comment)} />
         </div>
       )}
@@ -145,24 +146,24 @@ export function Drill({ line, onDone, after, progress }: Props) {
       {finished && (
         <div className="done">
           <Mascot mood="cheer" />
-          <div className="done-title">{mistakes === 0 ? 'Perfect!' : mistakes === 1 ? 'Well done!' : 'You did it!'}</div>
+          <div className="done-title">{mistakes === 0 ? t('Perfect!') : mistakes === 1 ? t('Well done!') : t('You did it!')}</div>
           {reward && <Celebrate reward={reward} />}
-          {nextDays !== null && <p>Next review: {nextDays <= 1 ? 'tomorrow' : `in ${nextDays} days`}</p>}
+          {nextDays !== null && <p>{t('Next review:')} {nextDays <= 1 ? t('tomorrow') : t('in {nextDays} days', { nextDays })}</p>}
           <div className="done-actions">{after(restart)}</div>
         </div>
       )}
 
       {finished && (
         <section className="review-card">
-          <div className="label">Look back through the line</div>
-          <div className="nav-row" role="group" aria-label="Look through the line">
-            <button type="button" aria-label="Start position" onClick={() => setReview(0)}>⏮</button>
-            <button type="button" aria-label="Previous move" disabled={review === 0} onClick={() => setReview((review ?? line.moves.length) - 1)}>◀</button>
-            <span className="nav-pos">{review === null ? 'End of the line' : review === 0 ? 'Start' : `Move ${review} of ${line.moves.length}`}</span>
-            <button type="button" aria-label="Next move" disabled={review === null} onClick={() => setReview(review! + 1 >= line.moves.length ? null : review! + 1)}>▶</button>
-            <button type="button" aria-label="End of the line" disabled={review === null} onClick={() => setReview(null)}>⏭</button>
+          <div className="label">{t('Look back through the line')}</div>
+          <div className="nav-row" role="group" aria-label={t('Look through the line')}>
+            <button type="button" aria-label={t('Start position')} onClick={() => setReview(0)}>⏮</button>
+            <button type="button" aria-label={t('Previous move')} disabled={review === 0} onClick={() => setReview((review ?? line.moves.length) - 1)}>◀</button>
+            <span className="nav-pos">{review === null ? t('End of the line') : review === 0 ? t('Start position') : t('Move {review} of {length}', { review, length: line.moves.length })}</span>
+            <button type="button" aria-label={t('Next move')} disabled={review === null} onClick={() => setReview(review! + 1 >= line.moves.length ? null : review! + 1)}>▶</button>
+            <button type="button" aria-label={t('End of the line')} disabled={review === null} onClick={() => setReview(null)}>⏭</button>
           </div>
-          <ol className="movelist" aria-label="Moves of the line">
+          <ol className="movelist" aria-label={t('Moves of the line')}>
             {line.moves.map((m, i) => (
               <li key={i}>
                 <button
@@ -177,10 +178,10 @@ export function Drill({ line, onDone, after, progress }: Props) {
           </ol>
           {shown?.comment && (
             <p>
-              <b>{moveLabel(line, review! - 1)}</b> {shown.comment}
+              <b>{moveLabel(line, review! - 1)}</b> {t(shown.comment)}
             </p>
           )}
-          <p className="note small">Green = you played it right. Red = you needed a second try.</p>
+          <p className="note small">{t('Green = you played it right. Red = you needed a second try.')}</p>
         </section>
       )}
     </div>
