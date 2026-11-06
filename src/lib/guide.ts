@@ -61,6 +61,12 @@ export const GUIDE: Record<string, Guide> = {
     style: 'Solid',
     fact: 'One of the oldest openings of all: it is already in Lucena\'s chess book from 1497.',
   },
+  'Trompowsky|w': {
+    about: 'After 1.d4 Nf6 your bishop jumps to g5 at once. Black has to react right away, and many natural moves are already mistakes.',
+    ideas: ['If the knight comes to e4: Bf4, then f3 kicks it', 'Bxf6 doubles Black\'s pawns', 'Against ...c5: push d5 and grab space'],
+    style: 'Active',
+    fact: 'Named after the Brazilian master Octávio Trompowsky, who played it in the 1930s and 1940s.',
+  },
   'Scandinavian|w': {
     about: 'Black attacks e4 at once with 1...d5. Take the pawn and chase the queen with your pieces.',
     ideas: ['2.exd5 is the best answer', 'Nc3 hits the queen – you develop with tempo', 'Kick a bishop on f5 or g4 with pawns'],

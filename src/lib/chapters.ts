@@ -38,6 +38,11 @@ const LAYOUT: { group: string; side: Side; chapters: { opening: string; title?: 
     ],
   },
   {
+    group: 'White · 1.d4',
+    side: 'w',
+    chapters: [{ opening: 'Trompowsky', title: 'Trompowsky Attack', moves: '1.d4 Nf6 2.Bg5 · lines, attacks and traps' }],
+  },
+  {
     group: 'Black · against 1.e4',
     side: 'b',
     chapters: [

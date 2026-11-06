@@ -1,0 +1,110 @@
+[Event "Trompowsky: 2...Ne4 3.Bf4 c5 4.f3"]
+[Opening "Trompowsky"]
+[Side "White"]
+[Result "*"]
+
+1. d4 {Take the center.} Nf6 2. Bg5 {The Trompowsky! Your bishop comes out before e3 can lock it in.} Ne4 {The most common answer: the knight attacks your bishop.} 3. Bf4 {Step back. The bishop stays on a good diagonal.} c5 {Black attacks your d4 pawn.} 4. f3 {Kick the knight! It has to go back.} Qa5+ {A check first.} 5. c3 {Block the check with a pawn – it also protects d4.} Nf6 {The knight goes home. Taking on d4 instead would lose the knight (see the trap lines).} 6. d5 {Grab space! Your pawn cramps Black.} e6 7. e4 {A big center.} exd5 8. exd5 d6 9. Na3 {The knight is on its way to c4.} Be7 10. Nc4 {Attack the queen!} Qc7 *
+
+[Event "Trompowsky: 2...Ne4 3.Bf4 d5"]
+[Opening "Trompowsky"]
+[Side "White"]
+[Result "*"]
+
+1. d4 Nf6 2. Bg5 Ne4 3. Bf4 d5 {Black protects the knight with a pawn.} 4. e3 {Open the way for your other bishop.} c5 5. Bd3 {Attack the knight on e4.} g6 6. Nd2 {Attack the knight a second time.} Nf6 7. c3 {A solid pawn chain, like in the London System.} *
+
+[Event "Trompowsky: 2...e6 3.e4 h6 – 5...Bb4"]
+[Opening "Trompowsky"]
+[Side "White"]
+[Result "*"]
+
+1. d4 Nf6 2. Bg5 e6 3. e4 {Take the whole center. Your bishop looks through the knight at the queen on d8 – so Nxe4 would lose the queen!} h6 {Black asks your bishop: take or go back?} 4. Bxf6 {Take. You are ahead in development.} Qxf6 5. Nc3 {Protect e4 and develop.} Bb4 {Black pins your knight.} 6. e5 {Kick the queen with a pawn!} Qe7 7. Qd3 {Get ready for a3 and castling long.} *
+
+[Event "Trompowsky: 2...e6 – castle long and attack"]
+[Opening "Trompowsky"]
+[Side "White"]
+[Result "*"]
+
+1. d4 Nf6 2. Bg5 e6 3. e4 h6 4. Bxf6 Qxf6 5. Nc3 d6 6. Qd2 {Queen out – now you can castle long.} c6 7. O-O-O {Castle long! Your rook is already on the d-file and your pawns on the other side are free to attack.} e5 8. d5 {Push past. Black's pieces get less space.} *
+
+[Event "Trompowsky: 2...c5 3.d5 Qb6 – pawn sacrifice for attack"]
+[Opening "Trompowsky"]
+[Side "White"]
+[Check "gambit"]
+[Result "*"]
+
+1. d4 Nf6 2. Bg5 c5 {Black hits your center at once.} 3. d5 {Push past! Your pawn takes space.} Qb6 {The queen attacks b2.} 4. Nc3 {Let Black take the pawn – you get fast development.} Qxb2 5. Bd2 {Protect the knight. Your rook can come to b1 to chase the queen.} Qb6 6. e4 {A big center and open lines for your pieces.} d6 7. f4 {Attack! Your pawns roll forward.} e5 8. fxe5 dxe5 9. Nf3 {Develop. Your pieces are much more active.} *
+
+[Event "Trompowsky: 2...c5 3.d5 Ne4"]
+[Opening "Trompowsky"]
+[Side "White"]
+[Result "*"]
+
+1. d4 Nf6 2. Bg5 c5 3. d5 Ne4 {The knight attacks your bishop.} 4. Bf4 {Step back, like in the main line.} Qb6 {The queen attacks b2.} 5. Bc1 {Calm: the bishop goes home and protects b2.} c4 6. e3 {Now your other bishop can take on c4.} *
+
+[Event "Trompowsky: 2...d5"]
+[Opening "Trompowsky"]
+[Side "White"]
+[Result "*"]
+
+1. d4 Nf6 2. Bg5 d5 {Black takes the center too.} 3. Bxf6 {Take the knight – Black's pawns get doubled.} exf6 4. e3 {Solid. Your light bishop can come out.} Bd6 5. c4 {Attack Black's center.} dxc4 6. Bxc4 {Take back – your bishop is very active.} Nd7 7. Nc3 {Develop. A healthy, equal game.} *
+
+[Event "Trompowsky: 2...g6"]
+[Opening "Trompowsky"]
+[Side "White"]
+[Result "*"]
+
+1. d4 Nf6 2. Bg5 g6 {Black wants the bishop on g7.} 3. Bxf6 {Take first. If Black does not take back, Bxh8 wins the rook!} exf6 4. c4 {Grab space in the center.} d5 5. cxd5 Qxd5 6. Nc3 {Develop and attack the queen.} Bb4 7. e3 O-O 8. Ne2 {Develop – and the knight on c3 is protected again.} *
+
+[Event "Trompowsky: 2...d6"]
+[Opening "Trompowsky"]
+[Side "White"]
+[Result "*"]
+
+1. d4 Nf6 2. Bg5 d6 3. Nc3 {Develop and get ready for e4.} Nbd7 4. e4 {A big center.} e5 5. Nf3 Be7 6. Bd3 O-O 7. O-O {Castle. All your pieces are out.} *
+
+[Event "Trompowsky: 2...h6"]
+[Opening "Trompowsky"]
+[Side "White"]
+[Result "*"]
+
+1. d4 Nf6 2. Bg5 h6 {Black asks your bishop at once.} 3. Bxf6 {Take – Black's pawns get doubled.} exf6 4. c4 {Grab the center.} d5 5. cxd5 Bb4+ 6. Nc3 {Block the check and develop.} *
+
+[Event "Trompowsky trap: 3...Nxe4?? loses the queen"]
+[Opening "Trompowsky"]
+[Side "White"]
+[Check "trap"]
+[Result "*"]
+
+1. d4 Nf6 2. Bg5 e6 3. e4 {Your bishop looks through the knight at the queen.} Nxe4 {Black grabs the pawn – but the knight was guarding the queen!} 4. Bxd8 {Your bishop takes the queen!} Kxd8 5. f3 {Kick the knight. You have a queen against a bishop.} *
+
+[Event "Trompowsky trap: pawn fork on e5"]
+[Opening "Trompowsky"]
+[Side "White"]
+[Check "trap"]
+[Result "*"]
+
+1. d4 Nf6 2. Bg5 e6 3. e4 h6 4. Bxf6 Qxf6 5. Nc3 Bd6 {A mistake: now one pawn can hit the bishop on d6 and the queen on f6.} 6. e5 {Pawn fork! The pawn attacks the queen and the bishop at once.} Bxe5 7. dxe5 Qxe5+ 8. Be2 {Block the check. You won a bishop for two pawns.} *
+
+[Event "Trompowsky trap: the knight on e4 is lost"]
+[Opening "Trompowsky"]
+[Side "White"]
+[Check "trap"]
+[Result "*"]
+
+1. d4 Nf6 2. Bg5 Ne4 3. Bf4 c5 4. f3 Qa5+ 5. c3 cxd4 {Black takes the pawn and forgets that the knight is attacked.} 6. fxe4 {Take the knight! You won a whole piece.} e5 7. Bd2 {The bishop steps away and protects c3.} *
+
+[Event "Trompowsky trap: the poisoned b2 pawn"]
+[Opening "Trompowsky"]
+[Side "White"]
+[Check "trap"]
+[Result "*"]
+
+1. d4 Nf6 2. Bg5 Ne4 3. Bf4 c5 4. f3 Qb6 {The queen attacks b2 – but the knight on e4 is still attacked.} 5. fxe4 {Take the knight first!} Qxb2 6. Nd2 {Develop. If the queen now takes your rook on a1, your queen takes it back.} cxd4 7. e3 {Attack d4 and open the way for your bishop.} *
+
+[Event "Trompowsky trap: 3...Nxd5?? the knight hangs"]
+[Opening "Trompowsky"]
+[Side "White"]
+[Check "trap"]
+[Result "*"]
+
+1. d4 Nf6 2. Bg5 c5 3. d5 Nxd5 {Black grabs the pawn – but your queen protects it.} 4. Qxd5 {Take the knight. You won a piece for a pawn.} Nc6 5. e4 {A big center and an extra piece.} *
