@@ -1,5 +1,6 @@
 import { Fragment, useEffect, useMemo, useState } from 'react'
 import { Mascot } from '../components/Mascot'
+import { PathStep } from '../components/PathStep'
 import { OpponentsCard } from '../components/OpponentsCard'
 import { go } from '../hooks/useHashRoute'
 import type { Achievements } from '../hooks/useAchievements'
@@ -14,7 +15,7 @@ import { chapters, type Chapter } from '../lib/chapters'
 import { branchMove, guideFor, type Guide } from '../lib/guide'
 import type { Line } from '../lib/pgn'
 import { PUZZLES_AVAILABLE } from '../lib/progress'
-import { daysUntil, isDue, lineResult } from '../lib/srs'
+import { daysUntil, isDue } from '../lib/srs'
 import { useLive } from '../lib/live'
 import { Together } from './Watch'
 
@@ -303,46 +304,6 @@ function loadOpen(list: Chapter[], rep: Repertoire, now: number): Set<string> {
   }
   const withDue = list.filter((c) => c.lines.some((l) => isDue(rep.srs.get(l.id), now))).map((c) => c.key)
   return new Set(withDue.length ? withDue : list.slice(0, 1).map((c) => c.key))
-}
-
-function PathStep({ line, i, rep, now, branch, open, onToggle }: { line: Line; i: number; rep: Repertoire; now: number; branch: string | null; open: boolean; onToggle: () => void }) {
-  const s = rep.srs.get(line.id)
-  const r = lineResult(s, now)
-  const last = r.kind === 'new' ? 'Not played yet' : r.kind === 'perfect' ? 'Last time: perfect' : `Last time: ${r.mistakes} ${r.mistakes === 1 ? 'mistake' : 'mistakes'}`
-  const next = !s || r.kind === 'new' ? '' : r.due ? 'Practice again now' : daysUntil(s, now) <= 1 ? 'Again tomorrow' : `Again in ${daysUntil(s, now)} days`
-  const cls = r.kind === 'new' ? 'new' : r.kind === 'perfect' ? 'perfect' : 'mistakes'
-  return (
-    <div className={`path-step offset-${i % 4}`} data-line={line.id}>
-      <button
-        type="button"
-        className={`path-node ${cls} ${r.due ? 'is-due' : ''} ${line.side === 'b' ? 'black' : ''}`}
-        aria-expanded={open}
-        aria-label={line.title}
-        onClick={onToggle}
-      >
-        {r.kind === 'new' ? '★' : r.kind === 'perfect' ? '✓' : r.mistakes}
-      </button>
-      <div className="path-label">{line.title}</div>
-      {branch && <div className="path-branch">differs at {branch}</div>}
-      {r.kind !== 'new' && (
-        <div className={`path-result ${cls}`}>{r.kind === 'perfect' ? 'Perfect' : `${r.mistakes} ${r.mistakes === 1 ? 'mistake' : 'mistakes'}`}{r.due ? ' · practice again' : ''}</div>
-      )}
-      {open && (
-        <div className="path-pop">
-          <div className="meta">
-            <span className={`side side-${line.side}`}>{line.side === 'w' ? 'White' : 'Black'}</span>
-            <span>{Math.ceil(line.moves.length / 2)} moves</span>
-            <span className={`status ${cls}`}>{last}</span>
-            {next && <span className={r.due ? 'status due' : ''}>{next}</span>}
-          </div>
-          <div className="row">
-            <button type="button" onClick={() => go('learn/' + line.id)}>Learn</button>
-            <button type="button" className="primary" onClick={() => go('drill/' + line.id)}>Play</button>
-          </div>
-        </div>
-      )}
-    </div>
-  )
 }
 
 function GuideCard({ guide }: { guide?: Guide }) {

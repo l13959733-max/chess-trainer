@@ -134,7 +134,8 @@ function hasStoredPlayer() {
 // The opening map's surprise mode: a random line of one side, so you meet the other side's answers
 // in no fixed order – like in a real game.
 function Surprise({ rep, progress, side }: { rep: ReturnType<typeof useRepertoire>; progress: ReturnType<typeof useProgress>; side: 'w' | 'b' }) {
-  const pool = rep.lines.filter((l) => l.source !== 'import' && l.side === side)
+  // Only lines you have learned and played once: new ones start with Learn on the map or the overview
+  const pool = rep.lines.filter((l) => l.source !== 'import' && l.side === side && rep.srs.get(l.id))
   const pick = (not?: string) => {
     const rest = pool.length > 1 ? pool.filter((l) => l.id !== not) : pool
     return rest[Math.floor(Math.random() * rest.length)]?.id
@@ -142,7 +143,19 @@ function Surprise({ rep, progress, side }: { rep: ReturnType<typeof useRepertoir
   const [id, setId] = useState(() => pick())
   const [count, setCount] = useState(1)
   const line = rep.lines.find((l) => l.id === id)
-  if (!line) return <Loading />
+  if (!line) {
+    return (
+      <div className="screen">
+        <div className="done">
+          <div className="done-title">Learn a few lines first</div>
+          <p>Hoppy surprises you with lines you have already played once. Open a line on the map, tap Learn, then Play.</p>
+          <div className="done-actions">
+            <button type="button" className="primary" onClick={() => go('map/' + side)}>To the map</button>
+          </div>
+        </div>
+      </div>
+    )
+  }
   return (
     <Drill
       key={`${line.id}/${count}`}

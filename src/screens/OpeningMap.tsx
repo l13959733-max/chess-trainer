@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react'
 import { Mascot } from '../components/Mascot'
+import { PathStep } from '../components/PathStep'
 import { go } from '../hooks/useHashRoute'
 import type { Repertoire } from '../hooks/useRepertoire'
 import type { Line, Side } from '../lib/pgn'
@@ -44,7 +45,7 @@ const myTurn = (node: TreeNode, side: Side) => (node.path.length % 2 === 0) === 
 
 function Branch({ node: from, side, rep, now, depth }: { node: TreeNode; side: Side; rep: Repertoire; now: number; depth: number }) {
   const { node, skipped } = nextChoice(from)
-  if (!node.children.length) return null
+  if (!node.children.length) return node.lines.length === 1 ? <MapPath lines={node.lines} rep={rep} now={now} /> : null
   const then = skipped.length ? <p className="map-then">Then {movesLabel(node.path, from.path.length)}</p> : null
   if (myTurn(node, side)) {
     const best = bestOf(node.children, side)
@@ -99,12 +100,28 @@ function Option({ node, side, rep, now, depth, best }: { node: TreeNode; side: S
       )}
       <div className="map-actions">
         <small>{node.lines.length === 1 ? '1 line' : `${node.lines.length} lines`} · {learned} played</small>
-        {single && <button type="button" onClick={() => go('learn/' + single.id)}>Learn</button>}
-        <button type="button" className="primary" onClick={() => go('drill/' + pickLine(node.lines, rep, now).id)}>Practise</button>
+        {!single && <button type="button" className="primary" onClick={() => open(pickLine(node.lines, rep, now), rep)}>Practise</button>}
       </div>
-      {!single && <Branch node={node} side={side} rep={rep} now={now} depth={depth + 1} />}
+      {single ? <MapPath lines={[single]} rep={rep} now={now} /> : <Branch node={node} side={side} rep={rep} now={now} depth={depth + 1} />}
     </section>
   )
+}
+
+// The lines at the end of a branch, as the same learning path as on the overview
+function MapPath({ lines, rep, now }: { lines: Line[]; rep: Repertoire; now: number }) {
+  const [open, setOpen] = useState<string | null>(null)
+  return (
+    <div className="path">
+      {lines.map((line, i) => (
+        <PathStep key={line.id} line={line} i={i} rep={rep} now={now} branch={null} open={open === line.id} onToggle={() => setOpen(open === line.id ? null : line.id)} />
+      ))}
+    </div>
+  )
+}
+
+// A line never played starts with Learn, like on the overview: first see the moves, then play them yourself
+function open(line: Line, rep: Repertoire) {
+  go((rep.srs.get(line.id) ? 'drill/' : 'learn/') + line.id)
 }
 
 // The answer with the best score for you, when at least two have real results
