@@ -83,6 +83,12 @@ Hauptnutzung: am Handy.
 - Guide: `story` (Geschichte, aufklappbar) und `rewards` (ein Fakt nach jeder geschafften Linie des Kapitels, reihum). Nur belegte Fakten.
 - Geholfene Partie: keine Wertung, Züge des Helfers (`helped`) werden nicht zu Puzzles des Besitzers; Helfer bekommt kein XP.
 
+## 1.d4-Repertoire + Eröffnungs-Karte (Lus Wunsch 06.11.2026)
+- `data/d4_white.pgn`: gegen 1...d5 alle drei Systeme (London 2.Bf4, Levitsky 2.Bg5, Damengambit 2.c4 – Lus Wahl: „alle 3“), gegen Holländisch/1...c5/Englund eigene Linien, gegen 1...e6/c6/d6/g6 → 2.e4 (Übergang ins 1.e4-Repertoire).
+- `#/map` (`src/screens/OpeningMap.tsx`, Baum aus den Linien in `src/lib/tree.ts`): „Schwarz spielt X → du spielst Y“, Practise je Ast, „Surprise me“ (`#/surprise/<w|b>`, zufällige Linie).
+- Prozente: `src/lib/opening-stats.json`, gefüllt von `scripts/fetch-opening-stats.mjs` (Lichess-Explorer, braucht Token – NIE ins Repo; Datei `~/.config/hoppy/lichess-token`). Ohne Daten zeigt die Karte keine Prozente.
+- Nach einer Linie scrollt die Übersicht zurück zu dieser Linie (`src/lib/returnTo.ts`).
+
 ## Reihenfolge
 1. Projekt-Setup, PWA, GitHub-Pages-Deploy
 2. Modul 1 komplett (Lernen, Drill, SRS) mit dem Italienisch-Repertoire

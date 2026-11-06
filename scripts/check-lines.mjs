@@ -1,6 +1,6 @@
 // Checks every built-in line with Stockfish: each move of the learner's side must be close to
 // the engine's best move, so Lu never learns a bad move. Prints problems and the final evaluation.
-// Usage: node scripts/check-lines.mjs [depth]   (depth 16 by default)
+// Usage: node scripts/check-lines.mjs [depth] [file]   (depth 16 by default; file = only that data file)
 import { spawn } from 'node:child_process'
 import { readdirSync, readFileSync } from 'node:fs'
 import { createRequire } from 'node:module'
@@ -44,7 +44,7 @@ function engine() {
 }
 
 const jobs = []
-for (const file of readdirSync('data').filter((f) => f.endsWith('.pgn'))) {
+for (const file of readdirSync('data').filter((f) => f.endsWith('.pgn') && (!process.argv[3] || f === process.argv[3]))) {
   for (const pgn of readFileSync('data/' + file, 'utf8').split(/\n(?=\[Event )/).filter((g) => g.trim())) {
     const c = new Chess()
     c.loadPgn(pgn)

@@ -40,7 +40,13 @@ const LAYOUT: { group: string; side: Side; chapters: { opening: string; title?: 
   {
     group: 'White · 1.d4',
     side: 'w',
-    chapters: [{ opening: 'Trompowsky', title: 'Trompowsky Attack', moves: '1.d4 Nf6 2.Bg5 · lines, attacks and traps' }],
+    chapters: [
+      { opening: 'Trompowsky', title: 'Trompowsky Attack', moves: '1.d4 Nf6 2.Bg5 · lines, attacks and traps' },
+      { opening: 'London System', moves: '1.d4 d5 2.Bf4' },
+      { opening: 'Levitsky Attack', moves: '1.d4 d5 2.Bg5' },
+      { opening: 'Queen\'s Gambit', moves: '1.d4 d5 2.c4' },
+      { opening: 'Other replies to 1.d4', title: 'vs other moves', moves: '1.d4 … · Dutch, 1...c5, Englund, 2.e4' },
+    ],
   },
   {
     group: 'Black · against 1.e4',

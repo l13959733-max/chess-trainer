@@ -6,6 +6,7 @@ import type { Achievements } from '../hooks/useAchievements'
 import type { Progress } from '../hooks/useProgress'
 import type { Puzzles } from '../hooks/usePuzzles'
 import { dailyQueue } from '../lib/daily'
+import { lastLine } from '../lib/returnTo'
 import { pause, start, type AnalyzerState } from '../lib/analyzer'
 import type { Repertoire } from '../hooks/useRepertoire'
 import { clampScore } from '../lib/blunders'
@@ -38,13 +39,13 @@ export function Home({ rep, progress, puzzles, analyzer, player, trophies }: { r
   const chapterList = useMemo(() => chapters(rep.lines), [rep.lines])
   const [openChapters, setOpenChapters] = useState<Set<string>>(() => {
     const open = loadOpen(chapterList, rep, now)
-    const back = chapterList.find((c) => c.lines.some((l) => l.id === returnTo))
+    const back = chapterList.find((c) => c.lines.some((l) => l.id === lastLine()))
     if (back) open.add(back.key)
     return open
   })
   // Back from a line: show that line again instead of the top, so the next one is right there
   useEffect(() => {
-    const id = returnTo
+    const id = lastLine()
     if (!id) return
     requestAnimationFrame(() => document.querySelector(`[data-line="${CSS.escape(id)}"]`)?.scrollIntoView({ block: 'center' }))
   }, [])
@@ -151,6 +152,11 @@ export function Home({ rep, progress, puzzles, analyzer, player, trophies }: { r
           <h2>Your path</h2>
           <button type="button" onClick={() => go('import')}>Import PGN</button>
         </div>
+        <button type="button" className="attacks-row map-row" onClick={() => go('map')}>
+          <span className="quick-icon" aria-hidden="true">🗺️</span>
+          <span><b>Which opening when?</b><br /><small>Every answer of the other side – and what you play</small></span>
+          <span className="chevron" aria-hidden="true">▸</span>
+        </button>
         <button type="button" className="attacks-row" onClick={() => go('attacks')}>
           <span className="quick-icon" aria-hidden="true">⚔️</span>
           <span><b>Attacks & Traps</b><br /><small>Every famous attack together with its defense</small></span>
@@ -286,12 +292,6 @@ function AnalysisStatus({ analyzer, analyzedGames }: { analyzer: AnalyzerState; 
 }
 
 const OPEN_KEY = 'chess-trainer-open-chapters'
-
-// The line opened last (learn, drill, play on); other screens forget it
-let returnTo: string | null = null
-export function rememberLine(id: string | null) {
-  returnTo = id
-}
 
 // Chapters that were open last time; the first time, the chapters with due lines (or the first chapter)
 function loadOpen(list: Chapter[], rep: Repertoire, now: number): Set<string> {

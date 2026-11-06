@@ -38,6 +38,8 @@
 .screen > .tiles,
 .screen > .lines,
 .screen > .form,
+.screen > .map-side,
+.screen > .map-body,
 .screen > button.wide { margin-inline: 16px; }
 .screen > button.wide { width: auto; }
 

@@ -17,7 +17,9 @@ import { InstallBanner } from './components/InstallBanner'
 import { Mascot } from './components/Mascot'
 import { Attacks } from './screens/Attacks'
 import { Drill } from './screens/Drill'
-import { Home, rememberLine } from './screens/Home'
+import { Home } from './screens/Home'
+import { rememberLine } from './lib/returnTo'
+import { OpeningMap } from './screens/OpeningMap'
 import { Import } from './screens/Import'
 import { Learn } from './screens/Learn'
 import { Play } from './screens/Play'
@@ -100,6 +102,8 @@ function App() {
   else if (page === 'weaknesses') body = <Weaknesses puzzles={puzzles} player={player} />
   else if (page === 'trophies') body = <Trophies achievements={trophies} />
   else if (page === 'attacks') body = <Attacks rep={rep} />
+  else if (page === 'map') body = <OpeningMap rep={rep} side={id} />
+  else if (page === 'surprise') body = <Surprise rep={rep} progress={progress} side={id === 'b' ? 'b' : 'w'} />
   else if (page === 'watch') body = <Watch id={id} arg={arg} lines={rep.lines} />
   else if (page === 'daily') body = <DailySession rep={rep} puzzles={puzzles} progress={progress} />
   else body = <Home rep={rep} progress={progress} puzzles={puzzles} analyzer={analyzer} player={player} trophies={trophies} />
@@ -125,6 +129,35 @@ function hasStoredPlayer() {
   } catch {
     return false
   }
+}
+
+// The opening map's surprise mode: a random line of one side, so you meet the other side's answers
+// in no fixed order – like in a real game.
+function Surprise({ rep, progress, side }: { rep: ReturnType<typeof useRepertoire>; progress: ReturnType<typeof useProgress>; side: 'w' | 'b' }) {
+  const pool = rep.lines.filter((l) => l.source !== 'import' && l.side === side)
+  const pick = (not?: string) => {
+    const rest = pool.length > 1 ? pool.filter((l) => l.id !== not) : pool
+    return rest[Math.floor(Math.random() * rest.length)]?.id
+  }
+  const [id, setId] = useState(() => pick())
+  const [count, setCount] = useState(1)
+  const line = rep.lines.find((l) => l.id === id)
+  if (!line) return <Loading />
+  return (
+    <Drill
+      key={`${line.id}/${count}`}
+      line={line}
+      progress={`Surprise ${count}`}
+      onDone={async (m) => ({ srs: await rep.recordDrill(line.id, m), reward: await progress.recordDrill(m) })}
+      after={(restart) => (
+        <>
+          <button type="button" onClick={restart}>Again</button>
+          <button type="button" onClick={() => go('map/' + side)}>Map</button>
+          <button type="button" className="primary" onClick={() => { setId(pick(line.id)); setCount(count + 1) }}>Next surprise</button>
+        </>
+      )}
+    />
+  )
 }
 
 // Drill all due lines one after another. The list is fixed when the session starts.

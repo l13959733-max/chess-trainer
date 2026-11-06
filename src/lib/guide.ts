@@ -84,6 +84,30 @@ export const GUIDE: Record<string, Guide> = {
       'World champion Magnus Carlsen played the Trompowsky in the very first game of his 2016 World Championship match against Sergey Karjakin.',
     ],
   },
+  'London System|w': {
+    about: 'Against 1...d5 you play Bf4, e3, Nf3, c3, Nbd2 and Bd3 – almost the same setup against everything Black does.',
+    ideas: ['Bishop to f4 before e3 locks it in', 'c3 protects d4: a strong pawn chain', 'Against ...Bd6 step back with Bg3 and keep your bishop'],
+    style: 'Solid',
+    fact: 'The name comes from the strong London tournament of 1922, where it was played seven times. Ding Liren won a game with it at the 2023 World Championship.',
+  },
+  'Levitsky Attack|w': {
+    about: 'Against 1...d5 you play 2.Bg5 – the same bishop move as in the Trompowsky, so one idea works against 1...Nf6 and 1...d5.',
+    ideas: ['Bxf6 doubles Black\'s pawns', 'Against ...Qb6 protect b2 with Qc1 or Qb3', 'Then c4 hits the center'],
+    style: 'Active',
+    fact: 'Named after the Russian master Stepan Levitsky. It is also called the Queen\'s Bishop Attack or the Hodgson Attack.',
+  },
+  'Queen\'s Gambit|w': {
+    about: 'After 1.d4 d5 you play 2.c4 and offer a pawn to pull Black\'s pawn away from the center. The classic way to play 1.d4.',
+    ideas: ['If Black takes on c4, you win the pawn back with e3 and Bxc4', 'Pin the knight with Bg5', 'Watch out for the Elephant Trap: don\'t grab d5 too early'],
+    style: 'Active',
+    fact: 'One of the oldest openings: it already appears in the Göttingen manuscript from around 1490.',
+  },
+  'Other replies to 1.d4|w': {
+    about: 'Black does not always play 1...d5 or 1...Nf6. Against many moves you simply play 2.e4 and are back in your 1.e4 lines.',
+    ideas: ['1...e6, 1...c6, 1...d6, 1...g6: play 2.e4', 'Against the Dutch (1...f5): Bg5, like in the Trompowsky', 'Against 1...c5: push d5'],
+    style: 'Active',
+    fact: 'When two move orders reach the same position, it is called a transposition: 1.d4 e6 2.e4 is the same as 1.e4 e6 2.d4.',
+  },
   'Scandinavian|w': {
     about: 'Black attacks e4 at once with 1...d5. Take the pawn and chase the queen with your pieces.',
     ideas: ['2.exd5 is the best answer', 'Nc3 hits the queen – you develop with tempo', 'Kick a bishop on f5 or g4 with pawns'],

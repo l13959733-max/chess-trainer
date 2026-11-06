@@ -1,0 +1,148 @@
+[Event "London: the main setup"]
+[Opening "London System"]
+[Side "White"]
+[Result "*"]
+
+1. d4 {Take the center.} d5 2. Bf4 {The London System: your dark bishop comes out before e3 locks it in.} Nf6 3. e3 {Open the way for your other bishop.} e6 4. Nf3 c5 {Black hits your center.} 5. c3 {A pawn chain: c3 protects d4.} Nc6 6. Nbd2 {The knight goes to d2, so c3 stays free for the pawn.} Bd6 {Black wants to trade your good bishop.} 7. Bg3 {Step back and keep the bishop.} O-O 8. Bd3 {Your bishop aims at Black's king. Next you castle.} *
+
+[Event "London: 2...c5 and the queen on b6"]
+[Opening "London System"]
+[Side "White"]
+[Result "*"]
+
+1. d4 d5 2. Bf4 c5 {Black hits d4 at once.} 3. e3 Nc6 4. c3 {Protect d4 with a pawn.} Qb6 {The queen attacks b2.} 5. Qb3 {Offer a queen trade – b2 is protected now.} c4 {Black kicks your queen.} 6. Qc2 {Step aside. Your queen still guards b2 – and watches f5.} Nf6 7. Nd2 {Develop. If Black plays Bf5 now, Qxf5 wins the bishop!} *
+
+[Event "London: 3...Bf5"]
+[Opening "London System"]
+[Side "White"]
+[Result "*"]
+
+1. d4 d5 2. Bf4 Nf6 3. e3 Bf5 {Black copies you: both bishops are out.} 4. c4 {Attack d5. Black's queenside gets weak without the bishop.} e6 5. Nc3 c6 6. Qb3 {Attack b7! Black's bishop is not there to protect it.} Qb6 7. c5 {Kick the queen with tempo.} Qxb3 8. axb3 {Your rook now looks along the open a-file.} *
+
+[Event "London: 3...g6"]
+[Opening "London System"]
+[Side "White"]
+[Result "*"]
+
+1. d4 d5 2. Bf4 Nf6 3. e3 g6 {Black puts the bishop on g7.} 4. Nf3 Bg7 5. Be2 {Calm: get ready to castle.} O-O 6. O-O c5 7. c3 {Your pawn chain protects d4. Same plan as always.} Nc6 8. Nbd2 *
+
+[Event "Levitsky: 2...Nf6 3.Bxf6"]
+[Opening "Levitsky Attack"]
+[Side "White"]
+[Result "*"]
+
+1. d4 d5 2. Bg5 {The Levitsky: the same bishop move as in the Trompowsky.} Nf6 3. Bxf6 {Take the knight – Black's pawns get doubled.} exf6 4. e3 {Open the way for your light bishop.} c6 5. c4 {Attack Black's center.} dxc4 6. Bxc4 Bd6 7. Nc3 {Develop.} O-O 8. Nge2 {The knight goes to e2 so it does not block your f-pawn.} *
+
+[Event "Levitsky: 2...c6 and the queen on b6"]
+[Opening "Levitsky Attack"]
+[Side "White"]
+[Result "*"]
+
+1. d4 d5 2. Bg5 c6 3. e3 Qb6 {The queen attacks b2.} 4. Qc1 {Protect b2. The queen stays near home.} Bf5 5. c4 {Hit the center.} e6 6. Nc3 Nd7 7. c5 {Kick the queen and grab space.} *
+
+[Event "Levitsky: 2...h6"]
+[Opening "Levitsky Attack"]
+[Side "White"]
+[Result "*"]
+
+1. d4 d5 2. Bg5 h6 {Black asks your bishop.} 3. Bh4 {Keep the bishop. It still pins nothing yet, but it watches e7 and d8.} c5 4. e3 Nc6 5. c3 {Your pawns protect d4.} Qb6 6. Qb3 {Offer a queen trade – b2 is safe.} *
+
+[Event "Queen's Gambit Declined: the classic plan"]
+[Opening "Queen's Gambit"]
+[Side "White"]
+[Result "*"]
+
+1. d4 d5 2. c4 {The Queen's Gambit: you offer a pawn to pull Black's pawn away from the center.} e6 {Declined: Black protects d5.} 3. Nc3 Nf6 4. Bg5 {Pin the knight to the queen.} Be7 5. e3 O-O 6. Nf3 Nbd7 7. Rc1 {Rook to the c-file, where it will open.} c6 8. Bd3 dxc4 9. Bxc4 {Take back. Your bishop is active.} Nd5 10. Bxe7 Qxe7 11. O-O {Castle. All your pieces are out.} *
+
+[Event "Queen's Gambit: don't fall for the Elephant Trap"]
+[Opening "Queen's Gambit"]
+[Side "White"]
+[Result "*"]
+
+1. d4 d5 2. c4 e6 3. Nc3 Nf6 4. Bg5 Nbd7 {Careful! Now cxd5 exd5 Nxd5?? loses: Black takes back on d5 and your bishop takes the queen, but Bb4+ wins your queen back – you end up a piece down.} 5. e3 {Calm. Don't grab d5.} c6 6. Nf3 Qa5 {The Cambridge Springs: Black's queen pins your knight on c3.} 7. Nd2 {Protect c3 and threaten to take on c4 or d5.} *
+
+[Event "Queen's Gambit Accepted"]
+[Opening "Queen's Gambit"]
+[Side "White"]
+[Result "*"]
+
+1. d4 d5 2. c4 dxc4 {Black takes the pawn.} 3. e3 {Open the way for your bishop – it will take c4 back.} Nf6 4. Bxc4 {Pawn back. Your bishop is active.} e6 5. Nf3 c5 6. O-O a6 7. a4 {Stop b5. Black's queenside pawns cannot chase your bishop.} Nc6 8. Qe2 {The queen supports d4-d5 or Rd1.} *
+
+[Event "Queen's Gambit Accepted trap: the rook on a8"]
+[Opening "Queen's Gambit"]
+[Side "White"]
+[Check "trap"]
+[Result "*"]
+
+1. d4 d5 2. c4 dxc4 3. e3 b5 {Black tries to keep the extra pawn.} 4. a4 {Hit the b5 pawn.} c6 5. axb5 cxb5 6. Qf3 {Your queen looks down the long diagonal at the rook on a8. Blocking with Nc6 or Bb7 just loses that piece.} *
+
+[Event "Slav Defense"]
+[Opening "Queen's Gambit"]
+[Side "White"]
+[Result "*"]
+
+1. d4 d5 2. c4 c6 {The Slav: Black protects d5 and keeps the light bishop free.} 3. Nf3 Nf6 4. Nc3 dxc4 5. a4 {Stop b5 – then you take c4 back.} Bf5 6. e3 e6 7. Bxc4 Bb4 8. O-O {Castle. Pawn back and a good game.} *
+
+[Event "Albin Countergambit"]
+[Opening "Queen's Gambit"]
+[Side "White"]
+[Result "*"]
+
+1. d4 d5 2. c4 e5 {The Albin: Black gives a pawn.} 3. dxe5 d4 {This pawn is annoying. Don't play e3 now – Bb4+ and a trick on f2 follow.} 4. Nf3 {Develop and protect e5.} Nc6 5. g3 {Your bishop goes to g2 and attacks the long diagonal.} Be6 6. Nbd2 Qd7 7. Bg2 *
+
+[Event "vs Dutch: 2.Bg5"]
+[Opening "Other replies to 1.d4"]
+[Side "White"]
+[Result "*"]
+
+1. d4 f5 {The Dutch Defense.} 2. Bg5 {Same idea as the Trompowsky: bishop out first.} Nf6 3. Bxf6 {Take – Black's pawns get messy.} exf6 4. e3 d5 5. c4 {Hit the center.} c6 6. Nc3 Be6 7. Qb3 {Attack b7.} *
+
+[Event "vs Dutch trap: 8.Bg6 mate"]
+[Opening "Other replies to 1.d4"]
+[Side "White"]
+[Check "trap"]
+[Result "*"]
+
+1. d4 f5 2. Bg5 h6 3. Bh4 g5 {Black chases your bishop with pawns – and opens the king.} 4. Bg3 f4 5. e3 h5 6. Bd3 {Your bishop looks at g6.} Rh6 {A mistake: now only the rook guards h5, and the f7 square is empty.} 7. Qxh5+ {Queen sacrifice!} Rxh5 8. Bg6# {Checkmate! The king cannot move.} *
+
+[Event "vs 1...c5: push past"]
+[Opening "Other replies to 1.d4"]
+[Side "White"]
+[Result "*"]
+
+1. d4 c5 {Black hits your center at once.} 2. d5 {Push past and take space.} Nf6 3. Nc3 d6 4. e4 {A big center.} g6 5. Nf3 Bg7 6. Be2 O-O 7. O-O {Castle. You have more space.} *
+
+[Event "vs Englund Gambit: 1...e5"]
+[Opening "Other replies to 1.d4"]
+[Side "White"]
+[Result "*"]
+
+1. d4 e5 {The Englund Gambit: Black gives a pawn and sets a trap.} 2. dxe5 Nc6 3. Nf3 Qe7 4. Bf4 {Protect e5.} Qb4+ 5. Bd2 Qxb2 {Black grabs b2. Here comes the trap: Bc3?? Bb4! Qd2 Bxc3 Qxc3 Qc1 is checkmate.} 6. Nc3 {Not Bc3! The knight protects a1 and blocks the bishop's check.} Bb4 7. Rb1 {Kick the queen.} Qa3 8. Nd5 {Hit the bishop on b4 and the pawn on c7. Your pieces are much more active.} *
+
+[Event "1...e6: play 2.e4 – it's the French"]
+[Opening "Other replies to 1.d4"]
+[Side "White"]
+[Result "*"]
+
+1. d4 e6 2. e4 {Take the whole center. This is now the French – you know it from your 1.e4 lines.} d5 3. e5 {Same as in vs French: grab space.} *
+
+[Event "1...c6: play 2.e4 – it's the Caro-Kann"]
+[Opening "Other replies to 1.d4"]
+[Side "White"]
+[Result "*"]
+
+1. d4 c6 2. e4 {Take the whole center. Now it's the Caro-Kann from your 1.e4 lines.} d5 3. e5 {Same as in vs Caro-Kann: grab space.} *
+
+[Event "1...d6: play 2.e4 – it's the Pirc"]
+[Opening "Other replies to 1.d4"]
+[Side "White"]
+[Result "*"]
+
+1. d4 d6 2. e4 {Take the whole center. Now it's the Pirc from your 1.e4 lines.} Nf6 3. Nc3 {Protect e4, like in vs Pirc.} *
+
+[Event "1...g6: play 2.e4 – it's the Modern"]
+[Opening "Other replies to 1.d4"]
+[Side "White"]
+[Result "*"]
+
+1. d4 g6 2. e4 {Take the whole center. Now it's the Modern from your 1.e4 lines.} Bg7 3. Nc3 {Develop, like in vs Modern.} *
