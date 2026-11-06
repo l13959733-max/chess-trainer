@@ -30,6 +30,25 @@ export interface LiveState {
   game: LiveGame
 }
 
+// An opening line someone is practising (Drill). Only for watching: the whole picture is in the message,
+// so it also works for lines the watcher does not have (imported ones).
+export interface LiveDrill {
+  owner: string
+  ownerName: string
+  rev: number
+  ts: number
+  title: string
+  side: 'w' | 'b'
+  fen: string
+  last?: { from: string; to: string }
+  ply: number
+  total: number
+  mistakes: number
+  wrong?: { tried: { from: string; to: string }; san: string; from: string; to: string; comment?: string }
+  note?: { label: string; comment: string }
+  done: boolean
+}
+
 const BROKERS = ['wss://broker.hivemq.com:8884/mqtt', 'wss://broker.emqx.io:8084/mqtt']
 const ROOM_KEY = 'chess-trainer-room'
 const DEVICE_KEY = 'chess-trainer-device'
@@ -66,7 +85,7 @@ async function roomKey(code: string): Promise<CryptoKey> {
   return crypto.subtle.importKey('raw', await sha256('hoppy-key:' + code), 'AES-GCM', false, ['encrypt', 'decrypt'])
 }
 
-export async function seal(code: string, state: LiveState): Promise<Uint8Array> {
+export async function seal(code: string, state: LiveState | LiveDrill): Promise<Uint8Array> {
   const iv = crypto.getRandomValues(new Uint8Array(12))
   const data = await crypto.subtle.encrypt({ name: 'AES-GCM', iv }, await roomKey(code), new TextEncoder().encode(JSON.stringify(state)))
   const out = new Uint8Array(12 + data.byteLength)
@@ -76,11 +95,11 @@ export async function seal(code: string, state: LiveState): Promise<Uint8Array> 
 }
 
 // Null for anything not sealed with this room's code
-export async function unseal(code: string, bytes: Uint8Array): Promise<LiveState | null> {
+export async function unseal<T = LiveState>(code: string, bytes: Uint8Array): Promise<T | null> {
   try {
     const copy = new Uint8Array(bytes)
     const data = await crypto.subtle.decrypt({ name: 'AES-GCM', iv: copy.slice(0, 12) }, await roomKey(code), copy.slice(12))
-    return JSON.parse(new TextDecoder().decode(data)) as LiveState
+    return JSON.parse(new TextDecoder().decode(data)) as T
   } catch {
     return null
   }
@@ -93,6 +112,11 @@ export function isNewer(current: LiveState | undefined, next: LiveState): boolea
   if (next.rev !== current.rev) return next.rev > current.rev
   if (next.driver !== current.driver) return next.driver > current.driver
   return next.ts > current.ts
+}
+
+// Drills only come from their owner's device, so its own counter decides
+export function isNewerDrill(current: LiveDrill | undefined, next: LiveDrill): boolean {
+  return !current || next.ts > current.ts || (next.ts === current.ts && next.rev > current.rev)
 }
 
 // New plies played on someone else's behalf; taken-back ones are forgotten
@@ -153,6 +177,7 @@ export interface Live {
   room: string | null
   connected: boolean
   states: LiveState[]
+  drills: LiveDrill[]
 }
 
 let room = read(ROOM_KEY)
@@ -160,12 +185,26 @@ let clients: Client[] = []
 let topic: string | null = null
 let generation = 0 // a change of room makes everything still on its way irrelevant
 const states = new Map<string, LiveState>()
+const drills = new Map<string, LiveDrill>()
 const listeners = new Set<() => void>()
-let snapshot: Live = { room, connected: false, states: [] }
+let snapshot: Live = { room, connected: false, states: [], drills: [] }
 
 function changed() {
-  snapshot = { room, connected: clients.some((c) => c.connected), states: [...states.values()] }
+  snapshot = { room, connected: clients.some((c) => c.connected), states: [...states.values()], drills: [...drills.values()] }
   listeners.forEach((l) => l())
+}
+
+async function onDrill(gen: number, code: string, owner: string, payload: Uint8Array) {
+  if (!payload.length) {
+    if (gen === generation && drills.delete(owner)) changed()
+    return
+  }
+  const drill = await unseal<LiveDrill>(code, payload)
+  if (gen !== generation || !drill || drill.owner !== owner) return
+  if (isNewerDrill(drills.get(owner), drill)) {
+    drills.set(owner, drill)
+    changed()
+  }
 }
 
 async function onMessage(gen: number, code: string, owner: string, payload: Uint8Array) {
@@ -191,20 +230,23 @@ export async function startLive(): Promise<void> {
   clients = BROKERS.map((url) => {
     const client = mqtt.connect(url, { connectTimeout: 8000, reconnectPeriod: 3000 })
     client.on('connect', () => {
-      client.subscribe(`${prefix}/g/+`, { qos: 1 })
+      client.subscribe([`${prefix}/g/+`, `${prefix}/d/+`], { qos: 1 })
       changed()
     })
     client.on('close', changed)
     client.on('error', () => {}) // it keeps reconnecting; the screen shows "Connecting"
-    client.on('message', (t, payload) => void onMessage(gen, code, t.split('/').pop()!, payload))
+    client.on('message', (t, payload) => {
+      const [kind, owner] = t.split('/').slice(-2)
+      void (kind === 'd' ? onDrill : onMessage)(gen, code, owner, payload)
+    })
     return client
   })
 }
 
-function send(state: LiveState) {
+function send(state: LiveState | LiveDrill) {
   const code = room
   if (!code || !topic) return
-  const to = `${topic}/g/${state.owner}`
+  const to = `${topic}/${'game' in state ? 'g' : 'd'}/${state.owner}`
   const targets = clients
   void seal(code, state).then((bytes) => {
     for (const c of targets) c.publish(to, bytes as Buffer, { retain: true, qos: 1 })
@@ -221,18 +263,21 @@ export function joinRoom(code: string) {
 }
 
 export function leaveRoom() {
-  const to = topic && `${topic}/g/${deviceId()}`
+  const prefix = topic
   const closing = clients
   generation++
-  // My game disappears from the room for the others too
+  // My game and my drill disappear from the room for the others too
   for (const c of closing) {
-    if (to) c.publish(to, '', { retain: true, qos: 1 }, () => c.end())
-    else c.end()
+    if (prefix) {
+      c.publish(`${prefix}/d/${deviceId()}`, '', { retain: true, qos: 1 })
+      c.publish(`${prefix}/g/${deviceId()}`, '', { retain: true, qos: 1 }, () => c.end())
+    } else c.end()
   }
   clients = []
   topic = null
   room = null
   states.clear()
+  drills.clear()
   write(ROOM_KEY, null)
   changed()
 }
@@ -255,6 +300,24 @@ export function shareGame(owner: string, game: LiveGame) {
   states.set(owner, state)
   changed()
   send(state)
+}
+
+// Show the others the line this device is practising: on every change, and while it waits for a move.
+// Null = the drill screen was left.
+let drillRev = 0
+export function shareDrill(drill: Omit<LiveDrill, 'owner' | 'ownerName' | 'rev' | 'ts'> | null) {
+  if (!room) return
+  const owner = deviceId()
+  if (!drill) {
+    if (!drills.delete(owner)) return
+    changed()
+    if (topic) for (const c of clients) c.publish(`${topic}/d/${owner}`, '', { retain: true, qos: 1 })
+    return
+  }
+  const next: LiveDrill = { ...drill, owner, ownerName: getName() ?? getPlayer(), rev: ++drillRev, ts: Date.now() }
+  drills.set(owner, next)
+  changed()
+  send(next)
 }
 
 export function liveStateOf(owner: string): LiveState | undefined {
@@ -283,6 +346,11 @@ export function othersGames(live: Live, now = Date.now()): LiveState[] {
   return live.states
     .filter((s) => s.owner !== deviceId() && now - s.ts < FORGET_AFTER && !isOver(s.game))
     .sort((a, b) => b.ts - a.ts)
+}
+
+// Lines the others are practising right now
+export function othersDrills(live: Live, now = Date.now()): LiveDrill[] {
+  return live.drills.filter((d) => d.owner !== deviceId() && now - d.ts < LIVE_FOR).sort((a, b) => b.ts - a.ts)
 }
 
 // While this device plays a game, it tells the others so every now and then

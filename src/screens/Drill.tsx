@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import type { Arrow } from 'react-chessboard'
 import { ARROW, Board, LAST_MOVE, WRONG } from '../components/Board'
 import { Celebrate } from '../components/Celebrate'
@@ -6,6 +6,7 @@ import { Mascot } from '../components/Mascot'
 import { SpeakButton } from '../components/SpeakButton'
 import { checkMove, firstPlayerPly, isFinished } from '../lib/drill'
 import { feedback as fx } from '../lib/feedback'
+import { shareDrill } from '../lib/live'
 import type { Line, LineMove } from '../lib/pgn'
 import { explanationText } from '../lib/speech'
 import { daysUntil, type SrsState } from '../lib/srs'
@@ -75,6 +76,33 @@ export function Drill({ line, onDone, after, progress }: Props) {
       setReward(reward)
     })
   }, [finished, ply, line, mistakePlies, onDone])
+
+  // The others in the watch room see this line as it is played
+  const watched = useMemo(() => {
+    const last = ply > 0 ? line.moves[ply - 1] : null
+    const wrong = feedback?.kind === 'wrong' && feedback.ply === ply ? feedback : null
+    const note = feedback?.kind === 'info' && !finished && feedback.move.comment ? feedback : null
+    return {
+      title: line.title,
+      side: line.side,
+      fen: last ? last.fenAfter : line.moves[0].fenBefore,
+      last: last ? { from: last.from, to: last.to } : undefined,
+      ply,
+      total: line.moves.length,
+      mistakes: mistakePlies.size,
+      wrong: wrong ? { tried: wrong.tried, san: wrong.expected.san, from: wrong.expected.from, to: wrong.expected.to, comment: wrong.expected.comment } : undefined,
+      note: note ? { label: moveLabel(line, note.ply), comment: note.move.comment! } : undefined,
+      done: finished,
+    }
+  }, [line, ply, mistakePlies, feedback, finished])
+  useEffect(() => {
+    shareDrill(watched)
+    const t = window.setInterval(() => shareDrill(watched), 30_000)
+    return () => window.clearInterval(t)
+  }, [watched])
+  useEffect(() => {
+    return () => shareDrill(null)
+  }, [])
 
   function onMove(from: string, to: string): boolean {
     if (!myTurn) return false

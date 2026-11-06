@@ -1,8 +1,10 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
+import type { Arrow } from 'react-chessboard'
+import { ARROW, Board, LAST_MOVE, WRONG } from '../components/Board'
 import { Mascot } from '../components/Mascot'
 import { go } from '../hooks/useHashRoute'
 import { buildBook } from '../lib/book'
-import { deviceId, isOver, isPlayingNow, joinRoom, leaveRoom, liveStateOf, newRoomCode, normalizeCode, othersGames, shareGame, useBeat, useLive, withHelp, type LiveGame, type LiveState } from '../lib/live'
+import { deviceId, isOver, isPlayingNow, joinRoom, leaveRoom, liveStateOf, newRoomCode, normalizeCode, othersDrills, othersGames, shareGame, useBeat, useLive, withHelp, type LiveDrill, type LiveGame, type LiveState } from '../lib/live'
 import type { Line } from '../lib/pgn'
 import { bookLines, GameView } from './Play'
 
@@ -100,6 +102,79 @@ export function GameRow({ state }: { state: LiveState }) {
   )
 }
 
+export function DrillRow({ drill }: { drill: LiveDrill }) {
+  return (
+    <button type="button" className="live-row now" onClick={() => go('watch/drill/' + drill.owner)}>
+      <span>
+        <b><span className="live-dot" /> {drill.ownerName} is practising</b><br />
+        <small>{drill.title} · {drill.done ? 'line complete' : `move ${drill.ply} of ${drill.total}`} · {drill.mistakes === 1 ? '1 mistake' : `${drill.mistakes} mistakes`}</small>
+      </span>
+      <span className="live-go">Watch</span>
+    </button>
+  )
+}
+
+// Watching someone practise an opening line: just the board, nothing to touch
+function DrillTable({ owner }: { owner: string }) {
+  const live = useLive()
+  const drill = othersDrills(live).find((d) => d.owner === owner)
+  if (!drill) {
+    return (
+      <div className="screen">
+        <Head title="Not practising right now" />
+        <p className="note">{live.connected ? 'This line is over or was left.' : 'Connecting …'}</p>
+        <section className="play-card">
+          <button type="button" className="wide" onClick={() => go('watch')}>All games</button>
+        </section>
+      </div>
+    )
+  }
+  const styles: Record<string, React.CSSProperties> = drill.last ? { [drill.last.from]: LAST_MOVE, [drill.last.to]: LAST_MOVE } : {}
+  const arrows: Arrow[] = []
+  if (drill.wrong) {
+    styles[drill.wrong.tried.from] = WRONG
+    styles[drill.wrong.tried.to] = WRONG
+    arrows.push({ startSquare: drill.wrong.from, endSquare: drill.wrong.to, color: ARROW.correct })
+  }
+  const mine = drill.ply < drill.total && (drill.fen.split(' ')[1] === drill.side)
+  return (
+    <div className="screen">
+      <div className="screen-head">
+        <button type="button" className="back" onClick={() => go('watch')} aria-label="Back to all games">←</button>
+        <div>
+          <div className="eyebrow">{drill.ownerName} is practising · {drill.side === 'w' ? 'White' : 'Black'}</div>
+          <h2>{drill.title}</h2>
+        </div>
+      </div>
+      <Board fen={drill.fen} orientation={drill.side === 'w' ? 'white' : 'black'} arrows={arrows} squareStyles={styles} />
+      <div className="drill-status">
+        <span>{drill.done ? 'Line complete' : mine ? `${drill.ownerName}'s move` : 'Opponent is moving …'}</span>
+        <span className={drill.mistakes ? 'bad' : 'good'}>{drill.mistakes === 1 ? '1 mistake' : `${drill.mistakes} mistakes`}</span>
+      </div>
+      {drill.wrong && (
+        <div className="explain wrong" role="alert">
+          <Mascot mood="oops" />
+          <div className="move">Not that one – the right move is {drill.wrong.san}</div>
+          {drill.wrong.comment && <p>{drill.wrong.comment}</p>}
+        </div>
+      )}
+      {drill.note && !drill.wrong && (
+        <div className="explain">
+          <Mascot mood="happy" />
+          <div className="move">{drill.note.label}</div>
+          <p>{drill.note.comment}</p>
+        </div>
+      )}
+      {drill.done && (
+        <div className="done">
+          <Mascot mood="cheer" />
+          <div className="done-title">{drill.mistakes === 0 ? `${drill.ownerName} played it perfectly!` : `${drill.ownerName} finished the line`}</div>
+        </div>
+      )}
+    </div>
+  )
+}
+
 function Lobby() {
   const live = useLive()
   if (!live.room) {
@@ -119,14 +194,17 @@ function Lobby() {
     )
   }
   const games = othersGames(live)
+  const drills = othersDrills(live)
   return (
     <div className="screen">
       <Head title="Watch each other" />
       <p className={`live-status ${live.connected ? 'on' : ''}`}><span className="live-dot" /> {live.connected ? 'Connected' : 'Connecting …'}</p>
-      {games.length ? games.map((s) => <GameRow key={s.owner} state={s} />) : (
+      {drills.map((d) => <DrillRow key={'d' + d.owner} drill={d} />)}
+      {games.map((s) => <GameRow key={s.owner} state={s} />)}
+      {!games.length && !drills.length && (
         <div className="greet">
           <Mascot mood="happy" />
-          Nobody is playing right now. A game appears here as soon as someone starts one against Hoppy-Bot.
+          Nobody is playing right now. It appears here as soon as someone plays against Hoppy-Bot or practises an opening.
         </div>
       )}
       <Invite code={live.room} />
@@ -198,6 +276,7 @@ function Table({ owner, lines }: { owner: string; lines: Line[] }) {
 
 export function Watch({ id, arg, lines }: { id?: string; arg?: string; lines: Line[] }) {
   if (id === 'join') return <Join code={normalizeCode(decodeURIComponent(arg ?? ''))} />
+  if (id === 'drill' && arg) return <DrillTable key={arg} owner={arg} />
   if (id) return <Table key={id} owner={id} lines={lines} />
   return <Lobby />
 }

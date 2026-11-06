@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { isNewer, isOver, isPlayingNow, newRoomCode, normalizeCode, roomTopic, seal, unseal, withHelp, type LiveGame, type LiveState } from './live'
+import { isNewer, isNewerDrill, isOver, isPlayingNow, newRoomCode, normalizeCode, roomTopic, seal, unseal, withHelp, type LiveDrill, type LiveGame, type LiveState } from './live'
 
 const START = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1'
 const game = (moves: string[] = [], extra: Partial<LiveGame> = {}): LiveGame => ({ id: 'g1', title: 'T', startFen: START, moves, me: 'w', botRating: 600, rated: true, ...extra })
@@ -83,5 +83,19 @@ describe('game status', () => {
   it('someone silent for over a minute has left', () => {
     expect(isPlayingNow(state({ ts: 1000 }), 1000 + 60_000)).toBe(true)
     expect(isPlayingNow(state({ ts: 1000 }), 1000 + 120_000)).toBe(false)
+  })
+})
+
+describe('drills', () => {
+  const drill = (extra: Partial<LiveDrill> = {}): LiveDrill => ({ owner: 'a', ownerName: 'A', rev: 1, ts: 1000, title: 'Italian', side: 'w', fen: START, ply: 0, total: 10, mistakes: 0, done: false, ...extra })
+  it('travel encrypted like games', async () => {
+    const code = newRoomCode()
+    expect(await unseal<LiveDrill>(code, await seal(code, drill()))).toEqual(drill())
+  })
+  it('the latest from the owner wins, also within the same millisecond', () => {
+    expect(isNewerDrill(undefined, drill())).toBe(true)
+    expect(isNewerDrill(drill({ ts: 2000 }), drill({ ts: 1000, rev: 9 }))).toBe(false)
+    expect(isNewerDrill(drill({ rev: 1 }), drill({ rev: 2 }))).toBe(true)
+    expect(isNewerDrill(drill({ rev: 2 }), drill({ rev: 2 }))).toBe(false)
   })
 })

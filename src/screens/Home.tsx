@@ -14,12 +14,14 @@ import { branchMove, guideFor, type Guide } from '../lib/guide'
 import type { Line } from '../lib/pgn'
 import { PUZZLES_AVAILABLE } from '../lib/progress'
 import { daysUntil, isDue, lineResult } from '../lib/srs'
-import { othersGames, useLive } from '../lib/live'
-import { GameRow } from './Watch'
+import { othersDrills, othersGames, useLive } from '../lib/live'
+import { DrillRow, GameRow } from './Watch'
 
 export function Home({ rep, progress, puzzles, analyzer, player, trophies }: { rep: Repertoire; progress: Progress; puzzles: Puzzles; analyzer: AnalyzerState; player: string; trophies: Achievements }) {
   const now = Date.now()
-  const games = othersGames(useLive(), now)
+  const live = useLive()
+  const games = othersGames(live, now)
+  const drills = othersDrills(live, now)
   const due = rep.lines.filter((l) => isDue(rep.srs.get(l.id), now))
   const fresh = rep.lines.filter((l) => !rep.srs.get(l.id))
   const upcoming = rep.lines
@@ -95,6 +97,7 @@ export function Home({ rep, progress, puzzles, analyzer, player, trophies }: { r
         </button>
       )}
 
+      {drills.map((d) => <DrillRow key={'d' + d.owner} drill={d} />)}
       {games.map((s) => <GameRow key={s.owner} state={s} />)}
 
       <section className="daily-card" aria-label="Today's cards">
