@@ -3,142 +3,151 @@ import { Mascot } from '../components/Mascot'
 import { PathStep } from '../components/PathStep'
 import { go } from '../hooks/useHashRoute'
 import type { Repertoire } from '../hooks/useRepertoire'
-import type { Line, Side } from '../lib/pgn'
+import type { Side } from '../lib/pgn'
+import { lastLine } from '../lib/returnTo'
 import { isDue } from '../lib/srs'
-import { buildTree, moveLabel, movesLabel, nextChoice, openingsOf, percentFor, statsFor, STATS_INFO, type TreeNode } from '../lib/tree'
+import { buildTree, moveLabel, nextChoice, openingsOf, percentFor, statsFor, STATS_INFO, type TreeNode } from '../lib/tree'
 
-// Which opening when: at every point where the other side has a choice, what you answer –
-// and, where real game results are loaded, how well each answer scores.
-export function OpeningMap({ rep, side: start }: { rep: Repertoire; side?: string }) {
-  const [side, setSide] = useState<Side>(start === 'b' ? 'b' : 'w')
-  const tree = useMemo(() => buildTree(rep.lines, side), [rep.lines, side])
-  const [now] = useState(() => Date.now())
+// Which opening when: for every answer of the other side, what you play – in the same chapters and
+// learning path as "Learn openings", and, where real game results are loaded, how well it scores.
+export function OpeningMap({ rep, side }: { rep: Repertoire; side?: string }) {
   return (
     <div className="screen">
       <div className="screen-head">
         <button type="button" className="back" onClick={() => go('')} aria-label="Back to overview">←</button>
         <div>
-          <div className="eyebrow">{tree.lines.length} lines</div>
-          <h2>Which opening when?</h2>
+          <div className="eyebrow">Your openings</div>
+          <h2>What to play when?</h2>
         </div>
       </div>
-      <div className="map-side" role="group" aria-label="Your side">
-        <button type="button" className={side === 'w' ? 'on' : ''} aria-pressed={side === 'w'} onClick={() => setSide('w')}>I play White</button>
-        <button type="button" className={side === 'b' ? 'on' : ''} aria-pressed={side === 'b'} onClick={() => setSide('b')}>I play Black</button>
-      </div>
-      <div className="greet">
-        <Mascot mood="happy" />
-        {side === 'w' ? 'Black can answer in many ways. Here you see what you play against each one.' : 'White can start in many ways. Here you see what you play against each one.'}
-      </div>
-      <button type="button" className="primary wide" disabled={!tree.lines.length} onClick={() => go('surprise/' + side)}>
-        🎲 Surprise me – Hoppy picks {side === 'w' ? "Black's" : "White's"} moves
-      </button>
       <div className="map-body">
-        <p className="note small">{STATS_INFO || 'Percentages from real games are not loaded yet.'}</p>
-        <Branch node={tree} side={side} rep={rep} now={now} depth={0} />
+        <WhatWhen rep={rep} start={side === 'b' ? 'b' : 'w'} />
       </div>
     </div>
   )
 }
 
 const myTurn = (node: TreeNode, side: Side) => (node.path.length % 2 === 0) === (side === 'w')
+const count = (n: number) => (n === 1 ? '1 line' : `${n} lines`)
 
-function Branch({ node: from, side, rep, now, depth }: { node: TreeNode; side: Side; rep: Repertoire; now: number; depth: number }) {
-  const { node, skipped } = nextChoice(from)
-  if (!node.children.length) return node.lines.length === 1 ? <MapPath lines={node.lines} rep={rep} now={now} /> : null
-  const then = skipped.length ? <p className="map-then">Then {movesLabel(node.path, from.path.length)}</p> : null
-  if (myTurn(node, side)) {
-    const best = bestOf(node.children, side)
-    return (
-      <>
-        {then}
-        <div className="map-options">
-          {node.children.map((c) => <Option key={c.path.join(' ')} node={c} side={side} rep={rep} now={now} depth={depth} best={c === best} />)}
-        </div>
-      </>
-    )
-  }
+export function WhatWhen({ rep, start = 'w' }: { rep: Repertoire; start?: Side }) {
+  // Back from a line: its side and its chapter are open again
+  const back = rep.lines.find((l) => l.id === lastLine())
+  const [side, setSide] = useState<Side>(back?.side ?? start)
+  const tree = useMemo(() => buildTree(rep.lines, side), [rep.lines, side])
+  const [now] = useState(() => Date.now())
+  const [openKeys, setOpenKeys] = useState<Set<string>>(() => {
+    const keys = tree.children.flatMap((f) => f.children).filter((r) => back && r.lines.includes(back)).map((r) => r.path.join(' '))
+    return new Set(keys)
+  })
+  const [openLine, setOpenLine] = useState<string | null>(null)
   const them = side === 'w' ? 'Black' : 'White'
+  const toggle = (key: string) => {
+    const next = new Set(openKeys)
+    if (next.has(key)) next.delete(key)
+    else next.add(key)
+    setOpenKeys(next)
+  }
   return (
     <>
-      {then}
-      {node.children.map((c) => (
-        <details key={c.path.join(' ')} className="map-reply" open={depth === 0 && node.children.length <= 2}>
-          <summary>
-            {them} plays <b>{moveLabel(c.path)}</b>
-            <small>{c.lines.length === 1 ? '1 line' : `${c.lines.length} lines`}</small>
-          </summary>
-          <Branch node={c} side={side} rep={rep} now={now} depth={depth + 1} />
-        </details>
+      <div className="map-side" role="group" aria-label="Your side">
+        <button type="button" className={side === 'w' ? 'on' : ''} aria-pressed={side === 'w'} onClick={() => setSide('w')}>I play White</button>
+        <button type="button" className={side === 'b' ? 'on' : ''} aria-pressed={side === 'b'} onClick={() => setSide('b')}>I play Black</button>
+      </div>
+      <div className="greet">
+        <Mascot mood="happy" />
+        {them} can answer in many ways. Open one and see what you play against it.
+      </div>
+      <button type="button" className="primary wide map-surprise" disabled={!tree.lines.length} onClick={() => go('surprise/' + side)}>
+        🎲 Surprise me – Hoppy picks {them}'s moves
+      </button>
+      <p className="note small">{STATS_INFO || 'Percentages from real games are not loaded yet.'}</p>
+
+      {/* Sections: the first move (yours as White, White's as Black). Chapters: the next move. */}
+      {tree.children.map((first) => (
+        <section key={first.path[0]}>
+          <h3 className="chapter-group">{side === 'w' ? `You start with ${moveLabel(first.path)}` : `White starts with ${moveLabel(first.path)}`}</h3>
+          {first.children.map((reply) => {
+            const key = reply.path.join(' ')
+            const isOpen = openKeys.has(key)
+            const played = reply.lines.filter((l) => rep.srs.get(l.id)).length
+            const due = reply.lines.filter((l) => isDue(rep.srs.get(l.id), now)).length
+            const { node: choice } = nextChoice(reply)
+            const answers = myTurn(choice, side) && choice.children.length ? choice.children : []
+            return (
+              <div key={key} className={`chapter ${isOpen ? 'open' : ''}`}>
+                <button type="button" className="chapter-head" aria-expanded={isOpen} onClick={() => toggle(key)}>
+                  <span className={`side-dot ${side === 'w' ? 'white' : 'black'}`} aria-hidden="true" />
+                  <span className="chapter-title">
+                    {myTurn(first, side) ? `You play ${moveLabel(reply.path)}` : `${them} plays ${moveLabel(reply.path)}`}
+                    <small className="chapter-moves">{summary(reply, answers)}</small>
+                  </span>
+                  <span className="chapter-count">
+                    {played}/{reply.lines.length}
+                    {due > 0 && <b className="chapter-due">{due} due</b>}
+                  </span>
+                  <span className="chevron" aria-hidden="true">{isOpen ? '▾' : '▸'}</span>
+                </button>
+                {isOpen && <Choices node={reply} side={side} rep={rep} now={now} openLine={openLine} onToggle={(id) => setOpenLine(openLine === id ? null : id)} />}
+              </div>
+            )
+          })}
+        </section>
       ))}
     </>
   )
 }
 
-function Option({ node, side, rep, now, depth, best }: { node: TreeNode; side: Side; rep: Repertoire; now: number; depth: number; best: boolean }) {
-  const names = openingsOf(node)
-  const learned = node.lines.filter((l) => rep.srs.get(l.id)).length
-  const stats = statsFor(node.path)
-  const pct = stats && percentFor(stats, side)
-  const single = node.lines.length === 1 ? node.lines[0] : null
-  return (
-    <section className={`map-option ${best ? 'best' : ''}`}>
-      <div className="map-option-head">
-        <span className="map-move">You play {moveLabel(node.path)}</span>
-        {best && <span className="map-best">Best score</span>}
-      </div>
-      <div className="map-names">{single ? single.title : names.length > 3 ? `${names.slice(0, 3).join(' · ')} and ${names.length - 3} more` : names.join(' · ')}</div>
-      {pct && (
-        <div className="map-stats" aria-label={`Wins ${pct.win} percent, draws ${pct.draw}, losses ${pct.loss}`}>
-          <div className="map-bar">
-            <span className="win" style={{ width: pct.win + '%' }} />
-            <span className="draw" style={{ width: pct.draw + '%' }} />
-            <span className="loss" style={{ width: pct.loss + '%' }} />
-          </div>
-          <small>You win {pct.win}% · draw {pct.draw}% · lose {pct.loss}% · {pct.games.toLocaleString('en')} games</small>
-        </div>
-      )}
-      <div className="map-actions">
-        <small>{node.lines.length === 1 ? '1 line' : `${node.lines.length} lines`} · {learned} played</small>
-        {!single && <button type="button" className="primary" onClick={() => open(pickLine(node.lines, rep, now), rep)}>Practise</button>}
-      </div>
-      {single ? <MapPath lines={[single]} rep={rep} now={now} /> : <Branch node={node} side={side} rep={rep} now={now} depth={depth + 1} />}
-    </section>
-  )
+// Under the chapter title: what you answer, or which opening it is
+function summary(reply: TreeNode, answers: TreeNode[]): string {
+  if (answers.length) {
+    const names = [...new Set(answers.map((a) => openingsOf(a)[0] ?? ''))]
+    const moves = answers.map((a) => moveLabel(a.path))
+    if (names.length === 1) return `${names[0]} · you play ${moves.length > 1 ? moves.slice(0, -1).join(', ') + ' or ' + moves[moves.length - 1] : moves[0]}`
+    return 'You play ' + answers.map((a) => `${moveLabel(a.path)} ${openingsOf(a)[0] ?? ''}`.trim()).join(' · ')
+  }
+  const names = openingsOf(reply)
+  return `${names.slice(0, 2).join(' · ')}${names.length > 2 ? ` and ${names.length - 2} more` : ''} · ${count(reply.lines.length)}`
 }
 
-// The lines at the end of a branch, as the same learning path as on the overview
-function MapPath({ lines, rep, now }: { lines: Line[]; rep: Repertoire; now: number }) {
-  const [open, setOpen] = useState<string | null>(null)
+// Inside a chapter: one heading per choice (your answers with their score, or the other side's tries),
+// each with its lines as the learning path
+function Choices({ node: from, side, rep, now, openLine, onToggle }: { node: TreeNode; side: Side; rep: Repertoire; now: number; openLine: string | null; onToggle: (id: string) => void }) {
+  const { node } = nextChoice(from)
+  const branches = node.children.length ? node.children : [node]
+  const mine = myTurn(node, side)
+  const them = side === 'w' ? 'Black' : 'White'
   return (
-    <div className="path">
-      {lines.map((line, i) => (
-        <PathStep key={line.id} line={line} i={i} rep={rep} now={now} branch={null} open={open === line.id} onToggle={() => setOpen(open === line.id ? null : line.id)} />
-      ))}
+    <div className="map-choices">
+      {branches.map((b) => {
+        const stats = mine ? statsFor(b.path) : null
+        const pct = stats && percentFor(stats, side)
+        return (
+          <div key={b.path.join(' ')} className="map-choice">
+            {b !== node && (
+              <div className="map-choice-head">
+                <span className="map-move">{mine ? `You play ${moveLabel(b.path)}` : `If ${them} plays ${moveLabel(b.path)}`}</span>
+                {mine && <span className="map-names">{openingsOf(b).join(' · ')}</span>}
+              </div>
+            )}
+            {pct && (
+              <div className="map-stats" aria-label={`Wins ${pct.win} percent, draws ${pct.draw}, losses ${pct.loss}`}>
+                <div className="map-bar">
+                  <span className="win" style={{ width: pct.win + '%' }} />
+                  <span className="draw" style={{ width: pct.draw + '%' }} />
+                  <span className="loss" style={{ width: pct.loss + '%' }} />
+                </div>
+                <small>You win {pct.win}% · draw {pct.draw}% · lose {pct.loss}% · {pct.games.toLocaleString('en')} games</small>
+              </div>
+            )}
+            <div className="path">
+              {b.lines.map((line, i) => (
+                <PathStep key={line.id} line={line} i={i} rep={rep} now={now} branch={null} open={openLine === line.id} onToggle={() => onToggle(line.id)} />
+              ))}
+            </div>
+          </div>
+        )
+      })}
     </div>
   )
-}
-
-// A line never played starts with Learn, like on the overview: first see the moves, then play them yourself
-function open(line: Line, rep: Repertoire) {
-  go((rep.srs.get(line.id) ? 'drill/' : 'learn/') + line.id)
-}
-
-// The answer with the best score for you, when at least two have real results
-function bestOf(options: TreeNode[], side: Side): TreeNode | null {
-  const scored = options.map((o) => ({ o, s: statsFor(o.path) })).filter((x) => x.s)
-  if (scored.length < 2) return null
-  const score = (x: (typeof scored)[number]) => {
-    const p = percentFor(x.s!, side)
-    return p.win + p.draw / 2
-  }
-  return scored.reduce((a, b) => (score(b) > score(a) ? b : a)).o
-}
-
-// Due lines first, then new ones, else any
-function pickLine(lines: Line[], rep: Repertoire, now: number): Line {
-  const due = lines.filter((l) => isDue(rep.srs.get(l.id), now))
-  const fresh = lines.filter((l) => !rep.srs.get(l.id))
-  const pool = due.length ? due : fresh.length ? fresh : lines
-  return pool[Math.floor(Math.random() * pool.length)]
 }

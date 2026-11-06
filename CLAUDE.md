@@ -85,7 +85,7 @@ Hauptnutzung: am Handy.
 
 ## 1.d4-Repertoire + Eröffnungs-Karte (Lus Wunsch 06.11.2026)
 - `data/d4_white.pgn`: gegen 1...d5 alle drei Systeme (London 2.Bf4, Levitsky 2.Bg5, Damengambit 2.c4 – Lus Wahl: „alle 3“), gegen Holländisch/1...c5/Englund eigene Linien, gegen 1...e6/c6/d6/g6 → 2.e4 (Übergang ins 1.e4-Repertoire).
-- `#/map` (`src/screens/OpeningMap.tsx`, Baum aus den Linien in `src/lib/tree.ts`): „Schwarz spielt X → du spielst Y“, Practise je Ast, „Surprise me“ (`#/surprise/<w|b>`, zufällige Linie).
+- Startseite „Your path“ hat zwei Reiter (Lus Idee): **Learn openings** (Kapitel) und **What to play when?** (`WhatWhen` in `src/screens/OpeningMap.tsx`, Baum aus `src/lib/tree.ts`; auch als `#/map`). Gleiches Duolingo-Design wie die Kapitel (Lus Vorgabe): Kapitel = Antwort der Gegenseite, darin „You play …“ + Pfad mit `PathStep` (Learn/Play). „Surprise me“ (`#/surprise/<w|b>`) nur mit schon gespielten Linien.
 - Prozente: `src/lib/opening-stats.json`, gefüllt von `scripts/fetch-opening-stats.mjs` (Lichess-Explorer, braucht Token – NIE ins Repo; Datei `~/.config/hoppy/lichess-token`). Ohne Daten zeigt die Karte keine Prozente.
 - Nach einer Linie scrollt die Übersicht zurück zu dieser Linie (`src/lib/returnTo.ts`).
 

@@ -445,32 +445,24 @@ button:active:not(:disabled) { transition-duration: 0.04s; filter: brightness(0.
 .room-code { display: block; padding: 10px; text-align: center; font-size: 1.05rem; font-weight: 800; letter-spacing: 0.04em; background: #f4f4f7; border-radius: 12px; user-select: all; }
 .room-input { width: 100%; box-sizing: border-box; min-height: 48px; padding: 10px; font-size: 16px; text-align: center; border: 2px solid var(--line); border-radius: 12px; }
 
-/* Opening map: which opening when */
-.map-row { background: #eef8ff; border-color: #bfe3fb; }
-.map-row .quick-icon { color: var(--idea); }
+/* What to play when: same chapters and path as "Learn openings" */
+.path-tabs { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 10px; }
+.path-tabs button.on, .map-side button.on { background: var(--grape); border-color: #6b3fd9; color: #fff; }
 .map-side { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-.map-side button.on { background: var(--grape); border-color: #6b3fd9; color: #fff; }
-.map-reply { margin-top: 10px; border: 2px solid var(--line); border-radius: 18px; background: #fff; padding: 0 12px; }
-.map-reply > summary { display: flex; align-items: baseline; gap: 8px; min-height: 48px; padding: 12px 0; cursor: pointer; font-weight: 700; list-style-position: inside; }
-.map-reply > summary small { margin-left: auto; color: var(--muted); font-weight: 700; }
-.map-reply[open] > summary { border-bottom: 2px dashed var(--line); margin-bottom: 4px; }
-.map-reply .map-reply { margin-left: 4px; }
-.map-options { display: grid; gap: 10px; padding: 10px 0; }
-.map-option { border: 2px solid var(--line); border-radius: 16px; padding: 10px 12px; background: #fcfbff; }
-.map-option.best { border-color: var(--accent); background: #f3fce9; }
-.map-option-head { display: flex; align-items: center; gap: 8px; }
+.map-body { display: flex; flex-direction: column; gap: 14px; }
+.lines .map-side, .lines .greet, .lines .map-surprise, .lines .note { margin-top: 10px; }
+.lines .map-surprise { width: 100%; }
+.map-choices { padding: 0 14px 6px; }
+.map-choice + .map-choice { border-top: 2px dashed var(--line); }
+.map-choice-head { display: flex; flex-direction: column; padding-top: 14px; }
 .map-move { font-weight: 900; color: var(--grape); }
-.map-best { margin-left: auto; font-size: 0.75rem; font-weight: 900; color: #fff; background: var(--accent); border-radius: 999px; padding: 2px 8px; }
-.map-names { font-weight: 800; margin-top: 2px; }
+.map-names { font-weight: 800; }
 .map-stats { margin-top: 8px; }
-.map-stats small, .map-actions small { color: var(--muted); font-weight: 700; }
+.map-stats small { color: var(--muted); font-weight: 700; }
 .map-bar { display: flex; height: 12px; border-radius: 999px; overflow: hidden; background: var(--line); margin-bottom: 4px; }
 .map-bar .win { background: var(--accent); }
 .map-bar .draw { background: #c9c4d6; }
 .map-bar .loss { background: var(--bad); }
-.map-actions { display: flex; align-items: center; gap: 8px; margin-top: 8px; flex-wrap: wrap; }
-.map-actions small { margin-right: auto; }
-.map-then { margin: 8px 0 0; color: var(--muted); font-weight: 700; font-size: 0.9rem; }
 
 /* Fact and history of the opening, shown while a line is open */
 .screen > .opening-story { margin-inline: 16px; }

@@ -1,6 +1,7 @@
 import { Fragment, useEffect, useMemo, useState } from 'react'
 import { Mascot } from '../components/Mascot'
 import { PathStep } from '../components/PathStep'
+import { WhatWhen } from './OpeningMap'
 import { OpponentsCard } from '../components/OpponentsCard'
 import { go } from '../hooks/useHashRoute'
 import type { Achievements } from '../hooks/useAchievements'
@@ -44,6 +45,22 @@ export function Home({ rep, progress, puzzles, analyzer, player, trophies }: { r
     if (back) open.add(back.key)
     return open
   })
+  // "Learn openings" (chapters) or "What to play when?" (the other side's answers); remembered per phone
+  const [tab, setTab] = useState<'learn' | 'when'>(() => {
+    try {
+      return localStorage.getItem(TAB_KEY) === 'when' ? 'when' : 'learn'
+    } catch {
+      return 'learn'
+    }
+  })
+  function chooseTab(t: 'learn' | 'when') {
+    setTab(t)
+    try {
+      localStorage.setItem(TAB_KEY, t)
+    } catch {
+      // not remembered
+    }
+  }
   // Back from a line: show that line again instead of the top, so the next one is right there
   useEffect(() => {
     const id = lastLine()
@@ -153,11 +170,13 @@ export function Home({ rep, progress, puzzles, analyzer, player, trophies }: { r
           <h2>Your path</h2>
           <button type="button" onClick={() => go('import')}>Import PGN</button>
         </div>
-        <button type="button" className="attacks-row map-row" onClick={() => go('map')}>
-          <span className="quick-icon" aria-hidden="true">🗺️</span>
-          <span><b>Which opening when?</b><br /><small>Every answer of the other side – and what you play</small></span>
-          <span className="chevron" aria-hidden="true">▸</span>
-        </button>
+        <div className="path-tabs" role="group" aria-label="Show">
+          <button type="button" className={tab === 'learn' ? 'on' : ''} aria-pressed={tab === 'learn'} onClick={() => chooseTab('learn')}>Learn openings</button>
+          <button type="button" className={tab === 'when' ? 'on' : ''} aria-pressed={tab === 'when'} onClick={() => chooseTab('when')}>What to play when?</button>
+        </div>
+        {tab === 'when' && <WhatWhen rep={rep} />}
+        {tab === 'learn' && (
+        <>
         <button type="button" className="attacks-row" onClick={() => go('attacks')}>
           <span className="quick-icon" aria-hidden="true">⚔️</span>
           <span><b>Attacks & Traps</b><br /><small>Every famous attack together with its defense</small></span>
@@ -197,6 +216,8 @@ export function Home({ rep, progress, puzzles, analyzer, player, trophies }: { r
             </Fragment>
           )
         })}
+        </>
+        )}
       </section>
 
       <section className={`goal-card ${progress.goalReached ? 'reached' : ''}`} aria-label="Daily goal">
@@ -293,6 +314,7 @@ function AnalysisStatus({ analyzer, analyzedGames }: { analyzer: AnalyzerState; 
 }
 
 const OPEN_KEY = 'chess-trainer-open-chapters'
+const TAB_KEY = 'chess-trainer-path-tab'
 
 // Chapters that were open last time; the first time, the chapters with due lines (or the first chapter)
 function loadOpen(list: Chapter[], rep: Repertoire, now: number): Set<string> {
