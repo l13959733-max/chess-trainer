@@ -3,6 +3,7 @@ import type { Arrow } from 'react-chessboard'
 import { ARROW, Board, LAST_MOVE, WRONG } from '../components/Board'
 import { Celebrate } from '../components/Celebrate'
 import { Mascot } from '../components/Mascot'
+import { OpeningStory } from '../components/OpeningStory'
 import { SpeakButton } from '../components/SpeakButton'
 import { go } from '../hooks/useHashRoute'
 import type { Reward } from '../hooks/useProgress'
@@ -156,6 +157,8 @@ export function Learn({ line, onComplete }: { line: Line; onComplete: () => Prom
           </li>
         ))}
       </ol>
+
+      <OpeningStory line={line} />
 
       {!next && reward && (
         <div className="learn-reward">
