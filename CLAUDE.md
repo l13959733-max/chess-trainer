@@ -78,6 +78,7 @@ Hauptnutzung: am Handy.
 - `src/lib/live.ts` + `src/screens/Watch.tsx`, Route `#/watch`. Nur Partien gegen Hoppy-Bot (`#/play`), nicht Drill/Puzzles, nicht chess.com.
 - Kein Server: Spielstand läuft über zwei öffentliche MQTT-Broker (HiveMQ, EMQX), AES-GCM-verschlüsselt mit Schlüssel aus dem Einladungscode. Ohne Einladung keine Verbindung.
 - `driver` = Gerät, das gerade zieht und den Bot rechnet. Übernehmen = Stand mit höherer `rev` veröffentlichen; ganzer Spielstand steckt in der Nachricht, darum geht es auch, wenn der andere weg ist.
+- Seit 06.11.: auch Eröffnungs-Übungen (Drill) live zuschauen, nur zuschauen (kein Übernehmen). Eigener Kanal `…/d/<Gerät>` neben den Partien `…/g/<Gerät>`, damit eine offene Bot-Partie erhalten bleibt. Drill.tsx meldet bei jeder Änderung + alle 30 s, beim Verlassen leer.
 - Geholfene Partie: keine Wertung, Züge des Helfers (`helped`) werden nicht zu Puzzles des Besitzers; Helfer bekommt kein XP.
 
 ## Reihenfolge
