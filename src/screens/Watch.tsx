@@ -5,7 +5,7 @@ import { ARROW, Board, LAST_MOVE, WRONG } from '../components/Board'
 import { Mascot } from '../components/Mascot'
 import { go } from '../hooks/useHashRoute'
 import { buildBook } from '../lib/book'
-import { deviceId, isOver, isPlayingNow, joinRoom, leaveRoom, liveStateOf, newRoomCode, normalizeCode, othersDrills, othersGames, sendDrillMove, shareGame, useBeat, useLive, withHelp, type LiveDrill, type LiveGame, type LiveState, type Mover } from '../lib/live'
+import { deviceId, isOver, isPlayingNow, joinRoom, leaveRoom, liveStateOf, newRoomCode, normalizeCode, othersDrills, othersGames, othersOnline, sendDrillMove, shareGame, useBeat, useLive, withHelp, type Live, type LiveDrill, type LiveGame, type LiveState, type Mover } from '../lib/live'
 import type { Line } from '../lib/pgn'
 import { bookLines, GameView } from './Play'
 
@@ -100,6 +100,33 @@ export function GameRow({ state }: { state: LiveState }) {
       </span>
       <span className="live-go">{now ? 'Watch' : 'Open'}</span>
     </button>
+  )
+}
+
+// Someone with the app open who is not playing anything right now
+export function OnlineRow({ name }: { name: string }) {
+  return (
+    <div className="live-row online">
+      <span>
+        <b><span className="live-dot on" /> {name} is online</b><br />
+        <small>Start a line or a game – {name} can join you</small>
+      </span>
+    </div>
+  )
+}
+
+// Who is online and what they are doing
+export function Together({ live }: { live: Live }) {
+  const games = othersGames(live)
+  const drills = othersDrills(live)
+  const busy = new Set([...drills.map((d) => d.owner), ...games.filter((g) => isPlayingNow(g)).map((g) => g.driver)])
+  const idle = othersOnline(live).filter((p) => !busy.has(p.owner))
+  return (
+    <>
+      {drills.map((d) => <DrillRow key={'d' + d.owner} drill={d} />)}
+      {games.map((s) => <GameRow key={s.owner} state={s} />)}
+      {idle.map((p) => <OnlineRow key={'p' + p.owner} name={p.name} />)}
+    </>
   )
 }
 
@@ -224,18 +251,16 @@ function Lobby() {
       </div>
     )
   }
-  const games = othersGames(live)
-  const drills = othersDrills(live)
+  const nobody = !othersGames(live).length && !othersDrills(live).length && !othersOnline(live).length
   return (
     <div className="screen">
       <Head title="Watch each other" />
       <p className={`live-status ${live.connected ? 'on' : ''}`}><span className="live-dot" /> {live.connected ? 'Connected' : 'Connecting …'}</p>
-      {drills.map((d) => <DrillRow key={'d' + d.owner} drill={d} />)}
-      {games.map((s) => <GameRow key={s.owner} state={s} />)}
-      {!games.length && !drills.length && (
+      <Together live={live} />
+      {nobody && (
         <div className="greet">
           <Mascot mood="happy" />
-          Nobody is playing right now. It appears here as soon as someone plays against Hoppy-Bot or practises an opening.
+          Nobody else has the app open right now. You see it here as soon as someone opens it, practises an opening or plays against Hoppy-Bot.
         </div>
       )}
       <Invite code={live.room} />

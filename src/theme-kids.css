@@ -356,6 +356,9 @@ button:active:not(:disabled) { transition-duration: 0.04s; filter: brightness(0.
 .guide-card p { margin: 0; line-height: 1.45; }
 .guide-card ul { margin: 0; padding-left: 18px; display: grid; gap: 2px; }
 .guide-card .fun-fact { background: #fffbea; border-radius: 12px; padding: 8px 10px; font-size: 0.9rem; }
+.guide-story summary { font-weight: 800; color: var(--accent-dark); cursor: pointer; min-height: 32px; display: flex; align-items: center; }
+.guide-story p { margin: 6px 0 0; }
+.reward-fact { margin: 8px 0 0; background: #fffbea; border-radius: 12px; padding: 8px 10px; text-align: left; line-height: 1.45; }
 .style-chip { justify-self: start; font-size: 0.72rem; font-weight: 900; text-transform: uppercase; letter-spacing: 0.06em; border-radius: 999px; padding: 3px 10px; color: #fff; background: var(--idea); }
 .style-chip.solid { background: var(--idea); }
 .style-chip.active { background: var(--accent); }
@@ -427,6 +430,8 @@ button:active:not(:disabled) { transition-duration: 0.04s; filter: brightness(0.
 .live-row { display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 12px 14px; text-align: left; border-radius: 20px; font-weight: 700; }
 .live-row small { font-weight: 700; color: var(--muted, #777); }
 .live-row.now { border-color: var(--accent-dark); }
+.live-row.online { border: 2px dashed var(--line); background: #fff; }
+.live-dot.on { background: var(--accent); animation: none; }
 .live-go { color: var(--accent-dark); font-weight: 900; }
 .live-dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; background: #ef4a5a; animation: live-pulse 1.4s ease-in-out infinite; }
 @keyframes live-pulse { 50% { opacity: 0.35; } }

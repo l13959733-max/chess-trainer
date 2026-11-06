@@ -14,14 +14,12 @@ import { branchMove, guideFor, type Guide } from '../lib/guide'
 import type { Line } from '../lib/pgn'
 import { PUZZLES_AVAILABLE } from '../lib/progress'
 import { daysUntil, isDue, lineResult } from '../lib/srs'
-import { othersDrills, othersGames, useLive } from '../lib/live'
-import { DrillRow, GameRow } from './Watch'
+import { useLive } from '../lib/live'
+import { Together } from './Watch'
 
 export function Home({ rep, progress, puzzles, analyzer, player, trophies }: { rep: Repertoire; progress: Progress; puzzles: Puzzles; analyzer: AnalyzerState; player: string; trophies: Achievements }) {
   const now = Date.now()
   const live = useLive()
-  const games = othersGames(live, now)
-  const drills = othersDrills(live, now)
   const due = rep.lines.filter((l) => isDue(rep.srs.get(l.id), now))
   const fresh = rep.lines.filter((l) => !rep.srs.get(l.id))
   const upcoming = rep.lines
@@ -97,8 +95,7 @@ export function Home({ rep, progress, puzzles, analyzer, player, trophies }: { r
         </button>
       )}
 
-      {drills.map((d) => <DrillRow key={'d' + d.owner} drill={d} />)}
-      {games.map((s) => <GameRow key={s.owner} state={s} />)}
+      <Together live={live} />
 
       <section className="daily-card" aria-label="Today's cards">
         <div className="label">Today's cards</div>
@@ -346,6 +343,14 @@ function GuideCard({ guide }: { guide?: Guide }) {
         <p className="fun-fact">
           <b>Fun fact:</b> {guide.fact}
         </p>
+      )}
+      {guide.story && (
+        <details className="guide-story">
+          <summary>History & idea</summary>
+          {guide.story.map((t) => (
+            <p key={t}>{t}</p>
+          ))}
+        </details>
       )}
     </div>
   )

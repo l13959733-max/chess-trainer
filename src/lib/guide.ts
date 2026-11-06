@@ -8,6 +8,8 @@ export interface Guide {
   ideas: string[]
   style: Style
   fact?: string
+  story?: string[] // longer background: history and the main idea, shown folded
+  rewards?: string[] // one after each finished line of this opening, in turn
 }
 
 const ITALIAN_FACT = 'One of the oldest openings: Italian masters like Polerio and Greco studied it around 1600. "Giuoco Piano" is Italian for "quiet game".'
@@ -66,6 +68,21 @@ export const GUIDE: Record<string, Guide> = {
     ideas: ['If the knight comes to e4: Bf4, then f3 kicks it', 'Bxf6 doubles Black\'s pawns', 'Against ...c5: push d5 and grab space'],
     style: 'Active',
     fact: 'Named after the Brazilian master Octávio Trompowsky, who played it in the 1930s and 1940s.',
+    story: [
+      'Octávio Trompowsky (1897–1984) was a Brazilian chess champion. He played 2.Bg5 again and again in the 1930s and 1940s, so the opening got his name.',
+      'For a long time it was only a small side line. Then, in the 1980s, the English grandmasters Julian Hodgson and Nigel Short played it and showed it is a real weapon. That is why in England it is often called the Hodgson Attack.',
+      'Why 2.Bg5? After 1.d4 Nf6 Black usually wants to play a big, well-known system (King\'s Indian, Nimzo-Indian, Grünfeld). The bishop on g5 gives no time for that: Black has to deal with it right now, often in positions they know less well.',
+      'Your dark bishop comes out before e3 can lock it in. If you take on f6, you give up the bishop pair, but Black gets doubled pawns or loses time – and you keep a solid center and quick development.',
+      'Three things to remember: against ...Ne4 go Bf4 and kick the knight with f3; against ...c5 push d5 and take space; against ...e6 take the center with e4 – and watch for Black grabbing e4 while the queen stands on d8.',
+    ],
+    rewards: [
+      'Octávio Trompowsky was born in Rio de Janeiro in 1897 and died there in 1984.',
+      'In 1939 Trompowsky became the chess champion of Brazil.',
+      'At the 1939 Chess Olympiad in Buenos Aires, Trompowsky played on board one for Brazil – against world champions like Alekhine and Capablanca.',
+      'Trompowsky played 2.Bg5 in the 1930s and 1940s – almost 100 years ago, and it still surprises players today.',
+      'In the 1980s the English grandmasters Julian Hodgson and Nigel Short brought the opening back. In England many still call it the Hodgson Attack.',
+      'World champion Magnus Carlsen played the Trompowsky in the very first game of his 2016 World Championship match against Sergey Karjakin.',
+    ],
   },
   'Scandinavian|w': {
     about: 'Black attacks e4 at once with 1...d5. Take the pawn and chase the queen with your pieces.',
@@ -182,4 +199,19 @@ export function branchMove(line: { moves: { san: string; color: 'w' | 'b' }[] },
   const m = line.moves[common]
   const no = Math.floor(common / 2) + 1
   return `${no}.${m.color === 'b' ? '..' : ''}${m.san}`
+}
+
+// The next reward fact for an opening (each finished line shows the following one)
+export function nextReward(opening: string | undefined, side: 'w' | 'b'): string | null {
+  const facts = opening ? GUIDE[`${opening}|${side}`]?.rewards : undefined
+  if (!facts?.length) return null
+  const key = 'chess-trainer-reward:' + opening + '|' + side
+  let n = 0
+  try {
+    n = Number(localStorage.getItem(key)) || 0
+    localStorage.setItem(key, String(n + 1))
+  } catch {
+    // private mode: always the first one
+  }
+  return facts[n % facts.length]
 }

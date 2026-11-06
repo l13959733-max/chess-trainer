@@ -8,6 +8,7 @@ import { checkMove, firstPlayerPly, isFinished } from '../lib/drill'
 import { feedback as fx } from '../lib/feedback'
 import { onDrillMoves, shareDrill, type Mover } from '../lib/live'
 import type { Line, LineMove } from '../lib/pgn'
+import { nextReward } from '../lib/guide'
 import { explanationText } from '../lib/speech'
 import { daysUntil, type SrsState } from '../lib/srs'
 import { go } from '../hooks/useHashRoute'
@@ -38,6 +39,7 @@ export function Drill({ line, onDone, after, progress }: Props) {
   const [reward, setReward] = useState<Reward | null>(null)
   const [review, setReview] = useState<number | null>(null)
   const [lastBy, setLastBy] = useState<(Mover & { san: string }) | null>(null)
+  const [rewardFact, setRewardFact] = useState<string | null>(null)
   const timer = useRef<number | undefined>(undefined)
   const recorded = useRef(false)
 
@@ -55,6 +57,7 @@ export function Drill({ line, onDone, after, progress }: Props) {
     setReward(null)
     setReview(null)
     setLastBy(null)
+    setRewardFact(null)
   }, [])
 
   // Play the opponent's move automatically
@@ -73,6 +76,7 @@ export function Drill({ line, onDone, after, progress }: Props) {
     if (!finished || recorded.current || ply < firstPlayerPly(line)) return
     recorded.current = true
     fx.success()
+    setRewardFact(nextReward(line.opening, line.side))
     onDone(mistakePlies.size).then(({ srs, reward }) => {
       setNextDays(daysUntil(srs, Date.now()))
       setReward(reward)
@@ -196,6 +200,11 @@ export function Drill({ line, onDone, after, progress }: Props) {
           <div className="done-title">{mistakes === 0 ? 'Perfect!' : mistakes === 1 ? 'Well done!' : 'You did it!'}</div>
           {reward && <Celebrate reward={reward} />}
           {nextDays !== null && <p>Next review: {nextDays <= 1 ? 'tomorrow' : `in ${nextDays} days`}</p>}
+          {rewardFact && (
+            <p className="fun-fact reward-fact">
+              <b>Did you know?</b> {rewardFact}
+            </p>
+          )}
           <div className="done-actions">{after(restart)}</div>
         </div>
       )}

@@ -56,6 +56,13 @@ export interface Mover {
   name: string
 }
 
+// "I am here": every phone with the app open says so every now and then
+export interface Presence {
+  owner: string
+  name: string
+  ts: number
+}
+
 // A move someone else plays in the owner's drill
 export interface DrillMove {
   owner: string
@@ -102,7 +109,7 @@ async function roomKey(code: string): Promise<CryptoKey> {
   return crypto.subtle.importKey('raw', await sha256('hoppy-key:' + code), 'AES-GCM', false, ['encrypt', 'decrypt'])
 }
 
-export async function seal(code: string, state: LiveState | LiveDrill | DrillMove): Promise<Uint8Array> {
+export async function seal(code: string, state: LiveState | LiveDrill | DrillMove | Presence): Promise<Uint8Array> {
   const iv = crypto.getRandomValues(new Uint8Array(12))
   const data = await crypto.subtle.encrypt({ name: 'AES-GCM', iv }, await roomKey(code), new TextEncoder().encode(JSON.stringify(state)))
   const out = new Uint8Array(12 + data.byteLength)
@@ -195,6 +202,7 @@ export interface Live {
   connected: boolean
   states: LiveState[]
   drills: LiveDrill[]
+  online: Presence[]
 }
 
 let room = read(ROOM_KEY)
@@ -203,11 +211,12 @@ let topic: string | null = null
 let generation = 0 // a change of room makes everything still on its way irrelevant
 const states = new Map<string, LiveState>()
 const drills = new Map<string, LiveDrill>()
+const presence = new Map<string, Presence>()
 const listeners = new Set<() => void>()
-let snapshot: Live = { room, connected: false, states: [], drills: [] }
+let snapshot: Live = { room, connected: false, states: [], drills: [], online: [] }
 
 function changed() {
-  snapshot = { room, connected: clients.some((c) => c.connected), states: [...states.values()], drills: [...drills.values()] }
+  snapshot = { room, connected: clients.some((c) => c.connected), states: [...states.values()], drills: [...drills.values()], online: [...presence.values()] }
   listeners.forEach((l) => l())
 }
 
@@ -222,6 +231,46 @@ async function onDrill(gen: number, code: string, owner: string, payload: Uint8A
     drills.set(owner, drill)
     changed()
   }
+}
+
+async function onPresence(gen: number, code: string, owner: string, payload: Uint8Array) {
+  if (!payload.length) {
+    if (gen === generation && presence.delete(owner)) changed()
+    return
+  }
+  const p = await unseal<Presence>(code, payload)
+  if (gen !== generation || !p || p.owner !== owner) return
+  if (!presence.has(owner) || p.ts > presence.get(owner)!.ts) {
+    presence.set(owner, p)
+    changed()
+  }
+}
+
+// Say "I am here" while the app is on the screen, and "gone" when it goes to the background.
+// If the phone just drops off, the broker says "gone" for it (last will).
+function announce(here: boolean) {
+  const code = room
+  if (!code || !topic) return
+  const to = `${topic}/p/${deviceId()}`
+  const targets = clients.filter((c) => c.connected)
+  if (!here) {
+    for (const c of targets) c.publish(to, '', { retain: true, qos: 1 })
+    return
+  }
+  const me: Presence = { owner: deviceId(), name: getName() ?? getPlayer(), ts: Date.now() }
+  void seal(code, me).then((bytes) => {
+    for (const c of targets) c.publish(to, bytes as Buffer, { retain: true, qos: 1 })
+  })
+}
+
+let presenceStarted = false
+function startPresence() {
+  if (presenceStarted || typeof document === 'undefined') return
+  presenceStarted = true
+  window.setInterval(() => {
+    if (document.visibilityState === 'visible') announce(true)
+  }, BEAT)
+  document.addEventListener('visibilitychange', () => announce(document.visibilityState === 'visible'))
 }
 
 // Moves for my drill. Each one arrives twice (two brokers), so they are counted once by id.
@@ -275,19 +324,22 @@ export async function startLive(): Promise<void> {
   if (gen !== generation) return
   topic = prefix
   clients = BROKERS.map((url) => {
-    const client = mqtt.connect(url, { connectTimeout: 8000, reconnectPeriod: 3000 })
+    const will = { topic: `${prefix}/p/${deviceId()}`, payload: '', retain: true, qos: 1 as const }
+    const client = mqtt.connect(url, { connectTimeout: 8000, reconnectPeriod: 3000, will })
     client.on('connect', () => {
-      client.subscribe([`${prefix}/g/+`, `${prefix}/d/+`, `${prefix}/m/${deviceId()}`], { qos: 1 })
+      client.subscribe([`${prefix}/g/+`, `${prefix}/d/+`, `${prefix}/p/+`, `${prefix}/m/${deviceId()}`], { qos: 1 })
       changed()
+      if (document.visibilityState === 'visible') announce(true)
     })
     client.on('close', changed)
     client.on('error', () => {}) // it keeps reconnecting; the screen shows "Connecting"
     client.on('message', (t, payload) => {
       const [kind, owner] = t.split('/').slice(-2)
-      void (kind === 'd' ? onDrill : kind === 'm' ? onDrillMove : onMessage)(gen, code, owner, payload)
+      void (kind === 'd' ? onDrill : kind === 'm' ? onDrillMove : kind === 'p' ? onPresence : onMessage)(gen, code, owner, payload)
     })
     return client
   })
+  startPresence()
 }
 
 function send(state: LiveState | LiveDrill) {
@@ -317,6 +369,7 @@ export function leaveRoom() {
   for (const c of closing) {
     if (prefix) {
       c.publish(`${prefix}/d/${deviceId()}`, '', { retain: true, qos: 1 })
+      c.publish(`${prefix}/p/${deviceId()}`, '', { retain: true, qos: 1 })
       c.publish(`${prefix}/g/${deviceId()}`, '', { retain: true, qos: 1 }, () => c.end())
     } else c.end()
   }
@@ -325,6 +378,7 @@ export function leaveRoom() {
   room = null
   states.clear()
   drills.clear()
+  presence.clear()
   write(ROOM_KEY, null)
   changed()
 }
@@ -393,6 +447,11 @@ export function othersGames(live: Live, now = Date.now()): LiveState[] {
   return live.states
     .filter((s) => s.owner !== deviceId() && now - s.ts < FORGET_AFTER && !isOver(s.game))
     .sort((a, b) => b.ts - a.ts)
+}
+
+// The others who have the app open right now
+export function othersOnline(live: Live, now = Date.now()): Presence[] {
+  return live.online.filter((p) => p.owner !== deviceId() && now - p.ts < LIVE_FOR).sort((a, b) => a.name.localeCompare(b.name))
 }
 
 // Lines the others are practising right now
