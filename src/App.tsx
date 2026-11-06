@@ -23,6 +23,7 @@ import { Learn } from './screens/Learn'
 import { Play } from './screens/Play'
 import { PuzzleView } from './screens/PuzzleScreen'
 import { Settings } from './screens/Settings'
+import { MuteButton } from './components/MuteButton'
 import { ThreatView } from './screens/Threat'
 import { Trophies } from './screens/Trophies'
 import { Watch } from './screens/Watch'
@@ -101,7 +102,10 @@ function App() {
     <main className="app">
       <header className="top">
         <button type="button" className="brand" onClick={() => go('')}>Chess Trainer</button>
-        <button type="button" className="settings-link" onClick={() => go('settings')}>Settings</button>
+        <div className="top-actions">
+          <MuteButton key={page ?? ''} />
+          <button type="button" className="settings-link" onClick={() => go('settings')}>Settings</button>
+        </div>
       </header>
       {!page && named && <InstallBanner />}
       {body}
