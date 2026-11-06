@@ -17,7 +17,7 @@ import { InstallBanner } from './components/InstallBanner'
 import { Mascot } from './components/Mascot'
 import { Attacks } from './screens/Attacks'
 import { Drill } from './screens/Drill'
-import { Home } from './screens/Home'
+import { Home, rememberLine } from './screens/Home'
 import { Import } from './screens/Import'
 import { Learn } from './screens/Learn'
 import { Play } from './screens/Play'
@@ -47,6 +47,12 @@ function App() {
 
   // Reading stops when the screen changes; the first tap unlocks audio for automatic reading (iOS)
   useEffect(() => stopVoice, [page, id, arg])
+  // Back on the overview, the last line stays in view
+  useEffect(() => {
+    if ((page === 'learn' || page === 'drill') && id) rememberLine(id)
+    else if (page === 'play' && id === 'line' && arg) rememberLine(arg)
+    else if (page) rememberLine(null)
+  }, [page, id, arg])
   useEffect(() => {
     // iOS: only the end of a tap counts, so listen to those and keep trying until sound is allowed
     const events = ['touchend', 'pointerup', 'click', 'keydown'] as const

@@ -1,4 +1,4 @@
-import { Fragment, useMemo, useState } from 'react'
+import { Fragment, useEffect, useMemo, useState } from 'react'
 import { Mascot } from '../components/Mascot'
 import { OpponentsCard } from '../components/OpponentsCard'
 import { go } from '../hooks/useHashRoute'
@@ -36,7 +36,18 @@ export function Home({ rep, progress, puzzles, analyzer, player, trophies }: { r
   // Positions from your games where you were clearly winning before a mistake: win them again vs the bot
   const winning = useMemo(() => puzzles.puzzles.filter((p) => clampScore(p.scoreBefore) >= 300), [puzzles.puzzles])
   const chapterList = useMemo(() => chapters(rep.lines), [rep.lines])
-  const [openChapters, setOpenChapters] = useState<Set<string>>(() => loadOpen(chapterList, rep, now))
+  const [openChapters, setOpenChapters] = useState<Set<string>>(() => {
+    const open = loadOpen(chapterList, rep, now)
+    const back = chapterList.find((c) => c.lines.some((l) => l.id === returnTo))
+    if (back) open.add(back.key)
+    return open
+  })
+  // Back from a line: show that line again instead of the top, so the next one is right there
+  useEffect(() => {
+    const id = returnTo
+    if (!id) return
+    requestAnimationFrame(() => document.querySelector(`[data-line="${CSS.escape(id)}"]`)?.scrollIntoView({ block: 'center' }))
+  }, [])
   // The finder opens chapters and scrolls to the first one
   function openAndScroll(keys: string[]) {
     if (!keys.length) return
@@ -276,6 +287,12 @@ function AnalysisStatus({ analyzer, analyzedGames }: { analyzer: AnalyzerState; 
 
 const OPEN_KEY = 'chess-trainer-open-chapters'
 
+// The line opened last (learn, drill, play on); other screens forget it
+let returnTo: string | null = null
+export function rememberLine(id: string | null) {
+  returnTo = id
+}
+
 // Chapters that were open last time; the first time, the chapters with due lines (or the first chapter)
 function loadOpen(list: Chapter[], rep: Repertoire, now: number): Set<string> {
   try {
@@ -295,7 +312,7 @@ function PathStep({ line, i, rep, now, branch, open, onToggle }: { line: Line; i
   const next = !s || r.kind === 'new' ? '' : r.due ? 'Practice again now' : daysUntil(s, now) <= 1 ? 'Again tomorrow' : `Again in ${daysUntil(s, now)} days`
   const cls = r.kind === 'new' ? 'new' : r.kind === 'perfect' ? 'perfect' : 'mistakes'
   return (
-    <div className={`path-step offset-${i % 4}`}>
+    <div className={`path-step offset-${i % 4}`} data-line={line.id}>
       <button
         type="button"
         className={`path-node ${cls} ${r.due ? 'is-due' : ''} ${line.side === 'b' ? 'black' : ''}`}
