@@ -1,10 +1,11 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
+import { Chess } from 'chess.js'
 import type { Arrow } from 'react-chessboard'
 import { ARROW, Board, LAST_MOVE, WRONG } from '../components/Board'
 import { Mascot } from '../components/Mascot'
 import { go } from '../hooks/useHashRoute'
 import { buildBook } from '../lib/book'
-import { deviceId, isOver, isPlayingNow, joinRoom, leaveRoom, liveStateOf, newRoomCode, normalizeCode, othersDrills, othersGames, shareGame, useBeat, useLive, withHelp, type LiveDrill, type LiveGame, type LiveState } from '../lib/live'
+import { deviceId, isOver, isPlayingNow, joinRoom, leaveRoom, liveStateOf, newRoomCode, normalizeCode, othersDrills, othersGames, sendDrillMove, shareGame, useBeat, useLive, withHelp, type LiveDrill, type LiveGame, type LiveState, type Mover } from '../lib/live'
 import type { Line } from '../lib/pgn'
 import { bookLines, GameView } from './Play'
 
@@ -109,15 +110,24 @@ export function DrillRow({ drill }: { drill: LiveDrill }) {
         <b><span className="live-dot" /> {drill.ownerName} is practising</b><br />
         <small>{drill.title} · {drill.done ? 'line complete' : `move ${drill.ply} of ${drill.total}`} · {drill.mistakes === 1 ? '1 mistake' : `${drill.mistakes} mistakes`}</small>
       </span>
-      <span className="live-go">Watch</span>
+      <span className="live-go">Join</span>
     </button>
   )
 }
 
-// Watching someone practise an opening line: just the board, nothing to touch
+// Practising an opening line together: the line runs on the owner's phone, and whoever feels like it
+// plays the next move – the owner there or anyone here.
 function DrillTable({ owner }: { owner: string }) {
   const live = useLive()
   const drill = othersDrills(live).find((d) => d.owner === owner)
+  // My move shows at once; the owner's phone confirms it a moment later (or calls it wrong)
+  const [pending, setPending] = useState<{ rev: number; fen: string; from: string; to: string } | null>(null)
+  useEffect(() => {
+    if (!pending) return
+    // A move that came too late (the other one was faster) is dropped by the owner: show the real board again
+    const t = window.setTimeout(() => setPending(null), 4000)
+    return () => window.clearTimeout(t)
+  }, [pending])
   if (!drill) {
     return (
       <div className="screen">
@@ -136,29 +146,50 @@ function DrillTable({ owner }: { owner: string }) {
     styles[drill.wrong.tried.to] = WRONG
     arrows.push({ startSquare: drill.wrong.from, endSquare: drill.wrong.to, color: ARROW.correct })
   }
-  const mine = drill.ply < drill.total && (drill.fen.split(' ')[1] === drill.side)
+  const mine = !drill.done && drill.fen.split(' ')[1] === drill.side
+  const shown = pending && pending.rev === drill.rev ? pending : null
+  if (shown) {
+    styles[shown.from] = LAST_MOVE
+    styles[shown.to] = LAST_MOVE
+  }
+  const who = (by: Mover) => (by.id === deviceId() ? 'You' : by.name)
+  const onMove = (from: string, to: string) => {
+    if (!mine || shown) return false
+    const c = new Chess(drill.fen)
+    try {
+      c.move({ from, to, promotion: 'q' })
+    } catch {
+      return false
+    }
+    setPending({ rev: drill.rev, fen: c.fen(), from, to })
+    sendDrillMove(owner, drill.ply, from, to)
+    return true
+  }
   return (
     <div className="screen">
       <div className="screen-head">
         <button type="button" className="back" onClick={() => go('watch')} aria-label="Back to all games">←</button>
         <div>
-          <div className="eyebrow">{drill.ownerName} is practising · {drill.side === 'w' ? 'White' : 'Black'}</div>
+          <div className="eyebrow">Together with {drill.ownerName} · {drill.side === 'w' ? 'White' : 'Black'}</div>
           <h2>{drill.title}</h2>
         </div>
       </div>
-      <Board fen={drill.fen} orientation={drill.side === 'w' ? 'white' : 'black'} arrows={arrows} squareStyles={styles} />
+      <Board fen={shown ? shown.fen : drill.fen} orientation={drill.side === 'w' ? 'white' : 'black'} onMove={mine ? onMove : undefined} arrows={shown ? [] : arrows} squareStyles={styles} />
       <div className="drill-status">
-        <span>{drill.done ? 'Line complete' : mine ? `${drill.ownerName}'s move` : 'Opponent is moving …'}</span>
+        <span>{drill.done ? 'Line complete' : shown ? 'Opponent is moving …' : mine ? 'Your move – or ' + drill.ownerName + "'s" : 'Opponent is moving …'}</span>
         <span className={drill.mistakes ? 'bad' : 'good'}>{drill.mistakes === 1 ? '1 mistake' : `${drill.mistakes} mistakes`}</span>
       </div>
-      {drill.wrong && (
+      {drill.lastBy && !drill.done && !drill.wrong && !shown && (
+        <p className="together-note"><b>{who(drill.lastBy)}</b> played {drill.lastBy.san}</p>
+      )}
+      {drill.wrong && !shown && (
         <div className="explain wrong" role="alert">
           <Mascot mood="oops" />
-          <div className="move">Not that one – the right move is {drill.wrong.san}</div>
+          <div className="move">{drill.wrong.by ? `${who(drill.wrong.by)} tried another move. ` : ''}The right move is {drill.wrong.san}</div>
           {drill.wrong.comment && <p>{drill.wrong.comment}</p>}
         </div>
       )}
-      {drill.note && !drill.wrong && (
+      {drill.note && !drill.wrong && !shown && (
         <div className="explain">
           <Mascot mood="happy" />
           <div className="move">{drill.note.label}</div>
@@ -168,7 +199,7 @@ function DrillTable({ owner }: { owner: string }) {
       {drill.done && (
         <div className="done">
           <Mascot mood="cheer" />
-          <div className="done-title">{drill.mistakes === 0 ? `${drill.ownerName} played it perfectly!` : `${drill.ownerName} finished the line`}</div>
+          <div className="done-title">{drill.mistakes === 0 ? 'Perfect – well played together!' : 'Line complete – well done together!'}</div>
         </div>
       )}
     </div>

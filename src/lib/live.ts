@@ -30,8 +30,9 @@ export interface LiveState {
   game: LiveGame
 }
 
-// An opening line someone is practising (Drill). Only for watching: the whole picture is in the message,
-// so it also works for lines the watcher does not have (imported ones).
+// An opening line someone is practising (Drill). The whole picture is in the message, so it also works for
+// lines the others do not have (imported ones). The others may move too: their move goes to the owner's
+// device (DrillMove), which checks it like its own and publishes the result.
 export interface LiveDrill {
   owner: string
   ownerName: string
@@ -44,9 +45,25 @@ export interface LiveDrill {
   ply: number
   total: number
   mistakes: number
-  wrong?: { tried: { from: string; to: string }; san: string; from: string; to: string; comment?: string }
+  wrong?: { tried: { from: string; to: string }; san: string; from: string; to: string; comment?: string; by?: Mover }
   note?: { label: string; comment: string }
+  lastBy?: Mover & { san: string } // the last move of the learner's side, if someone else played it
   done: boolean
+}
+
+export interface Mover {
+  id: string
+  name: string
+}
+
+// A move someone else plays in the owner's drill
+export interface DrillMove {
+  owner: string
+  ply: number
+  from: string
+  to: string
+  by: Mover
+  id: string
 }
 
 const BROKERS = ['wss://broker.hivemq.com:8884/mqtt', 'wss://broker.emqx.io:8084/mqtt']
@@ -85,7 +102,7 @@ async function roomKey(code: string): Promise<CryptoKey> {
   return crypto.subtle.importKey('raw', await sha256('hoppy-key:' + code), 'AES-GCM', false, ['encrypt', 'decrypt'])
 }
 
-export async function seal(code: string, state: LiveState | LiveDrill): Promise<Uint8Array> {
+export async function seal(code: string, state: LiveState | LiveDrill | DrillMove): Promise<Uint8Array> {
   const iv = crypto.getRandomValues(new Uint8Array(12))
   const data = await crypto.subtle.encrypt({ name: 'AES-GCM', iv }, await roomKey(code), new TextEncoder().encode(JSON.stringify(state)))
   const out = new Uint8Array(12 + data.byteLength)
@@ -207,6 +224,36 @@ async function onDrill(gen: number, code: string, owner: string, payload: Uint8A
   }
 }
 
+// Moves for my drill. Each one arrives twice (two brokers), so they are counted once by id.
+const moveListeners = new Set<(m: DrillMove) => void>()
+const seenMoves = new Set<string>()
+async function onDrillMove(gen: number, code: string, owner: string, payload: Uint8Array) {
+  if (owner !== deviceId() || !payload.length) return
+  const move = await unseal<DrillMove>(code, payload)
+  if (gen !== generation || !move || move.owner !== owner || seenMoves.has(move.id)) return
+  seenMoves.add(move.id)
+  moveListeners.forEach((l) => l(move))
+}
+
+export function onDrillMoves(listener: (m: DrillMove) => void) {
+  moveListeners.add(listener)
+  return () => {
+    moveListeners.delete(listener)
+  }
+}
+
+// Play a move in someone else's drill (it counts only if it is still that move's turn when it arrives)
+export function sendDrillMove(owner: string, ply: number, from: string, to: string) {
+  const code = room
+  if (!code || !topic) return
+  const move: DrillMove = { owner, ply, from, to, by: { id: deviceId(), name: getName() ?? getPlayer() }, id: crypto.randomUUID() }
+  const dest = `${topic}/m/${owner}`
+  const targets = clients
+  void seal(code, move).then((bytes) => {
+    for (const c of targets) c.publish(dest, bytes as Buffer, { qos: 1 })
+  })
+}
+
 async function onMessage(gen: number, code: string, owner: string, payload: Uint8Array) {
   if (!payload.length) {
     if (gen === generation && states.delete(owner)) changed()
@@ -230,14 +277,14 @@ export async function startLive(): Promise<void> {
   clients = BROKERS.map((url) => {
     const client = mqtt.connect(url, { connectTimeout: 8000, reconnectPeriod: 3000 })
     client.on('connect', () => {
-      client.subscribe([`${prefix}/g/+`, `${prefix}/d/+`], { qos: 1 })
+      client.subscribe([`${prefix}/g/+`, `${prefix}/d/+`, `${prefix}/m/${deviceId()}`], { qos: 1 })
       changed()
     })
     client.on('close', changed)
     client.on('error', () => {}) // it keeps reconnecting; the screen shows "Connecting"
     client.on('message', (t, payload) => {
       const [kind, owner] = t.split('/').slice(-2)
-      void (kind === 'd' ? onDrill : onMessage)(gen, code, owner, payload)
+      void (kind === 'd' ? onDrill : kind === 'm' ? onDrillMove : onMessage)(gen, code, owner, payload)
     })
     return client
   })

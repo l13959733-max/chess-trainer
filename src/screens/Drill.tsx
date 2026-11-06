@@ -6,7 +6,7 @@ import { Mascot } from '../components/Mascot'
 import { SpeakButton } from '../components/SpeakButton'
 import { checkMove, firstPlayerPly, isFinished } from '../lib/drill'
 import { feedback as fx } from '../lib/feedback'
-import { shareDrill } from '../lib/live'
+import { onDrillMoves, shareDrill, type Mover } from '../lib/live'
 import type { Line, LineMove } from '../lib/pgn'
 import { explanationText } from '../lib/speech'
 import { daysUntil, type SrsState } from '../lib/srs'
@@ -15,7 +15,7 @@ import type { Reward } from '../hooks/useProgress'
 import { moveLabel } from './Learn'
 
 type Feedback =
-  | { kind: 'wrong'; tried: { from: string; to: string }; expected: LineMove; ply: number }
+  | { kind: 'wrong'; tried: { from: string; to: string }; expected: LineMove; ply: number; by?: Mover }
   | { kind: 'info'; move: LineMove; ply: number }
   | null
 
@@ -37,6 +37,7 @@ export function Drill({ line, onDone, after, progress }: Props) {
   const [nextDays, setNextDays] = useState<number | null>(null)
   const [reward, setReward] = useState<Reward | null>(null)
   const [review, setReview] = useState<number | null>(null)
+  const [lastBy, setLastBy] = useState<(Mover & { san: string }) | null>(null)
   const timer = useRef<number | undefined>(undefined)
   const recorded = useRef(false)
 
@@ -53,6 +54,7 @@ export function Drill({ line, onDone, after, progress }: Props) {
     setNextDays(null)
     setReward(null)
     setReview(null)
+    setLastBy(null)
   }, [])
 
   // Play the opponent's move automatically
@@ -90,11 +92,12 @@ export function Drill({ line, onDone, after, progress }: Props) {
       ply,
       total: line.moves.length,
       mistakes: mistakePlies.size,
-      wrong: wrong ? { tried: wrong.tried, san: wrong.expected.san, from: wrong.expected.from, to: wrong.expected.to, comment: wrong.expected.comment } : undefined,
+      wrong: wrong ? { tried: wrong.tried, san: wrong.expected.san, from: wrong.expected.from, to: wrong.expected.to, comment: wrong.expected.comment, by: wrong.by } : undefined,
       note: note ? { label: moveLabel(line, note.ply), comment: note.move.comment! } : undefined,
+      lastBy: lastBy ?? undefined,
       done: finished,
     }
-  }, [line, ply, mistakePlies, feedback, finished])
+  }, [line, ply, mistakePlies, feedback, finished, lastBy])
   useEffect(() => {
     shareDrill(watched)
     const t = window.setInterval(() => shareDrill(watched), 30_000)
@@ -104,21 +107,34 @@ export function Drill({ line, onDone, after, progress }: Props) {
     return () => shareDrill(null)
   }, [])
 
-  function onMove(from: string, to: string): boolean {
+  // `by`: someone else in the watch room played it on their phone
+  function onMove(from: string, to: string, by?: Mover): boolean {
     if (!myTurn) return false
     const res = checkMove(current, from, to)
     if (res === 'illegal') return false
     if (res === 'wrong') {
       fx.wrong()
       setMistakePlies((s) => new Set(s).add(ply))
-      setFeedback({ kind: 'wrong', tried: { from, to }, expected: current, ply })
+      setFeedback({ kind: 'wrong', tried: { from, to }, expected: current, ply, by })
       return false
     }
     fx.move(current.san)
     setFeedback(current.comment ? { kind: 'info', move: current, ply } : null)
+    setLastBy(by ? { ...by, san: current.san } : null)
     setPly(ply + 1)
     return true
   }
+
+  // Practising together: a move from the other phone counts if it is still that move's turn
+  const latest = useRef({ ply, onMove })
+  useEffect(() => {
+    latest.current = { ply, onMove }
+  })
+  useEffect(() => {
+    return onDrillMoves((m) => {
+      if (m.ply === latest.current.ply) latest.current.onMove(m.from, m.to, m.by)
+    })
+  }, [])
 
   const last = ply > 0 ? line.moves[ply - 1] : null
   const fen = last ? last.fenAfter : line.moves[0].fenBefore
@@ -153,10 +169,14 @@ export function Drill({ line, onDone, after, progress }: Props) {
         <span className={mistakes ? 'bad' : 'good'}>{mistakes === 1 ? '1 mistake' : `${mistakes} mistakes`}</span>
       </div>
 
+      {lastBy && !finished && !(feedback?.kind === 'wrong' && feedback.ply === ply) && (
+        <p className="together-note"><b>{lastBy.name}</b> played {lastBy.san}</p>
+      )}
+
       {feedback?.kind === 'wrong' && feedback.ply === ply && (
         <div className="explain wrong" role="alert">
           <Mascot mood="oops" />
-          <div className="move">The right move is {feedback.expected.san}</div>
+          <div className="move">{feedback.by ? `${feedback.by.name} tried another move. ` : ''}The right move is {feedback.expected.san}</div>
           <p>{feedback.expected.comment ?? 'Play the green arrow to continue.'}</p>
           <SpeakButton text={explanationText(feedback.expected.san, feedback.expected.comment, 'The right move is')} />
         </div>
