@@ -167,6 +167,16 @@ export const GUIDE: Record<string, Guide> = {
     ideas: ['Smith-Morra: take the pawn, develop solidly', 'Alapin 2.c3: hit e4 with ...Nf6', 'Grand Prix: fianchetto your bishop'],
     style: 'Active',
   },
+  'Alekhine Defense|w': {
+    about: 'Black\'s knight on f6 invites your pawns forward. You chase it and take space – then develop calmly.',
+    ideas: ['e5 chases the knight, d4 and c4 build a big center', 'Do not push too far: develop first', 'More space means more room for your pieces'],
+    style: 'Active',
+  },
+  "1.e4 e5: White's other tries|b": {
+    about: 'Not every White player plays 2.Nf3. Here is what to do against the early queen, the Vienna, the Center Game and the Scotch.',
+    ideas: ['Against an early queen: develop with tempo and protect f7', 'Answer a strike in the center with your own strike', 'Make the queen move again and again'],
+    style: 'Active',
+  },
   'Italian Game|b': {
     about: 'You answer the Italian with ...Bc5: your bishop aims at f2 just like White\'s aims at f7.',
     ideas: ['...Nf6 hits e4', '...d5 breaks the center when White plays d4', 'Calm setups: ...d6, ...a6, ...Ba7'],

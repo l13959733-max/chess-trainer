@@ -34,6 +34,7 @@ const LAYOUT: { group: string; side: Side; chapters: { opening: string; title?: 
       { opening: 'Sicilian Defense', title: 'vs Sicilian', moves: '1.e4 c5 · Alapin, Smith-Morra, Wing Gambit' },
       { opening: 'Pirc & Modern', title: 'vs Pirc & Modern', moves: '1.e4 d6 · 1.e4 g6' },
       { opening: 'Nimzowitsch Defense', title: 'vs Nimzowitsch', moves: '1.e4 Nc6' },
+      { opening: 'Alekhine Defense', title: 'vs Alekhine', moves: '1.e4 Nf6' },
       { opening: 'Other replies to 1.e4', title: 'vs other moves', moves: '1.e4 …' },
     ],
   },
@@ -55,11 +56,12 @@ const LAYOUT: { group: string; side: Side; chapters: { opening: string; title?: 
       { opening: 'Scandinavian', moves: '1.e4 d5' },
       { opening: 'Caro-Kann', moves: '1.e4 c6' },
       { opening: 'Sicilian Dragon', moves: '1.e4 c5 2.Nf3 d6 3.d4 cxd4 4.Nxd4 Nf6 5.Nc3 g6' },
-      { opening: "Sicilian: White's other tries", title: 'Sicilian · other White moves', moves: 'Smith-Morra, Alapin, 3.Bb5+, Grand Prix' },
+      { opening: "Sicilian: White's other tries", title: 'Sicilian · other White moves', moves: 'Smith-Morra, Alapin, 3.Bb5+, Grand Prix, 2.Bc4' },
       { opening: 'Italian Game', moves: '1.e4 e5 2.Nf3 Nc6 3.Bc4 Bc5' },
       { opening: 'Two Knights Defense', moves: '1.e4 e5 2.Nf3 Nc6 3.Bc4 Nf6' },
       { opening: 'Philidor Defense', moves: '1.e4 e5 2.Nf3 d6' },
       { opening: 'Ruy Lopez', title: 'Ruy Lopez (Spanish)', moves: '1.e4 e5 2.Nf3 Nc6 3.Bb5' },
+      { opening: "1.e4 e5: White's other tries", title: '1.e4 e5 · other White moves', moves: '2.Qh5, Vienna 2.Nc3, Center Game 2.d4, Scotch 3.d4' },
     ],
   },
   {
@@ -67,13 +69,13 @@ const LAYOUT: { group: string; side: Side; chapters: { opening: string; title?: 
     side: 'b',
     chapters: [
       { opening: "Queen's Gambit Declined", moves: '1.d4 d5 2.c4 e6' },
-      { opening: 'London & 2.Nf3', title: 'London System & 2.Nf3', moves: '1.d4 d5 2.Bf4 · 2.Nf3' },
+      { opening: 'London & 2.Nf3', title: 'London System & 2.Nf3', moves: '1.d4 d5 2.Bf4 · 2.Nf3 · 2.e3 · 2.Nc3' },
     ],
   },
   {
     group: 'Black · against other first moves',
     side: 'b',
-    chapters: [{ opening: 'Other first moves', title: '1.c4, 1.Nf3, 1.f4, 1.b3, 1.g3', moves: 'English, Réti, Bird, Nimzo-Larsen' }],
+    chapters: [{ opening: 'Other first moves', title: '1.c4, 1.Nf3, 1.f4, 1.b3, 1.g3, 1.e3', moves: 'English, Réti, Bird, Nimzo-Larsen' }],
   },
 ]
 
