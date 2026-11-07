@@ -297,7 +297,7 @@ export function BoardLab() {
               fx.success()
             }}
           >
-            {skin === b.skin ? "✓ Your pieces" : "Use these pieces"}
+            {skin === b.skin ? '✓ Your pieces' : 'Use these pieces'}
           </button>
         </section>
       ))}
