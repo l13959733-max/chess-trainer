@@ -249,3 +249,17 @@
 .pal-fog { --board-light: #e9e7e1; --board-dark: #8c969e; }
 .pal-ice { --board-light: #eef3f4; --board-dark: #86a3b3; }
 .pal-night { --board-light: #e7e3f0; --board-dark: #5d5a8c; }
+
+/* the way through a station: one big Continue, coins, the fun fact as a treat, extras on the side */
+.king-screen .king-continue { display: flex; flex-direction: column; align-items: center; gap: 2px; min-height: 64px; text-transform: none; letter-spacing: 0; font-size: 1.05rem; line-height: 1.25; }
+.king-screen .king-continue small { font-family: 'Nunito', sans-serif; font-weight: 800; font-size: .75rem; opacity: .85; text-transform: uppercase; letter-spacing: .06em; }
+.king-coins { flex: none; align-self: center; background: #3b2a14; color: #f3d98a; border: 2px solid #c9a227; border-radius: 999px; padding: 4px 10px; font-weight: 900; font-size: .95rem; font-variant-numeric: tabular-nums; }
+.king-coins-won { font-family: 'Cinzel', Georgia, serif; font-weight: 900; font-size: 1.5rem; color: #8f7116; text-align: center; animation: coins-pop .5s cubic-bezier(.2, .8, .2, 1.4); }
+@keyframes coins-pop { from { transform: scale(.4); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+.king-fact { text-align: left; background: #efe2c2; border: 2px solid var(--gilt); border-radius: 14px; padding: 10px 12px; margin: 10px 0 4px; }
+.king-fact b { font-family: 'Cinzel', Georgia, serif; color: #8f7116; }
+.king-fact p { margin: 4px 0 0; color: var(--ink); }
+.king-extras { display: grid; gap: 8px; background: var(--card); border: 2px dashed var(--edge); border-radius: 16px; padding: 12px; }
+.king-extras b { font-family: 'Cinzel', Georgia, serif; font-size: .95rem; color: var(--ink-soft); }
+.king-extras button { min-height: 44px; font-size: .92rem; text-align: left; }
+@media (prefers-reduced-motion: reduce) { .king-coins-won { animation: none; } }

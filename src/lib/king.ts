@@ -25,9 +25,12 @@ export interface BoardRound {
   san: string
   why: string
   fromComment?: boolean
+  threat?: boolean // you play the opponent: show what he threatens
 }
 
 export interface QuizQuestion {
+  fen?: string // a position to look at
+  move?: [string, string] // the move the question is about, drawn as an arrow
   q: string
   icon?: string
   options: string[]
@@ -35,7 +38,7 @@ export interface QuizQuestion {
   why: string
 }
 
-export type GameId = 'army' | 'riddle' | 'grain' | 'fork' | 'squares' | 'lewis' | 'queen' | 'turk' | 'cross' | 'krk' | 'shuffle'
+export type GameId = 'army' | 'riddle' | 'grain' | 'fork' | 'squares' | 'lewis' | 'queen' | 'turk' | 'cross' | 'krk' | 'shuffle' | 'guard' | 'safe' | 'react' | 'traps'
 
 export interface Station {
   id: string
@@ -52,13 +55,15 @@ export interface Station {
   skills: string[]
   master: Master
   scene: string // painted picture of the city in public/king
-  games: { id: GameId; title: string }[]
-  lines?: { opening: string; side: 'w' | 'b'; title?: string } // your real lines learned here
+  // the steps of the station; extras (history, fun) are optional and never block the way
+  games: { id: GameId; title: string; extra?: boolean }[]
+  lines?: { opening: string | string[]; side: 'w' | 'b'; title?: string } // your real lines learned here
+  fact?: string // a checked fun fact, the treat after the boss
   boss: {
     name: string
     face: string
     img: string
-    kind: 'army' | 'riddle' | 'board' | 'lines' | 'quiz' | 'cross' | 'krk' | 'grand'
+    kind: 'army' | 'riddle' | 'board' | 'lines' | 'quiz' | 'cross' | 'krk' | 'grand' | 'mixed'
     taunt: string
     win: string
     rounds?: BoardRound[]
@@ -118,6 +123,61 @@ export const CROSSROADS: Crossroad[] = [
   { fen: 'rnbqkbnr/pppp1ppp/4p3/8/3P4/8/PPP1PPPP/RNBQKBNR w KQkq - 0 2', q: 'Black answers 1.d4 with 1...e6. Which road?', options: [{ san: '2.Bg5', note: 'to Rio?' }, { san: '2.e4', note: 'take the whole center – the French', ok: true }, { san: '2.Bf4', note: 'to London?' }], why: '2.e4 takes the whole center – you are in your 1.e4 lines against the French.' },
 ]
 
+// ---------- the guard: before every move, check what is attacked and what is guarded ----------
+
+// Take what has no guard (every position is checked in king.test.ts)
+export const GUARD: BoardRound[] = [
+  { fen: 'k7/8/8/3n4/8/8/8/3RK3 w - - 0 1', taunt: '', from: 'd1', to: 'd5', san: 'Rxd5', why: 'The knight on d5 has no guard – take it for free. Always ask first: what is attacked, what is guarded?' },
+  { fen: 'k7/8/8/8/8/3n4/8/3RK3 w - - 0 1', taunt: '', from: 'd1', to: 'd3', san: 'Rxd3', why: 'Check! But the checking knight has no guard. When you are attacked, first look: can I take the attacker?' },
+  { fen: 'k7/8/8/8/b7/8/8/3QK3 w - - 0 1', taunt: '', from: 'd1', to: 'a4', san: 'Qxa4+', why: 'Your queen is attacked – but the attacker hangs. Take it instead of running away.' },
+  { fen: '6k1/5ppp/8/8/8/8/5PPP/3R2K1 w - - 0 1', taunt: '', from: 'd1', to: 'd8', san: 'Rd8#', why: 'Rd8# – the king is locked in by its own pawns. Always check your own back rank too!' },
+]
+
+// Is this move safe? (the answers are checked in king.test.ts)
+export const SAFE: QuizQuestion[] = [
+  { fen: 'k7/8/2p5/3p4/8/8/8/3QK3 w - - 0 1', move: ['d1', 'd5'], q: 'Is Qxd5 safe?', icon: '🛡', options: ['Yes', 'No'], answer: 'No', why: 'No! The pawn on c6 guards d5. After Qxd5 cxd5 your queen is gone.' },
+  { fen: 'k7/8/8/3p4/8/8/8/3QK3 w - - 0 1', move: ['d1', 'd5'], q: 'Is Qxd5 safe now?', icon: '🛡', options: ['Yes', 'No'], answer: 'Yes', why: 'Yes – nothing guards d5 any more. A free pawn.' },
+  { fen: '4k3/8/3p4/8/8/5N2/8/4K3 w - - 0 1', move: ['f3', 'e5'], q: 'Is Ne5 safe?', icon: '🛡', options: ['Yes', 'No'], answer: 'No', why: 'No! The pawn on d6 takes on e5. Before you move, check which squares the enemy pawns attack.' },
+]
+
+export const GUARD_BOSS: BoardRound[] = [
+  { fen: 'k7/8/8/8/5b2/8/8/5RK1 w - - 0 1', taunt: 'Only those who guard their army may pass!', from: 'f1', to: 'f4', san: 'Rxf4', why: 'The bishop on f4 has no guard. Free material!' },
+  { fen: 'k7/8/8/8/8/5n2/8/3QK3 w - - 0 1', taunt: 'Check! What now?', from: 'd1', to: 'f3', san: 'Qxf3+', why: 'Take the checking knight – nothing protects it.' },
+  { fen: 'r3k3/8/8/8/8/8/8/Q3K3 w - - 0 1', taunt: 'My rook is far away from you.', from: 'a1', to: 'a8', san: 'Qxa8+', why: 'The rook on a8 has no guard – the open file brings your queen right there.' },
+  { fen: '6k1/5ppp/8/8/8/8/5PPP/3Q2K1 w - - 0 1', taunt: 'My pawns protect my king!', from: 'd1', to: 'd8', san: 'Qd8#', why: 'Qd8# – the back rank again. The king has no air.' },
+]
+
+// ---------- Rome: how do you react after 1.e4 e5? ----------
+
+// Which move does your book play? (checked against your White lines in king.test.ts)
+export const ROME_REACT: Crossroad[] = [
+  { fen: 'r1bqkbnr/pppp1ppp/2n5/4p3/4P3/5N2/PPPP1PPP/RNBQKB1R w KQkq - 2 3', q: 'Black answers 2...Nc6. What do you play?', options: [{ san: '3.Bc4', note: 'the Italian Game', ok: true }, { san: '3.Bb5', note: 'the Ruy Lopez – your road in Valencia', ok: true }, { san: '3.Nc3', note: 'another knight' }], why: '3.Bc4 aims at f7, the weakest point in Black’s camp. 3.Bb5 is your other road.' },
+  { fen: 'r1bqk1nr/pppp1ppp/2n5/2b1p3/2B1P3/5N2/PPPP1PPP/RNBQK2R w KQkq - 4 4', q: 'Black plays 3...Bc5, the Giuoco Piano. Your move?', options: [{ san: '4.c3', note: 'prepare d4', ok: true }, { san: '4.b4', note: 'the Evans Gambit', ok: true }, { san: '4.Nc3', note: 'quiet development' }], why: '4.c3 prepares d4 for a big center. 4.b4 gives a pawn for fast development – both are in your book.' },
+  { fen: 'r1bqkb1r/pppp1ppp/2n2n2/4p3/2B1P3/5N2/PPPP1PPP/RNBQK2R w KQkq - 4 4', q: 'Black plays 3...Nf6, the Two Knights. Your move?', options: [{ san: '4.Ng5', note: 'attack f7 at once', ok: true }, { san: '4.d3', note: 'the calm way', ok: true }, { san: '4.Nc3', note: 'one more knight' }], why: '4.Ng5 hits f7 with knight and bishop. 4.d3 protects e4 and keeps everything safe.' },
+  { fen: 'r1bqkbnr/pppp1ppp/8/4p3/2BnP3/5N2/PPPP1PPP/RNBQK2R w KQkq - 4 4', q: 'Black plays 3...Nd4. Careful! Your move?', options: [{ san: '4.Nxd4', note: 'trade the knight', ok: true }, { san: '4.Nxe5', note: 'grab the pawn' }, { san: '4.c3', note: 'chase the knight' }], why: '4.Nxd4 is simple and good. 4.Nxe5? walks into a trap: 4...Qg5 hits your knight and g2.' },
+  { fen: 'rnbqkb1r/pppp1ppp/5n2/4p3/4P3/5N2/PPPP1PPP/RNBQKB1R w KQkq - 2 3', q: 'Black plays 2...Nf6, the Petrov. Your move?', options: [{ san: '3.Nxe5', note: 'take the pawn first', ok: true }, { san: '3.Bc4', note: 'the Italian bishop' }, { san: '3.Nc3', note: 'protect e4' }], why: '3.Nxe5 – take the pawn first. Then watch out for the copycat trap.' },
+  { fen: 'rnbqkbnr/ppp2ppp/3p4/4p3/4P3/5N2/PPPP1PPP/RNBQKB1R w KQkq - 0 3', q: 'Black plays 2...d6, the Philidor. Your move?', options: [{ san: '3.d4', note: 'hit the center', ok: true }, { san: '3.Bc4', note: 'the bishop to c4 – and maybe Légal’s trap', ok: true }, { san: '3.h3', note: 'a waiting move' }], why: 'The Philidor is solid but passive. 3.d4 hits the center right away.' },
+  { fen: 'r1bqk1nr/ppppbppp/2n5/4p3/2B1P3/5N2/PPPP1PPP/RNBQK2R w KQkq - 4 4', q: 'Black plays the shy 3...Be7. Your move?', options: [{ san: '4.d4', note: 'take the center', ok: true }, { san: '4.Ng5', note: 'jump at f7' }, { san: '4.a3', note: 'a waiting move' }], why: 'The bishop stays at home – use the time and take the center with 4.d4.' },
+  { fen: 'r1bqkbnr/pppp1pp1/2n4p/4p3/2B1P3/5N2/PPPP1PPP/RNBQK2R w KQkq - 0 4', q: 'Black plays 3...h6. Your move?', options: [{ san: '4.c3', note: 'prepare d4', ok: true }, { san: '4.Ng5', note: 'jump at f7' }, { san: '4.d4', note: 'open the center now' }], why: '3...h6 stops Ng5 (the pawn takes on g5) but does nothing for development. 4.c3 prepares d4.' },
+]
+
+// Traps from your lines: find the move from the line (checked in king.test.ts)
+export const ROME_TRAPS: { line: string; san: string; taunt: string }[] = [
+  { line: 'Italian: Blackburne Shilling Trap 3...Nd4', san: 'Nxd4', taunt: '3...Nd4 – grab my pawn on e5, go on!' },
+  { line: 'Italian: Blackburne Shilling Trap 3...Nd4', san: 'Bxf7+', taunt: '5...Bc5 – my bishop is safe, isn’t it?' },
+  { line: 'Trap: Petrov 3...Nxe4?', san: 'Qe2', taunt: '3...Nxe4 – I copy you!' },
+  { line: 'Trap: Petrov 3...Nxe4?', san: 'Nc6+', taunt: '4...Nf6 – my knight runs home.' },
+  { line: "Trap: Légal's Mate", san: 'Nxe5', taunt: '5...Bh5 – your knight is pinned!' },
+  { line: 'Two Knights: Fried Liver Attack', san: 'Nxf7', taunt: '5...Nxd5 – I take back.' },
+  { line: 'Two Knights: Avoiding the Traxler', san: 'Bxf7+', taunt: '4...Bc5 – take f7 with the knight, if you dare!' },
+]
+
+// What does your opponent threaten? You play his move (checked in king.test.ts)
+export const ROME_THREATS: BoardRound[] = [
+  { fen: 'r1bqkbnr/pppp1ppp/8/4N3/2BnP3/8/PPPP1PPP/RNBQK2R b KQkq - 0 4', taunt: 'You grabbed the pawn with 4.Nxe5?', from: 'd8', to: 'g5', san: 'Qg5', why: '4...Qg5! attacks your knight on e5 and the pawn on g2 at once. That is why 4.Nxd4 is the move.', threat: true },
+  { fen: 'r1bqkb1r/ppp2ppp/8/n2Pp1N1/2B5/8/PPPP1PPP/RNBQK2R b KQkq - 1 5', taunt: '5...Na5 – what does my knight want?', from: 'a5', to: 'c4', san: 'Nxc4', why: 'The knight attacks your bishop on c4. That is why 6.Bb5+ comes next in your line.', threat: true },
+]
+
 // ---------- the stations ----------
 
 export const STATIONS: Station[] = [
@@ -134,10 +194,16 @@ export const STATIONS: Station[] = [
         { who: 'master', text: 'Our whole army: foot soldiers, horses, chariots and elephants. The four members of an army – chaturanga!' },
         { who: 'master', text: 'In my book I joke that our kingdom is so peaceful, armies are only drawn up on chessboards.' },
         { who: 'hoppy', text: 'And I am one of the horses? Neigh!' },
+        { who: 'master', text: 'A good general asks before every move: what does the enemy attack – and what is guarded?' },
       ],
     },
-    games: [{ id: 'army', title: 'Meet your army' }],
-    boss: { name: 'The Captain of the Guard', face: '🛡', img: 'boss-captain.jpg', kind: 'army', taunt: 'Only those who know their army may pass!', win: 'You know your whole army. On to Persia – a riddle is waiting!' },
+    games: [
+      { id: 'guard', title: 'The guard: take what is free' },
+      { id: 'safe', title: 'Is it safe?' },
+      { id: 'army', title: 'Meet your army', extra: true },
+    ],
+    fact: 'Chaturanga means “four parts” in Sanskrit – the four parts of an Indian army: foot soldiers, horses, chariots and elephants.',
+    boss: { name: 'The Captain of the Guard', face: '🛡', img: 'boss-captain.jpg', kind: 'board', rounds: GUARD_BOSS, taunt: 'Only those who guard their army may pass!', win: 'Your army is safe with you. Now on to Rome – your first opening is waiting!' },
   },
   {
     id: 'persia', name: 'Persia', year: '500s', x: 1320, y: 445, color: '#0b7285',
@@ -153,7 +219,7 @@ export const STATIONS: Station[] = [
         { who: 'master', text: 'In one day and one night – at least that is how the Book of Kings tells it. Now it is your turn: watch the elephant and find its rule!' },
       ],
     },
-    games: [{ id: 'riddle', title: 'The riddle of the elephant' }],
+    games: [{ id: 'riddle', title: 'The riddle of the elephant', extra: true }],
     boss: { name: 'The Indian envoy', face: '🐘', img: 'boss-envoy.jpg', kind: 'riddle', taunt: 'Work out the game – or Persia pays!', win: 'Like Buzurgmihr, you worked out the rule just by watching. The envoy bows – Persia keeps its gold.' },
   },
   {
@@ -171,7 +237,7 @@ export const STATIONS: Station[] = [
         { who: 'master', text: 'Then learn the horse’s best trick, little horse: the fork. One jump, two targets.' },
       ],
     },
-    games: [{ id: 'fork', title: "Hoppy's fork" }, { id: 'grain', title: 'The legend of the grain' }],
+    games: [{ id: 'fork', title: "Hoppy's fork" }, { id: 'grain', title: 'The legend of the grain', extra: true }],
     boss: { name: 'The Caravan Thief', face: '🗡', img: 'boss-thief.jpg', kind: 'board', rounds: FORKS, taunt: 'Try to catch my caravan!', win: 'Three forks, three treasures back. The caravan thanks you!' },
   },
   {
@@ -207,7 +273,7 @@ export const STATIONS: Station[] = [
         { who: 'master', text: 'Then show me what my rooks can do. Beware of the berserker!' },
       ],
     },
-    games: [{ id: 'lewis', title: 'The Lewis chessmen' }],
+    games: [{ id: 'lewis', title: 'The Lewis chessmen', extra: true }],
     boss: { name: 'The Berserker', face: '🪓', img: 'boss-berserker.jpg', kind: 'board', rounds: ROOK_MATES, taunt: 'GRAAAH! *bites shield*', win: 'The berserker drops his shield – and laughs. Your rooks rule the North.' },
   },
   {
@@ -224,7 +290,7 @@ export const STATIONS: Station[] = [
         { who: 'hoppy', text: 'The Ruy Lopez! Those lines are in your book, Liam.' },
       ],
     },
-    games: [{ id: 'queen', title: 'The queen awakens' }],
+    games: [{ id: 'queen', title: 'The queen awakens', extra: true }],
     lines: { opening: 'Ruy Lopez', side: 'w' },
     boss: { name: 'The Mad Queen', face: '👑', img: 'boss-madqueen.jpg', kind: 'board', rounds: QUEEN_TACTICS, taunt: 'Now I can go anywhere – and so can you?', win: 'The Mad Queen bows to you. You command the strongest piece on the board.' },
   },
@@ -239,12 +305,17 @@ export const STATIONS: Station[] = [
         { who: 'master', text: 'Buongiorno! I am Gioachino Greco. I write chess games by hand for rich patrons – and I travel to play.' },
         { who: 'master', text: 'Many call me the first professional chess player.' },
         { who: 'master', text: 'My favourite plan: bishop to c4, aim at f7 – the weakest point next to the king. The Italian Game!' },
+        { who: 'master', text: 'After 1.e4 e5 2.Nf3 your opponent can answer in many ways. For each one you need a plan – and you must know the traps.' },
         { who: 'liam', text: 'Count Giuoco is waiting at the end of the street…' },
       ],
     },
-    games: [],
-    lines: { opening: 'Italian Game', side: 'w' },
-    boss: { name: 'Count Giuoco', face: '🎩', img: 'boss-giuoco.jpg', kind: 'lines', taunt: 'Show me your Italian, little prince!', win: 'Count Giuoco takes off his feathered hat. Your Italian lines are strong.' },
+    games: [
+      { id: 'react', title: 'How do you react?' },
+      { id: 'traps', title: 'Traps' },
+    ],
+    lines: { opening: ['Italian Game', 'Two Knights Defense', 'Petrov Defense', 'Philidor Defense'], side: 'w' },
+    fact: 'One of the oldest openings: Italian masters like Polerio and Greco studied it around 1600. “Giuoco Piano” is Italian for “quiet game”.',
+    boss: { name: 'Count Giuoco', face: '🎩', img: 'boss-giuoco.jpg', kind: 'mixed', taunt: 'Show me your Italian, little prince!', win: 'Count Giuoco takes off his feathered hat. You know how to react after 1.e4 e5.' },
   },
   {
     id: 'palace', name: "Queen's Palace", year: 'around 1490', x: 955, y: 212, medallion: true, color: '#7048e8',
@@ -278,7 +349,7 @@ export const STATIONS: Station[] = [
         { who: 'hoppy', text: 'I can smell a person in there…' },
       ],
     },
-    games: [{ id: 'turk', title: 'Who is inside the box?' }],
+    games: [{ id: 'turk', title: 'Who is inside the box?', extra: true }],
     lines: { opening: 'Vienna Game', side: 'w' },
     boss: { name: 'The Turk', face: '🤖', img: 'boss-turk.jpg', kind: 'lines', taunt: 'Click… whirr… your move, young prince.', win: 'The Turk’s arm stops. Whoever is inside – you were better.' },
   },
@@ -484,16 +555,37 @@ interface KingProgress {
   intro: boolean
   here: string
   beaten: string[]
+  coins: number
+  got: string[] // steps already rewarded, e.g. "rome/react"
+  travel?: string // after a boss: Liam rides on to this station when the map opens
 }
+
+const FRESH: KingProgress = { intro: false, here: 'kannauj', beaten: [], coins: 0, got: [] }
 
 export function loadKing(): KingProgress {
   try {
     const saved = localStorage.getItem(KEY)
-    if (saved) return { intro: false, here: 'kannauj', beaten: [], ...JSON.parse(saved) }
+    if (saved) return { ...FRESH, ...JSON.parse(saved) }
   } catch {
     // ignore
   }
-  return { intro: false, here: 'kannauj', beaten: [] }
+  return { ...FRESH }
+}
+
+// Coins for a finished step, only the first time
+export function earn(step: string, coins: number): number {
+  const p = loadKing()
+  if (p.got.includes(step)) return 0
+  saveKing({ ...p, coins: p.coins + coins, got: [...p.got, step] })
+  return coins
+}
+
+// The main road: first the guard, then your openings in the order you meet them most
+export const ROAD = ['kannauj', 'rome']
+export function nextStation(after: string, beaten: string[]): Station | undefined {
+  const order = [...ROAD, ...STATIONS.map((s) => s.id).filter((id) => !ROAD.includes(id))]
+  const rest = order.slice(order.indexOf(after) + 1).concat(order.slice(0, order.indexOf(after)))
+  return rest.map((id) => stationById(id)!).find((s) => !beaten.includes(s.id) && s.id !== after && isOpen(s, beaten))
 }
 
 export function saveKing(p: KingProgress) {
@@ -509,7 +601,8 @@ export function saveKing(p: KingProgress) {
 export function stationLines(s: Station, lines: Line[]): Line[] {
   if (!s.lines) return []
   const { opening, side, title } = s.lines
-  return lines.filter((l) => l.source !== 'import' && l.opening === opening && l.side === side && (!title || l.title.includes(title)))
+  const openings = Array.isArray(opening) ? opening : [opening]
+  return lines.filter((l) => l.source !== 'import' && openings.includes(l.opening ?? '') && l.side === side && (!title || l.title.includes(title)))
 }
 
 function shuffled<T>(a: T[]): T[] {

@@ -18,7 +18,7 @@ import { Mascot } from './components/Mascot'
 import { Attacks } from './screens/Attacks'
 import { Drill } from './screens/Drill'
 import { Home } from './screens/Home'
-import { backFromLine, rememberLine, rememberOrigin } from './lib/returnTo'
+import { backFromLine, rememberLine, rememberOrigin, stationOrigin } from './lib/returnTo'
 import { KingHome, KingStation, WarTent } from './screens/King'
 import { OpeningMap } from './screens/OpeningMap'
 import { Import } from './screens/Import'
@@ -90,7 +90,11 @@ function App() {
           <>
             <button type="button" onClick={restart}>Again</button>
             <button type="button" onClick={() => go('play/line/' + line.id)}>Play on</button>
-            <button type="button" className="primary" onClick={() => go('')}>Overview</button>
+            {stationOrigin() ? (
+              <button type="button" className="primary" onClick={() => go(stationOrigin() + '/next')}>Continue</button>
+            ) : (
+              <button type="button" className="primary" onClick={() => go('')}>Overview</button>
+            )}
           </>
         )}
       />
@@ -196,7 +200,11 @@ function Review({ rep, progress }: { rep: ReturnType<typeof useRepertoire>; prog
         <div className="done">
           <div className="done-title">{queue.length ? 'All due lines reviewed' : 'Nothing due'}</div>
           <div className="done-actions">
-            <button type="button" className="primary" onClick={() => go('')}>Overview</button>
+            {stationOrigin() ? (
+              <button type="button" className="primary" onClick={() => go(stationOrigin() + '/next')}>Continue</button>
+            ) : (
+              <button type="button" className="primary" onClick={() => go('')}>Overview</button>
+            )}
           </div>
         </div>
       </div>
@@ -252,7 +260,11 @@ function PuzzleSession({ puzzles, progress, category }: { puzzles: ReturnType<ty
           <div className="done-title">{queue.length ? 'All puzzles done for now' : 'No puzzles yet'}</div>
           {!queue.length && <p>Analyse your chess.com games on the overview first.</p>}
           <div className="done-actions">
-            <button type="button" className="primary" onClick={() => go('')}>Overview</button>
+            {stationOrigin() ? (
+              <button type="button" className="primary" onClick={() => go(stationOrigin() + '/next')}>Continue</button>
+            ) : (
+              <button type="button" className="primary" onClick={() => go('')}>Overview</button>
+            )}
           </div>
         </div>
       </div>
@@ -324,7 +336,11 @@ function DailySession({ rep, puzzles, progress }: { rep: ReturnType<typeof useRe
           <p>{queue.length ? 'Everything you learned is fresh again. Come back tomorrow for new cards.' : 'Learn a new line or play a game – new cards come from everything you practise.'}</p>
           <div className="done-actions">
             <button type="button" onClick={() => go('play')}>Play a game</button>
-            <button type="button" className="primary" onClick={() => go('')}>Overview</button>
+            {stationOrigin() ? (
+              <button type="button" className="primary" onClick={() => go(stationOrigin() + '/next')}>Continue</button>
+            ) : (
+              <button type="button" className="primary" onClick={() => go('')}>Overview</button>
+            )}
           </div>
         </div>
       </div>

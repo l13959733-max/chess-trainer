@@ -1,7 +1,10 @@
 import { Chess } from 'chess.js'
 import { describe, expect, it } from 'vitest'
 import { builtinLines } from './repertoire'
-import { CROSSROADS, FORKS, GRAIN, LEWIS, LORD_FOG, MATES, QUEEN_TACTICS, RIDDLES, ROOK_MATES, STATIONS, TURK, isOpen, lineRounds, stationLines, type BoardRound } from './king'
+import {
+  CROSSROADS, FORKS, GRAIN, GUARD, GUARD_BOSS, LEWIS, LORD_FOG, MATES, QUEEN_TACTICS, RIDDLES, ROME_REACT, ROME_THREATS, ROME_TRAPS, ROOK_MATES, SAFE, STATIONS, TURK,
+  isOpen, lineRounds, nextStation, stationLines, type BoardRound,
+} from './king'
 
 const play = (r: BoardRound) => {
   const c = new Chess(r.fen)
@@ -67,11 +70,7 @@ describe('King of Chess', () => {
   })
 
   it('stations with lines find them in the repertoire', () => {
-    for (const s of STATIONS.filter((x) => x.lines)) {
-      const { opening, side, title } = s.lines!
-      const found = builtinLines.filter((l) => l.opening === opening && l.side === side && (!title || l.title.includes(title)))
-      expect(found.length, s.id).toBeGreaterThan(0)
-    }
+    for (const s of STATIONS.filter((x) => x.lines)) expect(stationLines(s, builtinLines).length, s.id).toBeGreaterThan(0)
   })
 
   it('Chennai opens only when every other boss is beaten', () => {
@@ -94,5 +93,60 @@ describe('King of Chess', () => {
         }
       expect(lineRounds(lines, 4).length, s.id).toBeGreaterThanOrEqual(Math.min(4, lines.length))
     }
+  })
+
+  it('the guard: captures take a piece nobody guards, the rest is mate', () => {
+    for (const r of [...GUARD, ...GUARD_BOSS]) {
+      const { c, m } = play(r)
+      expect(m.san, r.fen).toBe(r.san)
+      if (c.isCheckmate()) continue
+      expect(m.captured, r.fen).toBeTruthy()
+      expect(c.isAttacked(m.to, 'b'), r.fen).toBe(false)
+      // the only capture on the board: no other way to "take something"
+      expect(new Chess(r.fen).moves({ verbose: true }).filter((x) => x.captured).length, r.fen).toBe(1)
+    }
+  })
+
+  it('is it safe? – the answer is right', () => {
+    for (const q of SAFE) {
+      const c = new Chess(q.fen)
+      const m = c.move({ from: q.move![0], to: q.move![1] })
+      expect(q.answer).toBe(c.isAttacked(m.to, 'b') ? 'No' : 'Yes')
+      expect(q.options).toContain(q.answer)
+    }
+  })
+
+  it("Rome: the right answers are exactly the moves of Lu's White book", () => {
+    const white = builtinLines.filter((l) => l.side === 'w')
+    for (const x of ROME_REACT) {
+      const placement = x.fen.split(' ')[0]
+      expect(white.some((l) => l.moves.some((m) => m.fenBefore.split(' ')[0] === placement)), x.q).toBe(true)
+      for (const o of x.options) {
+        const san = o.san.replace(/^\d+\./, '')
+        expect(() => new Chess(x.fen).move(san), x.q + ' ' + san).not.toThrow()
+        const known = white.some((l) => l.moves.some((m) => m.fenBefore.split(' ')[0] === placement && m.san === san))
+        expect(known, x.q + ' ' + san).toBe(!!o.ok)
+      }
+    }
+  })
+
+  it('Rome: every trap move is a move of Lu in that line', () => {
+    for (const t of ROME_TRAPS) {
+      const line = builtinLines.find((l) => l.title === t.line)
+      expect(line, t.line).toBeTruthy()
+      expect(line!.moves.some((m) => m.color === line!.side && m.san === t.san), t.line + ' ' + t.san).toBe(true)
+    }
+  })
+
+  it("Rome: the threats are the opponent's legal moves", () => {
+    for (const r of ROME_THREATS) {
+      expect(r.fen.split(' ')[1]).toBe('b')
+      expect(play(r).m.san).toBe(r.san)
+    }
+  })
+
+  it('the road leads from Kannauj to Rome', () => {
+    expect(nextStation('kannauj', ['kannauj'])?.id).toBe('rome')
+    expect(nextStation('rome', ['kannauj', 'rome'])?.id).toBe('persia')
   })
 })

@@ -7,11 +7,12 @@ import { PathStep } from '../components/PathStep'
 import { go } from '../hooks/useHashRoute'
 import type { Puzzles } from '../hooks/usePuzzles'
 import type { Repertoire } from '../hooks/useRepertoire'
+import type { Line } from '../lib/pgn'
 import { clampScore } from '../lib/blunders'
 import { feedback as fx } from '../lib/feedback'
 import {
-  ARMY, CROSSROADS, FORKS, GRAIN, LEWIS, MATES, QUEEN_TACTICS, RIDDLES, ROOK_MATES, STATIONS, TENT_AT, TURK,
-  isOpen, lineRounds, loadKing, saveKing, stationById, stationLines, type BoardRound, type Crossroad, type QuizQuestion, type Station,
+  ARMY, CROSSROADS, FORKS, GRAIN, GUARD, LEWIS, MATES, QUEEN_TACTICS, RIDDLES, ROME_REACT, ROME_THREATS, ROME_TRAPS, ROOK_MATES, SAFE, STATIONS, TENT_AT, TURK,
+  earn, isOpen, lineRounds, loadKing, nextStation, saveKing, stationById, stationLines, type BoardRound, type Crossroad, type QuizQuestion, type Station,
 } from '../lib/king'
 import '../king.css'
 
@@ -64,6 +65,21 @@ function KingMap() {
   const here = stationById(state.here) ?? STATIONS[0]
   const beatenCount = state.beaten.filter((id) => !stationById(id)?.finale).length
   const crowned = state.beaten.includes('chennai')
+
+  // After a boss Liam rides on by himself to the next station
+  const travelNow = useRef<(to: Station) => void>(() => {})
+  useEffect(() => {
+    travelNow.current = travel
+  })
+  useEffect(() => {
+    const to = stationById(loadKing().travel)
+    if (!to) return
+    const t = window.setTimeout(() => {
+      saveKing({ ...loadKing(), travel: undefined })
+      travelNow.current(to)
+    }, 700)
+    return () => window.clearTimeout(t)
+  }, [])
 
   // Open on the station where Liam stands
   useEffect(() => {
@@ -190,6 +206,7 @@ function KingMap() {
       </div>
       <div className="king-hud">
         <Avatar who="hoppy" className="king-hud-face" />
+        <span className="king-coins" aria-label={`${state.coins} coins`}>🪙 {state.coins}</span>
         <div className="king-bubble">
           {crowned ? (
             <>All hail <b>King Liam</b>! You conquered the whole world of chess.</>
@@ -306,10 +323,26 @@ export function KingStation({ id, sub, rep }: { id?: string; sub?: string; rep: 
   )
 }
 
+// Which step of the station is open (for its reward when it is done)
+const StepContext = createContext('')
+
 function StationScreen({ s, sub, rep }: { s: Station; sub?: string; rep: Repertoire }) {
+  return (
+    <StepContext.Provider value={sub ?? ''}>
+      <StationStep s={s} sub={sub} rep={rep} />
+    </StepContext.Provider>
+  )
+}
+
+function StationStep({ s, sub, rep }: { s: Station; sub?: string; rep: Repertoire }) {
   // Keys: a quest and its boss can share a screen, but each starts fresh
   switch (sub) {
+    case 'next': return <NextStep s={s} rep={rep} />
     case 'talk': return <KingTalk s={s} />
+    case 'guard': return <BoardRounds key="quest" s={s} rounds={GUARD} title="The guard" lesson="Before every move, a good general asks: what is attacked – and what is guarded? Find the best move." />
+    case 'safe': return <QuizRounds key="quest" s={s} quiz={SAFE} title="Is it safe?" lesson="Before you move a piece, check its new square: can the enemy take it there?" />
+    case 'react': return <CrossRounds key="quest" s={s} rounds={ROME_REACT} title="How do you react?" lesson="1.e4 e5 2.Nf3 – and now your opponent has many answers. Which move does your book play?" />
+    case 'traps': return <TrapRounds key="quest" s={s} rep={rep} />
     case 'army': return <KingArmy s={s} />
     case 'riddle': return <KingRiddle key="quest" s={s} boss={false} />
     case 'fork': return <BoardRounds key="quest" s={s} rounds={FORKS.slice(0, 2)} title="Hoppy's fork" lesson="Find the jump that attacks two things at once." />
@@ -335,6 +368,7 @@ function BossFight({ s, rep }: { s: Station; rep: Repertoire }) {
   if (b.kind === 'quiz') return <QuizRounds s={s} quiz={b.quiz!} boss />
   if (b.kind === 'cross') return <CrossRounds s={s} rounds={CROSSROADS} boss />
   if (b.kind === 'krk') return <KingRook s={s} boss />
+  if (b.kind === 'mixed') return <MixedBoss s={s} rep={rep} />
   return <GrandTour s={s} rep={rep} />
 }
 
@@ -350,36 +384,76 @@ function StationHead({ s, back, title }: { s: Station; back: () => void; title?:
   )
 }
 
+// The way through a station: talk, quests, your lines, the boss. Extras never block the way.
+interface Step {
+  key: string
+  title: string
+  route: string
+  done: boolean
+}
+function stationSteps(s: Station, lines: Line[], rep: Repertoire): Step[] {
+  const p = loadKing()
+  const got = (k: string) => p.got.includes(`${s.id}/${k}`)
+  return [
+    { key: 'talk', title: `Meet ${s.master.name}`, route: `king/${s.id}/talk`, done: got('talk') },
+    ...s.games.filter((g) => !g.extra).map((g) => ({ key: g.id, title: g.title, route: `king/${s.id}/${g.id}`, done: got(g.id) })),
+    ...lines.map((l) => ({ key: 'line:' + l.id, title: l.title, route: (rep.srs.has(l.id) ? 'drill/' : 'learn/') + l.id, done: rep.srs.has(l.id) })),
+    { key: 'boss', title: `Boss: ${s.boss.name}`, route: `king/${s.id}/boss`, done: p.beaten.includes(s.id) },
+  ]
+}
+
+// "Continue" from anywhere in the station: straight to the next open step
+function NextStep({ s, rep }: { s: Station; rep: Repertoire }) {
+  const lines = useMemo(() => stationLines(s, rep.lines), [rep.lines, s])
+  useEffect(() => {
+    const next = stationSteps(s, lines, rep).find((x) => !x.done)
+    go(next ? next.route : 'king/' + s.id)
+  }, [s, lines, rep])
+  return null
+}
+
 function StationPage({ s, rep }: { s: Station; rep: Repertoire }) {
   const [now] = useState(() => Date.now())
   const [open, setOpen] = useState<string | null>(null)
   const lines = useMemo(() => stationLines(s, rep.lines), [rep.lines, s])
-  const beaten = loadKing().beaten.includes(s.id)
+  const steps = stationSteps(s, lines, rep)
+  const next = steps.find((x) => !x.done)
+  const done = steps.filter((x) => x.done).length
+  const got = (k: string) => steps.find((x) => x.key === k)?.done
+  const extras = s.games.filter((g) => g.extra)
+  const beaten = got('boss')
   return (
     <div className="screen king-screen">
       <StationHead s={s} back={() => go('')} />
       <div className="king-banner">
         <img src={IMG + s.scene} alt="" />
         <div>
-          <span className="king-kicker">Year {s.year}</span>
+          <span className="king-kicker">Year {s.year} · 🪙 {loadKing().coins}</span>
           <p>{s.intro}</p>
         </div>
       </div>
+      {next ? (
+        <button type="button" className="primary wide king-continue" onClick={() => go(next.route)}>
+          <small>Step {done + 1} of {steps.length}</small>
+          {done ? 'Continue' : 'Start'}: {next.title}
+        </button>
+      ) : (
+        <button type="button" className="primary wide king-continue" onClick={() => go('')}>
+          <small>All {steps.length} steps done</small>Back to the world map
+        </button>
+      )}
       <div className="king-master">
         <Portrait m={s.master} className="king-portrait" />
         <div>
           <b>{s.master.name}</b>
           <small>{s.master.from}</small>
         </div>
-        <button type="button" onClick={() => go(`king/${s.id}/talk`)}>Talk</button>
-      </div>
-      <div className="king-skills">
-        {s.skills.map((k) => <span key={k}>{k}</span>)}
+        <button type="button" onClick={() => go(`king/${s.id}/talk`)}>{got('talk') ? '✓ Talk' : 'Talk'}</button>
       </div>
       <div className="path king-path">
-        {s.games.map((g, i) => (
+        {s.games.filter((g) => !g.extra).map((g, i) => (
           <div key={g.id} className={`path-step offset-${i % 4}`}>
-            <button type="button" className="path-node king-game" onClick={() => go(`king/${s.id}/${g.id}`)} aria-label={g.title}>✦</button>
+            <button type="button" className={`path-node king-game ${got(g.id) ? 'perfect' : ''}`} onClick={() => go(`king/${s.id}/${g.id}`)} aria-label={g.title}>{got(g.id) ? '✓' : '✦'}</button>
             <div className="path-label">{g.title}</div>
           </div>
         ))}
@@ -394,6 +468,17 @@ function StationPage({ s, rep }: { s: Station; rep: Repertoire }) {
           {beaten && <div className="path-result perfect">Beaten</div>}
         </div>
       </div>
+      {extras.length > 0 && (
+        <div className="king-extras">
+          <b>Extras · history for fun</b>
+          {extras.map((g) => (
+            <button type="button" key={g.id} onClick={() => go(`king/${s.id}/${g.id}`)}>
+              {g.title}
+              {loadKing().got.includes(`${s.id}/${g.id}`) ? ' ✓' : ''}
+            </button>
+          ))}
+        </div>
+      )}
     </div>
   )
 }
@@ -417,8 +502,16 @@ function KingTalk({ s }: { s: Station }) {
         ))}
       </div>
       <div ref={end}>
-        <button type="button" className="primary wide" onClick={() => (n < m.talk.length ? setN(n + 1) : go('king/' + s.id))}>
-          {n < m.talk.length ? 'Next' : 'Start the quests'}
+        <button
+          type="button"
+          className="primary wide"
+          onClick={() => {
+            if (n < m.talk.length) return setN(n + 1)
+            earn(`${s.id}/talk`, 5)
+            go(`king/${s.id}/next`)
+          }}
+        >
+          {n < m.talk.length ? 'Next' : 'Continue'}
         </button>
       </div>
     </div>
@@ -451,11 +544,15 @@ function beat(id: string) {
 }
 
 function Victory({ s }: { s: Station }) {
-  useEffect(() => {
+  const [coins] = useState(() => {
     beat(s.id)
+    return earn(`${s.id}/boss`, s.finale ? 200 : 50)
+  })
+  useEffect(() => {
     fx.success()
-  }, [s.id])
+  }, [])
   const crown = s.finale
+  const next = nextStation(s.id, loadKing().beaten)
   return (
     <div className="screen king-screen">
       <div className={`done king-victory ${crown ? 'crown' : ''}`}>
@@ -465,9 +562,29 @@ function Victory({ s }: { s: Station }) {
         </div>
         <div className="done-title">{crown ? 'King of Chess!' : `${s.boss.name} is beaten!`}</div>
         <p>{s.boss.win}</p>
+        {coins > 0 && <div className="king-coins-won">+{coins} 🪙</div>}
+        {s.fact && (
+          <div className="king-fact">
+            <b>Fun fact</b>
+            <p>{s.fact}</p>
+          </div>
+        )}
         <div className="done-actions">
           <button type="button" onClick={() => go('king/' + s.id)}>{s.name}</button>
-          <button type="button" className="primary" onClick={() => go('')}>World map</button>
+          {next ? (
+            <button
+              type="button"
+              className="primary"
+              onClick={() => {
+                saveKing({ ...loadKing(), travel: next.id })
+                go('')
+              }}
+            >
+              Ride on to {next.name}
+            </button>
+          ) : (
+            <button type="button" className="primary" onClick={() => go('')}>World map</button>
+          )}
         </div>
       </div>
     </div>
@@ -475,6 +592,9 @@ function Victory({ s }: { s: Station }) {
 }
 
 function QuestDone({ s, icon, title, text }: { s: Station; icon: string; title: string; text: string }) {
+  const step = useContext(StepContext)
+  const extra = s.games.find((g) => g.id === step)?.extra
+  const [coins] = useState(() => earn(`${s.id}/${step}`, extra ? 5 : 10))
   useEffect(() => {
     fx.success()
   }, [])
@@ -484,9 +604,10 @@ function QuestDone({ s, icon, title, text }: { s: Station; icon: string; title: 
         <div className="king-medal" aria-hidden="true">{icon}</div>
         <div className="done-title">{title}</div>
         <p>{text}</p>
+        {coins > 0 && <div className="king-coins-won">+{coins} 🪙</div>}
         <div className="done-actions">
           <button type="button" onClick={() => go('king/' + s.id)}>{s.name}</button>
-          <button type="button" className="primary" onClick={() => go(`king/${s.id}/boss`)}>Face the boss</button>
+          <button type="button" className="primary" onClick={() => go(`king/${s.id}/next`)}>Continue</button>
         </div>
       </div>
     </div>
@@ -539,6 +660,9 @@ function QuizRounds({ s, quiz, boss, title, lesson }: { s: Station; quiz: QuizQu
     <div className="screen king-screen">
       <StationHead s={s} back={() => go('king/' + s.id)} title={boss ? s.boss.name : title} />
       {boss ? <BossCard s={s} line={s.boss.taunt} progress={(100 * (quiz.length - i)) / quiz.length} hearts={hearts} /> : lesson && <p className="king-lesson">{lesson}</p>}
+      {q.fen && (
+        <KBoard key={i} fen={q.fen} orientation="white" arrows={q.move ? [{ startSquare: q.move[0], endSquare: q.move[1], color: ARROW.next }] : []} />
+      )}
       <div className="king-question">
         {q.icon && <span className="king-big" aria-hidden="true">{q.icon}</span>}
         <span>{q.q}</span>
@@ -598,7 +722,7 @@ function KingArmy({ s }: { s: Station }) {
         ))}
       </div>
       <p className="note">These are the Hindi names many Indian players still use. In the oldest game, the elephants stood where the bishops are today.</p>
-      <button type="button" className="primary wide" onClick={() => go(`king/${s.id}/boss`)}>Ready for the Captain of the Guard</button>
+      <button type="button" className="primary wide" onClick={() => { earn(`${s.id}/army`, 5); go(`king/${s.id}/next`) }}>Continue</button>
     </div>
   )
 }
@@ -709,7 +833,18 @@ function BoardRounds({ s, rounds, boss, title, lesson, hint, orientation = 'whit
           <p>{boss ? 'You lose a heart. ' : ''}Play the green arrow.</p>
         </div>
       ) : (
-        <p className="note">{orientation === 'black' ? 'You play Black' : 'You play White'}{hint ? <> · <b>{hint}</b></> : ''}. Play your move on the board.</p>
+        <p className="note">
+          {r.threat ? (
+            <>
+              <b>What does your opponent threaten?</b> Play his move on the board.
+            </>
+          ) : (
+            <>
+              {orientation === 'black' ? 'You play Black' : 'You play White'}
+              {hint ? <> · <b>{hint}</b></> : ''}. Play your move on the board.
+            </>
+          )}
+        </p>
       )}
     </div>
   )
@@ -719,7 +854,34 @@ function LineBoss({ s, rep }: { s: Station; rep: Repertoire }) {
   const lines = useMemo(() => stationLines(s, rep.lines), [rep.lines, s])
   const [rounds] = useState(() => lineRounds(lines, 4))
   if (!rounds.length) return <p className="note">No lines found for this station.</p>
-  return <BoardRounds s={s} rounds={rounds} boss hint={s.lines?.title ?? s.lines?.opening} orientation={s.lines?.side === 'b' ? 'black' : 'white'} />
+  const op = s.lines?.opening
+  return <BoardRounds s={s} rounds={rounds} boss hint={s.lines?.title ?? (typeof op === 'string' ? op : undefined)} orientation={s.lines?.side === 'b' ? 'black' : 'white'} />
+}
+
+// Traps from your lines: the move from the line, explained by the comments around it
+function trapRounds(lines: Line[]): BoardRound[] {
+  return ROME_TRAPS.flatMap((t) => {
+    const line = lines.find((l) => l.title === t.line)
+    const i = line?.moves.findIndex((m) => m.color === line.side && m.san === t.san) ?? -1
+    if (!line || i < 0) return []
+    const m = line.moves[i]
+    const why = [line.moves[i - 1]?.comment, m.comment].filter(Boolean).join(' ')
+    return [{ fen: m.fenBefore, taunt: t.taunt, from: m.from, to: m.to, san: m.san, why: why || `${m.san} – from your line.` }]
+  })
+}
+
+function TrapRounds({ s, rep }: { s: Station; rep: Repertoire }) {
+  const rounds = useMemo(() => trapRounds(rep.lines), [rep.lines])
+  return <BoardRounds s={s} rounds={rounds} title="Traps" lesson="Your opponent sets a trap – or falls into one. Find the move from your book." />
+}
+
+// Count Giuoco mixes everything without telling you what comes: your lines, traps and threats
+function MixedBoss({ s, rep }: { s: Station; rep: Repertoire }) {
+  const lines = useMemo(() => stationLines(s, rep.lines), [rep.lines, s])
+  const [rounds] = useState(() =>
+    shuffle([...lineRounds(lines, 2), ...shuffle(trapRounds(rep.lines)).slice(0, 2), ...shuffle(ROME_THREATS).slice(0, 1)]),
+  )
+  return <BoardRounds s={s} rounds={rounds} boss />
 }
 
 // ---------- Baghdad: blindfold – know every square ----------
@@ -807,16 +969,17 @@ function KingQueen({ s }: { s: Station }) {
 
 // ---------- Paris: which road against which answer ----------
 
-function CrossRounds({ s, rounds, boss }: { s: Station; rounds: Crossroad[]; boss?: boolean }) {
+function CrossRounds({ s, rounds, boss, title = 'Which road?', lesson }: { s: Station; rounds: Crossroad[]; boss?: boolean; title?: string; lesson?: string }) {
   const [i, setI] = useState(0)
   const [hearts, setHearts] = useState(3)
   const [picked, setPicked] = useState<string | null>(null)
-  if (i >= rounds.length) return boss ? <Victory s={s} /> : <QuestDone s={s} icon="🧭" title="You know the roads" text="Every answer of your opponent has its road in your book." />
+  if (i >= rounds.length) return boss ? <Victory s={s} /> : <QuestDone s={s} icon="🧭" title="You know how to react" text="For every answer of your opponent you know the move from your book – and why." />
   const c = rounds[i]
   const choice = c.options.find((o) => o.san === picked)
   return (
     <div className="screen king-screen">
-      <StationHead s={s} back={() => go('king/' + s.id)} title={boss ? s.boss.name : 'Which road?'} />
+      <StationHead s={s} back={() => go('king/' + s.id)} title={boss ? s.boss.name : title} />
+      {!boss && lesson && i === 0 && <p className="king-lesson">{lesson}</p>}
       {boss && <BossCard s={s} line={i === 0 ? s.boss.taunt : 'Next crossroads!'} progress={(100 * (rounds.length - i)) / rounds.length} hearts={hearts} />}
       {boss && i === 0 && <p className="note small">57% 1...e5 · 20% 1...d5: your 1,155 games of 3 months (analysis of Oct 31).</p>}
       <KBoard fen={c.fen} orientation="white" />

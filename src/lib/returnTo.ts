@@ -19,3 +19,8 @@ export function rememberOrigin(route: string) {
 export function backFromLine(): string | null {
   return returnTo && origin ? origin : null
 }
+
+// A line opened from a station on the world map: "Continue" leads on through that station
+export function stationOrigin(): string | null {
+  return origin?.startsWith('king/') ? origin : null
+}
