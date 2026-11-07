@@ -279,3 +279,22 @@
 .king-screen a.button { display: inline-flex; align-items: center; justify-content: center; text-decoration: none; border-radius: 16px; padding: 10px 14px; font-weight: 800; border: 2px solid var(--forest-dark); border-bottom-width: 5px; }
 .king-screen a.button.primary { background: var(--forest); color: #fff7e0; font-family: 'Cinzel', Georgia, serif; }
 .king-fb .san { font-family: 'Nunito', 'Segoe UI', sans-serif; font-weight: 900; }
+
+/* the chess check */
+.king-say-row { display: flex; gap: 10px; align-items: flex-start; margin-inline: 16px; }
+.king-say-row .king-say { margin: 0; flex: 1; min-width: 0; border: 2px solid var(--edge); border-radius: 16px; padding: 10px 12px; font-weight: 700; }
+.check-label { margin-inline: 16px; font-weight: 800; color: var(--ink-soft); }
+.screen > .room-input { margin-inline: 16px; }
+.check-section { margin-inline: 16px; display: grid; gap: 10px; background: var(--card); border: 2px solid var(--edge); border-radius: 18px; padding: 14px; }
+.check-section h3 { margin: 0; font-family: 'Cinzel', Georgia, serif; font-size: 1.1rem; }
+.check-section.bonus { border-color: var(--gilt); background: linear-gradient(160deg, #fbf3df, #f1e2b4); }
+.check-section p { margin: 0; }
+.check-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.check-stat { background: #efe2c2; border-radius: 12px; padding: 8px 10px; display: grid; gap: 2px; }
+.check-stat b { font-family: 'Cinzel', Georgia, serif; font-size: 1.6rem; line-height: 1.1; font-variant-numeric: tabular-nums; }
+.check-stat span { font-size: .8rem; font-weight: 800; color: var(--ink-soft); line-height: 1.2; }
+.check-progress { display: grid; gap: 4px; font-weight: 800; }
+.check-progress small { color: var(--ink-soft); font-weight: 700; }
+.check-book { display: grid; gap: 4px; border-top: 1px dashed var(--edge); padding-top: 8px; }
+.check-road { margin: 0; padding-left: 1.2em; display: grid; gap: 6px; }
+.king-screen .check-entry { background: #efe2c2; border-color: var(--gilt); }

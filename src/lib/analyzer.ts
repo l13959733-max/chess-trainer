@@ -165,6 +165,45 @@ export async function start() {
   }
 }
 
+// The chess check: your newest rapid games (the starting value before the training)
+export async function recentRapid(player: string, limit = 20): Promise<ChessComGame[]> {
+  const out: ChessComGame[] = []
+  for (const url of (await fetchArchives(player)).reverse()) {
+    const games = (await fetchMonth(url)).filter((g) => isTrainingGame(g, player) && g.time_class === 'rapid').sort((a, b) => b.end_time - a.end_time)
+    out.push(...games)
+    if (out.length >= limit) break
+  }
+  return out.slice(0, limit)
+}
+
+// Analyse only these games (games analysed before are skipped)
+export async function analyzeOnly(games: ChessComGame[]) {
+  if (state.status === 'running' || state.status === 'loading') return
+  stopRequested = false
+  holdScreen(true)
+  try {
+    const player = getPlayer()
+    const done = await getAnalyzedGameIds(player)
+    set({ status: 'running', error: undefined, found: 0, player, total: games.length, analyzed: games.filter((g) => done.has(g.uuid)).length })
+    for (const g of games.filter((x) => !done.has(x.uuid))) {
+      const puzzles = await analyzeGame(g, player)
+      await saveAnalyzedGame(
+        { uuid: gameKey(player, g.uuid), endTime: g.end_time, analyzedAt: Date.now(), plies: state.current?.plies ?? 0, blunders: puzzles.length },
+        puzzles,
+      )
+      set({ analyzed: state.analyzed + 1, found: state.found + puzzles.length })
+    }
+    set({ status: 'done', current: undefined })
+  } catch (e) {
+    const msg = e instanceof Error ? e.message : String(e)
+    if (msg === 'paused') set({ status: 'paused', current: undefined })
+    else set({ status: 'error', error: msg, current: undefined })
+  } finally {
+    stopRequested = false
+    holdScreen(false)
+  }
+}
+
 // A finished game against Hoppy-Bot: find the player's mistakes and store them as puzzles.
 // Uses the same engine queue as the background analysis (they take turns).
 export async function analyzeBotGame(

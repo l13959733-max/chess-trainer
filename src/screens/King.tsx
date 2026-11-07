@@ -1257,6 +1257,10 @@ export function WarTent({ puzzles }: { puzzles: Puzzles }) {
           <p>A good general trains before every battle.</p>
         </div>
       </div>
+      <button type="button" className="wide king-continue check-entry" onClick={() => go('check')}>
+        <small>{loadKing().baseline ? 'your starting value is saved' : 'your real chess.com games'}</small>
+        {loadKing().baseline ? 'Your chess check' : 'Check your chess: what costs you points?'}
+      </button>
       <button type="button" className="primary wide king-continue" onClick={() => go('warmup')}>
         <small>2 minutes · before you play on chess.com</small>
         Warm-up before your game

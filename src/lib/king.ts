@@ -553,13 +553,23 @@ export const TURK: QuizQuestion[] = [
 
 // Progress on this phone
 const KEY = 'chess-trainer-king'
-interface KingProgress {
+export interface KingProgress {
   intro: boolean
   here: string
   beaten: string[]
   coins: number
   got: string[] // steps already rewarded, e.g. "rome/react"
   travel?: string // after a boss: Liam rides on to this station when the map opens
+  baseline?: Baseline // the chess check: your real games before the training
+}
+
+export interface Baseline {
+  at: number
+  player: string
+  games: string[] // chess.com game uuids
+  rating: number | null
+  mistakes: number // per game
+  threats: number // per game: threats of the opponent not seen
 }
 
 const FRESH: KingProgress = { intro: false, here: 'kannauj', beaten: [], coins: 0, got: [] }
