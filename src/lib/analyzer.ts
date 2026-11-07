@@ -179,6 +179,8 @@ export async function recentRapid(player: string, limit = 20): Promise<ChessComG
 // Analyse only these games (games analysed before are skipped)
 export async function analyzeOnly(games: ChessComGame[]) {
   if (state.status === 'running' || state.status === 'loading') return
+  // claim the engine at once: a second call (e.g. React running an effect twice) must not start too
+  set({ status: 'loading', error: undefined, found: 0, total: games.length, analyzed: 0 })
   stopRequested = false
   holdScreen(true)
   try {

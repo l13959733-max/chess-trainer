@@ -298,3 +298,15 @@
 .check-book { display: grid; gap: 4px; border-top: 1px dashed var(--edge); padding-top: 8px; }
 .check-road { margin: 0; padding-left: 1.2em; display: grid; gap: 6px; }
 .king-screen .check-entry { background: #efe2c2; border-color: var(--gilt); }
+
+/* the portal to the real world */
+.real-quest { display: grid; gap: 4px; border-top: 1px dashed var(--edge); padding-top: 10px; }
+.real-quest:first-of-type { border-top: 0; padding-top: 0; }
+.real-quest b { font-family: 'Cinzel', Georgia, serif; }
+.real-quest p { margin: 0; }
+.real-quest.locked { opacity: .7; }
+.real-quest.complete b { color: var(--forest-dark); }
+.check-compare { display: grid; grid-template-columns: 1fr auto auto; gap: 6px 14px; align-items: baseline; font-variant-numeric: tabular-nums; }
+.check-compare b { font-family: 'Cinzel', Georgia, serif; }
+.king-dock .dock-portal { background: linear-gradient(160deg, #3b2a6b, #20163d); color: #f3e6ff; border-color: #c9a227; }
+.check-section .king-hp span, .check-progress .king-hp span { background: var(--forest); }

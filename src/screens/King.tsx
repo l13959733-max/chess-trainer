@@ -8,6 +8,8 @@ import { go } from '../hooks/useHashRoute'
 import type { Puzzles } from '../hooks/usePuzzles'
 import type { Repertoire } from '../hooks/useRepertoire'
 import type { Line } from '../lib/pgn'
+import { REAL_QUESTS } from '../lib/portal'
+import PUZZLES from '../data/lichess-puzzles.json'
 import { clampScore } from '../lib/blunders'
 import { feedback as fx } from '../lib/feedback'
 import {
@@ -224,7 +226,11 @@ function KingMap() {
       {toast && <div className="king-toast" role="status">{toast}</div>}
       <nav className="king-dock" aria-label="Places">
         <button type="button" onClick={() => go('tent')}><span aria-hidden="true">⛺</span>War Tent</button>
-        <button type="button" onClick={() => go('path')}><span aria-hidden="true">📚</span>All openings</button>
+        {state.beaten.includes('kannauj') ? (
+          <button type="button" className="dock-portal" onClick={() => go('portal')}><span aria-hidden="true">🌀</span>Real world</button>
+        ) : (
+          <button type="button" onClick={() => go('path')}><span aria-hidden="true">📚</span>All openings</button>
+        )}
         <button type="button" onClick={() => go('weaknesses')}><span aria-hidden="true">📖</span>Quest book</button>
         <button type="button" onClick={() => go('watch')}><span aria-hidden="true">👫</span>Together</button>
       </nav>
@@ -331,7 +337,8 @@ const StepContext = createContext('')
 function StationScreen({ s, sub, rep }: { s: Station; sub?: string; rep: Repertoire }) {
   return (
     <StepContext.Provider value={sub ?? ''}>
-      <StationStep s={s} sub={sub} rep={rep} />
+      {/* every step starts fresh, also when you jump from one quest straight to the next */}
+      <StationStep key={sub ?? ''} s={s} sub={sub} rep={rep} />
     </StepContext.Provider>
   )
 }
@@ -345,6 +352,10 @@ function StationStep({ s, sub, rep }: { s: Station; sub?: string; rep: Repertoir
     case 'safe': return <QuizRounds key="quest" s={s} quiz={SAFE} title="Is it safe?" lesson="Before you move a piece, check its new square: can the enemy take it there?" />
     case 'react': return <CrossRounds key="quest" s={s} rounds={ROME_REACT} title="How do you react?" lesson="1.e4 e5 2.Nf3 – and now your opponent has many answers. Which move does your book play?" />
     case 'traps': return <TrapRounds key="quest" s={s} rep={rep} />
+    case 'forkhunt': return <PuzzleRounds key="quest" s={s} puzzles={pick(['fork'], 0, 6)} title="Fork hunt" lesson="Your opponent just made a mistake. Find the fork: one move that attacks two things at once." />
+    case 'forkthreat': return <PuzzleRounds key="quest" s={s} puzzles={pick(['fork'], 6, 4)} threat title="Don't get forked" lesson="Now it is your opponent's turn – and he has a fork against you. Show it! Seeing it in time is how you stop it." />
+    case 'mate1': return <PuzzleRounds key="quest" s={s} puzzles={[...pick(['mate1'], 0, 3), ...pick(['backrank'], 0, 3)]} title="Mate in one" lesson="One move, and the king has nowhere to go. Look at every check first." />
+    case 'mate2': return <PuzzleRounds key="quest" s={s} puzzles={pick(['mate2'], 0, 4)} title="Mate in two" lesson="A check that forces the answer – then mate. Look at checks first, then captures." />
     case 'army': return <KingArmy s={s} />
     case 'riddle': return <KingRiddle key="quest" s={s} boss={false} />
     case 'fork': return <BoardRounds key="quest" s={s} rounds={FORKS.slice(0, 2)} title="Hoppy's fork" lesson="Find the jump that attacks two things at once." />
@@ -371,6 +382,7 @@ function BossFight({ s, rep }: { s: Station; rep: Repertoire }) {
   if (b.kind === 'cross') return <CrossRounds s={s} rounds={CROSSROADS} boss />
   if (b.kind === 'krk') return <KingRook s={s} boss />
   if (b.kind === 'mixed') return <MixedBoss s={s} rep={rep} />
+  if (b.kind === 'puzzles') return <PuzzleRounds s={s} puzzles={shuffle(b.puzzles!.flatMap((t) => pick([t], 10, 6))).slice(0, 5)} boss />
   return <GrandTour s={s} rep={rep} />
 }
 
@@ -542,7 +554,11 @@ function BossCard({ s, line, progress, hearts }: { s: Station; line: string; pro
 
 function beat(id: string) {
   const p = loadKing()
-  if (!p.beaten.includes(id)) saveKing({ ...p, beaten: [...p.beaten, id] })
+  if (p.beaten.includes(id)) return
+  // a boss opens its quest in the real world: games from now on count
+  const quests = { ...p.quests }
+  for (const q of REAL_QUESTS) if (q.after === id && !quests[q.id]) quests[q.id] = Date.now()
+  saveKing({ ...p, beaten: [...p.beaten, id], quests })
 }
 
 function Victory({ s }: { s: Station }) {
@@ -898,6 +914,142 @@ function MixedBoss({ s, rep }: { s: Station; rep: Repertoire }) {
     shuffle([...lineRounds(lines, 2), ...shuffle(trapRounds(rep.lines)).slice(0, 2), ...shuffle(ROME_THREATS).slice(0, 1)]),
   )
   return <BoardRounds s={s} rounds={rounds} boss />
+}
+
+// ---------- puzzles from Lichess (CC0): several moves, the opponent answers ----------
+
+export interface LPuzzle {
+  id: string
+  fen: string // before the opponent's mistake
+  moves: string[] // UCI: the opponent's mistake, then the solution with the answers
+  rating: number
+}
+
+const uci = (u: string) => ({ from: u.slice(0, 2), to: u.slice(2, 4), promotion: u[4] })
+
+// Puzzles of these themes, from the easiest on (the lists are sorted by rating)
+function pick(themes: string[], from: number, count: number): LPuzzle[] {
+  return themes.flatMap((t) => ((PUZZLES as Record<string, LPuzzle[]>)[t] ?? []).slice(from, from + count))
+}
+
+// threat: you play your opponent's winning move – "what can he do to you now?"
+function PuzzleRounds({ s, puzzles, boss, title, lesson, threat, back, finish }: { s: Station; puzzles: LPuzzle[]; boss?: boolean; title?: string; lesson?: string; threat?: boolean; back?: string; finish?: React.ReactNode }) {
+  const [i, setI] = useState(0)
+  const [hearts, setHearts] = useState(3)
+  const [solved, setSolved] = useState(false)
+  if (i >= puzzles.length) return finish ?? (boss ? <Victory s={s} /> : <QuestDone s={s} icon="✦" title="Well done!" text={`You finished “${title}”. ${s.boss.name} is waiting.`} />)
+  const p = puzzles[i]
+  return (
+    <div className="screen king-screen">
+      <StationHead s={s} back={() => go(back ?? 'king/' + s.id)} title={boss ? s.boss.name : title} />
+      {boss ? <BossCard s={s} line={s.boss.taunt} progress={(100 * (puzzles.length - i)) / puzzles.length} hearts={hearts} /> : lesson && <p className="king-lesson">{lesson}</p>}
+      {boss && hearts <= 0 ? (
+        <OutOfHearts s={s} why="Look at every check, capture and attack first." retry={() => { setI(0); setHearts(3); setSolved(false) }} />
+      ) : (
+        <OnePuzzle key={p.id + i} p={p} threat={threat} onMistake={() => boss && setHearts((h) => h - 1)} onSolved={() => setSolved(true)} />
+      )}
+      {solved && (
+        <div className={`king-fb ok ${threat ? 'knack' : ''}`}>
+          <b>{threat ? 'Knack! You saw the threat.' : 'Solved!'}</b>
+          <p>{threat ? 'Before every move, look for this against you: checks, captures, attacks.' : `Puzzle rating ${p.rating}.`}</p>
+          <button type="button" className="primary wide" onClick={() => { setI(i + 1); setSolved(false) }}>Next</button>
+        </div>
+      )}
+      <p className="note small">Puzzles from the Lichess database.</p>
+    </div>
+  )
+}
+
+function OnePuzzle({ p, threat, onMistake, onSolved }: { p: LPuzzle; threat?: boolean; onMistake: () => void; onSolved: () => void }) {
+  const [fen, setFen] = useState(p.fen)
+  const [step, setStep] = useState(0) // index of the next move in p.moves
+  const [last, setLast] = useState<{ from: string; to: string } | null>(null)
+  const [hint, setHint] = useState<string | null>(null)
+  const [done, setDone] = useState(false)
+  const me = new Chess(p.fen).turn() === 'w' ? 'black' : 'white' // the side that solves
+  const orientation = threat ? (me === 'white' ? 'black' : 'white') : me
+  const timer = useRef<number | undefined>(undefined)
+  useEffect(() => () => window.clearTimeout(timer.current), [])
+  // the opponent's mistake (or answer) is played on the board after a short pause
+  const play = (from: string, delay: number) => {
+    timer.current = window.setTimeout(() => {
+      const c = new Chess(from)
+      const m = c.move(uci(p.moves[step === 0 ? 0 : step]))
+      fx.move(m.san, false)
+      setFen(c.fen())
+      setLast({ from: m.from, to: m.to })
+      setStep((x) => x + 1)
+    }, delay)
+  }
+  useEffect(() => {
+    if (step === 0) play(p.fen, 700)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+  const want = p.moves[step]
+  const yourTurn = !done && step > 0 && step % 2 === 1
+  return (
+    <>
+      <KBoard
+        fen={fen}
+        orientation={orientation}
+        squareStyles={last ? { [last.from]: LAST_MOVE, [last.to]: LAST_MOVE } : {}}
+        arrows={hint ? [{ startSquare: hint.slice(0, 2), endSquare: hint.slice(2, 4), color: ARROW.correct }] : []}
+        onMove={
+          !yourTurn
+            ? undefined
+            : (from, to) => {
+                const c = new Chess(fen)
+                // a pawn reaching the last rank becomes the piece of the solution (or a queen)
+                const pawn = c.get(from as Parameters<typeof c.get>[0])?.type === 'p' && (to[1] === '8' || to[1] === '1')
+                const m = c.move({ from, to, promotion: pawn ? (want.slice(0, 4) === from + to && want[4]) || 'q' : undefined })
+                const right = from + to === want.slice(0, 4) || (step === p.moves.length - 1 && c.isCheckmate())
+                if (!right) {
+                  fx.wrong()
+                  onMistake()
+                  setHint(want)
+                  return false
+                }
+                setHint(null)
+                setFen(c.fen())
+                setLast({ from, to })
+                const next = step + 1
+                if (threat || next >= p.moves.length) {
+                  if (threat) fx.knack()
+                  else fx.move(m.san)
+                  setStep(next)
+                  setDone(true)
+                  onSolved()
+                  return true
+                }
+                fx.move(m.san)
+                setStep(next)
+                timer.current = window.setTimeout(() => {
+                  const r = new Chess(c.fen())
+                  const a = r.move(uci(p.moves[next]))
+                  fx.move(a.san, false)
+                  setFen(r.fen())
+                  setLast({ from: a.from, to: a.to })
+                  setStep(next + 1)
+                }, 450)
+                return true
+              }
+        }
+      />
+      {!done && step > 0 && (
+        <p className="note">
+          {threat ? (
+            <>
+              <b>Your opponent can strike now.</b> Play his best move on the board.
+            </>
+          ) : (
+            <>
+              {orientation === 'white' ? 'White' : 'Black'} to move. {hint ? 'Play the green arrow.' : 'Find the best move.'}
+            </>
+          )}
+        </p>
+      )}
+    </>
+  )
 }
 
 // ---------- Baghdad: blindfold – know every square ----------

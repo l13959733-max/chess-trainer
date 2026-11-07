@@ -145,9 +145,11 @@ describe('King of Chess', () => {
     }
   })
 
-  it('the road leads from Kannauj to Rome', () => {
-    expect(nextStation('kannauj', ['kannauj'])?.id).toBe('rome')
-    expect(nextStation('rome', ['kannauj', 'rome'])?.id).toBe('persia')
+  it('the road: guard, forks, the first opening, mates – then the rest', () => {
+    expect(nextStation('kannauj', ['kannauj'])?.id).toBe('samarkand')
+    expect(nextStation('samarkand', ['kannauj', 'samarkand'])?.id).toBe('rome')
+    expect(nextStation('rome', ['kannauj', 'samarkand', 'rome'])?.id).toBe('baghdad')
+    expect(nextStation('baghdad', ['kannauj', 'samarkand', 'rome', 'baghdad'])?.id).toBe('persia')
   })
 
   it('titles grow with the bosses: Pawn, Pawn Star, … King of Chess', () => {
@@ -156,5 +158,19 @@ describe('King of Chess', () => {
     expect(titleOf(['kannauj', 'rome', 'persia'])).toBe('Rook-ie')
     expect(titleOf(STATIONS.filter((s) => !s.finale).map((s) => s.id))).toBe("Queen's Champion")
     expect(titleOf(['chennai'])).toBe('King of Chess')
+  })
+})
+
+describe('Lichess puzzles (CC0)', () => {
+  it('every puzzle plays out legally, mates end in mate', async () => {
+    const data = (await import('../data/lichess-puzzles.json')).default as Record<string, { id: string; fen: string; moves: string[]; rating: number }[]>
+    for (const [theme, list] of Object.entries(data)) {
+      expect(list.length, theme).toBeGreaterThanOrEqual(20)
+      for (const p of list) {
+        const c = new Chess(p.fen)
+        for (const u of p.moves) c.move({ from: u.slice(0, 2), to: u.slice(2, 4), promotion: u[4] })
+        if (['mate1', 'backrank', 'mate2', 'smothered'].includes(theme)) expect(c.isCheckmate(), theme + ' ' + p.id).toBe(true)
+      }
+    }
   })
 })

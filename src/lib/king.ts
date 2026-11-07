@@ -40,7 +40,7 @@ export interface QuizQuestion {
   why: string
 }
 
-export type GameId = 'army' | 'riddle' | 'grain' | 'fork' | 'squares' | 'lewis' | 'queen' | 'turk' | 'cross' | 'krk' | 'shuffle' | 'guard' | 'safe' | 'react' | 'traps'
+export type GameId = 'army' | 'riddle' | 'grain' | 'fork' | 'squares' | 'lewis' | 'queen' | 'turk' | 'cross' | 'krk' | 'shuffle' | 'guard' | 'safe' | 'react' | 'traps' | 'forkhunt' | 'forkthreat' | 'mate1' | 'mate2'
 
 export interface Station {
   id: string
@@ -65,7 +65,8 @@ export interface Station {
     name: string
     face: string
     img: string
-    kind: 'army' | 'riddle' | 'board' | 'lines' | 'quiz' | 'cross' | 'krk' | 'grand' | 'mixed'
+    kind: 'army' | 'riddle' | 'board' | 'lines' | 'quiz' | 'cross' | 'krk' | 'grand' | 'mixed' | 'puzzles'
+    puzzles?: string[] // Lichess puzzle themes for a puzzle boss
     taunt: string
     win: string
     rounds?: BoardRound[]
@@ -205,7 +206,7 @@ export const STATIONS: Station[] = [
       { id: 'army', title: 'Meet your army', extra: true },
     ],
     fact: 'Chaturanga means “four parts” in Sanskrit – the four parts of an Indian army: foot soldiers, horses, chariots and elephants.',
-    boss: { name: 'The Captain of the Guard', face: '🛡', img: 'boss-captain.jpg', kind: 'board', rounds: GUARD_BOSS, taunt: 'Only those who guard their army may pass!', win: 'Your army is safe with you. Now on to Rome – your first opening is waiting!' },
+    boss: { name: 'The Captain of the Guard', face: '🛡', img: 'boss-captain.jpg', kind: 'board', rounds: GUARD_BOSS, taunt: 'Only those who guard their army may pass!', win: 'Your army is safe with you. Now on to Samarkand – Hoppy’s favourite trick is waiting!' },
   },
   {
     id: 'persia', name: 'Persia', year: '500s', x: 1320, y: 445, color: '#0b7285',
@@ -239,8 +240,13 @@ export const STATIONS: Station[] = [
         { who: 'master', text: 'Then learn the horse’s best trick, little horse: the fork. One jump, two targets.' },
       ],
     },
-    games: [{ id: 'fork', title: "Hoppy's fork" }, { id: 'grain', title: 'The legend of the grain', extra: true }],
-    boss: { name: 'The Caravan Thief', face: '🗡', img: 'boss-thief.jpg', kind: 'board', rounds: FORKS, taunt: 'Try to catch my caravan!', win: 'Three forks, three treasures back. The caravan thanks you!' },
+    games: [
+      { id: 'fork', title: "Hoppy's fork" },
+      { id: 'forkhunt', title: 'Fork hunt' },
+      { id: 'forkthreat', title: "Don't get forked" },
+      { id: 'grain', title: 'The legend of the grain', extra: true },
+    ],
+    boss: { name: 'The Caravan Thief', face: '🗡', img: 'boss-thief.jpg', kind: 'puzzles', puzzles: ['fork', 'hanging'], taunt: 'Try to catch my caravan!', win: 'Forks everywhere – the treasures are back. On to Rome: your first opening is waiting!' },
   },
   {
     id: 'baghdad', name: 'Baghdad', year: '762–946', x: 1210, y: 452, color: '#5f3dc4',
@@ -257,8 +263,12 @@ export const STATIONS: Station[] = [
         { who: 'master', text: 'You must know every square by its name. Try it!' },
       ],
     },
-    games: [{ id: 'squares', title: 'Blindfold: find the square' }],
-    boss: { name: 'The Grandee', face: '📜', img: 'boss-grandee.jpg', kind: 'board', rounds: MATES, taunt: 'Three positions from our book. Solve them all!', win: 'Three mates in a row. Baghdad calls you a grandee!' },
+    games: [
+      { id: 'mate1', title: 'Mate in one' },
+      { id: 'mate2', title: 'Mate in two' },
+      { id: 'squares', title: 'Blindfold: find the square', extra: true },
+    ],
+    boss: { name: 'The Grandee', face: '📜', img: 'boss-grandee.jpg', kind: 'puzzles', puzzles: ['backrank', 'smothered', 'mate2'], taunt: 'Positions from our book. Solve them all!', win: 'Mate after mate. Baghdad calls you a grandee!' },
   },
   {
     id: 'north', name: 'The North', year: '1000–1200', x: 935, y: 118, sea: true, color: '#495057',
@@ -561,6 +571,8 @@ export interface KingProgress {
   got: string[] // steps already rewarded, e.g. "rome/react"
   travel?: string // after a boss: Liam rides on to this station when the map opens
   baseline?: Baseline // the chess check: your real games before the training
+  quests?: Record<string, number> // real-world quests: when each one started
+  reports?: number // reports already shown (one per 20 games after the start)
 }
 
 export interface Baseline {
@@ -608,7 +620,7 @@ export function titleOf(beaten: string[]): string {
 }
 
 // The main road: first the guard, then your openings in the order you meet them most
-export const ROAD = ['kannauj', 'rome']
+export const ROAD = ['kannauj', 'samarkand', 'rome', 'baghdad']
 export function nextStation(after: string, beaten: string[]): Station | undefined {
   const order = [...ROAD, ...STATIONS.map((s) => s.id).filter((id) => !ROAD.includes(id))]
   const rest = order.slice(order.indexOf(after) + 1).concat(order.slice(0, order.indexOf(after)))

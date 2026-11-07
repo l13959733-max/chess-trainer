@@ -37,9 +37,11 @@ function numbered(sans: string[]): string {
   return sans.map((s, i) => (i % 2 === 0 ? `${i / 2 + 1}.${s}` : s)).join(' ')
 }
 
-export function bookReport(games: CheckGame[], lines: Line[]): BookReport {
-  // book[side][position] = the moves your book plays (mine) and the moves it expects (theirs)
-  const book = { w: new Map<string, { mine: Set<string>; theirs: Set<string> }>(), b: new Map<string, { mine: Set<string>; theirs: Set<string> }>() }
+type Book = Record<'w' | 'b', Map<string, { mine: Set<string>; theirs: Set<string> }>>
+
+// The moves your book plays (mine) and expects (theirs) in every position
+export function buildBook(lines: Line[]): Book {
+  const book: Book = { w: new Map(), b: new Map() }
   for (const l of lines) {
     for (const m of l.moves) {
       const k = key(m.fenBefore)
@@ -48,51 +50,66 @@ export function bookReport(games: CheckGame[], lines: Line[]): BookReport {
       ;(m.color === l.side ? map.get(k)!.mine : map.get(k)!.theirs).add(m.san)
     }
   }
-  const out = {
-    w: { games: 0, plies: 0, youLeft: 0, theyLeft: 0, youLeftAt: new Map<string, Departure>(), gaps: new Map<string, Departure>() },
-    b: { games: 0, plies: 0, youLeft: 0, theyLeft: 0, youLeftAt: new Map<string, Departure>(), gaps: new Map<string, Departure>() },
+  return book
+}
+
+export interface Followed {
+  sans: string[]
+  plies: number // moves played from the book
+  left: null | { who: 'you' | 'they'; departure: Departure }
+}
+
+// One game against your book: how far did it follow, and who left it first?
+export function followBook(game: CheckGame, book: Book): Followed | null {
+  const c = new Chess()
+  try {
+    c.loadPgn(game.pgn)
+  } catch {
+    return null
   }
-  for (const g of games) {
-    const c = new Chess()
-    try {
-      c.loadPgn(g.pgn)
-    } catch {
-      continue
+  const sans = c.history()
+  if (sans.length < 2) return null
+  const r = new Chess()
+  let plies = 0
+  for (let i = 0; i < sans.length; i++) {
+    const e = book[game.color].get(key(r.fen()))
+    if (!e) break
+    const san = sans[i]
+    const moves = numbered(sans.slice(0, i))
+    if (r.turn() === game.color) {
+      if (!e.mine.size) break
+      if (!e.mine.has(san)) return { sans, plies, left: { who: 'you', departure: { moves, played: san, book: [...e.mine], count: 1 } } }
+    } else {
+      if (!e.theirs.size) break
+      if (!e.theirs.has(san)) return { sans, plies, left: { who: 'they', departure: { moves, played: san, book: [...e.theirs], count: 1 } } }
     }
-    const sans = c.history()
-    if (sans.length < 2) continue
+    r.move(san)
+    plies++
+  }
+  return { sans, plies, left: null }
+}
+
+export function bookReport(games: CheckGame[], lines: Line[]): BookReport {
+  const book = buildBook(lines)
+  const blank = () => ({ games: 0, plies: 0, youLeft: 0, theyLeft: 0, youLeftAt: new Map<string, Departure>(), gaps: new Map<string, Departure>() })
+  const out = { w: blank(), b: blank() }
+  for (const g of games) {
+    const f = followBook(g, book)
+    if (!f) continue
     const side = out[g.color]
     side.games++
-    const r = new Chess()
-    for (let i = 0; i < sans.length; i++) {
-      const e = book[g.color].get(key(r.fen()))
-      if (!e) break
-      const san = sans[i]
-      const before = numbered(sans.slice(0, i))
-      if (r.turn() === g.color) {
-        if (!e.mine.size) break
-        if (!e.mine.has(san)) {
-          side.youLeft++
-          const k = before + '|' + san
-          const d = side.youLeftAt.get(k) ?? { moves: before, played: san, book: [...e.mine], count: 0 }
-          d.count++
-          side.youLeftAt.set(k, d)
-          break
-        }
-      } else if (e.theirs.size && !e.theirs.has(san)) {
-        side.theyLeft++
-        const k = before + '|' + san
-        const d = side.gaps.get(k) ?? { moves: before, played: san, book: [...e.theirs], count: 0 }
-        d.count++
-        side.gaps.set(k, d)
-        break
-      } else if (!e.theirs.size) break
-      r.move(san)
-      side.plies++
-    }
+    side.plies += f.plies
+    if (!f.left) continue
+    const into = f.left.who === 'you' ? side.youLeftAt : side.gaps
+    if (f.left.who === 'you') side.youLeft++
+    else side.theyLeft++
+    const k = f.left.departure.moves + '|' + f.left.departure.played
+    const d = into.get(k) ?? { ...f.left.departure, count: 0 }
+    d.count++
+    into.set(k, d)
   }
   const top = (m: Map<string, Departure>) => [...m.values()].sort((a, b) => b.count - a.count).slice(0, 3)
-  const report = (s: (typeof out)['w']): SideReport => ({
+  const report = (s: ReturnType<typeof blank>): SideReport => ({
     games: s.games,
     inBook: s.games ? s.plies / s.games : 0,
     youLeft: s.youLeft,
@@ -123,5 +140,22 @@ export function shapeReport(games: number, puzzles: Puzzle[]): ShapeReport {
     threats: games ? family('opponent') / games : 0,
     chances: games ? family('chance') / games : 0,
     worst: top ? { category: top[0], title: CATEGORY[top[0]].title, rule: CATEGORY[top[0]].rule, count: top[1] } : undefined,
+  }
+}
+
+export interface Compare {
+  mistakes: { before: number; now: number }
+  threats: { before: number; now: number }
+  rating: { before: number | null; now: number | null }
+  better: boolean // fewer big mistakes per game than at the start
+}
+
+// The report after 20 games: the same numbers as at the start, side by side
+export function compare(base: { mistakes: number; threats: number; rating: number | null }, now: ShapeReport, rating: number | null): Compare {
+  return {
+    mistakes: { before: base.mistakes, now: now.mistakes },
+    threats: { before: base.threats, now: now.threats },
+    rating: { before: base.rating, now: rating },
+    better: now.mistakes < base.mistakes,
   }
 }
