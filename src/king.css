@@ -263,3 +263,9 @@
 .king-extras b { font-family: 'Cinzel', Georgia, serif; font-size: .95rem; color: var(--ink-soft); }
 .king-extras button { min-height: 44px; font-size: .92rem; text-align: left; }
 @media (prefers-reduced-motion: reduce) { .king-coins-won { animation: none; } }
+
+/* the title on the map and the moment a new one is won */
+.king-coins small { display: block; font-family: 'Cinzel', Georgia, serif; font-size: .62rem; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: #f3dfb0; line-height: 1.1; }
+.king-title-won { display: grid; gap: 2px; justify-items: center; margin: 6px auto 0; padding: 8px 18px; border: 2px solid var(--gilt); border-radius: 999px; background: #3b2a14; color: #f3d98a; font-family: 'Cinzel', Georgia, serif; font-weight: 900; font-size: 1.15rem; width: max-content; max-width: 100%; animation: coins-pop .6s cubic-bezier(.2, .8, .2, 1.4); }
+.king-title-won small { font-family: 'Nunito', sans-serif; font-weight: 800; font-size: .7rem; letter-spacing: .08em; text-transform: uppercase; color: #f3dfb0; }
+@media (prefers-reduced-motion: reduce) { .king-title-won { animation: none; } }

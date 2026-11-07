@@ -3,7 +3,7 @@ import { describe, expect, it } from 'vitest'
 import { builtinLines } from './repertoire'
 import {
   CROSSROADS, FORKS, GRAIN, GUARD, GUARD_BOSS, LEWIS, LORD_FOG, MATES, QUEEN_TACTICS, RIDDLES, ROME_REACT, ROME_THREATS, ROME_TRAPS, ROOK_MATES, SAFE, STATIONS, TURK,
-  isOpen, lineRounds, nextStation, stationLines, type BoardRound,
+  isOpen, lineRounds, nextStation, stationLines, titleOf, type BoardRound,
 } from './king'
 
 const play = (r: BoardRound) => {
@@ -148,5 +148,13 @@ describe('King of Chess', () => {
   it('the road leads from Kannauj to Rome', () => {
     expect(nextStation('kannauj', ['kannauj'])?.id).toBe('rome')
     expect(nextStation('rome', ['kannauj', 'rome'])?.id).toBe('persia')
+  })
+
+  it('titles grow with the bosses: Pawn, Pawn Star, … King of Chess', () => {
+    expect(titleOf([])).toBe('Pawn')
+    expect(titleOf(['kannauj'])).toBe('Pawn Star')
+    expect(titleOf(['kannauj', 'rome', 'persia'])).toBe('Rook-ie')
+    expect(titleOf(STATIONS.filter((s) => !s.finale).map((s) => s.id))).toBe("Queen's Champion")
+    expect(titleOf(['chennai'])).toBe('King of Chess')
   })
 })

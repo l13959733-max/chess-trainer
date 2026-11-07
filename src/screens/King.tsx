@@ -12,7 +12,7 @@ import { clampScore } from '../lib/blunders'
 import { feedback as fx } from '../lib/feedback'
 import {
   ARMY, CROSSROADS, FORKS, GRAIN, GUARD, LEWIS, MATES, QUEEN_TACTICS, RIDDLES, ROME_REACT, ROME_THREATS, ROME_TRAPS, ROOK_MATES, SAFE, STATIONS, TENT_AT, TURK,
-  earn, isOpen, lineRounds, loadKing, nextStation, saveKing, stationById, stationLines, type BoardRound, type Crossroad, type QuizQuestion, type Station,
+  earn, isOpen, lineRounds, loadKing, nextStation, saveKing, stationById, stationLines, titleOf, type BoardRound, type Crossroad, type QuizQuestion, type Station,
 } from '../lib/king'
 import '../king.css'
 
@@ -206,7 +206,9 @@ function KingMap() {
       </div>
       <div className="king-hud">
         <Avatar who="hoppy" className="king-hud-face" />
-        <span className="king-coins" aria-label={`${state.coins} coins`}>🪙 {state.coins}</span>
+        <span className="king-coins" aria-label={`${titleOf(state.beaten)}, ${state.coins} chestnuts`}>
+          <small>{titleOf(state.beaten)}</small>🌰 {state.coins}
+        </span>
         <div className="king-bubble">
           {crowned ? (
             <>All hail <b>King Liam</b>! You conquered the whole world of chess.</>
@@ -428,7 +430,7 @@ function StationPage({ s, rep }: { s: Station; rep: Repertoire }) {
       <div className="king-banner">
         <img src={IMG + s.scene} alt="" />
         <div>
-          <span className="king-kicker">Year {s.year} · 🪙 {loadKing().coins}</span>
+          <span className="king-kicker">Year {s.year} · 🌰 {loadKing().coins}</span>
           <p>{s.intro}</p>
         </div>
       </div>
@@ -544,9 +546,11 @@ function beat(id: string) {
 }
 
 function Victory({ s }: { s: Station }) {
-  const [coins] = useState(() => {
+  const [{ coins, title }] = useState(() => {
+    const before = titleOf(loadKing().beaten)
     beat(s.id)
-    return earn(`${s.id}/boss`, s.finale ? 200 : 50)
+    const after = titleOf(loadKing().beaten)
+    return { coins: earn(`${s.id}/boss`, s.finale ? 200 : 50), title: after !== before ? after : null }
   })
   useEffect(() => {
     fx.success()
@@ -562,7 +566,13 @@ function Victory({ s }: { s: Station }) {
         </div>
         <div className="done-title">{crown ? 'King of Chess!' : `${s.boss.name} is beaten!`}</div>
         <p>{s.boss.win}</p>
-        {coins > 0 && <div className="king-coins-won">+{coins} 🪙</div>}
+        {coins > 0 && <div className="king-coins-won">+{coins} 🌰</div>}
+        {title && (
+          <div className="king-title-won">
+            <small>New title</small>
+            {title}
+          </div>
+        )}
         {s.fact && (
           <div className="king-fact">
             <b>Fun fact</b>
@@ -604,7 +614,7 @@ function QuestDone({ s, icon, title, text }: { s: Station; icon: string; title: 
         <div className="king-medal" aria-hidden="true">{icon}</div>
         <div className="done-title">{title}</div>
         <p>{text}</p>
-        {coins > 0 && <div className="king-coins-won">+{coins} 🪙</div>}
+        {coins > 0 && <div className="king-coins-won">+{coins} 🌰</div>}
         <div className="done-actions">
           <button type="button" onClick={() => go('king/' + s.id)}>{s.name}</button>
           <button type="button" className="primary" onClick={() => go(`king/${s.id}/next`)}>Continue</button>

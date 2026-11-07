@@ -580,6 +580,21 @@ export function earn(step: string, coins: number): number {
   return coins
 }
 
+// Titles grow with every boss beaten – with a wink: Pawn Star, Rook-ie, Knight Owl
+export const TITLES: { bosses: number; name: string }[] = [
+  { bosses: 0, name: 'Pawn' },
+  { bosses: 1, name: 'Pawn Star' },
+  { bosses: 3, name: 'Rook-ie' },
+  { bosses: 5, name: 'Knight Owl' },
+  { bosses: 8, name: 'Bishop of the Board' },
+  { bosses: 12, name: "Queen's Champion" },
+]
+export function titleOf(beaten: string[]): string {
+  if (beaten.includes('chennai')) return 'King of Chess'
+  const n = beaten.filter((id) => id !== 'chennai').length
+  return [...TITLES].reverse().find((t) => n >= t.bosses)!.name
+}
+
 // The main road: first the guard, then your openings in the order you meet them most
 export const ROAD = ['kannauj', 'rome']
 export function nextStation(after: string, beaten: string[]): Station | undefined {
