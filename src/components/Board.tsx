@@ -19,7 +19,13 @@ const skinPieces = (skin: BoardSkin) =>
   Object.fromEntries(
     PIECES.map((p) => [
       p,
-      () => <img className="skin-piece" src={`${import.meta.env.BASE_URL}king/pieces/${skin}-${p}.png`} alt="" draggable={false} />,
+      // The piece stands on its square: base low in the square, a soft painted shadow on the ground
+      () => (
+        <span className="skin-piece">
+          <span className="skin-shadow" />
+          <img src={`${import.meta.env.BASE_URL}king/pieces/${skin}-${p}.png`} alt="" draggable={false} />
+        </span>
+      ),
     ]),
   )
 const SKIN_PIECES = { army: skinPieces('army'), palace: skinPieces('palace') }
