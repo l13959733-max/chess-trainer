@@ -122,6 +122,9 @@
   --wax: #8b2e2e;
   --wax-dark: #5c1d1d;
   --gilt: #c9a227;
+  /* standard board: the Hoppy board in forest green and parchment */
+  --board-light: #efe4c6;
+  --board-dark: #7c9a5a;
   background: radial-gradient(120% 70% at 50% 0%, var(--parch), var(--parch-2));
   color: var(--ink);
   border-radius: 22px;
@@ -240,3 +243,9 @@
 
 /* the board of the game is the Hoppy board, across the whole phone width like on chess.com */
 .king-screen > .king-bleed { margin-inline: -8px; }
+/* each land has its board colours */
+.pal-walnut { --board-light: #f0e2c0; --board-dark: #a87b51; }
+.pal-lapis { --board-light: #efe4c6; --board-dark: #5f7ea6; }
+.pal-fog { --board-light: #e9e7e1; --board-dark: #8c969e; }
+.pal-ice { --board-light: #eef3f4; --board-dark: #86a3b3; }
+.pal-night { --board-light: #e7e3f0; --board-dark: #5d5a8c; }

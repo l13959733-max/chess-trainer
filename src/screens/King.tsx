@@ -228,12 +228,20 @@ function Medallion({ img }: { img: string }) {
 
 // In Asia Liam plays with his Indian army: there the rook is an elephant (Haathi)
 const ASIA = ['kannauj', 'persia', 'samarkand', 'baghdad']
-const ElephantContext = createContext(false)
+// Every land has its board colours, always in the Hoppy design (styles in king.css, .pal-*)
+type Palette = 'forest' | 'walnut' | 'lapis' | 'fog' | 'ice' | 'night'
+const PALETTES: Record<string, Palette> = {
+  kannauj: 'lapis', persia: 'lapis', samarkand: 'lapis', baghdad: 'lapis',
+  north: 'walnut', valencia: 'walnut', rome: 'walnut', palace: 'walnut', vienna: 'walnut', paris: 'walnut',
+  london: 'fog', newyork: 'fog', reykjavik: 'ice', orbit: 'night',
+}
+const BoardContext = createContext<{ elephants: boolean; palette: Palette }>({ elephants: false, palette: 'forest' })
+const boardAt = (id: string) => ({ elephants: ASIA.includes(id), palette: PALETTES[id] ?? 'forest' })
 
 function KBoard(props: ComponentProps<typeof Board>) {
-  const elephants = useContext(ElephantContext)
+  const { elephants, palette } = useContext(BoardContext)
   return (
-    <div className="king-bleed">
+    <div className={`king-bleed pal-${palette}`}>
       <Board elephants={elephants} {...props} />
     </div>
   )
@@ -292,9 +300,9 @@ export function KingStation({ id, sub, rep }: { id?: string; sub?: string; rep: 
     )
   }
   return (
-    <ElephantContext.Provider value={ASIA.includes(s.id)}>
+    <BoardContext.Provider value={boardAt(s.id)}>
       <StationScreen s={s} sub={sub} rep={rep} />
-    </ElephantContext.Provider>
+    </BoardContext.Provider>
   )
 }
 
@@ -717,6 +725,7 @@ function LineBoss({ s, rep }: { s: Station; rep: Repertoire }) {
 
 const TARGETS = ['e4', 'g7', 'b3', 'd5', 'h1', 'c6']
 function KingSquares({ s }: { s: Station }) {
+  const { palette } = useContext(BoardContext)
   const [i, setI] = useState(0)
   const [score, setScore] = useState(0)
   const [tapped, setTapped] = useState<string | null>(null)
@@ -748,7 +757,7 @@ function KingSquares({ s }: { s: Station }) {
     <div className="screen king-screen">
       <StationHead s={s} back={() => go('king/' + s.id)} title="Blindfold: find the square" />
       <div className="king-question"><span className="king-big" aria-hidden="true">👁</span><span>Tap the square <b className="king-coord">{t}</b> – no letters, no numbers on the board!</span></div>
-      <div className="king-tapboard">{cells}</div>
+      <div className={`king-tapboard pal-${palette}`}>{cells}</div>
       {tapped && (
         <div className={`king-fb ${tapped === t ? 'ok' : 'no'}`}>
           <p>{tapped === t ? 'Right!' : `That was ${tapped}. The green one is ${t}.`}</p>
