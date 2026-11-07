@@ -1,14 +1,14 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import type { Arrow } from 'react-chessboard'
 import { ARROW, Board, LAST_MOVE } from '../components/Board'
-import { HOPPY_INNER, HoppyFace, Liam, LIAM_INNER, Portrait, RIDER_INNER, SHIP_INNER, TENT_INNER } from '../components/KingArt'
+import { Avatar, HOPPY_INNER, LIAM_INNER, Portrait, RIDER_INNER, SHIP_INNER, TENT_INNER } from '../components/KingArt'
 import { PathStep } from '../components/PathStep'
 import { go } from '../hooks/useHashRoute'
 import type { Puzzles } from '../hooks/usePuzzles'
 import type { Repertoire } from '../hooks/useRepertoire'
 import { clampScore } from '../lib/blunders'
 import { feedback as fx } from '../lib/feedback'
-import { ARMY, LORD_FOG, RIDDLES, STATIONS, loadKing, saveKing, stationById, type Station } from '../lib/king'
+import { ARMY, LORD_FOG, RIDDLES, STATIONS, TENT_AT, loadKing, saveKing, stationById, type Station } from '../lib/king'
 import '../king.css'
 
 const IMG = import.meta.env.BASE_URL + 'king/'
@@ -152,7 +152,7 @@ function KingMap() {
               </g>
             )
           })}
-          <g className="king-stop" transform="translate(1490,455)" role="button" tabIndex={0} aria-label="War Tent" onClick={() => go('tent')} onKeyDown={(e) => e.key === 'Enter' && go('tent')}>
+          <g className="king-stop" transform={`translate(${TENT_AT.x},${TENT_AT.y})`} role="button" tabIndex={0} aria-label="War Tent" onClick={() => go('tent')} onKeyDown={(e) => e.key === 'Enter' && go('tent')}>
             <g dangerouslySetInnerHTML={{ __html: TENT_INNER }} />
             <text className="king-label" y="24" textAnchor="middle">War Tent</text>
           </g>
@@ -162,7 +162,7 @@ function KingMap() {
         </svg>
       </div>
       <div className="king-hud">
-        <HoppyFace className="king-hud-face" />
+        <Avatar who="hoppy" className="king-hud-face" />
         <div className="king-bubble">
           {state.beaten.length === 0 ? (
             <>Prince Liam, our journey starts in <b>Kannauj</b>. Tap a city to travel!</>
@@ -197,17 +197,11 @@ function KingIntro({ onDone }: { onDone: () => void }) {
     <div className="king-intro">
       <div className={`king-intro-art scene-${i}`}>
         {i === 0 ? (
-          <img src={IMG + 'kannauj.jpg'} alt="Prince Liam kneels at the first chessboard in a palace in Kannauj, Hoppy looks over his shoulder" />
+          <img src={IMG + 'kannauj.jpg'} alt="Prince Liam kneels at the first chessboard in a palace in Kannauj, his horse Hoppy behind him" />
         ) : i === 1 ? (
-          <div className="king-scroll-letter" aria-hidden="true">
-            <span>🐘</span>
-            <div>?</div>
-            <span>🐫</span>
-          </div>
+          <img src={IMG + 'persia.jpg'} alt="At the Persian court an envoy with an elephant has brought a chessboard and a riddle" />
         ) : (
-          <div className="king-globe" aria-hidden="true">
-            <svg viewBox="-60 -60 120 120"><g dangerouslySetInnerHTML={{ __html: RIDER_INNER }} /></svg>
-          </div>
+          <img className="map-crop" src={IMG + 'worldmap.jpg'} alt="The painted world map of the journey" />
         )}
       </div>
       <div className="king-intro-text">
@@ -234,7 +228,7 @@ export function KingStation({ id, sub, rep }: { id?: string; sub?: string; rep: 
   const s = stationById(id)
   if (!s || !s.open) {
     return (
-      <div className="screen">
+      <div className="screen king-screen">
         <p className="note">This station is still in the fog.</p>
         <button type="button" className="primary" onClick={() => go('')}>World map</button>
       </div>
@@ -266,12 +260,22 @@ function StationPage({ s, rep }: { s: Station; rep: Repertoire }) {
   const lines = useMemo(() => (s.opening ? rep.lines.filter((l) => l.source !== 'import' && l.opening === s.opening && l.side === 'w') : []), [rep.lines, s.opening])
   const beaten = loadKing().beaten.includes(s.id)
   return (
-    <div className="screen">
+    <div className="screen king-screen">
       <StationHead s={s} back={() => go('')} />
-      <div className="king-era" style={{ background: s.color }}>
-        <span className="king-kicker">Year {s.year}</span>
-        <p>{s.intro}</p>
-      </div>
+      {s.scene ? (
+        <div className="king-banner">
+          <img src={IMG + s.scene} alt="" />
+          <div>
+            <span className="king-kicker">Year {s.year}</span>
+            <p>{s.intro}</p>
+          </div>
+        </div>
+      ) : (
+        <div className="king-era" style={{ background: s.color }}>
+          <span className="king-kicker">Year {s.year}</span>
+          <p>{s.intro}</p>
+        </div>
+      )}
       {s.master && (
         <div className="king-master">
           <Portrait m={s.master} className="king-portrait" />
@@ -315,12 +319,12 @@ function KingTalk({ s }: { s: Station }) {
     end.current?.scrollIntoView({ block: 'end', behavior: 'smooth' })
   }, [n])
   return (
-    <div className="screen">
+    <div className="screen king-screen">
       <StationHead s={s} back={() => go('king/' + s.id)} title={m.name} />
       <div className="king-talk">
         {m.talk.slice(0, n).map((l, i) => (
           <div key={i} className={`king-line ${l.who === 'master' ? '' : 'me'}`}>
-            {l.who === 'master' ? <Portrait m={m} className="king-avatar" /> : l.who === 'liam' ? <Liam className="king-avatar" /> : <HoppyFace className="king-avatar" />}
+            {l.who === 'master' ? <Portrait m={m} className="king-avatar" /> : <Avatar who={l.who} className="king-avatar" />}
             <div className="king-say">{l.text}</div>
           </div>
         ))}
@@ -359,7 +363,7 @@ function IndianBoard() {
 
 function KingArmy({ s }: { s: Station }) {
   return (
-    <div className="screen">
+    <div className="screen king-screen">
       <StationHead s={s} back={() => go('king/' + s.id)} title="Meet your army" />
       <IndianBoard />
       <div className="king-legend">
@@ -392,7 +396,7 @@ function Victory({ s, text }: { s: Station; text: string }) {
     fx.success()
   }, [s.id])
   return (
-    <div className="screen">
+    <div className="screen king-screen">
       <div className="done">
         <div className="king-medal" aria-hidden="true">🏅</div>
         <div className="done-title">{s.boss.name} is beaten!</div>
@@ -430,7 +434,7 @@ function ArmyQuiz({ s }: { s: Station }) {
   const options = q.options.includes(q.a.is) ? q.options : [...q.options.slice(0, 2), q.a.is].sort()
   const right = picked === q.a.is
   return (
-    <div className="screen">
+    <div className="screen king-screen">
       <StationHead s={s} back={() => go('king/' + s.id)} title={s.boss.name} />
       <div className="king-boss-card">
         <span className="king-face" aria-hidden="true">{s.boss.face}</span>
@@ -487,7 +491,7 @@ function KingRiddle({ s, boss }: { s: Station; boss: boolean }) {
     return boss ? (
       <Victory s={s} text="Like Buzurgmihr, you worked out the rule just by watching. The envoy bows – Persia keeps its gold." />
     ) : (
-      <div className="screen">
+      <div className="screen king-screen">
         <div className="done">
           <div className="king-medal" aria-hidden="true">🐘</div>
           <div className="done-title">You read the rule!</div>
@@ -503,7 +507,7 @@ function KingRiddle({ s, boss }: { s: Station; boss: boolean }) {
   const ok = r.options.find((o) => o.text === picked)?.ok
   const styles = Object.fromEntries(r.seen.map((q) => [q, LAST_MOVE]))
   return (
-    <div className="screen">
+    <div className="screen king-screen">
       <StationHead s={s} back={() => go('king/' + s.id)} title={boss ? s.boss.name : 'The riddle of the elephant'} />
       {boss && (
         <div className="king-boss-card">
@@ -562,7 +566,7 @@ function LordFog({ s }: { s: Station }) {
   const arrows: Arrow[] = state === 'wrong' ? [{ startSquare: r.from, endSquare: r.to, color: ARROW.correct }] : []
   const styles = state === 'hit' ? { [r.from]: LAST_MOVE, [r.to]: LAST_MOVE } : {}
   return (
-    <div className="screen">
+    <div className="screen king-screen">
       <StationHead s={s} back={() => go('king/' + s.id)} title={s.boss.name} />
       <div className="king-boss-card">
         <span className="king-face" aria-hidden="true">{s.boss.face}</span>
@@ -619,7 +623,7 @@ function LordFog({ s }: { s: Station }) {
 export function WarTent({ puzzles }: { puzzles: Puzzles }) {
   const winning = useMemo(() => puzzles.puzzles.filter((p) => clampScore(p.scoreBefore) >= 300), [puzzles.puzzles])
   return (
-    <div className="screen">
+    <div className="screen king-screen">
       <div className="screen-head">
         <button type="button" className="back" onClick={() => go('')} aria-label="Back to the world map">←</button>
         <div>
@@ -627,9 +631,12 @@ export function WarTent({ puzzles }: { puzzles: Puzzles }) {
           <h2>The War Tent</h2>
         </div>
       </div>
-      <div className="king-era" style={{ background: '#a61e4d' }}>
-        <span className="king-kicker">A good general trains before every battle</span>
-        <svg className="king-tent-deco" viewBox="-40 -50 80 60" aria-hidden="true" dangerouslySetInnerHTML={{ __html: TENT_INNER }} />
+      <div className="king-banner">
+        <img src={IMG + 'tent.jpg'} alt="" />
+        <div>
+          <span className="king-kicker">Your camp · it travels with you</span>
+          <p>A good general trains before every battle.</p>
+        </div>
       </div>
       <div className="king-stations">
         <button type="button" style={{ background: '#2b8a3e', borderColor: '#1b5e2a' }} onClick={() => go('review')}><span aria-hidden="true">🗺</span><b>Battle Plans</b><small>Your opening lines that are due</small></button>

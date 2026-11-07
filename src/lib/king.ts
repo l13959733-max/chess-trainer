@@ -3,6 +3,7 @@
 // Facts the masters tell are checked against sources before they go in (see CLAUDE.md).
 
 export interface Master {
+  img?: string // painted portrait in public/king
   name: string
   from: string
   skin: string
@@ -27,6 +28,7 @@ export interface Station {
   intro: string
   skills: string[]
   master?: Master
+  scene?: string // painted picture of the city in public/king
   games: { id: 'army' | 'riddle'; title: string }[]
   opening?: string // [Opening] of the real lines learned here
   boss: { name: string; face: string; kind: 'army' | 'riddle' | 'london' }
@@ -34,11 +36,12 @@ export interface Station {
 
 export const STATIONS: Station[] = [
   {
-    id: 'kannauj', name: 'Kannauj', year: '600s', x: 1385, y: 462, open: true, color: '#e8590c',
+    id: 'kannauj', name: 'Kannauj', year: '600s', x: 1470, y: 468, open: true, color: '#e8590c',
     intro: 'Where it all began: an army small enough to fit on a table.',
     skills: ['Foot soldiers', 'Horses', 'Chariots', 'Elephants', 'The counselor'],
+    scene: 'kannauj.jpg',
     master: {
-      name: 'Bana, the court poet', from: "King Harsha's court, 600s", skin: '#c68e5f', hair: '#2b2140', coat: '#e8590c', beard: true,
+      img: 'bana.jpg', name: 'Bana, the court poet', from: "King Harsha's court, 600s", skin: '#c68e5f', hair: '#2b2140', coat: '#e8590c', beard: true,
       talk: [
         { who: 'master', text: "Welcome, Prince Liam. I write the story of King Harsha's court here in Kannauj." },
         { who: 'liam', text: 'What is that board with all the little soldiers?' },
@@ -51,11 +54,12 @@ export const STATIONS: Station[] = [
     boss: { name: 'The Captain of the Guard', face: '🛡', kind: 'army' },
   },
   {
-    id: 'persia', name: 'Persia', year: '500s', x: 1245, y: 405, open: true, color: '#0b7285',
+    id: 'persia', name: 'Persia', year: '500s', x: 1320, y: 445, open: true, color: '#0b7285',
     intro: 'A board arrives from India – with no rules. Can you work them out?',
     skills: ['Read the rules', 'Shāh māt – checkmate'],
+    scene: 'persia.jpg',
     master: {
-      name: 'Buzurgmihr', from: 'Chief minister of King Khosrau', skin: '#d9a77c', hair: '#5a3b22', coat: '#0b7285', beard: true,
+      img: 'buzurg.jpg', name: 'Buzurgmihr', from: 'Chief minister of King Khosrau', skin: '#d9a77c', hair: '#5a3b22', coat: '#0b7285', beard: true,
       talk: [
         { who: 'master', text: 'An envoy from India brought this board to King Khosrau. No rules – only a riddle.' },
         { who: 'master', text: '"Work out the game," the letter says, "or Persia pays India tribute."' },
@@ -66,19 +70,20 @@ export const STATIONS: Station[] = [
     games: [{ id: 'riddle', title: 'The riddle of the elephant' }],
     boss: { name: 'The Indian envoy', face: '🐘', kind: 'riddle' },
   },
-  { id: 'samarkand', name: 'Samarkand', year: '700s', x: 1365, y: 315, open: false, color: '#1971c2', intro: '', skills: [], games: [], boss: { name: '', face: '', kind: 'army' } },
-  { id: 'baghdad', name: 'Baghdad', year: '762–946', x: 1145, y: 408, open: false, color: '#5f3dc4', intro: '', skills: [], games: [], boss: { name: '', face: '', kind: 'army' } },
-  { id: 'north', name: 'The North', year: '1000–1200', x: 935, y: 170, open: false, color: '#495057', intro: '', skills: [], games: [], boss: { name: '', face: '', kind: 'army' } },
-  { id: 'valencia', name: 'Valencia', year: '1475', x: 843, y: 345, open: false, color: '#c92a2a', intro: '', skills: [], games: [], boss: { name: '', face: '', kind: 'army' } },
-  { id: 'rome', name: 'Rome', year: '1600', x: 950, y: 340, open: false, color: '#e8590c', intro: '', skills: [], games: [], boss: { name: '', face: '', kind: 'army' } },
-  { id: 'vienna', name: 'Vienna', year: '1770', x: 978, y: 268, open: false, color: '#a61e4d', intro: '', skills: [], games: [], boss: { name: '', face: '', kind: 'army' } },
-  { id: 'paris', name: 'Paris', year: '1740–1858', x: 890, y: 290, open: false, color: '#1864ab', intro: '', skills: [], games: [], boss: { name: '', face: '', kind: 'army' } },
+  { id: 'samarkand', name: 'Samarkand', year: '700s', x: 1365, y: 325, open: false, color: '#1971c2', intro: '', skills: [], games: [], boss: { name: '', face: '', kind: 'army' } },
+  { id: 'baghdad', name: 'Baghdad', year: '762–946', x: 1210, y: 452, open: false, color: '#5f3dc4', intro: '', skills: [], games: [], boss: { name: '', face: '', kind: 'army' } },
+  { id: 'north', name: 'The North', year: '1000–1200', x: 935, y: 118, open: false, color: '#495057', intro: '', skills: [], games: [], boss: { name: '', face: '', kind: 'army' } },
+  { id: 'valencia', name: 'Valencia', year: '1475', x: 845, y: 372, open: false, color: '#c92a2a', intro: '', skills: [], games: [], boss: { name: '', face: '', kind: 'army' } },
+  { id: 'rome', name: 'Rome', year: '1600', x: 972, y: 352, open: false, color: '#e8590c', intro: '', skills: [], games: [], boss: { name: '', face: '', kind: 'army' } },
+  { id: 'vienna', name: 'Vienna', year: '1770', x: 1005, y: 272, open: false, color: '#a61e4d', intro: '', skills: [], games: [], boss: { name: '', face: '', kind: 'army' } },
+  { id: 'paris', name: 'Paris', year: '1740–1858', x: 900, y: 298, open: false, color: '#1864ab', intro: '', skills: [], games: [], boss: { name: '', face: '', kind: 'army' } },
   {
-    id: 'london', name: 'London', year: '1849–1922', x: 865, y: 225, open: true, sea: true, color: '#364fc7',
+    id: 'london', name: 'London', year: '1849–1922', x: 878, y: 228, open: true, sea: true, color: '#364fc7',
     intro: 'The Staunton pieces, the first big tournament – and a system named after this city.',
     skills: ['Bishop out before e3', 'Pawn chain c3-d4-e3', 'Keep the bishop: Bg3'],
+    scene: 'london.jpg',
     master: {
-      name: 'James Mason', from: 'Master of the London System', skin: '#f2c9a0', hair: '#8a6a4a', coat: '#364fc7', mustache: true, hat: true,
+      img: 'mason.jpg', name: 'James Mason', from: 'Master of the London System', skin: '#f2c9a0', hair: '#8a6a4a', coat: '#364fc7', mustache: true, hat: true,
       talk: [
         { who: 'master', text: 'Good day, Prince Liam – and good day, Hoppy. Welcome to London.' },
         { who: 'liam', text: 'Why is this system called London?' },
@@ -90,12 +95,15 @@ export const STATIONS: Station[] = [
     opening: 'London System',
     boss: { name: 'Lord Fog of London', face: '🎩', kind: 'london' },
   },
-  { id: 'reykjavik', name: 'Reykjavík', year: '1972', x: 790, y: 148, open: false, sea: true, color: '#a61e4d', intro: '', skills: [], games: [], boss: { name: '', face: '', kind: 'army' } },
-  { id: 'newyork', name: 'New York', year: '1886–1997', x: 435, y: 290, open: false, sea: true, color: '#343a40', intro: '', skills: [], games: [], boss: { name: '', face: '', kind: 'army' } },
-  { id: 'orbit', name: 'Orbit', year: '1970 →', x: 1268, y: 250, open: false, color: '#2b2140', intro: '', skills: [], games: [], boss: { name: '', face: '', kind: 'army' } },
-  { id: 'chennai', name: 'Chennai', year: 'today', x: 1428, y: 548, open: false, sea: true, color: '#5b36c9', intro: '', skills: [], games: [], boss: { name: '', face: '', kind: 'army' } },
-  { id: 'rio', name: 'Rio', year: 'Trompowsky', x: 605, y: 725, open: false, sea: true, color: '#2b8a3e', intro: '', skills: [], games: [], boss: { name: '', face: '', kind: 'army' } },
+  { id: 'reykjavik', name: 'Reykjavík', year: '1972', x: 745, y: 120, open: false, sea: true, color: '#a61e4d', intro: '', skills: [], games: [], boss: { name: '', face: '', kind: 'army' } },
+  { id: 'newyork', name: 'New York', year: '1886–1997', x: 440, y: 322, open: false, sea: true, color: '#343a40', intro: '', skills: [], games: [], boss: { name: '', face: '', kind: 'army' } },
+  { id: 'orbit', name: 'Orbit', year: '1970 →', x: 1435, y: 245, open: false, color: '#2b2140', intro: '', skills: [], games: [], boss: { name: '', face: '', kind: 'army' } },
+  { id: 'chennai', name: 'Chennai', year: 'today', x: 1515, y: 582, open: false, sea: true, color: '#5b36c9', intro: '', skills: [], games: [], boss: { name: '', face: '', kind: 'army' } },
+  { id: 'rio', name: 'Rio', year: 'Trompowsky', x: 600, y: 692, open: false, sea: true, color: '#2b8a3e', intro: '', skills: [], games: [], boss: { name: '', face: '', kind: 'army' } },
 ]
+
+// The War Tent on the map (it travels with Liam, but the map shows it near Kannauj)
+export const TENT_AT = { x: 1600, y: 485 }
 
 export const stationById = (id: string | undefined) => STATIONS.find((s) => s.id === id)
 

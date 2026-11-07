@@ -20,8 +20,16 @@ export function HoppyFace({ className = '' }: { className?: string }) {
   return <svg className={className} viewBox="0 0 120 120" aria-hidden="true" dangerouslySetInnerHTML={{ __html: HOPPY_INNER }} />
 }
 
-// Friendly cartoon portrait – no likeness of the real person intended
+const IMG = import.meta.env.BASE_URL + 'king/'
+
+// Painted portraits for the dialogues
+export function Avatar({ who, className = '' }: { who: 'liam' | 'hoppy'; className?: string }) {
+  return <img className={`king-pimg ${className}`} src={IMG + who + '.jpg'} alt="" />
+}
+
+// Painted portrait (or a drawn one as fallback) – no likeness of the real person intended
 export function Portrait({ m, className = '' }: { m: Master; className?: string }) {
+  if (m.img) return <img className={`king-pimg ${className}`} src={IMG + m.img} alt="" />
   return (
     <svg className={className} viewBox="0 0 64 64" aria-hidden="true">
       <circle cx="32" cy="32" r="31" fill="#fff3c4" />

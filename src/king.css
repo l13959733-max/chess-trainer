@@ -107,3 +107,96 @@
 .king-stations button small { font-weight: 800; opacity: .95; line-height: 1.25; }
 .king-links { display: flex; flex-wrap: wrap; gap: 8px; }
 .king-links button { min-height: 44px; font-size: .9rem; }
+
+/* ---------- Painted style (style B): parchment, ink, wax and wood ---------- */
+.king-screen {
+  --parch: #f8efd9;
+  --parch-2: #ead9b2;
+  --card: #fbf3df;
+  --edge: #c9ad7a;
+  --ink: #3b2a14;
+  --ink-soft: #7a6448;
+  --wood: #8b6b3d;
+  --forest: #5c7a3a;
+  --forest-dark: #3e5426;
+  --wax: #8b2e2e;
+  --wax-dark: #5c1d1d;
+  --gilt: #c9a227;
+  --board-light: #f0d9b5;
+  --board-dark: #b58863;
+  background: radial-gradient(120% 70% at 50% 0%, var(--parch), var(--parch-2));
+  color: var(--ink);
+  border-radius: 22px;
+  margin-inline: 8px;
+  padding-block: 14px 22px;
+  min-height: calc(100dvh - 96px);
+  align-content: start;
+}
+.king-screen h2, .king-screen .done-title, .king-dock button, .king-bubble b { font-family: 'Cinzel', Georgia, serif; }
+.king-screen h2 { font-weight: 900; letter-spacing: .01em; }
+.king-screen .eyebrow, .king-screen .note, .king-master small { color: var(--ink-soft); }
+.king-screen button { background: var(--card); border-color: var(--wood); color: var(--ink); }
+.king-screen button.primary { background: var(--forest); border-color: var(--forest-dark); color: #fff7e0; font-family: 'Cinzel', Georgia, serif; }
+.king-screen .back { background: var(--card); }
+.king-screen .done { background: var(--card); border-color: var(--edge); }
+
+/* map */
+.king-scroll { background: #e9d9b3; }
+.king-label { font-family: 'Cinzel', Georgia, serif; font-weight: 900; font-size: 15px; fill: #3b2a14; stroke: #f4e4c1; }
+.king-bubble { background: #f4e4c1; border-color: #8b6b3d; color: #3b2a14; }
+.king-hud-face { border-radius: 50%; border: 2px solid #c9a227; object-fit: cover; }
+.king-dock button { background: #f4e4c1; border-color: #8b6b3d; color: #3b2a14; font-weight: 700; }
+.king-toast { background: #3b2a14; color: #f8ecd0; }
+
+/* intro */
+.king-intro { background: #2c1f12; }
+.king-intro-text h2 { font-family: 'Cinzel', Georgia, serif; }
+.king-intro-text p { color: #f3dfb0; }
+.king-intro-art img.map-crop { object-position: 78% 55%; }
+.king-intro .primary { background: #5c7a3a; border-color: #3e5426; color: #fff7e0; }
+.king-skip { color: #f3dfb0; }
+
+/* city banner */
+.king-banner { position: relative; border-radius: 18px; overflow: hidden; border: 2px solid var(--wood); background: #2c1f12; }
+.king-banner img { display: block; width: 100%; height: 320px; object-fit: cover; object-position: 50% 58%; }
+.king-banner > div { position: absolute; inset: auto 0 0 0; padding: 44px 14px 12px; background: linear-gradient(transparent, rgba(30, 20, 10, .92)); display: flex; flex-direction: column; gap: 2px; }
+.king-banner .king-kicker { color: #f3dfb0; }
+.king-banner p { margin: 0; color: #fff7e0; font-weight: 800; }
+.king-era { border: 2px solid var(--gilt); }
+.king-master { background: var(--card); border-color: var(--edge); }
+.king-pimg { width: 60px; height: 60px; border-radius: 50%; border: 2px solid var(--gilt); object-fit: cover; flex: none; display: block; }
+.king-skills span { background: #efe2c2; color: #6b4a2b; }
+
+/* path inside a city: wax seals and gold */
+.king-screen .path-node { background: var(--forest); border-color: var(--forest-dark); }
+.king-screen .path-node.perfect { background: var(--gilt); border-color: #8f7116; }
+.king-screen .path-node.mistakes { background: #b5651d; border-color: #7d4512; }
+.king-screen .path-node.king-game { background: #2f6f8f; border-color: #1d4a60; }
+.king-screen .path-node.king-boss { background: var(--wax); border-color: var(--wax-dark); }
+.king-screen .path-node.king-boss.beaten { background: var(--gilt); border-color: #8f7116; }
+.king-screen .path-label { color: var(--ink); }
+.king-screen .path-pop { background: var(--card); border-color: var(--edge); }
+
+/* talk */
+.king-say { background: var(--card); border-color: var(--edge); color: var(--ink); }
+.king-line.me .king-say { background: #efe2c2; border-color: var(--edge); }
+.king-avatar { width: 52px; height: 52px; }
+
+/* bosses and games */
+.king-boss-card { background: linear-gradient(160deg, #4a3520, #2c1f12); border: 2px solid var(--gilt); }
+.king-boss-card q { color: #f3dfb0; }
+.king-question { color: var(--ink); }
+.king-options button { background: var(--card); }
+.king-options button.right { background: #e4ecd0; border-color: var(--forest); }
+.king-options button.wrong { background: #f3d9cf; border-color: var(--wax); }
+.king-options button small { color: var(--ink-soft); }
+.king-fb.ok { background: #e4ecd0; border-color: var(--forest); }
+.king-fb.no { background: #f3d9cf; border-color: var(--wax); }
+.king-legend div { background: var(--card); border-color: var(--edge); }
+.king-board { border-color: var(--wood); }
+
+/* war tent */
+.king-stations button { background: var(--card) !important; color: var(--ink) !important; border-color: var(--wood) !important; }
+.king-stations button b { font-family: 'Cinzel', Georgia, serif; }
+.king-stations button small { color: var(--ink-soft); opacity: 1; }
+.king-links button { background: var(--card); }
