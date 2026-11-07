@@ -1,0 +1,109 @@
+/* King of Chess: the world map start page and its stations */
+.screen > [class^='king-'], .screen > .king-path { margin-inline: 16px; }
+
+.king-map { position: relative; height: calc(100dvh - 88px); min-height: 520px; border-radius: 22px; overflow: hidden; border: 2px solid var(--line); margin-inline: 8px; }
+.king-scroll { position: absolute; inset: 0; overflow: auto; overscroll-behavior: contain; background: #2fb3c4; }
+.king-world { display: block; width: 1800px; height: 764px; }
+.king-stop { cursor: pointer; }
+.king-stop:focus-visible { outline: none; }
+.king-stop:focus-visible ellipse { stroke: var(--idea); stroke-width: 5; }
+.king-label { font-family: 'Baloo 2', 'Nunito', ui-rounded, sans-serif; font-weight: 800; font-size: 16px; fill: #3a3450; paint-order: stroke; stroke: #fff; stroke-width: 5px; stroke-linejoin: round; }
+.king-year { font-weight: 800; font-size: 12px; fill: #fff; }
+.king-pulse { animation: king-pulse 1.6s ease-in-out infinite; transform-origin: center; transform-box: fill-box; }
+@keyframes king-pulse { 50% { transform: scale(1.18); opacity: .5; } }
+.king-bob { animation: king-bob 1.4s ease-in-out infinite; }
+@keyframes king-bob { 50% { transform: translateY(-4px); } }
+@media (prefers-reduced-motion: reduce) { .king-pulse, .king-bob { animation: none; } }
+.king-hud { position: absolute; left: 10px; right: 10px; top: 10px; display: flex; gap: 8px; align-items: flex-start; pointer-events: none; }
+.king-hud-face { width: 46px; height: 46px; flex: none; }
+.king-bubble { background: #fff; border: 2px solid var(--line); border-radius: 16px; padding: 8px 12px; font-weight: 800; font-size: .9rem; box-shadow: 0 3px 0 rgba(0, 0, 0, .1); }
+.king-toast { position: absolute; left: 50%; bottom: 84px; transform: translateX(-50%); width: max-content; max-width: 90%; background: #2b2140; color: #fff; border-radius: 14px; padding: 8px 14px; font-weight: 800; font-size: .88rem; text-align: center; }
+.king-dock { position: absolute; left: 8px; right: 8px; bottom: 8px; display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
+.king-dock button { min-height: 56px; padding: 4px; font-size: .74rem; line-height: 1.1; display: flex; flex-direction: column; align-items: center; justify-content: center; box-shadow: 0 3px 0 rgba(0, 0, 0, .12); }
+.king-dock button span { font-size: 1.2rem; }
+
+/* intro */
+.king-intro { background: #2b2140; color: #fff; border-radius: 22px; overflow: hidden; margin-inline: 8px; display: flex; flex-direction: column; min-height: calc(100dvh - 100px); }
+.king-intro-art { height: 52vh; max-height: 440px; min-height: 280px; overflow: hidden; display: grid; place-items: center; }
+.king-intro-art img { width: 100%; height: 100%; object-fit: cover; object-position: 50% 62%; }
+.king-intro-art.scene-1 { background: linear-gradient(#0b4f5c, #d9a441); }
+.king-intro-art.scene-2 { background: radial-gradient(circle at 50% 50%, #3a95cf 0 38%, #2b2140 39%); }
+.king-scroll-letter { display: flex; align-items: center; gap: 18px; font-size: 3rem; }
+.king-scroll-letter div { width: 130px; height: 120px; background: #fff3c4; border: 4px solid #a86b2a; border-radius: 10px; color: #a86b2a; display: grid; place-items: center; font-size: 3.4rem; font-weight: 900; }
+.king-globe svg { width: 180px; height: 180px; }
+.king-intro-text { padding: 16px 20px 20px; display: flex; flex-direction: column; gap: 8px; flex: 1; }
+.king-intro-text h2 { margin: 0; font-size: 1.6rem; line-height: 1.15; }
+.king-intro-text p { margin: 0; color: #e0d6ff; font-weight: 700; }
+.king-kicker { color: var(--sun); font-weight: 900; font-size: .78rem; letter-spacing: .08em; text-transform: uppercase; }
+.king-intro-row { display: flex; align-items: center; gap: 8px; margin-top: auto; padding-top: 12px; }
+.king-dots { display: flex; gap: 6px; }
+.king-dots span { width: 9px; height: 9px; border-radius: 50%; background: #5b4f78; }
+.king-dots span.on { background: var(--sun); }
+.king-skip { margin-left: auto; border: 0; background: none; color: #e0d6ff; text-decoration: underline; min-height: 44px; }
+
+/* station */
+.king-era { border-radius: 20px; color: #fff; padding: 14px 16px; display: flex; flex-direction: column; gap: 4px; position: relative; overflow: hidden; }
+.king-era p { margin: 0; font-weight: 800; max-width: 80%; }
+.king-tent-deco { position: absolute; right: 8px; bottom: 0; width: 90px; height: 70px; }
+.king-master { display: flex; align-items: center; gap: 12px; background: #fffbea; border: 2px solid #ffe7a3; border-radius: 20px; padding: 12px; }
+.king-master b { display: block; font-size: 1.05rem; line-height: 1.15; }
+.king-master small { color: var(--muted); font-weight: 800; }
+.king-master button { margin-left: auto; }
+.king-portrait { width: 60px; height: 60px; flex: none; }
+.king-skills { display: flex; flex-wrap: wrap; gap: 6px; }
+.king-skills span { background: #f1ecff; color: var(--grape); border-radius: 999px; padding: 4px 10px; font-weight: 800; font-size: .82rem; }
+.path-node.king-game { background: var(--idea); border-color: var(--idea-dark); }
+.path-node.king-boss { width: 92px; height: 92px; font-size: 2.3rem; background: var(--bad); border-color: var(--bad-dark); }
+.path-node.king-boss.beaten { background: var(--sun); border-color: var(--sun-dark); color: #fff; }
+
+/* talk */
+.king-talk { display: flex; flex-direction: column; gap: 10px; }
+.king-line { display: flex; gap: 10px; align-items: flex-end; }
+.king-line.me { flex-direction: row-reverse; }
+.king-avatar { width: 48px; height: 48px; flex: none; }
+.king-say { background: #fff; border: 2px solid var(--line); border-radius: 18px; padding: 10px 12px; font-weight: 700; }
+.king-line.me .king-say { background: #f1ecff; border-color: #ddd0ff; }
+
+/* army */
+.king-board { display: grid; grid-template-columns: repeat(8, 1fr); border: 3px solid #a86b2a; border-radius: 10px; overflow: hidden; aspect-ratio: 1; }
+.king-sq { display: grid; place-items: center; aspect-ratio: 1; }
+.king-sq.l { background: #fff3d6; }
+.king-sq.d { background: #e8b96a; }
+.king-piece { width: 84%; height: 84%; border-radius: 50%; display: grid; place-items: center; font-size: clamp(1rem, 5.6vw, 1.7rem); }
+.king-piece.w { background: #fff6d6; box-shadow: inset 0 0 0 2px #e0a200; }
+.king-piece.b { background: #5b4f78; box-shadow: inset 0 0 0 2px #2b2140; }
+.king-legend { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
+.king-legend div { border: 2px solid var(--line); border-radius: 14px; padding: 6px; text-align: center; background: #fff; }
+.king-legend b { display: block; font-size: 1.4rem; }
+.king-legend span { font-weight: 900; font-size: .82rem; }
+.king-legend small { display: block; color: var(--muted); font-weight: 800; font-size: .72rem; }
+
+/* bosses */
+.king-boss-card { display: flex; gap: 12px; align-items: center; background: #2b2140; color: #fff; border-radius: 20px; padding: 12px 14px; }
+.king-face { font-size: 2.6rem; line-height: 1; }
+.king-boss-card q { font-weight: 700; color: #ffd8de; display: block; }
+.king-boss-card > div { flex: 1; min-width: 0; }
+.king-hp { height: 12px; border-radius: 999px; background: #4a3f63; overflow: hidden; margin-top: 6px; }
+.king-hp span { display: block; height: 100%; background: var(--bad); transition: width .4s; }
+.king-hearts { color: #ff6b81; letter-spacing: 2px; font-size: 1.05rem; }
+.king-question { font-weight: 800; font-size: 1.05rem; display: flex; align-items: center; gap: 8px; }
+.king-big { font-size: 2rem; }
+.king-options { display: grid; gap: 8px; }
+.king-options button { text-align: left; }
+.king-options button small { color: var(--muted); font-weight: 800; }
+.king-options button.right { background: #e7f9d9; border-color: var(--good); }
+.king-options button.wrong { background: #ffe3e6; border-color: var(--bad); }
+.king-options button:disabled { opacity: 1; }
+.king-fb { border-radius: 16px; padding: 10px 12px; font-weight: 700; display: flex; flex-direction: column; gap: 6px; border: 2px solid; }
+.king-fb p { margin: 0; }
+.king-fb.ok { background: #e7f9d9; border-color: var(--good); }
+.king-fb.no { background: #fff1f2; border-color: var(--bad); }
+.king-medal { font-size: 3.6rem; text-align: center; }
+
+/* war tent */
+.king-stations { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.king-stations button { color: #fff; text-align: left; display: flex; flex-direction: column; gap: 2px; align-items: flex-start; min-height: 110px; padding: 12px; border-radius: 20px; border-bottom-width: 6px; }
+.king-stations button span { font-size: 1.6rem; }
+.king-stations button small { font-weight: 800; opacity: .95; line-height: 1.25; }
+.king-links { display: flex; flex-wrap: wrap; gap: 8px; }
+.king-links button { min-height: 44px; font-size: .9rem; }

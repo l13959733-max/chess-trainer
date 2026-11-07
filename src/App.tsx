@@ -18,7 +18,8 @@ import { Mascot } from './components/Mascot'
 import { Attacks } from './screens/Attacks'
 import { Drill } from './screens/Drill'
 import { Home } from './screens/Home'
-import { rememberLine } from './lib/returnTo'
+import { backFromLine, rememberLine, rememberOrigin } from './lib/returnTo'
+import { KingHome, KingStation, WarTent } from './screens/King'
 import { OpeningMap } from './screens/OpeningMap'
 import { Import } from './screens/Import'
 import { Learn } from './screens/Learn'
@@ -54,7 +55,14 @@ function App() {
     if ((page === 'learn' || page === 'drill') && id) rememberLine(id)
     else if (page === 'play' && id === 'line' && arg) rememberLine(arg)
     else if (page) rememberLine(null)
+    if (page === 'path') rememberOrigin('path')
+    else if (page === 'king' && id && !arg) rememberOrigin('king/' + id)
   }, [page, id, arg])
+  // The start page is the world map; back from a line you land where you opened it
+  const redirect = !page ? backFromLine() : null
+  useEffect(() => {
+    if (redirect) go(redirect)
+  }, [redirect])
   useEffect(() => {
     // iOS: only the end of a tap counts, so listen to those and keep trying until sound is allowed
     const events = ['touchend', 'pointerup', 'click', 'keydown'] as const
@@ -106,7 +114,10 @@ function App() {
   else if (page === 'surprise') body = <Surprise rep={rep} progress={progress} side={id === 'b' ? 'b' : 'w'} />
   else if (page === 'watch') body = <Watch id={id} arg={arg} lines={rep.lines} />
   else if (page === 'daily') body = <DailySession rep={rep} puzzles={puzzles} progress={progress} />
-  else body = <Home rep={rep} progress={progress} puzzles={puzzles} analyzer={analyzer} player={player} trophies={trophies} />
+  else if (page === 'path') body = <Home rep={rep} progress={progress} puzzles={puzzles} analyzer={analyzer} player={player} trophies={trophies} />
+  else if (page === 'king') body = <KingStation id={id} sub={arg} rep={rep} />
+  else if (page === 'tent') body = <WarTent puzzles={puzzles} />
+  else body = redirect ? null : <KingHome />
 
   return (
     <main className="app">
@@ -117,7 +128,7 @@ function App() {
           <button type="button" className="settings-link" onClick={() => go('settings')}>Settings</button>
         </div>
       </header>
-      {!page && named && <InstallBanner />}
+      {page === 'path' && named && <InstallBanner />}
       {body}
     </main>
   )
