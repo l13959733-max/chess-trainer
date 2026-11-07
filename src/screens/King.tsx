@@ -618,7 +618,8 @@ function KingRiddle({ s, boss }: { s: Station; boss: boolean }) {
     <div className="screen king-screen">
       <StationHead s={s} back={() => go('king/' + s.id)} title={boss ? s.boss.name : 'The riddle of the elephant'} />
       {boss && <BossCard s={s} line={s.boss.taunt} progress={(100 * (RIDDLES.length - i)) / RIDDLES.length} hearts={hearts} />}
-      <KBoard fen={elephantFen(r.at)} orientation="white" squareStyles={styles} elephants />
+      {/* the right answer is played: the elephant jumps to its square */}
+      <KBoard key={i} fen={elephantFen(ok && picked ? picked : r.at)} orientation="white" squareStyles={ok && picked ? { ...styles, [picked]: LAST_MOVE } : styles} elephants />
       <div className="king-question"><span className="king-big" aria-hidden="true">🐘</span><span>{r.q}</span></div>
       <div className="king-options">
         {r.options.map((o) => (
