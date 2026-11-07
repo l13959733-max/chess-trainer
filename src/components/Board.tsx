@@ -86,10 +86,13 @@ export function Board({ fen, orientation, onMove, arrows = [], squareStyles = {}
     setSelected(own && sel !== square ? { square, fen } : null)
   }
 
-  const styles: Record<string, CSSProperties> = { ...squareStyles }
+  // On the painted board the last move glows like gold paint instead of a flat yellow square
+  const styles: Record<string, CSSProperties> = skin
+    ? Object.fromEntries(Object.entries(squareStyles).map(([q, st]) => [q, st === LAST_MOVE ? PAINT_LAST : st]))
+    : { ...squareStyles }
   if (checkSquare) styles[checkSquare] = { ...styles[checkSquare], ...CHECK }
-  if (sel) styles[sel] = { ...styles[sel], ...SELECTED }
-  for (const t of targets) styles[t.to] = { ...styles[t.to], ...(t.capture ? RING : DOT) }
+  if (sel) styles[sel] = { ...styles[sel], ...(skin ? PAINT_SELECTED : SELECTED) }
+  for (const t of targets) styles[t.to] = { ...styles[t.to], ...(skin ? (t.capture ? PAINT_RING : PAINT_DOT) : t.capture ? RING : DOT) }
 
   return (
     <div className={`board-wrap ${skin ? `skin skin-${skin}` : ''}`} onAnimationEnd={(e) => e.currentTarget.classList.remove('shake')}>
@@ -106,10 +109,12 @@ export function Board({ fen, orientation, onMove, arrows = [], squareStyles = {}
           setSelected(null)
           return !!(targetSquare && tryMove(sourceSquare, targetSquare))
         },
-        lightSquareStyle: skin ? { background: 'var(--skin-light)' } : { backgroundColor: 'var(--board-light)' },
-        darkSquareStyle: skin ? { background: 'var(--skin-dark)' } : { backgroundColor: 'var(--board-dark)' },
+        // King of Chess: the painted board lies under transparent squares
+        lightSquareStyle: skin ? { backgroundColor: 'transparent' } : { backgroundColor: 'var(--board-light)' },
+        darkSquareStyle: skin ? { backgroundColor: 'transparent' } : { backgroundColor: 'var(--board-dark)' },
         ...(skin && {
           pieces: SKIN_PIECES[skin],
+          boardStyle: { backgroundImage: `url(${import.meta.env.BASE_URL}king/board-polo.jpg)`, backgroundSize: '100% 100%' },
           lightSquareNotationStyle: { color: 'var(--skin-dark-ink)' },
           darkSquareNotationStyle: { color: 'var(--skin-light-ink)' },
         }),
@@ -124,6 +129,10 @@ export function Board({ fen, orientation, onMove, arrows = [], squareStyles = {}
   )
 }
 
+const PAINT_LAST: CSSProperties = { background: 'radial-gradient(circle at 50% 50%, rgba(255, 210, 110, .7), rgba(232, 176, 60, .42) 55%, rgba(232, 176, 60, .12) 80%, transparent)' }
+const PAINT_SELECTED: CSSProperties = { background: 'radial-gradient(circle at 50% 50%, rgba(255, 226, 140, .85), rgba(240, 190, 70, .55) 60%, rgba(240, 190, 70, .2) 85%, transparent)' }
+const PAINT_DOT: CSSProperties = { background: 'radial-gradient(circle, rgba(60, 35, 12, .5) 15%, rgba(60, 35, 12, .22) 21%, transparent 27%)', animation: 'dot-pop 0.16s ease-out' }
+const PAINT_RING: CSSProperties = { background: 'radial-gradient(circle, transparent 54%, rgba(60, 35, 12, .38) 58%, rgba(60, 35, 12, .15) 66%, transparent 70%)', animation: 'dot-pop 0.16s ease-out' }
 export const LAST_MOVE: CSSProperties = { backgroundColor: 'rgba(255, 214, 102, 0.45)' }
 export const WRONG: CSSProperties = { backgroundColor: 'rgba(229, 72, 77, 0.75)' }
 export const ARROW = { idea: 'rgba(143, 191, 106, 0.85)', next: 'rgba(110, 160, 230, 0.8)', correct: 'rgba(143, 191, 106, 0.95)' }

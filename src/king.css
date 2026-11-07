@@ -243,19 +243,20 @@
 /* ---------- the board of the game: carved frame, painted pieces ---------- */
 .king-frame {
   position: relative;
-  padding: 13px;
+  display: grid;
+  gap: 6px;
+  padding: 9px;
   border-radius: 16px;
-  background:
-    repeating-linear-gradient(97deg, rgba(255, 255, 255, .035) 0 2px, transparent 2px 9px),
-    repeating-linear-gradient(83deg, rgba(0, 0, 0, .08) 0 1px, transparent 1px 13px),
-    linear-gradient(150deg, #6b4423, #3d2412 55%, #2a180b);
+  background-color: #5a3a1e;
+  background-size: 260px;
   box-shadow:
     inset 0 0 0 1.5px #d9b45a,
-    inset 0 0 0 5px #3a2312,
-    inset 0 0 0 6.5px rgba(217, 180, 90, .75),
+    inset 0 0 0 4px rgba(40, 22, 8, .55),
+    inset 0 2px 6px rgba(255, 235, 200, .25),
     0 12px 26px rgba(50, 30, 10, .38),
     0 2px 0 #1e1108;
 }
+.king-frieze { display: block; width: 100%; height: auto; border-radius: 4px; box-shadow: 0 0 0 1.5px rgba(217, 180, 90, .8), 0 1px 3px rgba(0, 0, 0, .35); }
 /* gold studs in the four corners */
 .king-frame::before {
   content: '';
@@ -268,19 +269,8 @@
     radial-gradient(circle at 5px 5px, #f3d98a 0 2.6px, #8f7116 3.4px, transparent 4px) bottom left / 10px 10px no-repeat,
     radial-gradient(circle at 5px 5px, #f3d98a 0 2.6px, #8f7116 3.4px, transparent 4px) bottom right / 10px 10px no-repeat;
 }
-.king-frame .board-wrap { border-radius: 4px; overflow: hidden; box-shadow: 0 0 0 2px #1e1108, inset 0 0 18px rgba(0, 0, 0, .25); }
-.board-wrap.skin-army {
-  --skin-light: radial-gradient(circle at 30% 25%, #fdf7e8, #ecdcbc 85%);
-  --skin-dark: radial-gradient(circle at 30% 25%, #5a7fa8, #3b5d85 85%);
-  --skin-light-ink: #f3e7c6;
-  --skin-dark-ink: #3b5d85;
-}
-.board-wrap.skin-palace {
-  --skin-light: radial-gradient(circle at 30% 25%, #fbf3dc, #e8d6ad 85%);
-  --skin-dark: radial-gradient(circle at 30% 25%, #4f8a7d, #2f6359 85%);
-  --skin-light-ink: #f3e7c6;
-  --skin-dark-ink: #2f6359;
-}
+.king-frame .board-wrap { border-radius: 3px; overflow: hidden; box-shadow: 0 0 0 1.5px rgba(217, 180, 90, .9), 0 0 0 3px #2a180b; }
+.board-wrap.skin { --skin-light-ink: #f3e7c6; --skin-dark-ink: #6b4428; }
 .board-wrap.skin [data-square] { font-weight: 900; }
 .skin-piece { position: relative; display: block; width: 100%; aspect-ratio: 1; pointer-events: none; user-select: none; }
 .skin-piece img { position: absolute; left: 0; bottom: 9%; width: 100%; height: 100%; object-fit: contain; object-position: 50% 100%; transform: scale(1.1); transform-origin: 50% 100%; filter: drop-shadow(0 1px 1px rgba(30, 15, 5, .35)); }

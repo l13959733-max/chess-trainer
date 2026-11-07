@@ -237,16 +237,19 @@ function boardSkin(): BoardSkin {
 
 function KBoard(props: ComponentProps<typeof Board>) {
   const skin = props.skin ?? boardSkin()
+  // The Persian polo board: painted riders above and below, a walnut rim around it
   return (
-    <div className={`king-frame frame-${skin}`}>
+    <div className="king-frame" style={{ backgroundImage: `url(${IMG}walnut.jpg)` }}>
+      <img className="king-frieze" src={IMG + 'polo-top.jpg'} alt="" />
       <Board {...props} skin={skin} />
+      <img className="king-frieze" src={IMG + 'polo-bottom.jpg'} alt="" />
     </div>
   )
 }
 
 const BOARD_LOOKS: { skin: BoardSkin; name: string; text: string }[] = [
-  { skin: 'army', name: "Liam's army", text: 'The old Indian army: elephants with towers, camels, horses, the counselor and the raja – on marble and lapis blue.' },
-  { skin: 'palace', name: 'The palace set', text: 'The classic shapes you know from every game, carved in ivory and ebony with gold – on ivory and jade.' },
+  { skin: 'army', name: "Liam's army", text: 'The old Indian army: elephants with towers, camels, horses, the counselor and the raja.' },
+  { skin: 'palace', name: 'The palace set', text: 'The classic shapes you know from every game, carved in ivory and ebony with gold.' },
 ]
 
 // Prototype: both boards side by side, playable, one tap to choose
