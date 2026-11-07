@@ -101,7 +101,8 @@ Hauptnutzung: am Handy.
 - Die alte Übersicht ist `#/path` („All openings“), das Kriegszelt `#/tent` verlinkt alle alten Trainer.
 - Zurück aus einer Linie landet man dort, wo sie geöffnet wurde (`src/lib/returnTo.ts`).
 - Meister erzählen **nur belegte Fakten**. Lord-Fog-Runden kommen aus den echten London-Linien (Test in `src/lib/king.test.ts`).
-- Nächste Stufen laut Konzept: Beweis-Messung aus echten Partien + Quest-Buch, Spiegelwelt (Schwarz), Arena, Varianten-Dimensionen.
+- **Phase A (live seit 07.11. abends):** Schach-Check `#/check` (`src/lib/check.ts`, `src/screens/Check.tsx`, Startwert in `KingProgress.baseline`), Portal `#/portal` (`src/lib/portal.ts`, `src/screens/Portal.tsx`: Quests aus echten chess.com-Partien, Bericht je 20 Rapid-Partien, nur fertige Partien – Fair Play), Hauptweg `ROAD` Kannauj → Samarkand → Rom → Bagdad, Lichess-Puzzles CC0 in `src/data/lichess-puzzles.json`, Überfälle `#/encounter/<ziel>`, Kastanien 🌰 + Titel (`titleOf`), Knack (`fx.knack()` nur bei Wache/Drohung/Sicherheit). Lücken-Linien in `data/gaps_black.pgn`, `data/gaps_white.pgn`. `node scripts/check-lines.mjs 16 <dateiname>` (ohne `data/`).
+- Nächste Stufe (Phase B): Story-Rahmen (Großmeister, Schattenkönig, Charakter + Name), Spiegelwelt (Schwarz), Waffenkammer/Schilde, Schnellreise, Chronik, Drachenhöhle, Gefährten, offene Welt.
 
 ## Reihenfolge
 1. Projekt-Setup, PWA, GitHub-Pages-Deploy
