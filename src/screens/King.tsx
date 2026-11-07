@@ -1,4 +1,5 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { Chess } from 'chess.js'
+import { useEffect, useMemo, useRef, useState, type CSSProperties } from 'react'
 import type { Arrow } from 'react-chessboard'
 import { ARROW, Board, LAST_MOVE } from '../components/Board'
 import { Avatar, Portrait, SHIP_INNER } from '../components/KingArt'
@@ -8,12 +9,16 @@ import type { Puzzles } from '../hooks/usePuzzles'
 import type { Repertoire } from '../hooks/useRepertoire'
 import { clampScore } from '../lib/blunders'
 import { feedback as fx } from '../lib/feedback'
-import { ARMY, LORD_FOG, RIDDLES, STATIONS, TENT_AT, loadKing, saveKing, stationById, type Station } from '../lib/king'
+import {
+  ARMY, CROSSROADS, FORKS, GRAIN, LEWIS, MATES, QUEEN_TACTICS, RIDDLES, ROOK_MATES, STATIONS, TENT_AT, TURK,
+  isOpen, lineRounds, loadKing, saveKing, stationById, stationLines, type BoardRound, type Crossroad, type QuizQuestion, type Station,
+} from '../lib/king'
 import '../king.css'
 
 const IMG = import.meta.env.BASE_URL + 'king/'
 // Liam's medallion floats this far above the city
 const TOKEN_LIFT = 72
+const BOSSES = STATIONS.filter((s) => !s.finale).length
 
 function useToast(): [string | null, (t: string) => void] {
   const [text, setText] = useState<string | null>(null)
@@ -53,10 +58,12 @@ function KingMap() {
   const [toast, showToast] = useToast()
   const scroller = useRef<HTMLDivElement>(null)
   const token = useRef<SVGGElement>(null)
+  const ship = useRef<SVGGElement>(null)
   const svg = useRef<SVGSVGElement>(null)
   const traveling = useRef(false)
-  const ship = useRef<SVGGElement>(null)
   const here = stationById(state.here) ?? STATIONS[0]
+  const beatenCount = state.beaten.filter((id) => !stationById(id)?.finale).length
+  const crowned = state.beaten.includes('chennai')
 
   // Open on the station where Liam stands
   useEffect(() => {
@@ -68,8 +75,8 @@ function KingMap() {
 
   function travel(target: Station) {
     if (traveling.current) return
-    if (!target.open) {
-      showToast(`${target.name} is still in the fog – it opens in the next stage.`)
+    if (!isOpen(target, state.beaten)) {
+      showToast(`${target.name} opens when all ${BOSSES} bosses are beaten – ${BOSSES - beatenCount} to go.`)
       return
     }
     if (target.id === here.id) {
@@ -91,7 +98,7 @@ function KingMap() {
     const len = path.getTotalLength()
     if (ship.current) ship.current.style.display = sea ? '' : 'none'
     const reduce = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches
-    const dur = reduce ? 1 : Math.min(2200, 400 + len * 2.4)
+    const dur = reduce ? 1 : Math.min(2400, 400 + len * 2.2)
     let t0 = 0
     const frame = (now: number) => {
       t0 ||= now
@@ -127,6 +134,7 @@ function KingMap() {
           <image href={IMG + 'worldmap.jpg'} x="0" y="0" width="1800" height="764" />
           {STATIONS.map((s) => {
             const beaten = state.beaten.includes(s.id)
+            const open = isOpen(s, state.beaten)
             return (
               <g
                 key={s.id}
@@ -134,7 +142,7 @@ function KingMap() {
                 transform={`translate(${s.x},${s.y})`}
                 role="button"
                 tabIndex={0}
-                aria-label={`${s.name}, ${s.year}${s.open ? '' : ', still in the fog'}`}
+                aria-label={`${s.name}, ${s.year}${beaten ? ', boss beaten' : open ? '' : ', still in the fog'}`}
                 onClick={() => travel(s)}
                 onKeyDown={(e) => {
                   if (e.key === 'Enter' || e.key === ' ') {
@@ -143,7 +151,8 @@ function KingMap() {
                   }
                 }}
               >
-                {s.open && !beaten && <circle r="36" fill="url(#king-glow)" className={s.id === here.id ? '' : 'king-pulse'} />}
+                {open && !beaten && <circle r="36" fill="url(#king-glow)" className={s.id === here.id ? '' : 'king-pulse'} />}
+                {s.medallion && <Medallion img={s.scene} />}
                 <circle r="38" fill="transparent" />
                 {beaten && (
                   <g transform="translate(30,2)" aria-hidden="true">
@@ -154,10 +163,10 @@ function KingMap() {
                 )}
                 <text className="king-label" y="42" textAnchor="middle">{s.name}</text>
                 <g transform="translate(0,57)">
-                  <rect x="-40" y="-10" width="80" height="17" rx="3" fill="#3b2a14" opacity=".9" stroke="#c9a227" strokeWidth="1" />
+                  <rect x="-42" y="-10" width="84" height="17" rx="3" fill="#3b2a14" opacity=".9" stroke="#c9a227" strokeWidth="1" />
                   <text className="king-year" y="3" textAnchor="middle">{s.year}</text>
                 </g>
-                {!s.open && <g pointerEvents="none" dangerouslySetInnerHTML={{ __html: FOG(0, -10) }} />}
+                {!open && <g pointerEvents="none" dangerouslySetInnerHTML={{ __html: FOG(0, -10) }} />}
               </g>
             )
           })}
@@ -169,6 +178,7 @@ function KingMap() {
             <g className="king-bob">
               <path d="M-8,24 L0,40 L8,24 Z" fill="#8b6b3d" />
               <Medallion img="liam.jpg" />
+              {crowned && <text y="-26" textAnchor="middle" fontSize="22" aria-hidden="true">👑</text>}
               <g transform="translate(20,18)">
                 <circle r="11.5" fill="#c9a227" stroke="#5c3d12" strokeWidth="1.5" />
                 <image href={IMG + 'hoppy.jpg'} x="-9" y="-9" width="18" height="18" clipPath="url(#king-clip-small)" preserveAspectRatio="xMidYMid slice" />
@@ -181,10 +191,14 @@ function KingMap() {
       <div className="king-hud">
         <Avatar who="hoppy" className="king-hud-face" />
         <div className="king-bubble">
-          {state.beaten.length === 0 ? (
+          {crowned ? (
+            <>All hail <b>King Liam</b>! You conquered the whole world of chess.</>
+          ) : beatenCount === 0 ? (
             <>Prince Liam, our journey starts in <b>Kannauj</b>. Tap a city to travel!</>
+          ) : beatenCount === BOSSES ? (
+            <>Every boss is beaten. <b>Chennai</b> awaits – the crown is near!</>
           ) : (
-            <>Well done! {state.beaten.length} of 3 stations conquered. Where to next?</>
+            <>{beatenCount} of {BOSSES} bosses beaten. Where to next?</>
           )}
         </div>
       </div>
@@ -199,7 +213,7 @@ function KingMap() {
   )
 }
 
-// A round painted picture in a gold frame (Liam on the map, the War Tent)
+// A round painted picture in a gold frame (Liam on the map, the War Tent, places not on the painting)
 function Medallion({ img }: { img: string }) {
   return (
     <g>
@@ -254,7 +268,7 @@ function KingIntro({ onDone }: { onDone: () => void }) {
 
 export function KingStation({ id, sub, rep }: { id?: string; sub?: string; rep: Repertoire }) {
   const s = stationById(id)
-  if (!s || !s.open) {
+  if (!s || !isOpen(s, loadKing().beaten)) {
     return (
       <div className="screen king-screen">
         <p className="note">This station is still in the fog.</p>
@@ -262,12 +276,35 @@ export function KingStation({ id, sub, rep }: { id?: string; sub?: string; rep: 
       </div>
     )
   }
-  if (sub === 'talk') return <KingTalk s={s} />
-  if (sub === 'army') return <KingArmy s={s} />
-  // Keys: a quest and its boss share a screen, but each starts fresh
-  if (sub === 'riddle') return <KingRiddle key="quest" s={s} boss={false} />
-  if (sub === 'boss') return s.boss.kind === 'london' ? <LordFog key="boss" s={s} /> : s.boss.kind === 'riddle' ? <KingRiddle key="boss" s={s} boss /> : <ArmyQuiz key="boss" s={s} />
+  // Keys: a quest and its boss can share a screen, but each starts fresh
+  switch (sub) {
+    case 'talk': return <KingTalk s={s} />
+    case 'army': return <KingArmy s={s} />
+    case 'riddle': return <KingRiddle key="quest" s={s} boss={false} />
+    case 'fork': return <BoardRounds key="quest" s={s} rounds={FORKS.slice(0, 2)} title="Hoppy's fork" lesson="Find the jump that attacks two things at once." />
+    case 'grain': return <QuizRounds key="quest" s={s} quiz={GRAIN} title="The legend of the grain" lesson="A wise man asks for grain: one on the first square, doubling on every square after it." />
+    case 'squares': return <KingSquares s={s} />
+    case 'lewis': return <QuizRounds key="quest" s={s} quiz={LEWIS} title="The Lewis chessmen" lesson="Astrid shows you the most famous chessmen of the North." />
+    case 'queen': return <KingQueen s={s} />
+    case 'turk': return <QuizRounds key="quest" s={s} quiz={TURK} title="Who is inside the box?" lesson="Look behind the trick of the famous chess machine." />
+    case 'cross': return <CrossRounds key="quest" s={s} rounds={CROSSROADS.slice(0, 3)} />
+    case 'krk': return <KingRook key="quest" s={s} boss={false} />
+    case 'shuffle': return <Shuffle s={s} />
+    case 'boss': return <BossFight key="boss" s={s} rep={rep} />
+  }
   return <StationPage s={s} rep={rep} />
+}
+
+function BossFight({ s, rep }: { s: Station; rep: Repertoire }) {
+  const b = s.boss
+  if (b.kind === 'army') return <QuizRounds s={s} quiz={armyQuiz()} boss />
+  if (b.kind === 'riddle') return <KingRiddle s={s} boss />
+  if (b.kind === 'board') return <BoardRounds s={s} rounds={b.rounds!} boss />
+  if (b.kind === 'lines') return <LineBoss s={s} rep={rep} />
+  if (b.kind === 'quiz') return <QuizRounds s={s} quiz={b.quiz!} boss />
+  if (b.kind === 'cross') return <CrossRounds s={s} rounds={CROSSROADS} boss />
+  if (b.kind === 'krk') return <KingRook s={s} boss />
+  return <GrandTour s={s} rep={rep} />
 }
 
 function StationHead({ s, back, title }: { s: Station; back: () => void; title?: string }) {
@@ -285,35 +322,26 @@ function StationHead({ s, back, title }: { s: Station; back: () => void; title?:
 function StationPage({ s, rep }: { s: Station; rep: Repertoire }) {
   const [now] = useState(() => Date.now())
   const [open, setOpen] = useState<string | null>(null)
-  const lines = useMemo(() => (s.opening ? rep.lines.filter((l) => l.source !== 'import' && l.opening === s.opening && l.side === 'w') : []), [rep.lines, s.opening])
+  const lines = useMemo(() => stationLines(s, rep.lines), [rep.lines, s])
   const beaten = loadKing().beaten.includes(s.id)
   return (
     <div className="screen king-screen">
       <StationHead s={s} back={() => go('')} />
-      {s.scene ? (
-        <div className="king-banner">
-          <img src={IMG + s.scene} alt="" />
-          <div>
-            <span className="king-kicker">Year {s.year}</span>
-            <p>{s.intro}</p>
-          </div>
-        </div>
-      ) : (
-        <div className="king-era" style={{ background: s.color }}>
+      <div className="king-banner">
+        <img src={IMG + s.scene} alt="" />
+        <div>
           <span className="king-kicker">Year {s.year}</span>
           <p>{s.intro}</p>
         </div>
-      )}
-      {s.master && (
-        <div className="king-master">
-          <Portrait m={s.master} className="king-portrait" />
-          <div>
-            <b>{s.master.name}</b>
-            <small>{s.master.from}</small>
-          </div>
-          <button type="button" onClick={() => go(`king/${s.id}/talk`)}>Talk</button>
+      </div>
+      <div className="king-master">
+        <Portrait m={s.master} className="king-portrait" />
+        <div>
+          <b>{s.master.name}</b>
+          <small>{s.master.from}</small>
         </div>
-      )}
+        <button type="button" onClick={() => go(`king/${s.id}/talk`)}>Talk</button>
+      </div>
       <div className="king-skills">
         {s.skills.map((k) => <span key={k}>{k}</span>)}
       </div>
@@ -329,7 +357,7 @@ function StationPage({ s, rep }: { s: Station; rep: Repertoire }) {
         ))}
         <div className="path-step">
           <button type="button" className={`path-node king-boss ${beaten ? 'beaten' : ''}`} onClick={() => go(`king/${s.id}/boss`)} aria-label={`Boss: ${s.boss.name}`}>
-            {beaten ? '✓' : s.boss.img ? <img className="king-node-img" src={IMG + s.boss.img} alt="" /> : s.boss.face}
+            {beaten ? '✓' : <img className="king-node-img" src={IMG + s.boss.img} alt="" />}
           </button>
           <div className="path-label">Boss: {s.boss.name}</div>
           {beaten && <div className="path-result perfect">Beaten</div>}
@@ -340,7 +368,7 @@ function StationPage({ s, rep }: { s: Station; rep: Repertoire }) {
 }
 
 function KingTalk({ s }: { s: Station }) {
-  const m = s.master!
+  const m = s.master
   const [n, setN] = useState(1)
   const end = useRef<HTMLDivElement>(null)
   useEffect(() => {
@@ -366,7 +394,160 @@ function KingTalk({ s }: { s: Station }) {
   )
 }
 
-// Kannauj: the army with the Indian pieces
+// ---------- shared pieces of the games ----------
+
+function Hearts({ n }: { n: number }) {
+  return <span className="king-hearts" aria-label={`${n} hearts left`}>{'♥'.repeat(Math.max(n, 0))}{'♡'.repeat(Math.max(3 - n, 0))}</span>
+}
+
+function BossCard({ s, line, progress, hearts }: { s: Station; line: string; progress?: number; hearts?: number }) {
+  return (
+    <div className="king-boss-card">
+      <img className="king-boss-img" src={IMG + s.boss.img} alt="" />
+      <div>
+        <b className="king-boss-name">{s.boss.name}</b>
+        <q>{line}</q>
+        {progress !== undefined && <div className="king-hp"><span style={{ width: `${progress}%` }} /></div>}
+        {hearts !== undefined && <Hearts n={hearts} />}
+      </div>
+    </div>
+  )
+}
+
+function beat(id: string) {
+  const p = loadKing()
+  if (!p.beaten.includes(id)) saveKing({ ...p, beaten: [...p.beaten, id] })
+}
+
+function Victory({ s }: { s: Station }) {
+  useEffect(() => {
+    beat(s.id)
+    fx.success()
+  }, [s.id])
+  const crown = s.finale
+  return (
+    <div className="screen king-screen">
+      <div className={`done king-victory ${crown ? 'crown' : ''}`}>
+        <div className="king-defeated" aria-hidden="true">
+          <img src={IMG + (crown ? 'liam.jpg' : s.boss.img)} alt="" />
+          <span>{crown ? '👑' : '🏅'}</span>
+        </div>
+        <div className="done-title">{crown ? 'King of Chess!' : `${s.boss.name} is beaten!`}</div>
+        <p>{s.boss.win}</p>
+        <div className="done-actions">
+          <button type="button" onClick={() => go('king/' + s.id)}>{s.name}</button>
+          <button type="button" className="primary" onClick={() => go('')}>World map</button>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+function QuestDone({ s, icon, title, text }: { s: Station; icon: string; title: string; text: string }) {
+  useEffect(() => {
+    fx.success()
+  }, [])
+  return (
+    <div className="screen king-screen">
+      <div className="done">
+        <div className="king-medal" aria-hidden="true">{icon}</div>
+        <div className="done-title">{title}</div>
+        <p>{text}</p>
+        <div className="done-actions">
+          <button type="button" onClick={() => go('king/' + s.id)}>{s.name}</button>
+          <button type="button" className="primary" onClick={() => go(`king/${s.id}/boss`)}>Face the boss</button>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+function OutOfHearts({ s, why, retry }: { s: Station; why: string; retry: () => void }) {
+  return (
+    <div className="king-fb no" role="alert">
+      <b>Out of hearts</b>
+      <p>{why}</p>
+      <div className="done-actions">
+        <button type="button" onClick={() => go('king/' + s.id)}>Back</button>
+        <button type="button" className="primary" onClick={retry}>Try again</button>
+      </div>
+    </div>
+  )
+}
+
+function shuffle<T>(a: T[]): T[] {
+  const b = [...a]
+  for (let k = b.length - 1; k > 0; k--) {
+    const j = Math.floor(Math.random() * (k + 1))
+    ;[b[k], b[j]] = [b[j], b[k]]
+  }
+  return b
+}
+
+// ---------- quizzes (army, grain, Lewis, Turk, Chess960) ----------
+
+function armyQuiz(): QuizQuestion[] {
+  const pieces = ARMY.filter((a) => a.piece !== 'k')
+  return pieces.map((a) => ({
+    q: `What is the ${a.name} today?`,
+    icon: a.icon,
+    options: shuffle([a.is, ...shuffle(pieces.filter((x) => x !== a).map((x) => x.is)).slice(0, 2)]),
+    answer: a.is,
+    why: `The ${a.name} is the ${a.is}.`,
+  }))
+}
+
+function QuizRounds({ s, quiz, boss, title, lesson }: { s: Station; quiz: QuizQuestion[]; boss?: boolean; title?: string; lesson?: string }) {
+  const [i, setI] = useState(0)
+  const [hearts, setHearts] = useState(3)
+  const [picked, setPicked] = useState<string | null>(null)
+  if (i >= quiz.length) return boss ? <Victory s={s} /> : <QuestDone s={s} icon="📜" title="Well done!" text={`You finished “${title}”. ${s.boss.name} is waiting.`} />
+  const q = quiz[i]
+  const right = picked === q.answer
+  return (
+    <div className="screen king-screen">
+      <StationHead s={s} back={() => go('king/' + s.id)} title={boss ? s.boss.name : title} />
+      {boss ? <BossCard s={s} line={s.boss.taunt} progress={(100 * (quiz.length - i)) / quiz.length} hearts={hearts} /> : lesson && <p className="king-lesson">{lesson}</p>}
+      <div className="king-question">
+        {q.icon && <span className="king-big" aria-hidden="true">{q.icon}</span>}
+        <span>{q.q}</span>
+      </div>
+      <div className="king-options">
+        {q.options.map((o) => (
+          <button
+            type="button"
+            key={o}
+            disabled={right}
+            className={picked === o ? (o === q.answer ? 'right' : 'wrong') : ''}
+            onClick={() => {
+              setPicked(o)
+              if (o === q.answer) fx.move('Nf3')
+              else {
+                fx.wrong()
+                if (boss) setHearts(hearts - 1)
+              }
+            }}
+          >
+            {o}
+          </button>
+        ))}
+      </div>
+      {boss && hearts <= 0 ? (
+        <OutOfHearts s={s} why={q.why} retry={() => { setI(0); setHearts(3); setPicked(null) }} />
+      ) : right ? (
+        <div className="king-fb ok">
+          <p>{q.why}</p>
+          <button type="button" className="primary wide" onClick={() => { setI(i + 1); setPicked(null) }}>Next</button>
+        </div>
+      ) : picked ? (
+        <div className="king-fb no" role="alert"><p>Not quite – try another answer.</p></div>
+      ) : null}
+    </div>
+  )
+}
+
+// ---------- Kannauj: the army with the Indian pieces ----------
+
 const START = ['rnbqkbnr', 'pppppppp', '8', '8', '8', '8', 'PPPPPPPP', 'RNBQKBNR']
 function IndianBoard() {
   const icon = Object.fromEntries(ARMY.map((a) => [a.piece, a.icon]))
@@ -409,152 +590,23 @@ function KingArmy({ s }: { s: Station }) {
   )
 }
 
-function BossFace({ s }: { s: Station }) {
-  return s.boss.img ? <img className="king-boss-img" src={IMG + s.boss.img} alt="" /> : <BossFace s={s} />
-}
+// ---------- Persia: watch the elephant and work out its rule ----------
 
-function Hearts({ n }: { n: number }) {
-  return <span className="king-hearts" aria-label={`${n} hearts left`}>{'♥'.repeat(Math.max(n, 0))}{'♡'.repeat(Math.max(3 - n, 0))}</span>
-}
-
-function beat(id: string) {
-  const p = loadKing()
-  if (!p.beaten.includes(id)) saveKing({ ...p, beaten: [...p.beaten, id] })
-}
-
-function Victory({ s, text }: { s: Station; text: string }) {
-  useEffect(() => {
-    beat(s.id)
-    fx.success()
-  }, [s.id])
-  return (
-    <div className="screen king-screen">
-      <div className="done">
-        <div className="king-defeated" aria-hidden="true">
-          {s.boss.img && <img src={IMG + s.boss.img} alt="" />}
-          <span>🏅</span>
-        </div>
-        <div className="done-title">{s.boss.name} is beaten!</div>
-        <p>{text}</p>
-        <div className="done-actions">
-          <button type="button" onClick={() => go('king/' + s.id)}>{s.name}</button>
-          <button type="button" className="primary" onClick={() => go('')}>World map</button>
-        </div>
-      </div>
-    </div>
-  )
-}
-
-function OutOfHearts({ s, why, retry }: { s: Station; why: string; retry: () => void }) {
-  return (
-    <div className="king-fb no" role="alert">
-      <b>Out of hearts</b>
-      <p>{why}</p>
-      <div className="done-actions">
-        <button type="button" onClick={() => go('king/' + s.id)}>Back</button>
-        <button type="button" className="primary" onClick={retry}>Try again</button>
-      </div>
-    </div>
-  )
-}
-
-// Kannauj boss: name the pieces of the army
-function ArmyQuiz({ s }: { s: Station }) {
-  const qs = useMemo(() => ARMY.filter((a) => a.piece !== 'k').map((a) => ({ a, options: shuffle(ARMY.filter((x) => x.piece !== 'k').map((x) => x.is)).slice(0, 3) })), [])
-  const [i, setI] = useState(0)
-  const [hearts, setHearts] = useState(3)
-  const [picked, setPicked] = useState<string | null>(null)
-  if (i >= qs.length) return <Victory s={s} text="You know your whole army. On to Persia – a riddle is waiting!" />
-  const q = qs[i]
-  const options = q.options.includes(q.a.is) ? q.options : [...q.options.slice(0, 2), q.a.is].sort()
-  const right = picked === q.a.is
-  return (
-    <div className="screen king-screen">
-      <StationHead s={s} back={() => go('king/' + s.id)} title={s.boss.name} />
-      <div className="king-boss-card">
-        <BossFace s={s} />
-        <div>
-          <q>Only those who know their army may pass!</q>
-          <Hearts n={hearts} />
-        </div>
-      </div>
-      <div className="king-question"><span className="king-big" aria-hidden="true">{q.a.icon}</span> What is the <b>{q.a.name}</b> today?</div>
-      <div className="king-options">
-        {options.map((o) => (
-          <button
-            type="button"
-            key={o}
-            disabled={!!picked && right}
-            className={picked === o ? (o === q.a.is ? 'right' : 'wrong') : ''}
-            onClick={() => {
-              setPicked(o)
-              if (o === q.a.is) fx.move('Nf3')
-              else {
-                fx.wrong()
-                setHearts(hearts - 1)
-              }
-            }}
-          >
-            {o}
-          </button>
-        ))}
-      </div>
-      {hearts <= 0 ? (
-        <OutOfHearts s={s} why={`The ${q.a.name} is the ${q.a.is}.`} retry={() => { setI(0); setHearts(3); setPicked(null) }} />
-      ) : right ? (
-        <button type="button" className="primary wide" onClick={() => { setI(i + 1); setPicked(null) }}>Next</button>
-      ) : null}
-    </div>
-  )
-}
-
-function shuffle<T>(a: T[]): T[] {
-  const b = [...a]
-  for (let k = b.length - 1; k > 0; k--) {
-    const j = Math.floor(Math.random() * (k + 1))
-    ;[b[k], b[j]] = [b[j], b[k]]
-  }
-  return b
-}
-
-// Persia: watch the elephant and work out its rule (as a quest, and as the boss with hearts)
 function KingRiddle({ s, boss }: { s: Station; boss: boolean }) {
   const [i, setI] = useState(0)
   const [hearts, setHearts] = useState(3)
   const [picked, setPicked] = useState<string | null>(null)
   if (i >= RIDDLES.length)
-    return boss ? (
-      <Victory s={s} text="Like Buzurgmihr, you worked out the rule just by watching. The envoy bows – Persia keeps its gold." />
-    ) : (
-      <div className="screen king-screen">
-        <div className="done">
-          <div className="king-medal" aria-hidden="true">🐘</div>
-          <div className="done-title">You read the rule!</div>
-          <p>In shatranj the elephant jumps exactly two squares diagonally – it can only ever reach 8 of the 64 squares.</p>
-          <div className="done-actions">
-            <button type="button" onClick={() => go('king/' + s.id)}>Persia</button>
-            <button type="button" className="primary" onClick={() => go(`king/${s.id}/boss`)}>Face the envoy</button>
-          </div>
-        </div>
-      </div>
-    )
+    return boss ? <Victory s={s} /> : <QuestDone s={s} icon="🐘" title="You read the rule!" text="In shatranj the elephant jumps exactly two squares diagonally – it can only ever reach 8 of the 64 squares." />
   const r = RIDDLES[i]
   const ok = r.options.find((o) => o.text === picked)?.ok
   const styles = Object.fromEntries(r.seen.map((q) => [q, LAST_MOVE]))
   return (
     <div className="screen king-screen">
       <StationHead s={s} back={() => go('king/' + s.id)} title={boss ? s.boss.name : 'The riddle of the elephant'} />
-      {boss && (
-        <div className="king-boss-card">
-          <BossFace s={s} />
-          <div>
-            <q>Work out the game – or Persia pays!</q>
-            <Hearts n={hearts} />
-          </div>
-        </div>
-      )}
+      {boss && <BossCard s={s} line={s.boss.taunt} progress={(100 * (RIDDLES.length - i)) / RIDDLES.length} hearts={hearts} />}
       <Board fen={elephantFen(r.at)} orientation="white" squareStyles={styles} />
-      <div className="king-question">🐘 {r.q}</div>
+      <div className="king-question"><span className="king-big" aria-hidden="true">🐘</span><span>{r.q}</span></div>
       <div className="king-options">
         {r.options.map((o) => (
           <button
@@ -591,34 +643,28 @@ function elephantFen(square: string): string {
   return rows.join('/') + ' w - - 0 1'
 }
 
-// London: Lord Fog picks his moves from the London lines – play the move from your line on the board
-function LordFog({ s }: { s: Station }) {
+// ---------- moves on the board: forks, mates, rooks, the queen, Lord Fog, your lines ----------
+
+function BoardRounds({ s, rounds, boss, title, lesson, hint, orientation = 'white' }: { s: Station; rounds: BoardRound[]; boss?: boolean; title?: string; lesson?: string; hint?: string; orientation?: 'white' | 'black' }) {
   const [i, setI] = useState(0)
   const [hearts, setHearts] = useState(3)
   const [state, setState] = useState<'play' | 'wrong' | 'hit'>('play')
-  if (i >= LORD_FOG.length) return <Victory s={s} text="The fog lifts over London. You get the London badge – the road to the Queen's Palace opens in the next stage." />
-  const r = LORD_FOG[i]
+  if (i >= rounds.length) return boss ? <Victory s={s} /> : <QuestDone s={s} icon="✦" title="Well done!" text={`You finished “${title}”. ${s.boss.name} is waiting.`} />
+  const r = rounds[i]
   const arrows: Arrow[] = state === 'wrong' ? [{ startSquare: r.from, endSquare: r.to, color: ARROW.correct }] : []
   const styles = state === 'hit' ? { [r.from]: LAST_MOVE, [r.to]: LAST_MOVE } : {}
   return (
     <div className="screen king-screen">
-      <StationHead s={s} back={() => go('king/' + s.id)} title={s.boss.name} />
-      <div className="king-boss-card">
-        <BossFace s={s} />
-        <div>
-          <q>{r.taunt}</q>
-          <div className="king-hp"><span style={{ width: `${(100 * (LORD_FOG.length - i)) / LORD_FOG.length}%` }} /></div>
-          <Hearts n={hearts} />
-        </div>
-      </div>
+      <StationHead s={s} back={() => go('king/' + s.id)} title={boss ? s.boss.name : title} />
+      {boss ? <BossCard s={s} line={r.taunt} progress={(100 * (rounds.length - i)) / rounds.length} hearts={hearts} /> : lesson && <p className="king-lesson">{lesson}</p>}
       <Board
         key={i}
         fen={r.fen}
-        orientation="white"
+        orientation={orientation}
         arrows={arrows}
         squareStyles={styles}
         onMove={
-          state === 'hit' || hearts <= 0
+          state === 'hit' || (boss && hearts <= 0)
             ? undefined
             : (from, to) => {
                 if (from === r.from && to === r.to) {
@@ -627,30 +673,332 @@ function LordFog({ s }: { s: Station }) {
                   return true
                 }
                 fx.wrong()
-                setHearts(hearts - 1)
+                if (boss) setHearts(hearts - 1)
                 setState('wrong')
                 return false
               }
         }
       />
-      {hearts <= 0 ? (
+      {boss && hearts <= 0 ? (
         <OutOfHearts s={s} why={r.why} retry={() => { setI(0); setHearts(3); setState('play') }} />
       ) : state === 'hit' ? (
         <div className="king-fb ok">
           <b>Hit! {r.san}</b>
           <p>{r.why}</p>
-          <button type="button" className="primary wide" onClick={() => { setI(i + 1); setState('play') }}>{i + 1 < LORD_FOG.length ? 'Next attack' : 'Finish him!'}</button>
+          <button type="button" className="primary wide" onClick={() => { setI(i + 1); setState('play') }}>{i + 1 < rounds.length ? (boss ? 'Next attack' : 'Next') : boss ? 'Finish!' : 'Done'}</button>
         </div>
       ) : state === 'wrong' ? (
         <div className="king-fb no" role="alert">
-          <b>Not the move from your line</b>
-          <p>You lose a heart. Play the green arrow.</p>
+          <b>Not that one</b>
+          <p>{boss ? 'You lose a heart. ' : ''}Play the green arrow.</p>
         </div>
       ) : (
-        <p className="note">Your move – play it on the board, like in your London lines.</p>
+        <p className="note">{orientation === 'black' ? 'You play Black' : 'You play White'}{hint ? <> · <b>{hint}</b></> : ''}. Play your move on the board.</p>
       )}
     </div>
   )
+}
+
+function LineBoss({ s, rep }: { s: Station; rep: Repertoire }) {
+  const lines = useMemo(() => stationLines(s, rep.lines), [rep.lines, s])
+  const [rounds] = useState(() => lineRounds(lines, 4))
+  if (!rounds.length) return <p className="note">No lines found for this station.</p>
+  return <BoardRounds s={s} rounds={rounds} boss hint={s.lines?.title ?? s.lines?.opening} orientation={s.lines?.side === 'b' ? 'black' : 'white'} />
+}
+
+// ---------- Baghdad: blindfold – know every square ----------
+
+const TARGETS = ['e4', 'g7', 'b3', 'd5', 'h1', 'c6']
+function KingSquares({ s }: { s: Station }) {
+  const [i, setI] = useState(0)
+  const [score, setScore] = useState(0)
+  const [tapped, setTapped] = useState<string | null>(null)
+  if (i >= TARGETS.length) return <QuestDone s={s} icon="👁" title={`${score} of ${TARGETS.length} squares`} text="Blindfold players see the whole board in their heads. This is the first step." />
+  const t = TARGETS[i]
+  const cells = []
+  for (let r = 8; r >= 1; r--)
+    for (let f = 0; f < 8; f++) {
+      const sq = 'abcdefgh'[f] + r
+      const cls = tapped ? (sq === t ? 'ok' : sq === tapped ? 'bad' : '') : ''
+      cells.push(
+        <button
+          type="button"
+          key={sq}
+          className={`king-tap ${(r + f) % 2 ? 'l' : 'd'} ${cls}`}
+          aria-label={tapped ? sq : `Square ${8 - r + 1}-${f + 1}`}
+          disabled={!!tapped}
+          onClick={() => {
+            setTapped(sq)
+            if (sq === t) {
+              setScore(score + 1)
+              fx.move('e4')
+            } else fx.wrong()
+          }}
+        />,
+      )
+    }
+  return (
+    <div className="screen king-screen">
+      <StationHead s={s} back={() => go('king/' + s.id)} title="Blindfold: find the square" />
+      <div className="king-question"><span className="king-big" aria-hidden="true">👁</span><span>Tap the square <b className="king-coord">{t}</b> – no letters, no numbers on the board!</span></div>
+      <div className="king-tapboard">{cells}</div>
+      {tapped && (
+        <div className={`king-fb ${tapped === t ? 'ok' : 'no'}`}>
+          <p>{tapped === t ? 'Right!' : `That was ${tapped}. The green one is ${t}.`}</p>
+          <button type="button" className="primary wide" onClick={() => { setI(i + 1); setTapped(null) }}>Next</button>
+        </div>
+      )}
+      <p className="note">White is at the bottom. a1 is the dark square in the bottom-left corner.</p>
+    </div>
+  )
+}
+
+// ---------- Valencia: the queen gets the whole board ----------
+
+function KingQueen({ s }: { s: Station }) {
+  const [awake, setAwake] = useState(false)
+  const old = ['c3', 'e3', 'c5', 'e5']
+  const all: string[] = []
+  for (const [df, dr] of [[1, 0], [-1, 0], [0, 1], [0, -1], [1, 1], [1, -1], [-1, 1], [-1, -1]]) {
+    let f = 3 + df
+    let r = 4 + dr
+    while (f >= 0 && f < 8 && r >= 1 && r <= 8) {
+      all.push('abcdefgh'[f] + r)
+      f += df
+      r += dr
+    }
+  }
+  const dot: CSSProperties = { background: 'radial-gradient(circle, rgba(139, 46, 46, .55) 20%, transparent 23%)' }
+  const styles = Object.fromEntries((awake ? all : old).map((q) => [q, dot]))
+  return (
+    <div className="screen king-screen">
+      <StationHead s={s} back={() => go('king/' + s.id)} title={awake ? 'The queen awakens!' : 'Before 1475'} />
+      <p className="king-lesson">
+        {awake
+          ? `Now she reaches ${all.length} squares from d4 – the strongest piece on the board. People called it the “mad queen’s chess”.`
+          : 'For about 500 years in Europe she moved only one square diagonally: just 4 squares from d4.'}
+      </p>
+      <Board fen="8/8/8/8/3Q4/8/8/8 w - - 0 1" orientation="white" squareStyles={{ ...styles, d4: LAST_MOVE }} />
+      {awake ? (
+        <button type="button" className="primary wide" onClick={() => go(`king/${s.id}/boss`)}>Face the Mad Queen</button>
+      ) : (
+        <button type="button" className="primary wide" onClick={() => { setAwake(true); fx.success() }}>Awaken the queen</button>
+      )}
+    </div>
+  )
+}
+
+// ---------- Paris: which road against which answer ----------
+
+function CrossRounds({ s, rounds, boss }: { s: Station; rounds: Crossroad[]; boss?: boolean }) {
+  const [i, setI] = useState(0)
+  const [hearts, setHearts] = useState(3)
+  const [picked, setPicked] = useState<string | null>(null)
+  if (i >= rounds.length) return boss ? <Victory s={s} /> : <QuestDone s={s} icon="🧭" title="You know the roads" text="Every answer of your opponent has its road in your book." />
+  const c = rounds[i]
+  const choice = c.options.find((o) => o.san === picked)
+  return (
+    <div className="screen king-screen">
+      <StationHead s={s} back={() => go('king/' + s.id)} title={boss ? s.boss.name : 'Which road?'} />
+      {boss && <BossCard s={s} line={i === 0 ? s.boss.taunt : 'Next crossroads!'} progress={(100 * (rounds.length - i)) / rounds.length} hearts={hearts} />}
+      {boss && i === 0 && <p className="note small">57% 1...e5 · 20% 1...d5: your 1,155 games of 3 months (analysis of Oct 31).</p>}
+      <Board fen={c.fen} orientation="white" />
+      <div className="king-question"><span className="king-big" aria-hidden="true">🪧</span><span>{c.q}</span></div>
+      <div className="king-options">
+        {c.options.map((o) => (
+          <button
+            type="button"
+            key={o.san}
+            disabled={!!choice?.ok}
+            className={picked === o.san ? (o.ok ? 'right' : 'wrong') : ''}
+            onClick={() => {
+              setPicked(o.san)
+              if (o.ok) fx.move(o.san)
+              else {
+                fx.wrong()
+                if (boss) setHearts(hearts - 1)
+              }
+            }}
+          >
+            <b>{o.san}</b> <small>{o.note}</small>
+          </button>
+        ))}
+      </div>
+      {boss && hearts <= 0 ? (
+        <OutOfHearts s={s} why={c.why} retry={() => { setI(0); setHearts(3); setPicked(null) }} />
+      ) : choice?.ok ? (
+        <div className="king-fb ok">
+          <p>Right road! {c.why}</p>
+          <button type="button" className="primary wide" onClick={() => { setI(i + 1); setPicked(null) }}>Next</button>
+        </div>
+      ) : picked ? (
+        <div className="king-fb no" role="alert"><p>Wrong road – that is not in your book. Try another.</p></div>
+      ) : null}
+    </div>
+  )
+}
+
+// ---------- New York: mate with king and rook against the Machine's king ----------
+
+const KRK_START = '8/8/8/4k3/8/8/8/R3K3 w - - 0 1'
+const KRK_LIMIT = 50
+
+// The Machine runs to the centre and grabs the rook when it can
+function machineMove(fen: string): string {
+  const c = new Chess(fen)
+  const moves = c.moves({ verbose: true })
+  const grab = moves.find((m) => m.captured)
+  const centre = (sq: string) => {
+    const f = sq.charCodeAt(0) - 97
+    const r = Number(sq[1]) - 1
+    return Math.min(f, 7 - f) + Math.min(r, 7 - r)
+  }
+  const best = grab ?? shuffle(moves).sort((a, b) => centre(b.to) - centre(a.to))[0]
+  c.move(best)
+  return c.fen()
+}
+
+function KingRook({ s, boss }: { s: Station; boss: boolean }) {
+  const [fen, setFen] = useState(KRK_START)
+  const [moves, setMoves] = useState(0)
+  const [end, setEnd] = useState<null | 'mate' | 'draw' | 'slow'>(null)
+  const [last, setLast] = useState<{ from: string; to: string } | null>(null)
+  const timer = useRef<number | undefined>(undefined)
+  useEffect(() => () => window.clearTimeout(timer.current), [])
+  const won = end === 'mate'
+  if (won && boss) return <Victory s={s} />
+  if (won) return <QuestDone s={s} icon="♜" title={`Mate in ${moves} moves!`} text="You can do what the 1912 machine did. Now face the Machine – in under 50 moves." />
+  const reset = () => {
+    setFen(KRK_START)
+    setMoves(0)
+    setEnd(null)
+    setLast(null)
+  }
+  const styles = last ? { [last.from]: LAST_MOVE, [last.to]: LAST_MOVE } : {}
+  return (
+    <div className="screen king-screen">
+      <StationHead s={s} back={() => go('king/' + s.id)} title={boss ? s.boss.name : 'King and rook against king'} />
+      {boss ? <BossCard s={s} line={s.boss.taunt} /> : <p className="king-lesson">Push the lone king to the edge with your rook, bring your own king closer – then mate on the edge.</p>}
+      <div className="king-counter">
+        <span>Your moves: <b>{moves}</b>{boss ? ` / ${KRK_LIMIT}` : ''}</span>
+        <button type="button" onClick={reset}>Start again</button>
+      </div>
+      <Board
+        fen={fen}
+        orientation="white"
+        squareStyles={styles}
+        onMove={
+          end || fen.split(' ')[1] !== 'w'
+            ? undefined
+            : (from, to) => {
+                const c = new Chess(fen)
+                const m = c.move({ from, to })
+                fx.move(m.san)
+                const n = moves + 1
+                setMoves(n)
+                setLast({ from, to })
+                setFen(c.fen())
+                if (c.isCheckmate()) {
+                  setEnd('mate')
+                  return true
+                }
+                if (c.isDraw()) {
+                  setEnd('draw')
+                  fx.wrong()
+                  return true
+                }
+                if (boss && n >= KRK_LIMIT) {
+                  setEnd('slow')
+                  fx.wrong()
+                  return true
+                }
+                timer.current = window.setTimeout(() => {
+                  const next = machineMove(c.fen())
+                  const after = new Chess(next)
+                  const hist = new Chess(c.fen())
+                  const mm = hist.moves({ verbose: true }).find((x) => new Chess(c.fen()).move(x).after === next)
+                  if (mm) setLast({ from: mm.from, to: mm.to })
+                  setFen(next)
+                  if (after.isDraw()) {
+                    setEnd('draw')
+                    fx.wrong()
+                  }
+                }, 420)
+                return true
+              }
+        }
+      />
+      {end === 'draw' && (
+        <div className="king-fb no" role="alert">
+          <b>{new Chess(fen).isStalemate() ? 'Stalemate!' : 'The rook is gone!'}</b>
+          <p>{new Chess(fen).isStalemate() ? 'The king has no move but is not in check – that is a draw. Always leave him a square until the mate.' : 'The king took your rook. Keep the rook far away or protected by your king.'}</p>
+          <button type="button" className="primary wide" onClick={reset}>Try again</button>
+        </div>
+      )}
+      {end === 'slow' && (
+        <div className="king-fb no" role="alert">
+          <b>50 moves – the Machine escapes</b>
+          <p>Cut the king off with the rook, then bring your king closer step by step.</p>
+          <button type="button" className="primary wide" onClick={reset}>Try again</button>
+        </div>
+      )}
+    </div>
+  )
+}
+
+// ---------- Orbit: Chess960 ----------
+
+function random960(): string {
+  const row: string[] = Array(8).fill('')
+  const free = () => row.map((p, k) => (p ? -1 : k)).filter((k) => k >= 0)
+  row[[0, 2, 4, 6][Math.floor(Math.random() * 4)]] = 'b'
+  row[[1, 3, 5, 7][Math.floor(Math.random() * 4)]] = 'b'
+  for (const p of ['q', 'n', 'n']) {
+    const f = free()
+    row[f[Math.floor(Math.random() * f.length)]] = p
+  }
+  const [a, k, c] = free()
+  row[a] = 'r'
+  row[k] = 'k'
+  row[c] = 'r'
+  const back = row.join('')
+  return `${back}/pppppppp/8/8/8/8/PPPPPPPP/${back.toUpperCase()} w - - 0 1`
+}
+
+function Shuffle({ s }: { s: Station }) {
+  const [fen, setFen] = useState(random960)
+  const [count, setCount] = useState(1)
+  return (
+    <div className="screen king-screen">
+      <StationHead s={s} back={() => go('king/' + s.id)} title="Planet 960" />
+      <p className="king-lesson">On Planet 960 the back row is shuffled. Bishops on opposite colours, the king between the rooks – and the black army mirrors the white one.</p>
+      <Board fen={fen} orientation="white" />
+      <div className="king-counter">
+        <span>Starting position <b>{count}</b> of 960</span>
+        <button type="button" onClick={() => { setFen(random960()); setCount(count + 1); fx.move('Nc3') }}>Shuffle 🎲</button>
+      </div>
+      <button type="button" className="primary wide" onClick={() => go(`king/${s.id}/boss`)}>Face the Shuffler</button>
+    </div>
+  )
+}
+
+// ---------- Chennai: the Grand Tour ----------
+
+function GrandTour({ s, rep }: { s: Station; rep: Repertoire }) {
+  const [rounds] = useState<BoardRound[]>(() => {
+    const italian = rep.lines.filter((l) => l.source !== 'import' && l.opening === 'Italian Game' && l.side === 'w')
+    const london = rep.lines.filter((l) => l.source !== 'import' && l.opening === 'London System' && l.side === 'w')
+    const tag = (r: BoardRound, taunt: string) => ({ ...r, taunt })
+    return [
+      tag(FORKS[2], 'Samarkand: one jump, two targets.'),
+      tag(MATES[1], 'Baghdad: a puzzle from the book.'),
+      tag(ROOK_MATES[1], 'The North: the rook ladder.'),
+      tag(QUEEN_TACTICS[0], 'Valencia: the mad queen.'),
+      ...lineRounds(italian, 1).map((r) => tag(r, 'Rome: your Italian.')),
+      ...lineRounds(london, 1).map((r) => tag(r, 'London: your system.')),
+    ]
+  })
+  return <BoardRounds s={s} rounds={rounds} boss />
 }
 
 // ---------- the War Tent: all the trainers the app already has ----------
@@ -674,12 +1022,12 @@ export function WarTent({ puzzles }: { puzzles: Puzzles }) {
         </div>
       </div>
       <div className="king-stations">
-        <button type="button" style={{ background: '#2b8a3e', borderColor: '#1b5e2a' }} onClick={() => go('review')}><span aria-hidden="true">🗺</span><b>Battle Plans</b><small>Your opening lines that are due</small></button>
-        <button type="button" style={{ background: '#ef4a5a', borderColor: '#c42f3e' }} onClick={() => go('puzzles')}><span aria-hidden="true">🩹</span><b>Lost Battles</b><small>Your own mistakes as puzzles</small></button>
-        <button type="button" style={{ background: '#2ea7f0', borderColor: '#1d84c4' }} onClick={() => go('threats')}><span aria-hidden="true">🗼</span><b>Watchtower</b><small>First check what the enemy threatens</small></button>
-        <button type="button" style={{ background: '#ffc531', borderColor: '#e0a200', color: '#3a3450' }} disabled={!winning.length} onClick={() => go('play/puzzle/' + encodeURIComponent(winning[Math.floor(Math.random() * winning.length)].id))}><span aria-hidden="true">💰</span><b>Treasure Chest</b><small>Win your winning positions</small></button>
-        <button type="button" style={{ background: '#5f5875', borderColor: '#3a3450' }} onClick={() => go('play')}><span aria-hidden="true">🛡</span><b>Sparring Ground</b><small>A game vs Hoppy-Bot</small></button>
-        <button type="button" style={{ background: '#8a5cf6', borderColor: '#5b36c9' }} onClick={() => go('daily')}><span aria-hidden="true">🃏</span><b>Today's cards</b><small>Everything due, mixed</small></button>
+        <button type="button" onClick={() => go('review')}><span aria-hidden="true">🗺</span><b>Battle Plans</b><small>Your opening lines that are due</small></button>
+        <button type="button" onClick={() => go('puzzles')}><span aria-hidden="true">🩹</span><b>Lost Battles</b><small>Your own mistakes as puzzles</small></button>
+        <button type="button" onClick={() => go('threats')}><span aria-hidden="true">🗼</span><b>Watchtower</b><small>First check what the enemy threatens</small></button>
+        <button type="button" disabled={!winning.length} onClick={() => go('play/puzzle/' + encodeURIComponent(winning[Math.floor(Math.random() * winning.length)].id))}><span aria-hidden="true">💰</span><b>Treasure Chest</b><small>Win your winning positions</small></button>
+        <button type="button" onClick={() => go('play')}><span aria-hidden="true">🛡</span><b>Sparring Ground</b><small>A game vs Hoppy-Bot</small></button>
+        <button type="button" onClick={() => go('daily')}><span aria-hidden="true">🃏</span><b>Today's cards</b><small>Everything due, mixed</small></button>
       </div>
       <div className="king-links">
         <button type="button" onClick={() => go('path')}>All openings</button>

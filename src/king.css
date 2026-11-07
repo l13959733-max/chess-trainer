@@ -214,3 +214,28 @@
 .king-intro-art.scene-1 img { object-position: 50% 90%; }
 .king-intro-art { position: relative; }
 .king-intro-art img { position: absolute; inset: 0; width: 100%; height: 100%; }
+
+/* The app is called King of Chess: the name in the header in the painted style */
+:root .top .brand { font-family: 'Cinzel', Georgia, serif; font-weight: 900; color: #6b4a2b; letter-spacing: .01em; }
+
+/* games of the cities */
+.king-lesson { margin: 0; background: var(--card); border: 2px solid var(--edge); border-left: 6px solid var(--gilt); border-radius: 14px; padding: 10px 12px; font-weight: 700; line-height: 1.4; }
+.king-boss-name { font-family: 'Cinzel', Georgia, serif; font-weight: 900; color: #fff7e0; display: block; }
+.king-counter { display: flex; align-items: center; justify-content: space-between; gap: 10px; font-weight: 800; }
+.king-counter button { min-height: 44px; font-size: .9rem; }
+.king-coord { font-family: 'Cinzel', Georgia, serif; font-size: 1.35rem; color: var(--wax); }
+.king-tapboard { display: grid; grid-template-columns: repeat(8, 1fr); aspect-ratio: 1; border: 4px solid var(--wood); border-radius: 6px; overflow: hidden; box-shadow: 0 6px 16px rgba(60, 40, 15, .25); }
+.king-screen .king-tap { min-height: 0; padding: 0; border: 0; border-radius: 0; box-shadow: none; transform: none; aspect-ratio: 1; }
+.king-screen .king-tap.l { background: var(--board-light); }
+.king-screen .king-tap.d { background: var(--board-dark); }
+.king-screen .king-tap.ok { background: #7fa650; box-shadow: inset 0 0 0 4px #3e5426; }
+.king-screen .king-tap.bad { background: #c0614f; box-shadow: inset 0 0 0 4px var(--wax-dark); }
+.king-screen .king-tap:disabled { opacity: 1; }
+.king-victory.crown .king-defeated img { filter: none; box-shadow: 0 0 0 6px rgba(201, 162, 39, .35), 0 0 30px rgba(255, 224, 138, .8); }
+.king-victory.crown .done-title { color: #8f7116; font-size: 1.8rem; }
+.king-screen .king-tap:active:not(:disabled) { margin: 0; transform: none; }
+/* results on parchment: ink and gold instead of the green of the old screens */
+.king-screen .done-title { color: var(--forest-dark); line-height: 1.2; }
+.king-screen .done p { color: var(--ink-soft); font-weight: 700; }
+.king-screen .done-actions button { font-size: .9rem; }
+.king-medal { filter: drop-shadow(0 4px 3px rgba(60, 40, 15, .25)); }

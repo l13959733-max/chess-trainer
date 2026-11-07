@@ -32,8 +32,8 @@ export default defineConfig({
       },
       includeAssets: ['favicon.svg', 'apple-touch-icon.png'],
       manifest: {
-        name: preview ? 'Hoppy (Preview)' : 'Hoppy',
-        short_name: preview ? 'Hoppy Preview' : 'Hoppy',
+        name: preview ? 'King of Chess (Preview)' : 'King of Chess',
+        short_name: preview ? 'King Preview' : 'King of Chess',
         description: 'Learn openings and learn from your own mistakes, with every mistake explained.',
         lang: 'en',
         start_url: base,

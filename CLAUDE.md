@@ -93,10 +93,15 @@ Hauptnutzung: am Handy.
 - Die Startseite (`#/`) ist eine Weltkarte: Prinz **Liam** aus Kannauj reitet mit seinem Pferd **Hoppy** durch 1.500 Jahre Schachgeschichte. Konzept + Prototyp: Claude-Artifact „King of Chess“.
 - **Stil B „gemalt“** (Johannas Wahl): Aquarell/Pergament, Schrift Cinzel für Überschriften. Alle Bilder in `public/king/` (KI-erzeugt mit Higgsfield/Nano Banana Pro). Neue Bilder im selben Stil erzeugen und vor dem Einbau ansehen (Orte auf der Karte prüfen!).
 - Code: `src/lib/king.ts` (Stationen mit Kartenposition auf 1800×764, Meister-Gespräche, Rätsel, Lord-Fog-Runden, Fortschritt in localStorage `chess-trainer-king`), `src/screens/King.tsx` (Karte, Intro, Station, Gespräch, Minispiele, Bosse, Kriegszelt), `src/components/KingArt.tsx`, `src/king.css` (`.king-screen` = Pergament-Design).
-- Stufe 1 offen: Kannauj, Persien, London. Andere Stationen liegen unter Nebel. Die alte Übersicht ist `#/path` („All openings“), das Kriegszelt `#/tent` verlinkt alle alten Trainer.
+- App heißt seit 07.11. **King of Chess** (Titel, Manifest, Kopfzeile).
+- **Alle 17 Stationen gebaut** (07.11.): Kannauj, Persien, Samarkand, Bagdad, Der Norden, Valencia, Rom, Queen's Palace, Wien, Paris, London, Winterwald, Reykjavík, New York, Rio, Orbit, Chennai (Finale, öffnet erst wenn alle 16 anderen Bosse besiegt sind, `isOpen`). Jede Station: Bild, Meister mit Gespräch, Quests (`games`), eigene Linien (`lines` = Kapitel aus dem Repertoire) und ein Boss (`boss.kind`: army, riddle, board, lines, quiz, cross, krk, grand).
+- Spiele (King.tsx): `BoardRounds` (Züge finden, 3 Herzen), `QuizRounds`, `KingSquares` (Blind-Felder), `KingQueen`, `CrossRounds` (welche Eröffnung wann), `KingRook` (Matt mit K+T gegen die „Maschine“), `Shuffle` (Chess960), `GrandTour`.
+- Linien-Bosse (`lineRounds` in king.ts) fragen **nur Stellungen mit genau einer Antwort** im Buch der Station (z. B. Wiener: 3.f4 und 3.Bc4 beide richtig → wird nicht gefragt). Test sichert das ab.
+- Bildnamen: Szene `<id>.jpg` (614×1100), Meister `<name>.jpg`, Boss `boss-<name>.jpg` (360×360). Klick-Test aller Städte: Playwright-Skript `king-all.mjs` (Scratchpad, liest Antworten direkt aus `src/lib/king.ts` im Dev-Server).
+- Die alte Übersicht ist `#/path` („All openings“), das Kriegszelt `#/tent` verlinkt alle alten Trainer.
 - Zurück aus einer Linie landet man dort, wo sie geöffnet wurde (`src/lib/returnTo.ts`).
 - Meister erzählen **nur belegte Fakten**. Lord-Fog-Runden kommen aus den echten London-Linien (Test in `src/lib/king.test.ts`).
-- Nächste Stufen laut Konzept: Beweis-Messung aus echten Partien + Quest-Buch, weitere Stationen, Spiegelwelt (Schwarz), Arena, Varianten-Dimensionen.
+- Nächste Stufen laut Konzept: Beweis-Messung aus echten Partien + Quest-Buch, Spiegelwelt (Schwarz), Arena, Varianten-Dimensionen.
 
 ## Reihenfolge
 1. Projekt-Setup, PWA, GitHub-Pages-Deploy

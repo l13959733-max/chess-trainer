@@ -122,7 +122,7 @@ function App() {
   return (
     <main className="app">
       <header className="top">
-        <button type="button" className="brand" onClick={() => go('')}>Chess Trainer</button>
+        <button type="button" className="brand" onClick={() => go('')}>King of Chess</button>
         <div className="top-actions">
           <MuteButton key={page ?? ''} />
           <button type="button" className="settings-link" onClick={() => go('settings')}>Settings</button>
@@ -374,8 +374,8 @@ function Loading() {
           <div className="move">This takes too long</div>
           <p>
             {isDbBlocked()
-              ? 'Another Chess Trainer tab or window is still open with an older version. Close all other Chess Trainer tabs, then reload this one.'
-              : 'Close all other Chess Trainer tabs, then reload this page.'}
+              ? 'Another King of Chess tab or window is still open with an older version. Close all other King of Chess tabs, then reload this one.'
+              : 'Close all other King of Chess tabs, then reload this page.'}
           </p>
           <button type="button" className="primary" onClick={() => window.location.reload()}>Reload</button>
         </div>
