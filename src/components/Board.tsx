@@ -9,7 +9,20 @@ interface Props {
   onMove?: (from: string, to: string) => boolean
   arrows?: Arrow[]
   squareStyles?: Record<string, CSSProperties>
+  // King of Chess: painted pieces and a carved board instead of the plain one
+  skin?: BoardSkin
 }
+
+export type BoardSkin = 'army' | 'palace'
+const PIECES = ['wP', 'wN', 'wB', 'wR', 'wQ', 'wK', 'bP', 'bN', 'bB', 'bR', 'bQ', 'bK']
+const skinPieces = (skin: BoardSkin) =>
+  Object.fromEntries(
+    PIECES.map((p) => [
+      p,
+      () => <img className="skin-piece" src={`${import.meta.env.BASE_URL}king/pieces/${skin}-${p}.png`} alt="" draggable={false} />,
+    ]),
+  )
+const SKIN_PIECES = { army: skinPieces('army'), palace: skinPieces('palace') }
 
 const SELECTED: CSSProperties = { backgroundColor: 'rgba(255, 214, 102, 0.6)' }
 // The king in check glows red, so a check is never missed
@@ -18,7 +31,7 @@ const DOT: CSSProperties = { background: 'radial-gradient(circle, rgba(20,23,28,
 const RING: CSSProperties = { background: 'radial-gradient(circle, transparent 58%, rgba(20,23,28,0.35) 60%)', animation: 'dot-pop 0.16s ease-out' }
 
 // Board with dragging AND tapping (tap a piece, then the target square) – often easier on a phone.
-export function Board({ fen, orientation, onMove, arrows = [], squareStyles = {} }: Props) {
+export function Board({ fen, orientation, onMove, arrows = [], squareStyles = {}, skin }: Props) {
   // A board always opens at the top of the screen, ready to play – also when it appears on the same page
   // (e.g. after "Start game"), where the browser would otherwise stay scrolled down at the button.
   // Braces matter: new Chrome returns a promise from scrollTo, and React would call it as a cleanup (white screen)
@@ -73,7 +86,7 @@ export function Board({ fen, orientation, onMove, arrows = [], squareStyles = {}
   for (const t of targets) styles[t.to] = { ...styles[t.to], ...(t.capture ? RING : DOT) }
 
   return (
-    <div className="board-wrap" onAnimationEnd={(e) => e.currentTarget.classList.remove('shake')}>
+    <div className={`board-wrap ${skin ? `skin skin-${skin}` : ''}`} onAnimationEnd={(e) => e.currentTarget.classList.remove('shake')}>
     <Chessboard
       options={{
         position: fen,
@@ -87,8 +100,13 @@ export function Board({ fen, orientation, onMove, arrows = [], squareStyles = {}
           setSelected(null)
           return !!(targetSquare && tryMove(sourceSquare, targetSquare))
         },
-        lightSquareStyle: { backgroundColor: 'var(--board-light)' },
-        darkSquareStyle: { backgroundColor: 'var(--board-dark)' },
+        lightSquareStyle: skin ? { background: 'var(--skin-light)' } : { backgroundColor: 'var(--board-light)' },
+        darkSquareStyle: skin ? { background: 'var(--skin-dark)' } : { backgroundColor: 'var(--board-dark)' },
+        ...(skin && {
+          pieces: SKIN_PIECES[skin],
+          lightSquareNotationStyle: { color: 'var(--skin-dark-ink)' },
+          darkSquareNotationStyle: { color: 'var(--skin-light-ink)' },
+        }),
         // Feel: pieces glide, lift up while dragged, and the square under the finger gets a white frame
         animationDurationInMs: 190,
         draggingPieceStyle: { transform: 'scale(1.22)', filter: 'drop-shadow(0 10px 8px rgba(40, 30, 60, 0.35))' },

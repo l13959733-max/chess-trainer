@@ -239,3 +239,55 @@
 .king-screen .done p { color: var(--ink-soft); font-weight: 700; }
 .king-screen .done-actions button { font-size: .9rem; }
 .king-medal { filter: drop-shadow(0 4px 3px rgba(60, 40, 15, .25)); }
+
+/* ---------- the board of the game: carved frame, painted pieces ---------- */
+.king-frame {
+  position: relative;
+  padding: 13px;
+  border-radius: 16px;
+  background:
+    repeating-linear-gradient(97deg, rgba(255, 255, 255, .035) 0 2px, transparent 2px 9px),
+    repeating-linear-gradient(83deg, rgba(0, 0, 0, .08) 0 1px, transparent 1px 13px),
+    linear-gradient(150deg, #6b4423, #3d2412 55%, #2a180b);
+  box-shadow:
+    inset 0 0 0 1.5px #d9b45a,
+    inset 0 0 0 5px #3a2312,
+    inset 0 0 0 6.5px rgba(217, 180, 90, .75),
+    0 12px 26px rgba(50, 30, 10, .38),
+    0 2px 0 #1e1108;
+}
+/* gold studs in the four corners */
+.king-frame::before {
+  content: '';
+  position: absolute;
+  inset: 3px;
+  pointer-events: none;
+  background:
+    radial-gradient(circle at 5px 5px, #f3d98a 0 2.6px, #8f7116 3.4px, transparent 4px) top left / 10px 10px no-repeat,
+    radial-gradient(circle at 5px 5px, #f3d98a 0 2.6px, #8f7116 3.4px, transparent 4px) top right / 10px 10px no-repeat,
+    radial-gradient(circle at 5px 5px, #f3d98a 0 2.6px, #8f7116 3.4px, transparent 4px) bottom left / 10px 10px no-repeat,
+    radial-gradient(circle at 5px 5px, #f3d98a 0 2.6px, #8f7116 3.4px, transparent 4px) bottom right / 10px 10px no-repeat;
+}
+.king-frame .board-wrap { border-radius: 4px; overflow: hidden; box-shadow: 0 0 0 2px #1e1108, inset 0 0 18px rgba(0, 0, 0, .25); }
+.board-wrap.skin-army {
+  --skin-light: radial-gradient(circle at 30% 25%, #fdf7e8, #ecdcbc 85%);
+  --skin-dark: radial-gradient(circle at 30% 25%, #5a7fa8, #3b5d85 85%);
+  --skin-light-ink: #f3e7c6;
+  --skin-dark-ink: #3b5d85;
+}
+.board-wrap.skin-palace {
+  --skin-light: radial-gradient(circle at 30% 25%, #fbf3dc, #e8d6ad 85%);
+  --skin-dark: radial-gradient(circle at 30% 25%, #4f8a7d, #2f6359 85%);
+  --skin-light-ink: #f3e7c6;
+  --skin-dark-ink: #2f6359;
+}
+.board-wrap.skin [data-square] { font-weight: 900; }
+.skin-piece { display: block; width: 100%; height: 100%; object-fit: contain; pointer-events: none; user-select: none; filter: drop-shadow(0 3px 2px rgba(30, 15, 5, .45)); transform: scale(1.2) translateY(-5%); transform-origin: 50% 100%; }
+
+/* prototype page */
+.king-look { background: var(--card); border: 2px solid var(--edge); border-radius: 18px; padding: 12px; display: grid; gap: 10px; }
+.king-look.on { border-color: var(--gilt); box-shadow: 0 0 0 3px rgba(201, 162, 39, .3); }
+.king-look-name { font-family: 'Cinzel', Georgia, serif; font-size: 1.2rem; }
+.king-look p { margin: 0; color: var(--ink-soft); font-weight: 700; }
+.king-legend img { width: 44px; height: 44px; object-fit: contain; filter: drop-shadow(0 2px 2px rgba(30, 15, 5, .35)); }
+.king-legend img { display: block; margin: 0 auto 2px; }

@@ -1,7 +1,7 @@
 import { Chess } from 'chess.js'
-import { useEffect, useMemo, useRef, useState, type CSSProperties } from 'react'
+import { useEffect, useMemo, useRef, useState, type ComponentProps, type CSSProperties } from 'react'
 import type { Arrow } from 'react-chessboard'
-import { ARROW, Board, LAST_MOVE } from '../components/Board'
+import { ARROW, Board, LAST_MOVE, type BoardSkin } from '../components/Board'
 import { Avatar, Portrait, SHIP_INNER } from '../components/KingArt'
 import { PathStep } from '../components/PathStep'
 import { go } from '../hooks/useHashRoute'
@@ -221,6 +221,91 @@ function Medallion({ img }: { img: string }) {
       <image href={IMG + img} x="-23" y="-23" width="46" height="46" clipPath="url(#king-clip-big)" preserveAspectRatio="xMidYMid slice" />
       <circle r="23" fill="none" stroke="#5c3d12" strokeWidth="1.2" />
     </g>
+  )
+}
+
+// ---------- the board of the game: painted pieces in a carved frame ----------
+
+const SKIN_KEY = 'chess-trainer-board-skin'
+function boardSkin(): BoardSkin {
+  try {
+    return localStorage.getItem(SKIN_KEY) === 'palace' ? 'palace' : 'army'
+  } catch {
+    return 'army'
+  }
+}
+
+function KBoard(props: ComponentProps<typeof Board>) {
+  const skin = props.skin ?? boardSkin()
+  return (
+    <div className={`king-frame frame-${skin}`}>
+      <Board {...props} skin={skin} />
+    </div>
+  )
+}
+
+const BOARD_LOOKS: { skin: BoardSkin; name: string; text: string }[] = [
+  { skin: 'army', name: "Liam's army", text: 'The old Indian army: elephants with towers, camels, horses, the counselor and the raja – on marble and lapis blue.' },
+  { skin: 'palace', name: 'The palace set', text: 'The classic shapes you know from every game, carved in ivory and ebony with gold – on ivory and jade.' },
+]
+
+// Prototype: both boards side by side, playable, one tap to choose
+export function BoardLab() {
+  const [skin, setSkin] = useState(boardSkin)
+  return (
+    <div className="screen king-screen">
+      <div className="screen-head">
+        <button type="button" className="back" onClick={() => go('')} aria-label="Back to the world map">←</button>
+        <div>
+          <div className="eyebrow">Prototype</div>
+          <h2>Choose your board</h2>
+        </div>
+      </div>
+      {BOARD_LOOKS.map((b) => (
+        <section key={b.skin} className={`king-look ${skin === b.skin ? 'on' : ''}`}>
+          <b className="king-look-name">{b.name}</b>
+          <p>{b.text}</p>
+          <FreeBoard skin={b.skin} />
+          <button
+            type="button"
+            className={skin === b.skin ? 'primary wide' : 'wide'}
+            onClick={() => {
+              try {
+                localStorage.setItem(SKIN_KEY, b.skin)
+              } catch {
+                // private mode: the choice is only kept for this visit
+              }
+              setSkin(b.skin)
+              fx.success()
+            }}
+          >
+            {skin === b.skin ? '✓ Your board' : 'Use this board'}
+          </button>
+        </section>
+      ))}
+    </div>
+  )
+}
+
+// Any legal move, both sides – to feel the pieces glide
+function FreeBoard({ skin }: { skin: BoardSkin }) {
+  const [fen, setFen] = useState(new Chess().fen())
+  const [last, setLast] = useState<{ from: string; to: string } | null>(null)
+  return (
+    <KBoard
+      skin={skin}
+      fen={fen}
+      orientation="white"
+      squareStyles={last ? { [last.from]: LAST_MOVE, [last.to]: LAST_MOVE } : {}}
+      onMove={(from, to) => {
+        const c = new Chess(fen)
+        const m = c.move({ from, to, promotion: 'q' })
+        fx.move(m.san)
+        setFen(c.fen())
+        setLast({ from, to })
+        return true
+      }}
+    />
   )
 }
 
@@ -548,26 +633,9 @@ function QuizRounds({ s, quiz, boss, title, lesson }: { s: Station; quiz: QuizQu
 
 // ---------- Kannauj: the army with the Indian pieces ----------
 
-const START = ['rnbqkbnr', 'pppppppp', '8', '8', '8', '8', 'PPPPPPPP', 'RNBQKBNR']
+const PIECE_OF: Record<string, string> = { p: 'P', n: 'N', b: 'B', r: 'R', q: 'Q', k: 'K' }
 function IndianBoard() {
-  const icon = Object.fromEntries(ARMY.map((a) => [a.piece, a.icon]))
-  const cells: React.ReactNode[] = []
-  START.forEach((row, r) => {
-    let f = 0
-    for (const ch of row) {
-      if (/\d/.test(ch)) {
-        for (let k = 0; k < +ch; k++, f++) cells.push(<div key={`${r}${f}`} className={`king-sq ${(r + f) % 2 ? 'd' : 'l'}`} />)
-      } else {
-        cells.push(
-          <div key={`${r}${f}`} className={`king-sq ${(r + f) % 2 ? 'd' : 'l'}`}>
-            <span className={`king-piece ${ch === ch.toUpperCase() ? 'w' : 'b'}`}>{icon[ch.toLowerCase()]}</span>
-          </div>,
-        )
-        f++
-      }
-    }
-  })
-  return <div className="king-board" role="img" aria-label="Starting position with the Indian army">{cells}</div>
+  return <KBoard fen="rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1" orientation="white" skin="army" />
 }
 
 function KingArmy({ s }: { s: Station }) {
@@ -578,7 +646,7 @@ function KingArmy({ s }: { s: Station }) {
       <div className="king-legend">
         {ARMY.map((a) => (
           <div key={a.name}>
-            <b aria-hidden="true">{a.icon}</b>
+            <img src={`${IMG}pieces/army-w${PIECE_OF[a.piece]}.png`} alt="" />
             <span>{a.name}</span>
             <small>{a.is}</small>
           </div>
@@ -605,7 +673,7 @@ function KingRiddle({ s, boss }: { s: Station; boss: boolean }) {
     <div className="screen king-screen">
       <StationHead s={s} back={() => go('king/' + s.id)} title={boss ? s.boss.name : 'The riddle of the elephant'} />
       {boss && <BossCard s={s} line={s.boss.taunt} progress={(100 * (RIDDLES.length - i)) / RIDDLES.length} hearts={hearts} />}
-      <Board fen={elephantFen(r.at)} orientation="white" squareStyles={styles} />
+      <KBoard fen={elephantFen(r.at)} orientation="white" squareStyles={styles} skin="army" />
       <div className="king-question"><span className="king-big" aria-hidden="true">🐘</span><span>{r.q}</span></div>
       <div className="king-options">
         {r.options.map((o) => (
@@ -639,7 +707,7 @@ function KingRiddle({ s, boss }: { s: Station; boss: boolean }) {
 function elephantFen(square: string): string {
   const f = square.charCodeAt(0) - 97
   const r = 8 - Number(square[1])
-  const rows = Array.from({ length: 8 }, (_, k) => (k === r ? `${f ? f : ''}B${7 - f ? 7 - f : ''}` : '8'))
+  const rows = Array.from({ length: 8 }, (_, k) => (k === r ? `${f ? f : ''}R${7 - f ? 7 - f : ''}` : '8'))
   return rows.join('/') + ' w - - 0 1'
 }
 
@@ -653,13 +721,15 @@ function BoardRounds({ s, rounds, boss, title, lesson, hint, orientation = 'whit
   const r = rounds[i]
   const arrows: Arrow[] = state === 'wrong' ? [{ startSquare: r.from, endSquare: r.to, color: ARROW.correct }] : []
   const styles = state === 'hit' ? { [r.from]: LAST_MOVE, [r.to]: LAST_MOVE } : {}
+  // The move is really played: the piece glides to its square, like in the normal game
+  const fen = state === 'hit' ? new Chess(r.fen).move({ from: r.from, to: r.to }).after : r.fen
   return (
     <div className="screen king-screen">
       <StationHead s={s} back={() => go('king/' + s.id)} title={boss ? s.boss.name : title} />
       {boss ? <BossCard s={s} line={r.taunt} progress={(100 * (rounds.length - i)) / rounds.length} hearts={hearts} /> : lesson && <p className="king-lesson">{lesson}</p>}
-      <Board
+      <KBoard
         key={i}
-        fen={r.fen}
+        fen={fen}
         orientation={orientation}
         arrows={arrows}
         squareStyles={styles}
@@ -778,7 +848,7 @@ function KingQueen({ s }: { s: Station }) {
           ? `Now she reaches ${all.length} squares from d4 – the strongest piece on the board. People called it the “mad queen’s chess”.`
           : 'For about 500 years in Europe she moved only one square diagonally: just 4 squares from d4.'}
       </p>
-      <Board fen="8/8/8/8/3Q4/8/8/8 w - - 0 1" orientation="white" squareStyles={{ ...styles, d4: LAST_MOVE }} />
+      <KBoard fen="8/8/8/8/3Q4/8/8/8 w - - 0 1" orientation="white" squareStyles={{ ...styles, d4: LAST_MOVE }} />
       {awake ? (
         <button type="button" className="primary wide" onClick={() => go(`king/${s.id}/boss`)}>Face the Mad Queen</button>
       ) : (
@@ -802,7 +872,7 @@ function CrossRounds({ s, rounds, boss }: { s: Station; rounds: Crossroad[]; bos
       <StationHead s={s} back={() => go('king/' + s.id)} title={boss ? s.boss.name : 'Which road?'} />
       {boss && <BossCard s={s} line={i === 0 ? s.boss.taunt : 'Next crossroads!'} progress={(100 * (rounds.length - i)) / rounds.length} hearts={hearts} />}
       {boss && i === 0 && <p className="note small">57% 1...e5 · 20% 1...d5: your 1,155 games of 3 months (analysis of Oct 31).</p>}
-      <Board fen={c.fen} orientation="white" />
+      <KBoard fen={c.fen} orientation="white" />
       <div className="king-question"><span className="king-big" aria-hidden="true">🪧</span><span>{c.q}</span></div>
       <div className="king-options">
         {c.options.map((o) => (
@@ -883,7 +953,7 @@ function KingRook({ s, boss }: { s: Station; boss: boolean }) {
         <span>Your moves: <b>{moves}</b>{boss ? ` / ${KRK_LIMIT}` : ''}</span>
         <button type="button" onClick={reset}>Start again</button>
       </div>
-      <Board
+      <KBoard
         fen={fen}
         orientation="white"
         squareStyles={styles}
@@ -972,7 +1042,7 @@ function Shuffle({ s }: { s: Station }) {
     <div className="screen king-screen">
       <StationHead s={s} back={() => go('king/' + s.id)} title="Planet 960" />
       <p className="king-lesson">On Planet 960 the back row is shuffled. Bishops on opposite colours, the king between the rooks – and the black army mirrors the white one.</p>
-      <Board fen={fen} orientation="white" />
+      <KBoard fen={fen} orientation="white" />
       <div className="king-counter">
         <span>Starting position <b>{count}</b> of 960</span>
         <button type="button" onClick={() => { setFen(random960()); setCount(count + 1); fx.move('Nc3') }}>Shuffle 🎲</button>
