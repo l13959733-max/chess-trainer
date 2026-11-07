@@ -26,9 +26,11 @@ export interface BoardRound {
   why: string
   fromComment?: boolean
   threat?: boolean // you play the opponent: show what he threatens
+  guard?: boolean // checked, safe play: answered with the "Knack"
 }
 
 export interface QuizQuestion {
+  guard?: boolean // a safety question: answered with the "Knack"
   fen?: string // a position to look at
   move?: [string, string] // the move the question is about, drawn as an arrow
   q: string
@@ -131,21 +133,21 @@ export const GUARD: BoardRound[] = [
   { fen: 'k7/8/8/8/8/3n4/8/3RK3 w - - 0 1', taunt: '', from: 'd1', to: 'd3', san: 'Rxd3', why: 'Check! But the checking knight has no guard. When you are attacked, first look: can I take the attacker?' },
   { fen: 'k7/8/8/8/b7/8/8/3QK3 w - - 0 1', taunt: '', from: 'd1', to: 'a4', san: 'Qxa4+', why: 'Your queen is attacked – but the attacker hangs. Take it instead of running away.' },
   { fen: '6k1/5ppp/8/8/8/8/5PPP/3R2K1 w - - 0 1', taunt: '', from: 'd1', to: 'd8', san: 'Rd8#', why: 'Rd8# – the king is locked in by its own pawns. Always check your own back rank too!' },
-]
+].map((r) => ({ ...r, guard: true }))
 
 // Is this move safe? (the answers are checked in king.test.ts)
 export const SAFE: QuizQuestion[] = [
   { fen: 'k7/8/2p5/3p4/8/8/8/3QK3 w - - 0 1', move: ['d1', 'd5'], q: 'Is Qxd5 safe?', icon: '🛡', options: ['Yes', 'No'], answer: 'No', why: 'No! The pawn on c6 guards d5. After Qxd5 cxd5 your queen is gone.' },
   { fen: 'k7/8/8/3p4/8/8/8/3QK3 w - - 0 1', move: ['d1', 'd5'], q: 'Is Qxd5 safe now?', icon: '🛡', options: ['Yes', 'No'], answer: 'Yes', why: 'Yes – nothing guards d5 any more. A free pawn.' },
   { fen: '4k3/8/3p4/8/8/5N2/8/4K3 w - - 0 1', move: ['f3', 'e5'], q: 'Is Ne5 safe?', icon: '🛡', options: ['Yes', 'No'], answer: 'No', why: 'No! The pawn on d6 takes on e5. Before you move, check which squares the enemy pawns attack.' },
-]
+].map((q): QuizQuestion => ({ ...q, move: q.move as [string, string], guard: true }))
 
 export const GUARD_BOSS: BoardRound[] = [
   { fen: 'k7/8/8/8/5b2/8/8/5RK1 w - - 0 1', taunt: 'Only those who guard their army may pass!', from: 'f1', to: 'f4', san: 'Rxf4', why: 'The bishop on f4 has no guard. Free material!' },
   { fen: 'k7/8/8/8/8/5n2/8/3QK3 w - - 0 1', taunt: 'Check! What now?', from: 'd1', to: 'f3', san: 'Qxf3+', why: 'Take the checking knight – nothing protects it.' },
   { fen: 'r3k3/8/8/8/8/8/8/Q3K3 w - - 0 1', taunt: 'My rook is far away from you.', from: 'a1', to: 'a8', san: 'Qxa8+', why: 'The rook on a8 has no guard – the open file brings your queen right there.' },
   { fen: '6k1/5ppp/8/8/8/8/5PPP/3Q2K1 w - - 0 1', taunt: 'My pawns protect my king!', from: 'd1', to: 'd8', san: 'Qd8#', why: 'Qd8# – the back rank again. The king has no air.' },
-]
+].map((r) => ({ ...r, guard: true }))
 
 // ---------- Rome: how do you react after 1.e4 e5? ----------
 

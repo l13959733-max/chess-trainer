@@ -19,7 +19,7 @@ import { Attacks } from './screens/Attacks'
 import { Drill } from './screens/Drill'
 import { Home } from './screens/Home'
 import { backFromLine, rememberLine, rememberOrigin, stationOrigin } from './lib/returnTo'
-import { KingHome, KingStation, WarTent } from './screens/King'
+import { KingHome, KingStation, WarmUp, WarTent } from './screens/King'
 import { OpeningMap } from './screens/OpeningMap'
 import { Import } from './screens/Import'
 import { Learn } from './screens/Learn'
@@ -121,6 +121,7 @@ function App() {
   else if (page === 'path') body = <Home rep={rep} progress={progress} puzzles={puzzles} analyzer={analyzer} player={player} trophies={trophies} />
   else if (page === 'king') body = <KingStation id={id} sub={arg} rep={rep} />
   else if (page === 'tent') body = <WarTent puzzles={puzzles} />
+  else if (page === 'warmup') body = <WarmUp rep={rep} />
   else body = redirect ? null : <KingHome />
 
   return (

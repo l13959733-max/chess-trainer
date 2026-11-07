@@ -269,3 +269,13 @@
 .king-title-won { display: grid; gap: 2px; justify-items: center; margin: 6px auto 0; padding: 8px 18px; border: 2px solid var(--gilt); border-radius: 999px; background: #3b2a14; color: #f3d98a; font-family: 'Cinzel', Georgia, serif; font-weight: 900; font-size: 1.15rem; width: max-content; max-width: 100%; animation: coins-pop .6s cubic-bezier(.2, .8, .2, 1.4); }
 .king-title-won small { font-family: 'Nunito', sans-serif; font-weight: 800; font-size: .7rem; letter-spacing: .08em; text-transform: uppercase; color: #f3dfb0; }
 @media (prefers-reduced-motion: reduce) { .king-title-won { animation: none; } }
+
+/* the "Knack": checked and safe – a golden shine runs over the answer */
+.king-fb.knack { position: relative; overflow: hidden; border-color: var(--gilt); background: linear-gradient(135deg, #f6ecc8, #efe0a8); }
+.king-fb.knack b { font-family: 'Cinzel', Georgia, serif; color: #8f7116; }
+.king-fb.knack::after { content: ''; position: absolute; inset: 0; background: linear-gradient(110deg, transparent 30%, rgba(255, 255, 255, .75) 48%, transparent 62%); transform: translateX(-120%); animation: knack-shine .9s ease-out .05s; pointer-events: none; }
+@keyframes knack-shine { to { transform: translateX(120%); } }
+@media (prefers-reduced-motion: reduce) { .king-fb.knack::after { animation: none; } }
+.king-screen a.button { display: inline-flex; align-items: center; justify-content: center; text-decoration: none; border-radius: 16px; padding: 10px 14px; font-weight: 800; border: 2px solid var(--forest-dark); border-bottom-width: 5px; }
+.king-screen a.button.primary { background: var(--forest); color: #fff7e0; font-family: 'Cinzel', Georgia, serif; }
+.king-fb .san { font-family: 'Nunito', 'Segoe UI', sans-serif; font-weight: 900; }

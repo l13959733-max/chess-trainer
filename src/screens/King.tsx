@@ -11,7 +11,7 @@ import type { Line } from '../lib/pgn'
 import { clampScore } from '../lib/blunders'
 import { feedback as fx } from '../lib/feedback'
 import {
-  ARMY, CROSSROADS, FORKS, GRAIN, GUARD, LEWIS, MATES, QUEEN_TACTICS, RIDDLES, ROME_REACT, ROME_THREATS, ROME_TRAPS, ROOK_MATES, SAFE, STATIONS, TENT_AT, TURK,
+  ARMY, CROSSROADS, FORKS, GRAIN, GUARD, GUARD_BOSS, LEWIS, MATES, QUEEN_TACTICS, RIDDLES, ROME_REACT, ROME_THREATS, ROME_TRAPS, ROOK_MATES, SAFE, STATIONS, TENT_AT, TURK,
   earn, isOpen, lineRounds, loadKing, nextStation, saveKing, stationById, stationLines, titleOf, type BoardRound, type Crossroad, type QuizQuestion, type Station,
 } from '../lib/king'
 import '../king.css'
@@ -686,7 +686,10 @@ function QuizRounds({ s, quiz, boss, title, lesson }: { s: Station; quiz: QuizQu
             className={picked === o ? (o === q.answer ? 'right' : 'wrong') : ''}
             onClick={() => {
               setPicked(o)
-              if (o === q.answer) fx.move('Nf3')
+              if (o === q.answer) {
+                if (q.guard) fx.knack()
+                else fx.move('Nf3')
+              }
               else {
                 fx.wrong()
                 if (boss) setHearts(hearts - 1)
@@ -700,7 +703,8 @@ function QuizRounds({ s, quiz, boss, title, lesson }: { s: Station; quiz: QuizQu
       {boss && hearts <= 0 ? (
         <OutOfHearts s={s} why={q.why} retry={() => { setI(0); setHearts(3); setPicked(null) }} />
       ) : right ? (
-        <div className="king-fb ok">
+        <div className={`king-fb ok ${q.guard ? 'knack' : ''}`}>
+          {q.guard && <b>Knack!</b>}
           <p>{q.why}</p>
           <button type="button" className="primary wide" onClick={() => { setI(i + 1); setPicked(null) }}>Next</button>
         </div>
@@ -793,19 +797,20 @@ function elephantFen(square: string): string {
 
 // ---------- moves on the board: forks, mates, rooks, the queen, Lord Fog, your lines ----------
 
-function BoardRounds({ s, rounds, boss, title, lesson, hint, orientation = 'white' }: { s: Station; rounds: BoardRound[]; boss?: boolean; title?: string; lesson?: string; hint?: string; orientation?: 'white' | 'black' }) {
+function BoardRounds({ s, rounds, boss, title, lesson, hint, orientation = 'white', finish, back }: { s: Station; rounds: BoardRound[]; boss?: boolean; title?: string; lesson?: string; hint?: string; orientation?: 'white' | 'black'; finish?: React.ReactNode; back?: string }) {
   const [i, setI] = useState(0)
   const [hearts, setHearts] = useState(3)
   const [state, setState] = useState<'play' | 'wrong' | 'hit'>('play')
-  if (i >= rounds.length) return boss ? <Victory s={s} /> : <QuestDone s={s} icon="✦" title="Well done!" text={`You finished “${title}”. ${s.boss.name} is waiting.`} />
+  if (i >= rounds.length) return finish ?? (boss ? <Victory s={s} /> : <QuestDone s={s} icon="✦" title="Well done!" text={`You finished “${title}”. ${s.boss.name} is waiting.`} />)
   const r = rounds[i]
+  const careful = r.guard || r.threat
   const arrows: Arrow[] = state === 'wrong' ? [{ startSquare: r.from, endSquare: r.to, color: ARROW.correct }] : []
   const styles = state === 'hit' ? { [r.from]: LAST_MOVE, [r.to]: LAST_MOVE } : {}
   // The move is really played: the piece glides to its square, like in the normal game
   const fen = state === 'hit' ? new Chess(r.fen).move({ from: r.from, to: r.to }).after : r.fen
   return (
     <div className="screen king-screen">
-      <StationHead s={s} back={() => go('king/' + s.id)} title={boss ? s.boss.name : title} />
+      <StationHead s={s} back={() => go(back ?? 'king/' + s.id)} title={boss ? s.boss.name : title} />
       {boss ? <BossCard s={s} line={r.taunt} progress={(100 * (rounds.length - i)) / rounds.length} hearts={hearts} /> : lesson && <p className="king-lesson">{lesson}</p>}
       <KBoard
         key={i}
@@ -818,7 +823,8 @@ function BoardRounds({ s, rounds, boss, title, lesson, hint, orientation = 'whit
             ? undefined
             : (from, to) => {
                 if (from === r.from && to === r.to) {
-                  fx.move(r.san)
+                  if (careful) fx.knack()
+                  else fx.move(r.san)
                   setState('hit')
                   return true
                 }
@@ -832,8 +838,8 @@ function BoardRounds({ s, rounds, boss, title, lesson, hint, orientation = 'whit
       {boss && hearts <= 0 ? (
         <OutOfHearts s={s} why={r.why} retry={() => { setI(0); setHearts(3); setState('play') }} />
       ) : state === 'hit' ? (
-        <div className="king-fb ok">
-          <b>Hit! {r.san}</b>
+        <div className={`king-fb ok ${careful ? 'knack' : ''}`}>
+          <b>{careful ? 'Knack!' : 'Hit!'} <span className="san">{r.san}</span></b>
           <p>{r.why}</p>
           <button type="button" className="primary wide" onClick={() => { setI(i + 1); setState('play') }}>{i + 1 < rounds.length ? (boss ? 'Next attack' : 'Next') : boss ? 'Finish!' : 'Done'}</button>
         </div>
@@ -1191,6 +1197,46 @@ function GrandTour({ s, rep }: { s: Station; rep: Repertoire }) {
   return <BoardRounds s={s} rounds={rounds} boss />
 }
 
+// ---------- warm-up before a real game: the guard, a threat, your lines ----------
+
+export function WarmUp({ rep }: { rep: Repertoire }) {
+  const [rounds] = useState<BoardRound[]>(() => {
+    const now = Date.now()
+    const white = rep.lines.filter((l) => l.source !== 'import' && l.side === 'w')
+    const due = white.filter((l) => (rep.srs.get(l.id)?.due ?? Infinity) <= now)
+    return [
+      { ...shuffle([...GUARD, ...GUARD_BOSS])[0], taunt: '' },
+      shuffle(ROME_THREATS)[0],
+      ...lineRounds(due.length >= 2 ? due : white, 2),
+    ]
+  })
+  const tent = { ...stationById('kannauj')!, id: 'tent', name: 'War Tent', year: 'before your game' }
+  return (
+    <BoardContext.Provider value={{ elephants: false, palette: 'walnut' }}>
+      <BoardRounds
+        s={tent}
+        rounds={rounds}
+        title="Warm-up"
+        lesson="Four quick ones before your game: what is free, what is threatened, and two moves from your lines."
+        back="tent"
+        finish={
+          <div className="screen king-screen">
+            <div className="done">
+              <div className="king-medal" aria-hidden="true">⚔</div>
+              <div className="done-title">Ready for battle</div>
+              <p>Before every move: what does your opponent threaten? Good luck – on chess.com you fight alone.</p>
+              <div className="done-actions">
+                <button type="button" onClick={() => go('tent')}>War Tent</button>
+                <a className="button primary" href="https://www.chess.com/play/online" target="_blank" rel="noopener">Play on chess.com</a>
+              </div>
+            </div>
+          </div>
+        }
+      />
+    </BoardContext.Provider>
+  )
+}
+
 // ---------- the War Tent: all the trainers the app already has ----------
 
 export function WarTent({ puzzles }: { puzzles: Puzzles }) {
@@ -1211,6 +1257,10 @@ export function WarTent({ puzzles }: { puzzles: Puzzles }) {
           <p>A good general trains before every battle.</p>
         </div>
       </div>
+      <button type="button" className="primary wide king-continue" onClick={() => go('warmup')}>
+        <small>2 minutes · before you play on chess.com</small>
+        Warm-up before your game
+      </button>
       <div className="king-stations">
         <button type="button" onClick={() => go('review')}><span aria-hidden="true">🗺</span><b>Battle Plans</b><small>Your opening lines that are due</small></button>
         <button type="button" onClick={() => go('puzzles')}><span aria-hidden="true">🩹</span><b>Lost Battles</b><small>Your own mistakes as puzzles</small></button>

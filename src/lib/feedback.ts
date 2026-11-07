@@ -161,4 +161,17 @@ export const feedback = {
     }
     vibrate([20, 50, 20, 50, 60])
   },
+  // "Knack": a chestnut cracking open plus a bright ring of the shield. Only for checked, safe play
+  // (taking what is free, spotting a threat), so the feeling sticks to exactly that habit.
+  knack() {
+    const ac = audio()
+    if (ac) {
+      const t = ac.currentTime + 0.005
+      clack(ac, t, 1, 1.9)
+      clack(ac, t + 0.035, 0.8, 2.3)
+      tone(ac, t + 0.06, 1567.98, 0.22, 0.12, 'sine')
+      tone(ac, t + 0.09, 2349.32, 0.18, 0.06, 'sine')
+    }
+    vibrate([10, 25, 10, 25, 30])
+  },
 }
