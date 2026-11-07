@@ -188,7 +188,7 @@ export const STATIONS: Station[] = [
     id: 'kannauj', name: 'Kannauj', year: '600s', x: 1470, y: 468, color: '#e8590c',
     intro: 'Where it all began: an army small enough to fit on a table.',
     skills: ['Foot soldiers', 'Horses', 'Chariots', 'Elephants', 'The counselor'],
-    scene: 'kannauj.jpg',
+    scene: 'street-bazaar.jpg',
     master: {
       img: 'bana.jpg', name: 'Bana, the court poet', from: "King Harsha's court, 600s", ...BROWN, coat: '#e8590c', beard: true,
       talk: [
@@ -514,10 +514,75 @@ export const STATIONS: Station[] = [
   },
 ]
 
+// ---------- Act 2: the Mirror World – everything is reversed, now you play Black ----------
+// Places you know, seen in the Shadow King's mirror. Grandmaster Lu guides you; the bosses are shadows.
+// Not on the world map and not counted for Chennai: it has its own page (#/mirror).
+const LU = { img: 'lu.jpg', name: 'Grandmaster Lu', from: 'Your teacher', skin: '#e0b48a', hair: '#cfcfcf', coat: '#3a3550', beard: true }
+export const MIRROR: Station[] = [
+  {
+    id: 'mirror-gate', name: 'The Mirror Gate', year: 'Act 2 · Mirror World', x: 0, y: 0, color: '#6c4ab6',
+    intro: 'Through the mirror everything is reversed. Here you play Black – and your first answer to 1.e4 is 1...d5.',
+    skills: ['1.e4 d5', 'Queen to a5 or d6', 'Develop with tempo'],
+    scene: 'mirror-kannauj.jpg',
+    master: {
+      ...LU,
+      talk: [
+        { who: 'master', text: 'Welcome to the Mirror World, Liam. Here the Shadow King moves first – you are Black now.' },
+        { who: 'master', text: 'When White plays 1.e4, you strike at once: 1...d5. Your pawn attacks e4 on the first move.' },
+        { who: 'master', text: 'After 2.exd5 Qxd5 3.Nc3 your queen must move again. Go to a5 or d6 – away from the knight, but still active.' },
+        { who: 'master', text: 'Then develop fast: knight to f6, bishop out, castle. The queen came out early, so do not waste more time with her.' },
+        { who: 'liam', text: 'A shadow with a captain’s helmet is waiting at the gate…' },
+      ],
+    },
+    games: [],
+    lines: { opening: 'Scandinavian', side: 'b' },
+    boss: { name: 'The Shadow Captain', face: '🛡️', img: 'boss-shadow-captain.jpg', kind: 'lines', taunt: 'I move first here. What is your answer?', win: 'The Shadow Captain melts into the mirror. Your 1...d5 stands.' },
+  },
+  {
+    id: 'mirror-fortress', name: 'The Shadow Fortress', year: 'Act 2 · Mirror World', x: 0, y: 0, color: '#4a4f8c',
+    intro: 'In the mirror London, the shadows play 1.d4. You build a fortress: hold d5 and strike back with ...c5.',
+    skills: ['Hold d5 with ...e6', 'Strike with ...c5', 'Against the London: ...c5 at once'],
+    scene: 'mirror-london.jpg',
+    master: {
+      ...LU,
+      talk: [
+        { who: 'master', text: 'Here the shadows open with 1.d4. Answer 1...d5 – the center is yours too.' },
+        { who: 'master', text: 'If White offers a pawn with 2.c4, do not run after it. Hold d5 with 2...e6 – the Queen’s Gambit Declined.' },
+        { who: 'master', text: 'Against calm systems like the London with Bf4, or 2.Nf3 and 2.e3, strike at once with ...c5.' },
+        { who: 'master', text: 'Develop, castle, and only then open the position. A fortress first, then the attack.' },
+        { who: 'liam', text: 'The fog in this fortress has a face…' },
+      ],
+    },
+    games: [],
+    lines: { opening: ["Queen's Gambit Declined", 'London & 2.Nf3'], side: 'b' },
+    boss: { name: 'The Shadow of Lord Fog', face: '🌫️', img: 'boss-shadow-fog.jpg', kind: 'lines', taunt: 'In the mirror, I play the London against you!', win: 'The fog lifts from the fortress. You know how to meet 1.d4.' },
+  },
+  {
+    id: 'mirror-caro', name: 'The Mirror Rome', year: 'Act 2 · Mirror World', x: 0, y: 0, color: '#7a3e6e',
+    intro: 'Your second weapon against 1.e4: the Caro-Kann. First ...c6, then ...d5 – solid like a Roman wall.',
+    skills: ['1...c6 and 2...d5', 'Bishop out before ...e6', 'Against the Advance: ...Bf5 and ...e6'],
+    scene: 'mirror-rome.jpg',
+    master: {
+      ...LU,
+      talk: [
+        { who: 'master', text: 'Some shadows know your 1...d5 too well. So you need a second answer to 1.e4: the Caro-Kann.' },
+        { who: 'master', text: 'First 1...c6, then 2...d5. The pawn on c6 supports d5, so you never have to take back with the queen.' },
+        { who: 'master', text: 'The secret: bring your light bishop out to f5 or g4 before you play ...e6. Then it is not locked in.' },
+        { who: 'liam', text: 'Count Giuoco’s shadow tips his hat at me…' },
+      ],
+    },
+    games: [],
+    lines: { opening: 'Caro-Kann', side: 'b' },
+    boss: { name: 'The Shadow of Count Giuoco', face: '🎩', img: 'boss-shadow-giuoco.jpg', kind: 'lines', taunt: 'Your Caro-Kann against my 1.e4 – show me!', win: 'The shadow of the count bows. Your Caro-Kann wall holds.' },
+  },
+]
+
 // The War Tent on the map (it travels with Liam, but the map shows it near Kannauj)
 export const TENT_AT = { x: 1600, y: 485 }
 
-export const stationById = (id: string | undefined) => STATIONS.find((s) => s.id === id)
+export const stationById = (id: string | undefined) => STATIONS.find((s) => s.id === id) ?? MIRROR.find((s) => s.id === id)
+// The Mirror World opens when Rome's boss is beaten: by then you know how to react with White
+export const mirrorOpen = (beaten: string[]) => beaten.includes('rome')
 
 // Chennai waits until every other boss is beaten
 export function isOpen(s: Station, beaten: string[]): boolean {

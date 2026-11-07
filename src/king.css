@@ -321,3 +321,14 @@
 
 /* intro: the street kid story (painted scenes, faces in the middle-lower part) */
 .king-intro-art.street img { object-position: 50% 70%; }
+
+/* the Mirror World (Act 2): same parchment, seen through a violet mirror */
+.mirror-screen { background: linear-gradient(180deg, #e6dcf0, #d6c8e6); }
+.king-screen .mirror-lu { border-radius: 50%; object-fit: cover; }
+.king-screen .mirror-card { display: grid; grid-template-columns: 96px 1fr; gap: 12px; width: 100%; padding: 8px; margin: 8px 0; text-align: left; border-radius: 14px; border: 2px solid #6c4ab6; background: rgba(255, 255, 255, 0.55); color: inherit; font: inherit; }
+.king-screen .mirror-card img { width: 96px; height: 120px; object-fit: cover; border-radius: 10px; }
+.king-screen .mirror-card span { display: grid; gap: 2px; align-content: center; min-width: 0; font-size: 0.9rem; }
+.king-screen .mirror-card b { font-family: Cinzel, Georgia, serif; font-size: 1.05rem; }
+.king-screen .mirror-card small { color: #6c4ab6; font-weight: 800; }
+.king-screen .mirror-card.complete { border-color: #3c7a3c; opacity: 0.85; }
+.king-screen .mirror-card.next { box-shadow: 0 0 0 3px rgba(108, 74, 182, 0.35); }

@@ -13,7 +13,7 @@ import PUZZLES from '../data/lichess-puzzles.json'
 import { clampScore } from '../lib/blunders'
 import { feedback as fx } from '../lib/feedback'
 import {
-  ARMY, CROSSROADS, FORKS, GRAIN, GUARD, GUARD_BOSS, LEWIS, MATES, QUEEN_TACTICS, RIDDLES, ROME_REACT, ROME_THREATS, ROME_TRAPS, ROOK_MATES, SAFE, STATIONS, TENT_AT, TURK,
+  ARMY, CROSSROADS, MIRROR, mirrorOpen, FORKS, GRAIN, GUARD, GUARD_BOSS, LEWIS, MATES, QUEEN_TACTICS, RIDDLES, ROME_REACT, ROME_THREATS, ROME_TRAPS, ROOK_MATES, SAFE, STATIONS, TENT_AT, TURK,
   earn, isOpen, lineRounds, loadKing, nextStation, saveKing, stationById, stationLines, titleOf, type BoardRound, type Crossroad, type QuizQuestion, type Station,
 } from '../lib/king'
 import '../king.css'
@@ -65,7 +65,7 @@ function KingMap() {
   const svg = useRef<SVGSVGElement>(null)
   const traveling = useRef(false)
   const here = stationById(state.here) ?? STATIONS[0]
-  const beatenCount = state.beaten.filter((id) => !stationById(id)?.finale).length
+  const beatenCount = state.beaten.filter((id) => STATIONS.some((s) => s.id === id && !s.finale)).length
   const crowned = state.beaten.includes('chennai')
 
   // After a boss Liam rides on by himself to the next station
@@ -202,6 +202,13 @@ function KingMap() {
             <text className="king-label" y="44" textAnchor="middle">Training</text>
             <text className="king-label" y="62" textAnchor="middle">Camp</text>
           </g>
+          {mirrorOpen(state.beaten) && (
+            <g className="king-stop king-mirror" transform="translate(1290,640)" role="button" tabIndex={0} aria-label="Mirror World" onClick={() => go('mirror')} onKeyDown={(e) => e.key === 'Enter' && go('mirror')}>
+              <Medallion img="mirror-kannauj.jpg" />
+              <text className="king-label" y="44" textAnchor="middle">Mirror</text>
+              <text className="king-label" y="62" textAnchor="middle">World</text>
+            </g>
+          )}
           <g ref={token} transform={`translate(${here.x},${here.y - TOKEN_LIFT})`} aria-label="Liam and Hoppy are here">
             <g className="king-bob">
               <path d="M-8,24 L0,40 L8,24 Z" fill="#8b6b3d" />
@@ -446,7 +453,7 @@ function StationPage({ s, rep }: { s: Station; rep: Repertoire }) {
       <div className="king-banner">
         <img src={IMG + s.scene} alt="" />
         <div>
-          <span className="king-kicker">Year {s.year} · 🌰 {loadKing().coins}</span>
+          <span className="king-kicker">{MIRROR.includes(s) ? s.year : `Year ${s.year}`} · 🌰 {loadKing().coins}</span>
           <p>{s.intro}</p>
         </div>
       </div>
@@ -577,6 +584,9 @@ function Victory({ s }: { s: Station }) {
   }, [])
   const crown = s.finale
   const next = nextStation(s.id, loadKing().beaten)
+  // in the Mirror World you go on to the next shadow, not back to the map
+  const mirror = MIRROR.includes(s)
+  const mirrorNext = MIRROR.find((m) => !loadKing().beaten.includes(m.id))
   return (
     <div className="screen king-screen">
       <div className={`done king-victory ${crown ? 'crown' : ''}`}>
@@ -601,7 +611,13 @@ function Victory({ s }: { s: Station }) {
         )}
         <div className="done-actions">
           <button type="button" onClick={() => go('king/' + s.id)}>{s.name}</button>
-          {next ? (
+          {mirror ? (
+            mirrorNext ? (
+              <button type="button" className="primary" onClick={() => go(`king/${mirrorNext.id}/next`)}>On to {mirrorNext.name}</button>
+            ) : (
+              <button type="button" className="primary" onClick={() => go('mirror')}>Mirror World</button>
+            )
+          ) : next ? (
             <button
               type="button"
               className="primary"
