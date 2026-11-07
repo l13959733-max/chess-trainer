@@ -21,7 +21,7 @@ import { Home } from './screens/Home'
 import { backFromLine, rememberLine, rememberOrigin, stationOrigin } from './lib/returnTo'
 import { ChessCheck } from './screens/Check'
 import { Portal } from './screens/Portal'
-import { KingHome, KingStation, WarmUp, WarTent } from './screens/King'
+import { Encounter, KingHome, KingStation, WarmUp, WarTent } from './screens/King'
 import { OpeningMap } from './screens/OpeningMap'
 import { Import } from './screens/Import'
 import { Learn } from './screens/Learn'
@@ -126,6 +126,7 @@ function App() {
   else if (page === 'warmup') body = <WarmUp rep={rep} />
   else if (page === 'check') body = <ChessCheck rep={rep} />
   else if (page === 'portal') body = <Portal rep={rep} />
+  else if (page === 'encounter') body = <Encounter key={id ?? ''} to={id} rep={rep} />
   else body = redirect ? null : <KingHome />
 
   return (

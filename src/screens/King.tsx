@@ -69,7 +69,7 @@ function KingMap() {
   const crowned = state.beaten.includes('chennai')
 
   // After a boss Liam rides on by himself to the next station
-  const travelNow = useRef<(to: Station) => void>(() => {})
+  const travelNow = useRef<(to: Station, ambushAllowed?: boolean) => void>(() => {})
   useEffect(() => {
     travelNow.current = travel
   })
@@ -78,7 +78,7 @@ function KingMap() {
     if (!to) return
     const t = window.setTimeout(() => {
       saveKing({ ...loadKing(), travel: undefined })
-      travelNow.current(to)
+      travelNow.current(to, false)
     }, 700)
     return () => window.clearTimeout(t)
   }, [])
@@ -91,7 +91,7 @@ function KingMap() {
     sc.scrollTop = Math.max(0, here.y - sc.clientHeight / 2)
   }, [here])
 
-  function travel(target: Station) {
+  function travel(target: Station, ambushAllowed = true) {
     if (traveling.current) return
     if (!isOpen(target, state.beaten)) {
       showToast(`${target.name} opens when all ${BOSSES} bosses are beaten – ${BOSSES - beatenCount} to go.`)
@@ -117,10 +117,19 @@ function KingMap() {
     if (ship.current) ship.current.style.display = sea ? '' : 'none'
     const reduce = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches
     const dur = reduce ? 1 : Math.min(2400, 400 + len * 2.2)
+    // now and then a scout of the Shadow Realm blocks the road halfway (not more than every 15 minutes)
+    const ambush = ambushAllowed && !reduce && canBeAmbushed(state.beaten) && Math.random() < 0.35 && Date.now() - lastAmbush() > 15 * 60 * 1000
     let t0 = 0
     const frame = (now: number) => {
       t0 ||= now
       const t = Math.min(1, (now - t0) / dur)
+      if (ambush && t >= 0.5) {
+        path.remove()
+        traveling.current = false
+        markAmbush()
+        go('encounter/' + target.id)
+        return
+      }
       const e = t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2
       const pt = path.getPointAtLength(e * len)
       el.setAttribute('transform', `translate(${pt.x},${pt.y - TOKEN_LIFT})`)
@@ -923,6 +932,14 @@ export interface LPuzzle {
   fen: string // before the opponent's mistake
   moves: string[] // UCI: the opponent's mistake, then the solution with the answers
   rating: number
+  direct?: boolean // no mistake first: you move at once (our own positions)
+  threat?: boolean // you play your opponent's move: "what does he threaten?"
+  why?: string
+}
+
+// One of our own positions as a puzzle, so everything can be mixed on the road
+function asPuzzle(r: BoardRound, id: string): LPuzzle {
+  return { id, fen: r.fen, moves: [r.from + r.to], rating: 0, direct: true, threat: r.threat, why: r.why }
 }
 
 const uci = (u: string) => ({ from: u.slice(0, 2), to: u.slice(2, 4), promotion: u[4] })
@@ -946,12 +963,12 @@ function PuzzleRounds({ s, puzzles, boss, title, lesson, threat, back, finish }:
       {boss && hearts <= 0 ? (
         <OutOfHearts s={s} why="Look at every check, capture and attack first." retry={() => { setI(0); setHearts(3); setSolved(false) }} />
       ) : (
-        <OnePuzzle key={p.id + i} p={p} threat={threat} onMistake={() => boss && setHearts((h) => h - 1)} onSolved={() => setSolved(true)} />
+        <OnePuzzle key={p.id + i} p={p} threat={threat || p.threat} onMistake={() => boss && setHearts((h) => h - 1)} onSolved={() => setSolved(true)} />
       )}
       {solved && (
-        <div className={`king-fb ok ${threat ? 'knack' : ''}`}>
-          <b>{threat ? 'Knack! You saw the threat.' : 'Solved!'}</b>
-          <p>{threat ? 'Before every move, look for this against you: checks, captures, attacks.' : `Puzzle rating ${p.rating}.`}</p>
+        <div className={`king-fb ok ${threat || p.threat ? 'knack' : ''}`}>
+          <b>{threat || p.threat ? 'Knack! You saw the threat.' : 'Solved!'}</b>
+          <p>{p.why ?? (threat || p.threat ? 'Before every move, look for this against you: checks, captures, attacks.' : `Puzzle rating ${p.rating}.`)}</p>
           <button type="button" className="primary wide" onClick={() => { setI(i + 1); setSolved(false) }}>Next</button>
         </div>
       )}
@@ -966,7 +983,8 @@ function OnePuzzle({ p, threat, onMistake, onSolved }: { p: LPuzzle; threat?: bo
   const [last, setLast] = useState<{ from: string; to: string } | null>(null)
   const [hint, setHint] = useState<string | null>(null)
   const [done, setDone] = useState(false)
-  const me = new Chess(p.fen).turn() === 'w' ? 'black' : 'white' // the side that solves
+  const toMove = new Chess(p.fen).turn() === 'w' ? 'white' : 'black'
+  const me = p.direct ? toMove : toMove === 'white' ? 'black' : 'white' // the side that solves
   const orientation = threat ? (me === 'white' ? 'black' : 'white') : me
   const timer = useRef<number | undefined>(undefined)
   useEffect(() => () => window.clearTimeout(timer.current), [])
@@ -982,11 +1000,11 @@ function OnePuzzle({ p, threat, onMistake, onSolved }: { p: LPuzzle; threat?: bo
     }, delay)
   }
   useEffect(() => {
-    if (step === 0) play(p.fen, 700)
+    if (step === 0 && !p.direct) play(p.fen, 700)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
   const want = p.moves[step]
-  const yourTurn = !done && step > 0 && step % 2 === 1
+  const yourTurn = !done && (p.direct ? step % 2 === 0 : step > 0 && step % 2 === 1)
   return (
     <>
       <KBoard
@@ -1035,7 +1053,7 @@ function OnePuzzle({ p, threat, onMistake, onSolved }: { p: LPuzzle; threat?: bo
               }
         }
       />
-      {!done && step > 0 && (
+      {!done && (step > 0 || p.direct) && (
         <p className="note">
           {threat ? (
             <>
@@ -1347,6 +1365,83 @@ function GrandTour({ s, rep }: { s: Station; rep: Repertoire }) {
     ]
   })
   return <BoardRounds s={s} rounds={rounds} boss />
+}
+
+// ---------- on the road: a scout of the Shadow Realm with mixed tasks from everything you learned ----------
+
+const AMBUSH_KEY = 'chess-trainer-ambush'
+function lastAmbush(): number {
+  try {
+    return Number(localStorage.getItem(AMBUSH_KEY) ?? 0)
+  } catch {
+    return 0
+  }
+}
+function markAmbush() {
+  try {
+    localStorage.setItem(AMBUSH_KEY, String(Date.now()))
+  } catch {
+    // not remembered: the next ride can be ambushed again
+  }
+}
+
+// What you can be asked: only what the stations you beat have taught
+function roadPool(beaten: string[], lines: Line[]): LPuzzle[] {
+  const pool: LPuzzle[] = []
+  if (beaten.includes('kannauj')) pool.push(...GUARD.map((r, k) => asPuzzle(r, 'guard' + k)))
+  if (beaten.includes('samarkand')) pool.push(...pick(['fork'], 14, 6), ...pick(['fork'], 20, 3).map((x) => ({ ...x, threat: true })), ...pick(['hanging'], 0, 4))
+  if (beaten.includes('rome')) {
+    pool.push(...ROME_THREATS.map((r, k) => asPuzzle(r, 'rt' + k)), ...trapRounds(lines).map((r, k) => asPuzzle(r, 'trap' + k)))
+    pool.push(...lineRounds(stationLines(stationById('rome')!, lines), 4).map((r, k) => asPuzzle(r, 'rome' + k)))
+  }
+  if (beaten.includes('baghdad')) pool.push(...pick(['mate1'], 10, 4), ...pick(['backrank'], 10, 3), ...pick(['mate2'], 10, 3))
+  return pool
+}
+
+function canBeAmbushed(beaten: string[]): boolean {
+  return beaten.filter((id) => ['kannauj', 'samarkand', 'rome', 'baghdad'].includes(id)).length >= 2
+}
+
+export function Encounter({ to, rep }: { to?: string; rep: Repertoire }) {
+  const target = stationById(to)
+  const [tasks] = useState(() => shuffle(roadPool(loadKing().beaten, rep.lines)).slice(0, 3))
+  const road = { ...stationById('kannauj')!, id: 'road', name: 'On the road', year: target ? `to ${target.name}` : '' }
+  const rideOn = () => {
+    if (target) saveKing({ ...loadKing(), travel: target.id })
+    go('')
+  }
+  return (
+    <BoardContext.Provider value={{ elephants: false, palette: 'fog' }}>
+      <PuzzleRounds
+        s={road}
+        puzzles={tasks}
+        title="A scout blocks the road!"
+        lesson="A scout of the Shadow Realm jumps out. Three tasks from everything you learned – nobody tells you what kind."
+        back=""
+        finish={<EncounterWon onRide={rideOn} target={target?.name} />}
+      />
+    </BoardContext.Provider>
+  )
+}
+
+function EncounterWon({ onRide, target }: { onRide: () => void; target?: string }) {
+  const [nuts] = useState(() => earn(`road/${new Date().toDateString()}/${Math.random().toString(36).slice(2, 6)}`, 10))
+  useEffect(() => {
+    fx.success()
+  }, [])
+  return (
+    <div className="screen king-screen">
+      <div className="done">
+        <div className="king-medal" aria-hidden="true">🌫</div>
+        <div className="done-title">The scout flees!</div>
+        <p>What you learned is still there. The shadow did not get a single point.</p>
+        <div className="king-coins-won">+{nuts} 🌰</div>
+        <div className="done-actions">
+          <button type="button" className="primary" onClick={onRide}>{target ? `Ride on to ${target}` : 'World map'}</button>
+        </div>
+      </div>
+    </div>
+  )
 }
 
 // ---------- warm-up before a real game: the guard, a threat, your lines ----------
