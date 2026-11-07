@@ -241,35 +241,7 @@
 .king-medal { filter: drop-shadow(0 4px 3px rgba(60, 40, 15, .25)); }
 
 /* ---------- the board of the game: carved frame, painted pieces ---------- */
-.king-frame {
-  position: relative;
-  display: grid;
-  gap: 6px;
-  padding: 9px;
-  border-radius: 16px;
-  background-color: #5a3a1e;
-  background-size: 260px;
-  box-shadow:
-    inset 0 0 0 1.5px #d9b45a,
-    inset 0 0 0 4px rgba(40, 22, 8, .55),
-    inset 0 2px 6px rgba(255, 235, 200, .25),
-    0 12px 26px rgba(50, 30, 10, .38),
-    0 2px 0 #1e1108;
-}
-.king-frieze { display: block; width: 100%; height: auto; border-radius: 4px; box-shadow: 0 0 0 1.5px rgba(217, 180, 90, .8), 0 1px 3px rgba(0, 0, 0, .35); }
-/* gold studs in the four corners */
-.king-frame::before {
-  content: '';
-  position: absolute;
-  inset: 3px;
-  pointer-events: none;
-  background:
-    radial-gradient(circle at 5px 5px, #f3d98a 0 2.6px, #8f7116 3.4px, transparent 4px) top left / 10px 10px no-repeat,
-    radial-gradient(circle at 5px 5px, #f3d98a 0 2.6px, #8f7116 3.4px, transparent 4px) top right / 10px 10px no-repeat,
-    radial-gradient(circle at 5px 5px, #f3d98a 0 2.6px, #8f7116 3.4px, transparent 4px) bottom left / 10px 10px no-repeat,
-    radial-gradient(circle at 5px 5px, #f3d98a 0 2.6px, #8f7116 3.4px, transparent 4px) bottom right / 10px 10px no-repeat;
-}
-.king-frame .board-wrap { border-radius: 3px; overflow: hidden; box-shadow: 0 0 0 1.5px rgba(217, 180, 90, .9), 0 0 0 3px #2a180b; }
+.king-screen > .king-bleed { margin-inline: -8px; }
 .board-wrap.skin { --skin-light-ink: #f3e7c6; --skin-dark-ink: #6b4428; }
 .board-wrap.skin [data-square] { font-weight: 900; }
 .skin-piece { position: relative; display: block; width: 100%; aspect-ratio: 1; pointer-events: none; user-select: none; }

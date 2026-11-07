@@ -232,26 +232,20 @@ const ASIA = ['kannauj', 'persia', 'samarkand', 'baghdad']
 const OLD_EUROPE = ['north', 'valencia', 'rome', 'palace', 'vienna', 'paris']
 const piecesAt = (id: string): BoardSkin => (ASIA.includes(id) ? 'army' : OLD_EUROPE.includes(id) ? 'palace' : 'london')
 
-// Every city can have its own board: painted squares, a frieze above and below, a rim around it
+// Every city can have its own painted board. Proportions like chess.com: the board spans the whole
+// phone width, no frame around it, and the pieces fill their squares
 interface BoardLook {
   board: string
-  top: string
-  bottom: string
-  rim: string
   pieces: BoardSkin
 }
-const POLO = { board: 'board-polo.jpg', top: 'polo-top.jpg', bottom: 'polo-bottom.jpg', rim: 'walnut.jpg' }
-const LONDON = { board: 'board-london.jpg', top: 'london-top.jpg', bottom: 'london-bottom.jpg', rim: 'leather.jpg' }
-const lookAt = (id: string): BoardLook => ({ ...(id === 'london' ? LONDON : POLO), pieces: piecesAt(id) })
+const lookAt = (id: string): BoardLook => ({ board: id === 'london' ? 'board-london.jpg' : 'board-polo.jpg', pieces: piecesAt(id) })
 const LookContext = createContext<BoardLook>(lookAt('kannauj'))
 
 function KBoard(props: ComponentProps<typeof Board>) {
   const look = useContext(LookContext)
   return (
-    <div className="king-frame" style={{ backgroundImage: `url(${IMG}${look.rim})` }}>
-      <img className="king-frieze" src={IMG + look.top} alt="" />
+    <div className="king-bleed">
       <Board {...props} skin={props.skin ?? look.pieces} boardImage={look.board} />
-      <img className="king-frieze" src={IMG + look.bottom} alt="" />
     </div>
   )
 }
