@@ -240,7 +240,7 @@ function KingMap() {
         ) : (
           <button type="button" onClick={() => go('path')}><span aria-hidden="true">📚</span>All openings</button>
         )}
-        <button type="button" onClick={() => go('weaknesses')}><span aria-hidden="true">📖</span>Quest book</button>
+        <button type="button" onClick={() => go('quests')}><span aria-hidden="true">📖</span>Quest book</button>
         <button type="button" onClick={() => go('watch')}><span aria-hidden="true">👫</span>Together</button>
       </nav>
     </div>

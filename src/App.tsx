@@ -21,6 +21,7 @@ import { Home } from './screens/Home'
 import { backFromLine, rememberLine, rememberOrigin, stationOrigin } from './lib/returnTo'
 import { ChessCheck } from './screens/Check'
 import { Portal } from './screens/Portal'
+import { QuestBook } from './screens/QuestBook'
 import { Encounter, KingHome, KingStation, WarmUp, WarTent } from './screens/King'
 import { OpeningMap } from './screens/OpeningMap'
 import { Import } from './screens/Import'
@@ -124,6 +125,7 @@ function App() {
   else if (page === 'king') body = <KingStation id={id} sub={arg} rep={rep} />
   else if (page === 'tent') body = <WarTent puzzles={puzzles} />
   else if (page === 'warmup') body = <WarmUp rep={rep} />
+  else if (page === 'quests') body = <QuestBook />
   else if (page === 'check') body = <ChessCheck rep={rep} />
   else if (page === 'portal') body = <Portal rep={rep} />
   else if (page === 'encounter') body = <Encounter key={id ?? ''} to={id} rep={rep} />
