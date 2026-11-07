@@ -122,8 +122,6 @@
   --wax: #8b2e2e;
   --wax-dark: #5c1d1d;
   --gilt: #c9a227;
-  --board-light: #f0d9b5;
-  --board-dark: #b58863;
   background: radial-gradient(120% 70% at 50% 0%, var(--parch), var(--parch-2));
   color: var(--ink);
   border-radius: 22px;
@@ -240,15 +238,5 @@
 .king-screen .done-actions button { font-size: .9rem; }
 .king-medal { filter: drop-shadow(0 4px 3px rgba(60, 40, 15, .25)); }
 
-/* ---------- the board of the game: carved frame, painted pieces ---------- */
+/* the board of the game is the Hoppy board, across the whole phone width like on chess.com */
 .king-screen > .king-bleed { margin-inline: -8px; }
-.board-wrap.skin { --skin-light-ink: #f3e7c6; --skin-dark-ink: #6b4428; }
-.board-wrap.skin [data-square] { font-weight: 900; }
-.skin-piece { position: relative; display: block; width: 100%; aspect-ratio: 1; pointer-events: none; user-select: none; }
-.skin-piece img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; }
-/* a fine seam keeps every piece readable on light and dark squares: dark for White, glowing gold for Black */
-.skin-piece.w img { filter: drop-shadow(0 0 .8px rgba(40, 22, 8, .9)) drop-shadow(0 1px 1px rgba(30, 15, 5, .35)); }
-.skin-piece.b img { filter: drop-shadow(0 0 1px rgba(246, 222, 150, .95)) drop-shadow(0 0 1px rgba(246, 222, 150, .7)) drop-shadow(0 1px 1px rgba(30, 15, 5, .35)); }
-
-.king-legend img { width: 44px; height: 44px; object-fit: contain; filter: drop-shadow(0 2px 2px rgba(30, 15, 5, .35)); }
-.king-legend img { display: block; margin: 0 auto 2px; }

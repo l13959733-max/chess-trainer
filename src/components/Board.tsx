@@ -1,6 +1,6 @@
 import { Chess, type Square } from 'chess.js'
 import { useLayoutEffect, useMemo, useState, type CSSProperties } from 'react'
-import { Chessboard, type Arrow } from 'react-chessboard'
+import { Chessboard, defaultPieces, type Arrow } from 'react-chessboard'
 
 interface Props {
   fen: string
@@ -9,27 +9,31 @@ interface Props {
   onMove?: (from: string, to: string) => boolean
   arrows?: Arrow[]
   squareStyles?: Record<string, CSSProperties>
-  // King of Chess: painted pieces and a carved board instead of the plain one
-  skin?: BoardSkin
-  // the painted board under the squares (file in public/king)
-  boardImage?: string
+  // King of Chess: in Liam's Indian army the rook is an elephant (Haathi)
+  elephants?: boolean
 }
 
-export type BoardSkin = 'army' | 'palace' | 'london'
-const PIECES = ['wP', 'wN', 'wB', 'wR', 'wQ', 'wK', 'bP', 'bN', 'bB', 'bR', 'bQ', 'bK']
-const skinPieces = (skin: BoardSkin) =>
-  Object.fromEntries(
-    PIECES.map((p) => [
-      p,
-      // Flat pieces with a clear outline, centred in the square like a chess diagram – they belong to the board
-      () => (
-        <span className={`skin-piece ${p[0]}`}>
-          <img src={`${import.meta.env.BASE_URL}king/pieces/${skin}-${p}.png`} alt="" draggable={false} />
-        </span>
-      ),
-    ]),
+// The Haathi: a war elephant with a small tower, drawn like the other pieces (same line, same base as the rook)
+function Elephant({ black }: { black?: boolean }) {
+  const line = black ? '#ffffff' : '#000000'
+  return (
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 45 45" width="100%" height="100%">
+      <g style={{ fill: black ? '#000000' : '#ffffff', stroke: '#000000', strokeWidth: 1.5, strokeLinecap: 'round', strokeLinejoin: 'round' }}>
+        <path d="M 9,39 L 36,39 L 36,36 L 9,36 Z" style={{ strokeLinecap: 'butt' }} />
+        <path d="M 12,36 L 12,32 L 33,32 L 33,36 Z" style={{ strokeLinecap: 'butt' }} />
+        <path d="M 36,21.5 C 38.3,22.5 38.4,25.5 37.6,27.5" style={{ fill: 'none' }} />
+        <path d="M 18,32 L 18,25.5 C 18,18.5 22,15.5 28,15.5 C 33.5,15.5 36,18.8 36,23 L 36,32 L 31.5,32 L 31.5,27.5 L 22.5,27.5 L 22.5,32 Z" />
+        <path d="M 24.5,16.2 L 24.5,9.5 L 26.6,9.5 L 26.6,11 L 28.7,11 L 28.7,9.5 L 30.8,9.5 L 30.8,11 L 32.9,11 L 32.9,9.5 L 35,9.5 L 35,17.6 C 31.5,15.9 27.8,15.6 24.5,16.2 Z" />
+        <path d="M 24.5,13 L 35,13" style={{ fill: 'none', stroke: line }} />
+        <path d="M 22.5,15.8 C 18.5,12.6 12.4,13 11,18 C 10.3,20.8 10.9,24 10.4,27 C 10,29.4 8.6,30.8 9.4,32 L 12.6,32 C 12.9,29.3 13.4,27.2 14.6,25.3 C 16.8,26.1 19.8,25.4 21.5,22.6" />
+        <path d="M 17.2,16.8 C 21.2,15.6 24.4,18.2 23.9,22 C 23.5,24.7 20.4,25.4 18.6,23.7 C 17.6,21.6 17.4,19 17.2,16.8 Z" style={{ stroke: line }} />
+        <path d="M 14.3,22.6 C 14.4,25.4 12.9,27.6 10.8,28.3 C 12.1,26.6 12.7,24.9 12.7,22.9 Z" style={{ fill: '#ffffff' }} />
+        <circle cx="14.2" cy="18.6" r="0.75" style={{ fill: line, stroke: line }} />
+      </g>
+    </svg>
   )
-const SKIN_PIECES = { army: skinPieces('army'), palace: skinPieces('palace'), london: skinPieces('london') }
+}
+const ELEPHANT_PIECES = { ...defaultPieces, wR: () => <Elephant />, bR: () => <Elephant black /> }
 
 const SELECTED: CSSProperties = { backgroundColor: 'rgba(255, 214, 102, 0.6)' }
 // The king in check glows red, so a check is never missed
@@ -38,7 +42,7 @@ const DOT: CSSProperties = { background: 'radial-gradient(circle, rgba(20,23,28,
 const RING: CSSProperties = { background: 'radial-gradient(circle, transparent 58%, rgba(20,23,28,0.35) 60%)', animation: 'dot-pop 0.16s ease-out' }
 
 // Board with dragging AND tapping (tap a piece, then the target square) – often easier on a phone.
-export function Board({ fen, orientation, onMove, arrows = [], squareStyles = {}, skin, boardImage = 'board-polo.jpg' }: Props) {
+export function Board({ fen, orientation, onMove, arrows = [], squareStyles = {}, elephants }: Props) {
   // A board always opens at the top of the screen, ready to play – also when it appears on the same page
   // (e.g. after "Start game"), where the browser would otherwise stay scrolled down at the button.
   // Braces matter: new Chrome returns a promise from scrollTo, and React would call it as a cleanup (white screen)
@@ -87,16 +91,13 @@ export function Board({ fen, orientation, onMove, arrows = [], squareStyles = {}
     setSelected(own && sel !== square ? { square, fen } : null)
   }
 
-  // On the painted board the last move glows like gold paint instead of a flat yellow square
-  const styles: Record<string, CSSProperties> = skin
-    ? Object.fromEntries(Object.entries(squareStyles).map(([q, st]) => [q, st === LAST_MOVE ? PAINT_LAST : st]))
-    : { ...squareStyles }
+  const styles: Record<string, CSSProperties> = { ...squareStyles }
   if (checkSquare) styles[checkSquare] = { ...styles[checkSquare], ...CHECK }
-  if (sel) styles[sel] = { ...styles[sel], ...(skin ? PAINT_SELECTED : SELECTED) }
-  for (const t of targets) styles[t.to] = { ...styles[t.to], ...(skin ? (t.capture ? PAINT_RING : PAINT_DOT) : t.capture ? RING : DOT) }
+  if (sel) styles[sel] = { ...styles[sel], ...SELECTED }
+  for (const t of targets) styles[t.to] = { ...styles[t.to], ...(t.capture ? RING : DOT) }
 
   return (
-    <div className={`board-wrap ${skin ? `skin skin-${skin}` : ''}`} onAnimationEnd={(e) => e.currentTarget.classList.remove('shake')}>
+    <div className="board-wrap" onAnimationEnd={(e) => e.currentTarget.classList.remove('shake')}>
     <Chessboard
       options={{
         position: fen,
@@ -105,20 +106,14 @@ export function Board({ fen, orientation, onMove, arrows = [], squareStyles = {}
         squareStyles: styles,
         allowDragging: !!onMove,
         allowDrawingArrows: false,
+        ...(elephants && { pieces: ELEPHANT_PIECES }),
         onSquareClick,
         onPieceDrop: ({ sourceSquare, targetSquare }) => {
           setSelected(null)
           return !!(targetSquare && tryMove(sourceSquare, targetSquare))
         },
-        // King of Chess: the painted board lies under transparent squares
-        lightSquareStyle: skin ? { backgroundColor: 'transparent' } : { backgroundColor: 'var(--board-light)' },
-        darkSquareStyle: skin ? { backgroundColor: 'transparent' } : { backgroundColor: 'var(--board-dark)' },
-        ...(skin && {
-          pieces: SKIN_PIECES[skin],
-          boardStyle: { backgroundImage: `url(${import.meta.env.BASE_URL}king/${boardImage})`, backgroundSize: '100% 100%' },
-          lightSquareNotationStyle: { color: 'var(--skin-dark-ink)' },
-          darkSquareNotationStyle: { color: 'var(--skin-light-ink)' },
-        }),
+        lightSquareStyle: { backgroundColor: 'var(--board-light)' },
+        darkSquareStyle: { backgroundColor: 'var(--board-dark)' },
         // Feel: pieces glide, lift up while dragged, and the square under the finger gets a white frame
         animationDurationInMs: 190,
         draggingPieceStyle: { transform: 'scale(1.22)', filter: 'drop-shadow(0 10px 8px rgba(40, 30, 60, 0.35))' },
@@ -130,10 +125,6 @@ export function Board({ fen, orientation, onMove, arrows = [], squareStyles = {}
   )
 }
 
-const PAINT_LAST: CSSProperties = { background: 'radial-gradient(circle at 50% 50%, rgba(255, 210, 110, .7), rgba(232, 176, 60, .42) 55%, rgba(232, 176, 60, .12) 80%, transparent)' }
-const PAINT_SELECTED: CSSProperties = { background: 'radial-gradient(circle at 50% 50%, rgba(255, 226, 140, .85), rgba(240, 190, 70, .55) 60%, rgba(240, 190, 70, .2) 85%, transparent)' }
-const PAINT_DOT: CSSProperties = { background: 'radial-gradient(circle, rgba(60, 35, 12, .5) 15%, rgba(60, 35, 12, .22) 21%, transparent 27%)', animation: 'dot-pop 0.16s ease-out' }
-const PAINT_RING: CSSProperties = { background: 'radial-gradient(circle, transparent 54%, rgba(60, 35, 12, .38) 58%, rgba(60, 35, 12, .15) 66%, transparent 70%)', animation: 'dot-pop 0.16s ease-out' }
 export const LAST_MOVE: CSSProperties = { backgroundColor: 'rgba(255, 214, 102, 0.45)' }
 export const WRONG: CSSProperties = { backgroundColor: 'rgba(229, 72, 77, 0.75)' }
 export const ARROW = { idea: 'rgba(143, 191, 106, 0.85)', next: 'rgba(110, 160, 230, 0.8)', correct: 'rgba(143, 191, 106, 0.95)' }

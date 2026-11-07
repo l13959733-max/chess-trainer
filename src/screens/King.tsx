@@ -1,7 +1,7 @@
 import { Chess } from 'chess.js'
 import { createContext, useContext, useEffect, useMemo, useRef, useState, type ComponentProps, type CSSProperties } from 'react'
 import type { Arrow } from 'react-chessboard'
-import { ARROW, Board, LAST_MOVE, type BoardSkin } from '../components/Board'
+import { ARROW, Board, LAST_MOVE } from '../components/Board'
 import { Avatar, Portrait, SHIP_INNER } from '../components/KingArt'
 import { PathStep } from '../components/PathStep'
 import { go } from '../hooks/useHashRoute'
@@ -224,28 +224,17 @@ function Medallion({ img }: { img: string }) {
   )
 }
 
-// ---------- the board of the game: it changes with the place and the time ----------
+// ---------- the board of the game: the Hoppy board ----------
 
-// The pieces tell the story of chess: Liam's Indian army in Asia, ornate classic shapes in old Europe,
-// and from London 1849 on the Staunton design that every tournament uses today
+// In Asia Liam plays with his Indian army: there the rook is an elephant (Haathi)
 const ASIA = ['kannauj', 'persia', 'samarkand', 'baghdad']
-const OLD_EUROPE = ['north', 'valencia', 'rome', 'palace', 'vienna', 'paris']
-const piecesAt = (id: string): BoardSkin => (ASIA.includes(id) ? 'army' : OLD_EUROPE.includes(id) ? 'palace' : 'london')
-
-// Every city can have its own painted board. Proportions like chess.com: the board spans the whole
-// phone width, no frame around it, and the pieces fill their squares
-interface BoardLook {
-  board: string
-  pieces: BoardSkin
-}
-const lookAt = (id: string): BoardLook => ({ board: id === 'london' ? 'board-london.jpg' : 'board-polo.jpg', pieces: piecesAt(id) })
-const LookContext = createContext<BoardLook>(lookAt('kannauj'))
+const ElephantContext = createContext(false)
 
 function KBoard(props: ComponentProps<typeof Board>) {
-  const look = useContext(LookContext)
+  const elephants = useContext(ElephantContext)
   return (
     <div className="king-bleed">
-      <Board {...props} skin={props.skin ?? look.pieces} boardImage={look.board} />
+      <Board elephants={elephants} {...props} />
     </div>
   )
 }
@@ -303,9 +292,9 @@ export function KingStation({ id, sub, rep }: { id?: string; sub?: string; rep: 
     )
   }
   return (
-    <LookContext.Provider value={lookAt(s.id)}>
+    <ElephantContext.Provider value={ASIA.includes(s.id)}>
       <StationScreen s={s} sub={sub} rep={rep} />
-    </LookContext.Provider>
+    </ElephantContext.Provider>
   )
 }
 
@@ -582,9 +571,8 @@ function QuizRounds({ s, quiz, boss, title, lesson }: { s: Station; quiz: QuizQu
 
 // ---------- Kannauj: the army with the Indian pieces ----------
 
-const PIECE_OF: Record<string, string> = { p: 'P', n: 'N', b: 'B', r: 'R', q: 'Q', k: 'K' }
 function IndianBoard() {
-  return <KBoard fen="rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1" orientation="white" skin="army" />
+  return <KBoard fen="rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1" orientation="white" elephants />
 }
 
 function KingArmy({ s }: { s: Station }) {
@@ -595,7 +583,7 @@ function KingArmy({ s }: { s: Station }) {
       <div className="king-legend">
         {ARMY.map((a) => (
           <div key={a.name}>
-            <img src={`${IMG}pieces/army-w${PIECE_OF[a.piece]}.png`} alt="" />
+            <b aria-hidden="true">{a.icon}</b>
             <span>{a.name}</span>
             <small>{a.is}</small>
           </div>
@@ -622,7 +610,7 @@ function KingRiddle({ s, boss }: { s: Station; boss: boolean }) {
     <div className="screen king-screen">
       <StationHead s={s} back={() => go('king/' + s.id)} title={boss ? s.boss.name : 'The riddle of the elephant'} />
       {boss && <BossCard s={s} line={s.boss.taunt} progress={(100 * (RIDDLES.length - i)) / RIDDLES.length} hearts={hearts} />}
-      <KBoard fen={elephantFen(r.at)} orientation="white" squareStyles={styles} skin="army" />
+      <KBoard fen={elephantFen(r.at)} orientation="white" squareStyles={styles} elephants />
       <div className="king-question"><span className="king-big" aria-hidden="true">🐘</span><span>{r.q}</span></div>
       <div className="king-options">
         {r.options.map((o) => (
