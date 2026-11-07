@@ -31,7 +31,7 @@ export interface Station {
   scene?: string // painted picture of the city in public/king
   games: { id: 'army' | 'riddle'; title: string }[]
   opening?: string // [Opening] of the real lines learned here
-  boss: { name: string; face: string; kind: 'army' | 'riddle' | 'london' }
+  boss: { name: string; face: string; img?: string; kind: 'army' | 'riddle' | 'london' }
 }
 
 export const STATIONS: Station[] = [
@@ -51,7 +51,7 @@ export const STATIONS: Station[] = [
       ],
     },
     games: [{ id: 'army', title: 'Meet your army' }],
-    boss: { name: 'The Captain of the Guard', face: '🛡', kind: 'army' },
+    boss: { name: 'The Captain of the Guard', face: '🛡', img: 'boss-captain.jpg', kind: 'army' },
   },
   {
     id: 'persia', name: 'Persia', year: '500s', x: 1320, y: 445, open: true, color: '#0b7285',
@@ -68,7 +68,7 @@ export const STATIONS: Station[] = [
       ],
     },
     games: [{ id: 'riddle', title: 'The riddle of the elephant' }],
-    boss: { name: 'The Indian envoy', face: '🐘', kind: 'riddle' },
+    boss: { name: 'The Indian envoy', face: '🐘', img: 'boss-envoy.jpg', kind: 'riddle' },
   },
   { id: 'samarkand', name: 'Samarkand', year: '700s', x: 1365, y: 325, open: false, color: '#1971c2', intro: '', skills: [], games: [], boss: { name: '', face: '', kind: 'army' } },
   { id: 'baghdad', name: 'Baghdad', year: '762–946', x: 1210, y: 452, open: false, color: '#5f3dc4', intro: '', skills: [], games: [], boss: { name: '', face: '', kind: 'army' } },
@@ -93,7 +93,7 @@ export const STATIONS: Station[] = [
     },
     games: [],
     opening: 'London System',
-    boss: { name: 'Lord Fog of London', face: '🎩', kind: 'london' },
+    boss: { name: 'Lord Fog of London', face: '🎩', img: 'boss-fog.jpg', kind: 'london' },
   },
   { id: 'reykjavik', name: 'Reykjavík', year: '1972', x: 745, y: 120, open: false, sea: true, color: '#a61e4d', intro: '', skills: [], games: [], boss: { name: '', face: '', kind: 'army' } },
   { id: 'newyork', name: 'New York', year: '1886–1997', x: 440, y: 322, open: false, sea: true, color: '#343a40', intro: '', skills: [], games: [], boss: { name: '', face: '', kind: 'army' } },

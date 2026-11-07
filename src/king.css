@@ -200,3 +200,17 @@
 .king-stations button b { font-family: 'Cinzel', Georgia, serif; }
 .king-stations button small { color: var(--ink-soft); opacity: 1; }
 .king-links button { background: var(--card); }
+
+/* details: year ribbons, bosses, medallions */
+.king-year { font-family: 'Cinzel', Georgia, serif; font-weight: 700; font-size: 11.5px; fill: #f3dfb0; letter-spacing: .02em; }
+.king-boss-img { width: 64px; height: 64px; border-radius: 50%; border: 2px solid var(--gilt); object-fit: cover; flex: none; }
+.path-node.king-boss .king-node-img { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; display: block; }
+.path-node.king-boss:has(.king-node-img) { padding: 4px; }
+.king-defeated { position: relative; width: 132px; height: 132px; margin: 0 auto 8px; }
+.king-defeated img { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; border: 3px solid var(--gilt); filter: grayscale(.55) sepia(.25); }
+.king-defeated span { position: absolute; right: -6px; bottom: -6px; font-size: 3rem; line-height: 1; filter: drop-shadow(0 3px 2px rgba(0, 0, 0, .3)); }
+.king-screen .path-result.perfect { color: #8f7116; font-weight: 900; }
+.king-intro-art.scene-0 img { object-position: 50% 96%; }
+.king-intro-art.scene-1 img { object-position: 50% 90%; }
+.king-intro-art { position: relative; }
+.king-intro-art img { position: absolute; inset: 0; width: 100%; height: 100%; }

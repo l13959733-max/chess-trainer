@@ -89,6 +89,15 @@ Hauptnutzung: am Handy.
 - Prozente: `src/lib/opening-stats.json`, gefüllt von `scripts/fetch-opening-stats.mjs` (Lichess-Explorer, braucht Token – NIE ins Repo; Datei `~/.config/hoppy/lichess-token`). Ohne Daten zeigt die Karte keine Prozente.
 - Nach einer Linie scrollt die Übersicht zurück zu dieser Linie (`src/lib/returnTo.ts`).
 
+## King of Chess (Lus Konzept, ab 07.11.2026)
+- Die Startseite (`#/`) ist eine Weltkarte: Prinz **Liam** aus Kannauj reitet mit seinem Pferd **Hoppy** durch 1.500 Jahre Schachgeschichte. Konzept + Prototyp: Claude-Artifact „King of Chess“.
+- **Stil B „gemalt“** (Johannas Wahl): Aquarell/Pergament, Schrift Cinzel für Überschriften. Alle Bilder in `public/king/` (KI-erzeugt mit Higgsfield/Nano Banana Pro). Neue Bilder im selben Stil erzeugen und vor dem Einbau ansehen (Orte auf der Karte prüfen!).
+- Code: `src/lib/king.ts` (Stationen mit Kartenposition auf 1800×764, Meister-Gespräche, Rätsel, Lord-Fog-Runden, Fortschritt in localStorage `chess-trainer-king`), `src/screens/King.tsx` (Karte, Intro, Station, Gespräch, Minispiele, Bosse, Kriegszelt), `src/components/KingArt.tsx`, `src/king.css` (`.king-screen` = Pergament-Design).
+- Stufe 1 offen: Kannauj, Persien, London. Andere Stationen liegen unter Nebel. Die alte Übersicht ist `#/path` („All openings“), das Kriegszelt `#/tent` verlinkt alle alten Trainer.
+- Zurück aus einer Linie landet man dort, wo sie geöffnet wurde (`src/lib/returnTo.ts`).
+- Meister erzählen **nur belegte Fakten**. Lord-Fog-Runden kommen aus den echten London-Linien (Test in `src/lib/king.test.ts`).
+- Nächste Stufen laut Konzept: Beweis-Messung aus echten Partien + Quest-Buch, weitere Stationen, Spiegelwelt (Schwarz), Arena, Varianten-Dimensionen.
+
 ## Reihenfolge
 1. Projekt-Setup, PWA, GitHub-Pages-Deploy
 2. Modul 1 komplett (Lernen, Drill, SRS) mit dem Italienisch-Repertoire

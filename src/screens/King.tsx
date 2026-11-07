@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import type { Arrow } from 'react-chessboard'
 import { ARROW, Board, LAST_MOVE } from '../components/Board'
-import { Avatar, HOPPY_INNER, LIAM_INNER, Portrait, RIDER_INNER, SHIP_INNER, TENT_INNER } from '../components/KingArt'
+import { Avatar, Portrait, SHIP_INNER } from '../components/KingArt'
 import { PathStep } from '../components/PathStep'
 import { go } from '../hooks/useHashRoute'
 import type { Puzzles } from '../hooks/usePuzzles'
@@ -12,6 +12,8 @@ import { ARMY, LORD_FOG, RIDDLES, STATIONS, TENT_AT, loadKing, saveKing, station
 import '../king.css'
 
 const IMG = import.meta.env.BASE_URL + 'king/'
+// Liam's medallion floats this far above the city
+const TOKEN_LIFT = 72
 
 function useToast(): [string | null, (t: string) => void] {
   const [text, setText] = useState<string | null>(null)
@@ -42,8 +44,9 @@ export function KingHome() {
   return <KingMap />
 }
 
+// Soft, painted-looking fog over places not discovered yet
 const FOG = (x: number, y: number) =>
-  `<g opacity=".92"><ellipse cx="${x - 14}" cy="${y - 6}" rx="34" ry="16" fill="#fff"/><ellipse cx="${x + 18}" cy="${y + 4}" rx="30" ry="14" fill="#fff"/><ellipse cx="${x}" cy="${y - 18}" rx="22" ry="13" fill="#fff"/><text x="${x}" y="${y + 2}" text-anchor="middle" font-size="22" font-weight="800" fill="#9a93ad">?</text></g>`
+  `<g filter="url(#king-fog)" opacity=".94"><ellipse cx="${x - 16}" cy="${y - 4}" rx="38" ry="18" fill="#f6eedc"/><ellipse cx="${x + 20}" cy="${y + 6}" rx="32" ry="15" fill="#efe4cc"/><ellipse cx="${x + 2}" cy="${y - 20}" rx="26" ry="15" fill="#fbf5e6"/></g><text x="${x}" y="${y + 4}" text-anchor="middle" font-family="Cinzel, Georgia, serif" font-size="22" font-weight="900" fill="#8b6b3d" opacity=".75">?</text>`
 
 function KingMap() {
   const [state, setState] = useState(loadKing)
@@ -52,6 +55,7 @@ function KingMap() {
   const token = useRef<SVGGElement>(null)
   const svg = useRef<SVGSVGElement>(null)
   const traveling = useRef(false)
+  const ship = useRef<SVGGElement>(null)
   const here = stationById(state.here) ?? STATIONS[0]
 
   // Open on the station where Liam stands
@@ -85,7 +89,7 @@ function KingMap() {
     path.setAttribute('fill', 'none')
     svg.current.appendChild(path)
     const len = path.getTotalLength()
-    if (sea) el.innerHTML = `${SHIP_INNER}<g transform="translate(-16,-32) scale(0.2)">${LIAM_INNER}</g><g transform="translate(-2,-26) scale(0.16)">${HOPPY_INNER}</g>`
+    if (ship.current) ship.current.style.display = sea ? '' : 'none'
     const reduce = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches
     const dur = reduce ? 1 : Math.min(2200, 400 + len * 2.4)
     let t0 = 0
@@ -94,7 +98,7 @@ function KingMap() {
       const t = Math.min(1, (now - t0) / dur)
       const e = t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2
       const pt = path.getPointAtLength(e * len)
-      el.setAttribute('transform', `translate(${pt.x},${pt.y - (sea ? 6 : 76)})`)
+      el.setAttribute('transform', `translate(${pt.x},${pt.y - TOKEN_LIFT})`)
       sc.scrollLeft = Math.max(0, pt.x - sc.clientWidth / 2)
       sc.scrollTop = Math.max(0, pt.y - sc.clientHeight / 2)
       if (t < 1) requestAnimationFrame(frame)
@@ -114,10 +118,15 @@ function KingMap() {
     <div className="king-map">
       <div className="king-scroll" ref={scroller}>
         <svg ref={svg} className="king-world" viewBox="0 0 1800 764" role="img" aria-label="World map of Liam's journey">
+          <defs>
+            <filter id="king-fog" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="3.2" /></filter>
+            <radialGradient id="king-glow"><stop offset="0" stopColor="#ffe08a" stopOpacity=".75" /><stop offset="1" stopColor="#ffe08a" stopOpacity="0" /></radialGradient>
+            <clipPath id="king-clip-big"><circle r="23" /></clipPath>
+            <clipPath id="king-clip-small"><circle r="9" /></clipPath>
+          </defs>
           <image href={IMG + 'worldmap.jpg'} x="0" y="0" width="1800" height="764" />
           {STATIONS.map((s) => {
             const beaten = state.beaten.includes(s.id)
-            const ring = beaten ? '#ffc531' : s.open ? '#4fc414' : '#b5afc4'
             return (
               <g
                 key={s.id}
@@ -134,30 +143,38 @@ function KingMap() {
                   }
                 }}
               >
-                {s.open && !beaten && s.id !== here.id && <circle r="30" fill={ring} opacity=".3" className="king-pulse" />}
-                <ellipse cx="0" cy="14" rx="30" ry="11" fill={ring} opacity=".3" stroke={ring} strokeWidth="3" />
-                <circle r="36" fill="transparent" />
+                {s.open && !beaten && <circle r="36" fill="url(#king-glow)" className={s.id === here.id ? '' : 'king-pulse'} />}
+                <circle r="38" fill="transparent" />
                 {beaten && (
-                  <g transform="translate(26,6)">
-                    <circle r="9" fill="#ffc531" stroke="#e0a200" strokeWidth="2" />
-                    <text y="4" fontSize="11" textAnchor="middle" fontWeight="900" fill="#fff">✓</text>
+                  <g transform="translate(30,2)" aria-hidden="true">
+                    <circle r="11" fill="#c9a227" stroke="#8f7116" strokeWidth="2.5" />
+                    <circle r="7.5" fill="none" stroke="#f3dfb0" strokeWidth="1" opacity=".8" />
+                    <text y="4.5" fontSize="12" textAnchor="middle" fontWeight="900" fill="#3b2a14">✓</text>
                   </g>
                 )}
-                <text className="king-label" y="40" textAnchor="middle">{s.name}</text>
-                <g transform="translate(0,55)">
-                  <rect x="-38" y="-10" width="76" height="16" rx="8" fill="#2b2140" opacity=".88" />
-                  <text className="king-year" y="2.5" textAnchor="middle">{s.year}</text>
+                <text className="king-label" y="42" textAnchor="middle">{s.name}</text>
+                <g transform="translate(0,57)">
+                  <rect x="-40" y="-10" width="80" height="17" rx="3" fill="#3b2a14" opacity=".9" stroke="#c9a227" strokeWidth="1" />
+                  <text className="king-year" y="3" textAnchor="middle">{s.year}</text>
                 </g>
                 {!s.open && <g pointerEvents="none" dangerouslySetInnerHTML={{ __html: FOG(0, -10) }} />}
               </g>
             )
           })}
           <g className="king-stop" transform={`translate(${TENT_AT.x},${TENT_AT.y})`} role="button" tabIndex={0} aria-label="War Tent" onClick={() => go('tent')} onKeyDown={(e) => e.key === 'Enter' && go('tent')}>
-            <g dangerouslySetInnerHTML={{ __html: TENT_INNER }} />
-            <text className="king-label" y="24" textAnchor="middle">War Tent</text>
+            <Medallion img="tent.jpg" />
+            <text className="king-label" y="44" textAnchor="middle">War Tent</text>
           </g>
-          <g ref={token} transform={`translate(${here.x},${here.y - 76})`}>
-            <g className="king-bob" dangerouslySetInnerHTML={{ __html: RIDER_INNER }} />
+          <g ref={token} transform={`translate(${here.x},${here.y - TOKEN_LIFT})`} aria-label="Prince Liam and Hoppy are here">
+            <g className="king-bob">
+              <path d="M-8,24 L0,40 L8,24 Z" fill="#8b6b3d" />
+              <Medallion img="liam.jpg" />
+              <g transform="translate(20,18)">
+                <circle r="11.5" fill="#c9a227" stroke="#5c3d12" strokeWidth="1.5" />
+                <image href={IMG + 'hoppy.jpg'} x="-9" y="-9" width="18" height="18" clipPath="url(#king-clip-small)" preserveAspectRatio="xMidYMid slice" />
+              </g>
+              <g ref={ship} style={{ display: 'none' }} transform="translate(-24,22) scale(.7)" dangerouslySetInnerHTML={{ __html: SHIP_INNER }} />
+            </g>
           </g>
         </svg>
       </div>
@@ -179,6 +196,17 @@ function KingMap() {
         <button type="button" onClick={() => go('watch')}><span aria-hidden="true">👫</span>Together</button>
       </nav>
     </div>
+  )
+}
+
+// A round painted picture in a gold frame (Liam on the map, the War Tent)
+function Medallion({ img }: { img: string }) {
+  return (
+    <g>
+      <circle r="27" fill="#c9a227" stroke="#5c3d12" strokeWidth="2" />
+      <image href={IMG + img} x="-23" y="-23" width="46" height="46" clipPath="url(#king-clip-big)" preserveAspectRatio="xMidYMid slice" />
+      <circle r="23" fill="none" stroke="#5c3d12" strokeWidth="1.2" />
+    </g>
   )
 }
 
@@ -301,7 +329,7 @@ function StationPage({ s, rep }: { s: Station; rep: Repertoire }) {
         ))}
         <div className="path-step">
           <button type="button" className={`path-node king-boss ${beaten ? 'beaten' : ''}`} onClick={() => go(`king/${s.id}/boss`)} aria-label={`Boss: ${s.boss.name}`}>
-            {beaten ? '✓' : s.boss.face}
+            {beaten ? '✓' : s.boss.img ? <img className="king-node-img" src={IMG + s.boss.img} alt="" /> : s.boss.face}
           </button>
           <div className="path-label">Boss: {s.boss.name}</div>
           {beaten && <div className="path-result perfect">Beaten</div>}
@@ -381,6 +409,10 @@ function KingArmy({ s }: { s: Station }) {
   )
 }
 
+function BossFace({ s }: { s: Station }) {
+  return s.boss.img ? <img className="king-boss-img" src={IMG + s.boss.img} alt="" /> : <BossFace s={s} />
+}
+
 function Hearts({ n }: { n: number }) {
   return <span className="king-hearts" aria-label={`${n} hearts left`}>{'♥'.repeat(Math.max(n, 0))}{'♡'.repeat(Math.max(3 - n, 0))}</span>
 }
@@ -398,7 +430,10 @@ function Victory({ s, text }: { s: Station; text: string }) {
   return (
     <div className="screen king-screen">
       <div className="done">
-        <div className="king-medal" aria-hidden="true">🏅</div>
+        <div className="king-defeated" aria-hidden="true">
+          {s.boss.img && <img src={IMG + s.boss.img} alt="" />}
+          <span>🏅</span>
+        </div>
         <div className="done-title">{s.boss.name} is beaten!</div>
         <p>{text}</p>
         <div className="done-actions">
@@ -437,7 +472,7 @@ function ArmyQuiz({ s }: { s: Station }) {
     <div className="screen king-screen">
       <StationHead s={s} back={() => go('king/' + s.id)} title={s.boss.name} />
       <div className="king-boss-card">
-        <span className="king-face" aria-hidden="true">{s.boss.face}</span>
+        <BossFace s={s} />
         <div>
           <q>Only those who know their army may pass!</q>
           <Hearts n={hearts} />
@@ -511,7 +546,7 @@ function KingRiddle({ s, boss }: { s: Station; boss: boolean }) {
       <StationHead s={s} back={() => go('king/' + s.id)} title={boss ? s.boss.name : 'The riddle of the elephant'} />
       {boss && (
         <div className="king-boss-card">
-          <span className="king-face" aria-hidden="true">{s.boss.face}</span>
+          <BossFace s={s} />
           <div>
             <q>Work out the game – or Persia pays!</q>
             <Hearts n={hearts} />
@@ -569,7 +604,7 @@ function LordFog({ s }: { s: Station }) {
     <div className="screen king-screen">
       <StationHead s={s} back={() => go('king/' + s.id)} title={s.boss.name} />
       <div className="king-boss-card">
-        <span className="king-face" aria-hidden="true">{s.boss.face}</span>
+        <BossFace s={s} />
         <div>
           <q>{r.taunt}</q>
           <div className="king-hp"><span style={{ width: `${(100 * (LORD_FOG.length - i)) / LORD_FOG.length}%` }} /></div>
