@@ -197,9 +197,9 @@ function KingMap() {
               </g>
             )
           })}
-          <g className="king-stop" transform={`translate(${TENT_AT.x},${TENT_AT.y})`} role="button" tabIndex={0} aria-label="War Tent" onClick={() => go('tent')} onKeyDown={(e) => e.key === 'Enter' && go('tent')}>
+          <g className="king-stop" transform={`translate(${TENT_AT.x},${TENT_AT.y})`} role="button" tabIndex={0} aria-label="Training Camp" onClick={() => go('tent')} onKeyDown={(e) => e.key === 'Enter' && go('tent')}>
             <Medallion img="tent.jpg" />
-            <text className="king-label" y="44" textAnchor="middle">War Tent</text>
+            <text className="king-label" y="44" textAnchor="middle">Training Camp</text>
           </g>
           <g ref={token} transform={`translate(${here.x},${here.y - TOKEN_LIFT})`} aria-label="Prince Liam and Hoppy are here">
             <g className="king-bob">
@@ -234,7 +234,7 @@ function KingMap() {
       </div>
       {toast && <div className="king-toast" role="status">{toast}</div>}
       <nav className="king-dock" aria-label="Places">
-        <button type="button" onClick={() => go('tent')}><span aria-hidden="true">⛺</span>War Tent</button>
+        <button type="button" onClick={() => go('tent')}><span aria-hidden="true">⛺</span>Training Camp</button>
         {state.beaten.includes('kannauj') ? (
           <button type="button" className="dock-portal" onClick={() => go('portal')}><span aria-hidden="true">🌀</span>Real world</button>
         ) : (
@@ -1457,7 +1457,7 @@ export function WarmUp({ rep }: { rep: Repertoire }) {
       ...lineRounds(due.length >= 2 ? due : white, 2),
     ]
   })
-  const tent = { ...stationById('kannauj')!, id: 'tent', name: 'War Tent', year: 'before your game' }
+  const tent = { ...stationById('kannauj')!, id: 'tent', name: 'Training Camp', year: 'before your game' }
   return (
     <BoardContext.Provider value={{ elephants: false, palette: 'walnut' }}>
       <BoardRounds
@@ -1473,7 +1473,7 @@ export function WarmUp({ rep }: { rep: Repertoire }) {
               <div className="done-title">Ready for battle</div>
               <p>Before every move: what does your opponent threaten? Good luck – on chess.com you fight alone.</p>
               <div className="done-actions">
-                <button type="button" onClick={() => go('tent')}>War Tent</button>
+                <button type="button" onClick={() => go('tent')}>Training Camp</button>
                 <a className="button primary" href="https://www.chess.com/play/online" target="_blank" rel="noopener">Play on chess.com</a>
               </div>
             </div>
@@ -1494,7 +1494,7 @@ export function WarTent({ puzzles }: { puzzles: Puzzles }) {
         <button type="button" className="back" onClick={() => go('')} aria-label="Back to the world map">←</button>
         <div>
           <div className="eyebrow">Your camp · it travels with you</div>
-          <h2>The War Tent</h2>
+          <h2>The Training Camp</h2>
         </div>
       </div>
       <div className="king-banner">

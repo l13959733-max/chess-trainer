@@ -60,9 +60,9 @@ export function ChessCheck({ rep }: { rep: Repertoire }) {
 function Head({ title }: { title: string }) {
   return (
     <div className="screen-head">
-      <button type="button" className="back" onClick={() => go('tent')} aria-label="Back to the War Tent">←</button>
+      <button type="button" className="back" onClick={() => go('tent')} aria-label="Back to the Training Camp">←</button>
       <div>
-        <div className="eyebrow">War Tent · chess check</div>
+        <div className="eyebrow">Training Camp · chess check</div>
         <h2>{title}</h2>
       </div>
     </div>
