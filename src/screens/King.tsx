@@ -224,16 +224,13 @@ function Medallion({ img }: { img: string }) {
   )
 }
 
-// ---------- the board of the game: painted pieces in a carved frame ----------
+// ---------- the board of the game: it changes with the place and the time ----------
 
-const SKIN_KEY = 'chess-trainer-board-skin'
-function boardSkin(): BoardSkin {
-  try {
-    return localStorage.getItem(SKIN_KEY) === 'palace' ? 'palace' : 'army'
-  } catch {
-    return 'army'
-  }
-}
+// The pieces tell the story of chess: Liam's Indian army in Asia, ornate classic shapes in old Europe,
+// and from London 1849 on the Staunton design that every tournament uses today
+const ASIA = ['kannauj', 'persia', 'samarkand', 'baghdad']
+const OLD_EUROPE = ['north', 'valencia', 'rome', 'palace', 'vienna', 'paris']
+const piecesAt = (id: string): BoardSkin => (ASIA.includes(id) ? 'army' : OLD_EUROPE.includes(id) ? 'palace' : 'london')
 
 // Every city can have its own board: painted squares, a frieze above and below, a rim around it
 interface BoardLook {
@@ -241,89 +238,21 @@ interface BoardLook {
   top: string
   bottom: string
   rim: string
-  // pieces that belong to the place (London: the Staunton design of 1849)
-  pieces?: BoardSkin
+  pieces: BoardSkin
 }
-const POLO: BoardLook = { board: 'board-polo.jpg', top: 'polo-top.jpg', bottom: 'polo-bottom.jpg', rim: 'walnut.jpg' }
-const LOOKS: Record<string, BoardLook> = {
-  london: { board: 'board-london.jpg', top: 'london-top.jpg', bottom: 'london-bottom.jpg', rim: 'leather.jpg', pieces: 'palace' },
-}
-const LookContext = createContext<BoardLook>(POLO)
+const POLO = { board: 'board-polo.jpg', top: 'polo-top.jpg', bottom: 'polo-bottom.jpg', rim: 'walnut.jpg' }
+const LONDON = { board: 'board-london.jpg', top: 'london-top.jpg', bottom: 'london-bottom.jpg', rim: 'leather.jpg' }
+const lookAt = (id: string): BoardLook => ({ ...(id === 'london' ? LONDON : POLO), pieces: piecesAt(id) })
+const LookContext = createContext<BoardLook>(lookAt('kannauj'))
 
 function KBoard(props: ComponentProps<typeof Board>) {
   const look = useContext(LookContext)
-  const skin = props.skin ?? look.pieces ?? boardSkin()
   return (
     <div className="king-frame" style={{ backgroundImage: `url(${IMG}${look.rim})` }}>
       <img className="king-frieze" src={IMG + look.top} alt="" />
-      <Board {...props} skin={skin} boardImage={look.board} />
+      <Board {...props} skin={props.skin ?? look.pieces} boardImage={look.board} />
       <img className="king-frieze" src={IMG + look.bottom} alt="" />
     </div>
-  )
-}
-
-const BOARD_LOOKS: { skin: BoardSkin; name: string; text: string }[] = [
-  { skin: 'army', name: "Liam's army", text: 'The old Indian army: elephants with towers, camels, horses, the counselor and the raja.' },
-  { skin: 'palace', name: 'The palace set', text: 'The classic shapes you know from every game, carved in ivory and ebony with gold.' },
-]
-
-// Prototype: both boards side by side, playable, one tap to choose
-export function BoardLab() {
-  const [skin, setSkin] = useState(boardSkin)
-  return (
-    <div className="screen king-screen">
-      <div className="screen-head">
-        <button type="button" className="back" onClick={() => go('')} aria-label="Back to the world map">←</button>
-        <div>
-          <div className="eyebrow">Prototype</div>
-          <h2>Choose your pieces</h2>
-        </div>
-      </div>
-      {BOARD_LOOKS.map((b) => (
-        <section key={b.skin} className={`king-look ${skin === b.skin ? 'on' : ''}`}>
-          <b className="king-look-name">{b.name}</b>
-          <p>{b.text}</p>
-          <FreeBoard skin={b.skin} />
-          <button
-            type="button"
-            className={skin === b.skin ? 'primary wide' : 'wide'}
-            onClick={() => {
-              try {
-                localStorage.setItem(SKIN_KEY, b.skin)
-              } catch {
-                // private mode: the choice is only kept for this visit
-              }
-              setSkin(b.skin)
-              fx.success()
-            }}
-          >
-            {skin === b.skin ? '✓ Your pieces' : 'Use these pieces'}
-          </button>
-        </section>
-      ))}
-    </div>
-  )
-}
-
-// Any legal move, both sides – to feel the pieces glide
-function FreeBoard({ skin }: { skin: BoardSkin }) {
-  const [fen, setFen] = useState(new Chess().fen())
-  const [last, setLast] = useState<{ from: string; to: string } | null>(null)
-  return (
-    <KBoard
-      skin={skin}
-      fen={fen}
-      orientation="white"
-      squareStyles={last ? { [last.from]: LAST_MOVE, [last.to]: LAST_MOVE } : {}}
-      onMove={(from, to) => {
-        const c = new Chess(fen)
-        const m = c.move({ from, to, promotion: 'q' })
-        fx.move(m.san)
-        setFen(c.fen())
-        setLast({ from, to })
-        return true
-      }}
-    />
   )
 }
 
@@ -380,7 +309,7 @@ export function KingStation({ id, sub, rep }: { id?: string; sub?: string; rep: 
     )
   }
   return (
-    <LookContext.Provider value={LOOKS[s.id] ?? POLO}>
+    <LookContext.Provider value={lookAt(s.id)}>
       <StationScreen s={s} sub={sub} rep={rep} />
     </LookContext.Provider>
   )

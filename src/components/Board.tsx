@@ -15,22 +15,21 @@ interface Props {
   boardImage?: string
 }
 
-export type BoardSkin = 'army' | 'palace'
+export type BoardSkin = 'army' | 'palace' | 'london'
 const PIECES = ['wP', 'wN', 'wB', 'wR', 'wQ', 'wK', 'bP', 'bN', 'bB', 'bR', 'bQ', 'bK']
 const skinPieces = (skin: BoardSkin) =>
   Object.fromEntries(
     PIECES.map((p) => [
       p,
-      // The piece stands on its square: base low in the square, a soft painted shadow on the ground
+      // Flat pieces with a clear outline, centred in the square like a chess diagram – they belong to the board
       () => (
-        <span className="skin-piece">
-          <span className="skin-shadow" />
+        <span className={`skin-piece ${p[0]}`}>
           <img src={`${import.meta.env.BASE_URL}king/pieces/${skin}-${p}.png`} alt="" draggable={false} />
         </span>
       ),
     ]),
   )
-const SKIN_PIECES = { army: skinPieces('army'), palace: skinPieces('palace') }
+const SKIN_PIECES = { army: skinPieces('army'), palace: skinPieces('palace'), london: skinPieces('london') }
 
 const SELECTED: CSSProperties = { backgroundColor: 'rgba(255, 214, 102, 0.6)' }
 // The king in check glows red, so a check is never missed
