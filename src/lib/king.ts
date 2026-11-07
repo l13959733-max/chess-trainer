@@ -97,9 +97,9 @@ export const ROOK_MATES: BoardRound[] = [
 ]
 
 export const QUEEN_TACTICS: BoardRound[] = [
-  { fen: 'r3k3/8/8/8/8/8/8/3QK3 w - - 0 1', taunt: 'Now I can go anywhere – and so can you?', from: 'd1', to: 'a4', san: 'Qa4+', why: 'Qa4+ checks along the diagonal and attacks the rook on a8 – a queen fork.' },
+  { fen: '6k1/8/8/n7/8/8/8/3Q2K1 w - - 0 1', taunt: 'Now I can go anywhere – and so can you?', from: 'd1', to: 'd5', san: 'Qd5+', why: 'Qd5+ checks along the diagonal and attacks the knight on a5 – a queen fork. The knight cannot take the queen, so after the king moves, Qxa5 wins it.' },
   { fen: '6k1/5ppp/8/8/8/8/5PPP/3Q2K1 w - - 0 1', taunt: 'My pawns protect me!', from: 'd1', to: 'd8', san: 'Qd8#', why: 'Qd8# – the queen crosses the whole board in one move. Before 1475 that was impossible!' },
-  { fen: 'k7/8/1K6/8/8/8/8/7Q w - - 0 1', taunt: 'From the far corner you cannot reach me!', from: 'h1', to: 'h8', san: 'Qh8#', why: 'Qh8# – the queen sweeps along the back rank, your king covers the escape squares.' },
+  { fen: 'k7/8/1K6/8/8/8/7Q/8 w - - 0 1', taunt: 'From the far corner you cannot reach me!', from: 'h2', to: 'h8', san: 'Qh8#', why: 'Qh8# – the queen sweeps along the back rank, your king covers the escape squares.' },
 ]
 
 // Lord Fog plays Black and picks from the London lines; you answer with the move from the line
