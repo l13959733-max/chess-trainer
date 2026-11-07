@@ -1,5 +1,5 @@
 import { Chess } from 'chess.js'
-import { useEffect, useMemo, useRef, useState, type ComponentProps, type CSSProperties } from 'react'
+import { createContext, useContext, useEffect, useMemo, useRef, useState, type ComponentProps, type CSSProperties } from 'react'
 import type { Arrow } from 'react-chessboard'
 import { ARROW, Board, LAST_MOVE, type BoardSkin } from '../components/Board'
 import { Avatar, Portrait, SHIP_INNER } from '../components/KingArt'
@@ -235,14 +235,29 @@ function boardSkin(): BoardSkin {
   }
 }
 
+// Every city can have its own board: painted squares, a frieze above and below, a rim around it
+interface BoardLook {
+  board: string
+  top: string
+  bottom: string
+  rim: string
+  // pieces that belong to the place (London: the Staunton design of 1849)
+  pieces?: BoardSkin
+}
+const POLO: BoardLook = { board: 'board-polo.jpg', top: 'polo-top.jpg', bottom: 'polo-bottom.jpg', rim: 'walnut.jpg' }
+const LOOKS: Record<string, BoardLook> = {
+  london: { board: 'board-london.jpg', top: 'london-top.jpg', bottom: 'london-bottom.jpg', rim: 'leather.jpg', pieces: 'palace' },
+}
+const LookContext = createContext<BoardLook>(POLO)
+
 function KBoard(props: ComponentProps<typeof Board>) {
-  const skin = props.skin ?? boardSkin()
-  // The Persian polo board: painted riders above and below, a walnut rim around it
+  const look = useContext(LookContext)
+  const skin = props.skin ?? look.pieces ?? boardSkin()
   return (
-    <div className="king-frame" style={{ backgroundImage: `url(${IMG}walnut.jpg)` }}>
-      <img className="king-frieze" src={IMG + 'polo-top.jpg'} alt="" />
-      <Board {...props} skin={skin} />
-      <img className="king-frieze" src={IMG + 'polo-bottom.jpg'} alt="" />
+    <div className="king-frame" style={{ backgroundImage: `url(${IMG}${look.rim})` }}>
+      <img className="king-frieze" src={IMG + look.top} alt="" />
+      <Board {...props} skin={skin} boardImage={look.board} />
+      <img className="king-frieze" src={IMG + look.bottom} alt="" />
     </div>
   )
 }
@@ -261,7 +276,7 @@ export function BoardLab() {
         <button type="button" className="back" onClick={() => go('')} aria-label="Back to the world map">←</button>
         <div>
           <div className="eyebrow">Prototype</div>
-          <h2>Choose your board</h2>
+          <h2>Choose your pieces</h2>
         </div>
       </div>
       {BOARD_LOOKS.map((b) => (
@@ -282,7 +297,7 @@ export function BoardLab() {
               fx.success()
             }}
           >
-            {skin === b.skin ? '✓ Your board' : 'Use this board'}
+            {skin === b.skin ? "✓ Your pieces" : "Use these pieces"}
           </button>
         </section>
       ))}
@@ -364,6 +379,14 @@ export function KingStation({ id, sub, rep }: { id?: string; sub?: string; rep: 
       </div>
     )
   }
+  return (
+    <LookContext.Provider value={LOOKS[s.id] ?? POLO}>
+      <StationScreen s={s} sub={sub} rep={rep} />
+    </LookContext.Provider>
+  )
+}
+
+function StationScreen({ s, sub, rep }: { s: Station; sub?: string; rep: Repertoire }) {
   // Keys: a quest and its boss can share a screen, but each starts fresh
   switch (sub) {
     case 'talk': return <KingTalk s={s} />

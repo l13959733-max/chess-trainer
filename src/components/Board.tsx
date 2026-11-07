@@ -11,6 +11,8 @@ interface Props {
   squareStyles?: Record<string, CSSProperties>
   // King of Chess: painted pieces and a carved board instead of the plain one
   skin?: BoardSkin
+  // the painted board under the squares (file in public/king)
+  boardImage?: string
 }
 
 export type BoardSkin = 'army' | 'palace'
@@ -37,7 +39,7 @@ const DOT: CSSProperties = { background: 'radial-gradient(circle, rgba(20,23,28,
 const RING: CSSProperties = { background: 'radial-gradient(circle, transparent 58%, rgba(20,23,28,0.35) 60%)', animation: 'dot-pop 0.16s ease-out' }
 
 // Board with dragging AND tapping (tap a piece, then the target square) – often easier on a phone.
-export function Board({ fen, orientation, onMove, arrows = [], squareStyles = {}, skin }: Props) {
+export function Board({ fen, orientation, onMove, arrows = [], squareStyles = {}, skin, boardImage = 'board-polo.jpg' }: Props) {
   // A board always opens at the top of the screen, ready to play – also when it appears on the same page
   // (e.g. after "Start game"), where the browser would otherwise stay scrolled down at the button.
   // Braces matter: new Chrome returns a promise from scrollTo, and React would call it as a cleanup (white screen)
@@ -114,7 +116,7 @@ export function Board({ fen, orientation, onMove, arrows = [], squareStyles = {}
         darkSquareStyle: skin ? { backgroundColor: 'transparent' } : { backgroundColor: 'var(--board-dark)' },
         ...(skin && {
           pieces: SKIN_PIECES[skin],
-          boardStyle: { backgroundImage: `url(${import.meta.env.BASE_URL}king/board-polo.jpg)`, backgroundSize: '100% 100%' },
+          boardStyle: { backgroundImage: `url(${import.meta.env.BASE_URL}king/${boardImage})`, backgroundSize: '100% 100%' },
           lightSquareNotationStyle: { color: 'var(--skin-dark-ink)' },
           darkSquareNotationStyle: { color: 'var(--skin-light-ink)' },
         }),
