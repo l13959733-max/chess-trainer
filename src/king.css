@@ -318,3 +318,6 @@
 .king-screen .quest-row.complete { background: rgba(60, 120, 60, 0.12); }
 .king-screen .quest-row.locked { opacity: 0.5; }
 .king-screen .quest-mark { width: 1.6em; text-align: center; font-size: 1.2em; flex: none; }
+
+/* intro: the street kid story (painted scenes, faces in the middle-lower part) */
+.king-intro-art.street img { object-position: 50% 70%; }

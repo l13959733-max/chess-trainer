@@ -199,9 +199,10 @@ function KingMap() {
           })}
           <g className="king-stop" transform={`translate(${TENT_AT.x},${TENT_AT.y})`} role="button" tabIndex={0} aria-label="Training Camp" onClick={() => go('tent')} onKeyDown={(e) => e.key === 'Enter' && go('tent')}>
             <Medallion img="tent.jpg" />
-            <text className="king-label" y="44" textAnchor="middle">Training Camp</text>
+            <text className="king-label" y="44" textAnchor="middle">Training</text>
+            <text className="king-label" y="62" textAnchor="middle">Camp</text>
           </g>
-          <g ref={token} transform={`translate(${here.x},${here.y - TOKEN_LIFT})`} aria-label="Prince Liam and Hoppy are here">
+          <g ref={token} transform={`translate(${here.x},${here.y - TOKEN_LIFT})`} aria-label="Liam and Hoppy are here">
             <g className="king-bob">
               <path d="M-8,24 L0,40 L8,24 Z" fill="#8b6b3d" />
               <Medallion img="liam.jpg" />
@@ -224,7 +225,7 @@ function KingMap() {
           {crowned ? (
             <>All hail <b>King Liam</b>! You conquered the whole world of chess.</>
           ) : beatenCount === 0 ? (
-            <>Prince Liam, our journey starts in <b>Kannauj</b>. Tap a city to travel!</>
+            <>Liam, our journey starts in <b>Kannauj</b>. Tap a city to travel!</>
           ) : beatenCount === BOSSES ? (
             <>Every boss is beaten. <b>Chennai</b> awaits – the crown is near!</>
           ) : (
@@ -284,9 +285,9 @@ function KBoard(props: ComponentProps<typeof Board>) {
 // ---------- intro ----------
 
 const SCENES = [
-  { kicker: 'Kannauj, India · around the year 600', title: 'An army small enough to fit on a table', text: 'Foot soldiers, horses, chariots and elephants on 64 squares. Nobody knows who invented it.' },
-  { kicker: 'Persia · the Book of Kings', title: 'A riddle on a silk letter', text: '"Work out how this game is played – or Persia pays India." And the game begins to travel.' },
-  { kicker: '1,500 years · around the world', title: 'Follow the game. Become King of Chess.', text: 'Prince Liam and Hoppy learn from the masters and defeat the bosses. It is a war where nobody bleeds.' },
+  { img: 'street-bazaar.jpg', alt: 'Liam, a barefoot street kid, plays a trader on a board scratched into the dust of the bazaar, with pebbles as pieces and a chestnut as the stake', kicker: 'Kannauj, India · the bazaar', title: 'No home, no shoes – but a board in the dust', text: 'Liam plays the traders with pebbles for pieces. One chestnut a game.' },
+  { img: 'street-lu.jpg', alt: 'The old Grandmaster Lu kneels at the dust board and smiles while Liam points at a hidden trap', kicker: 'The old Grandmaster Lu', title: '“A king is not born. He is made – move by move.”', text: 'Liam sees the trap that every trader missed. “The Shadow King feeds on blunders,” says Lu. “Will you stop him?”' },
+  { img: 'street-ride.jpg', alt: 'At sunrise Liam rides out of the city gate on Hoppy, an old brown cart horse, while Grandmaster Lu waves goodbye', kicker: 'Sunrise · the road west', title: 'A pawn who wants to become king', text: 'Lu gives him Hoppy, an old cart horse that nobody wanted. Two outsiders ride out to learn from the masters.' },
 ]
 
 function KingIntro({ onDone }: { onDone: () => void }) {
@@ -294,14 +295,8 @@ function KingIntro({ onDone }: { onDone: () => void }) {
   const s = SCENES[i]
   return (
     <div className="king-intro">
-      <div className={`king-intro-art scene-${i}`}>
-        {i === 0 ? (
-          <img src={IMG + 'kannauj.jpg'} alt="Prince Liam kneels at the first chessboard in a palace in Kannauj, his horse Hoppy behind him" />
-        ) : i === 1 ? (
-          <img src={IMG + 'persia.jpg'} alt="At the Persian court an envoy with an elephant has brought a chessboard and a riddle" />
-        ) : (
-          <img className="map-crop" src={IMG + 'worldmap.jpg'} alt="The painted world map of the journey" />
-        )}
+      <div className="king-intro-art street">
+        <img src={IMG + s.img} alt={s.alt} />
       </div>
       <div className="king-intro-text">
         <span className="king-kicker">{s.kicker}</span>

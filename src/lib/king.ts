@@ -1,4 +1,4 @@
-// King of Chess: Prince Liam and Hoppy follow the game through 1,500 years of history.
+// King of Chess: Liam, a street kid, and his horse Hoppy follow the game through 1,500 years of history.
 // Every station is open except Chennai, the finale, which opens when all other bosses are beaten.
 // Facts the masters tell are checked against sources before they go in (see CLAUDE.md).
 import type { Line } from './pgn'
@@ -192,7 +192,7 @@ export const STATIONS: Station[] = [
     master: {
       img: 'bana.jpg', name: 'Bana, the court poet', from: "King Harsha's court, 600s", ...BROWN, coat: '#e8590c', beard: true,
       talk: [
-        { who: 'master', text: "Welcome, Prince Liam. I write the story of King Harsha's court here in Kannauj." },
+        { who: 'master', text: "Welcome, Liam. I write the story of King Harsha's court here in Kannauj." },
         { who: 'liam', text: 'What is that board with all the little soldiers?' },
         { who: 'master', text: 'Our whole army: foot soldiers, horses, chariots and elephants. The four members of an army – chaturanga!' },
         { who: 'master', text: 'In my book I joke that our kingdom is so peaceful, armies are only drawn up on chessboards.' },
@@ -233,7 +233,7 @@ export const STATIONS: Station[] = [
     master: {
       img: 'farrukh.jpg', name: 'Farrukh, a merchant', from: 'Silk Road market, 700s', ...BROWN, coat: '#1971c2', beard: true,
       talk: [
-        { who: 'master', text: 'Welcome to Samarkand, Prince Liam! Caravans from India, Persia and China all meet in this market.' },
+        { who: 'master', text: 'Welcome to Samarkand, Liam! Caravans from India, Persia and China all meet in this market.' },
         { who: 'liam', text: 'What are these tiny ivory figures?' },
         { who: 'master', text: 'Seven chess pieces: a king, a counselor, a chariot, an elephant, two horsemen and a foot soldier. Not abstract shapes – a little army.' },
         { who: 'hoppy', text: 'In 1977 archaeologists found a set just like this in the ruins of Afrasiab, right here – some of the oldest chess pieces known!' },
@@ -278,7 +278,7 @@ export const STATIONS: Station[] = [
     master: {
       img: 'astrid.jpg', name: 'Astrid, a carver', from: 'Workshop in Trondheim, 1100s', skin: '#f2c9a0', hair: '#d9b45a', coat: '#495057',
       talk: [
-        { who: 'master', text: 'Hej, Prince Liam! I carve chessmen from walrus ivory.' },
+        { who: 'master', text: 'Hej, Liam! I carve chessmen from walrus ivory.' },
         { who: 'master', text: 'Look at the rooks: warriors biting their shields. We call them berserkers.' },
         { who: 'master', text: 'Where you have an elephant, we have a bishop. Some say the two points of the old elephant piece looked like a bishop’s hat to us.' },
         { who: 'hoppy', text: 'Fun fact from the future: in 1831 a whole hoard of pieces like these was found on the Isle of Lewis in Scotland!' },
@@ -327,7 +327,7 @@ export const STATIONS: Station[] = [
     ],
     lines: { opening: ['Italian Game', 'Two Knights Defense', 'Petrov Defense', 'Philidor Defense'], side: 'w' },
     fact: 'One of the oldest openings: Italian masters like Polerio and Greco studied it around 1600. “Giuoco Piano” is Italian for “quiet game”.',
-    boss: { name: 'Count Giuoco', face: '🎩', img: 'boss-giuoco.jpg', kind: 'mixed', taunt: 'Show me your Italian, little prince!', win: 'Count Giuoco takes off his feathered hat. You know how to react after 1.e4 e5.' },
+    boss: { name: 'Count Giuoco', face: '🎩', img: 'boss-giuoco.jpg', kind: 'mixed', taunt: 'Show me your Italian, little pawn!', win: 'Count Giuoco takes off his feathered hat. You know how to react after 1.e4 e5.' },
   },
   {
     id: 'palace', name: "Queen's Palace", year: 'around 1490', x: 955, y: 212, medallion: true, color: '#7048e8',
@@ -363,7 +363,7 @@ export const STATIONS: Station[] = [
     },
     games: [{ id: 'turk', title: 'Who is inside the box?', extra: true }],
     lines: { opening: 'Vienna Game', side: 'w' },
-    boss: { name: 'The Turk', face: '🤖', img: 'boss-turk.jpg', kind: 'lines', taunt: 'Click… whirr… your move, young prince.', win: 'The Turk’s arm stops. Whoever is inside – you were better.' },
+    boss: { name: 'The Turk', face: '🤖', img: 'boss-turk.jpg', kind: 'lines', taunt: 'Click… whirr… your move, little pawn.', win: 'The Turk’s arm stops. Whoever is inside – you were better.' },
   },
   {
     id: 'paris', name: 'Paris', year: '1740–1858', x: 900, y: 298, color: '#1864ab',
@@ -391,7 +391,7 @@ export const STATIONS: Station[] = [
     master: {
       img: 'mason.jpg', name: 'James Mason', from: 'Master of the London System', skin: '#f2c9a0', hair: '#8a6a4a', coat: '#364fc7', mustache: true, hat: true,
       talk: [
-        { who: 'master', text: 'Good day, Prince Liam – and good day, Hoppy. Welcome to London.' },
+        { who: 'master', text: 'Good day, Liam – and good day, Hoppy. Welcome to London.' },
         { who: 'liam', text: 'Why is this system called London?' },
         { who: 'master', text: 'At the big London tournament of 1922 it was played seven times. That gave it the name.' },
         { who: 'master', text: 'The secret: bring your bishop to f4 before you play e3. Then build a strong pawn chain. And beware of Lord Fog!' },
@@ -503,14 +503,14 @@ export const STATIONS: Station[] = [
     master: {
       img: 'meera.jpg', name: 'Meera, a chess coach', from: 'Chennai, today', ...BROWN, coat: '#5b36c9',
       talk: [
-        { who: 'master', text: 'Welcome home, Prince Liam. The game began in India – and now it has come back.' },
+        { who: 'master', text: 'Welcome home, Liam. The game began in India – and now it has come back.' },
         { who: 'master', text: 'In 1988 Viswanathan Anand became India’s first grandmaster. In 2024 Gukesh from Chennai became world champion at 18.' },
         { who: 'master', text: 'Now show everything you learned on your journey. Win the Grand Tour – and the crown is yours.' },
         { who: 'hoppy', text: 'All the bosses at once? Let’s go, Liam!' },
       ],
     },
     games: [],
-    boss: { name: 'The King of Chess', face: '♚', img: 'boss-king.jpg', kind: 'grand', taunt: 'Only a true king may sit on this throne.', win: 'Prince Liam is now the King of Chess!' },
+    boss: { name: 'The King of Chess', face: '♚', img: 'boss-king.jpg', kind: 'grand', taunt: 'Only a true king may sit on this throne.', win: 'The street kid from Kannauj is now the King of Chess!' },
   },
 ]
 
