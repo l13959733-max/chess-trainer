@@ -100,8 +100,7 @@ Hauptnutzung: am Handy.
 - **Alle 17 Stationen gebaut** (07.11.): Kannauj, Persien, Samarkand, Bagdad, Der Norden, Valencia, Rom, Queen's Palace, Wien, Paris, London, Winterwald, Reykjavík, New York, Rio, Orbit, Chennai (Finale, öffnet erst wenn alle 16 anderen Bosse besiegt sind, `isOpen`). Jede Station: Bild, Meister mit Gespräch, Quests (`games`), eigene Linien (`lines` = Kapitel aus dem Repertoire) und ein Boss (`boss.kind`: army, riddle, board, lines, quiz, cross, krk, grand).
 - Spiele (King.tsx): `BoardRounds` (Züge finden, 3 Herzen), `QuizRounds`, `KingSquares` (Blind-Felder), `KingQueen`, `CrossRounds` (welche Eröffnung wann), `KingRook` (Matt mit K+T gegen die „Maschine“), `Shuffle` (Chess960), `GrandTour`.
 - Linien-Bosse (`lineRounds` in king.ts) fragen **nur Stellungen mit genau einer Antwort** im Buch der Station (z. B. Wiener: 3.f4 und 3.Bc4 beide richtig → wird nicht gefragt). Test sichert das ab.
-- Bildnamen: Szene `<id>.jpg` (614×1100), Meister `<name>.jpg`, Boss `boss-<name>.jpg` (360×360). Klick-Test aller Städte: Playwright-Skript `king-all.mjs` (Scratchpad, liest Antworten direkt aus `src/lib/king.ts` im Dev-Server).
-- Die alte Übersicht ist `#/path` („All openings“), das Kriegszelt `#/tent` verlinkt alle alten Trainer.
+- Bildnamen: Szene `<id>.jpg` (614×1100), Meister `<name>.jpg`, Boss `boss-<name>.jpg` (360×360).- Die alte Übersicht ist `#/path` („All openings“), das Kriegszelt `#/tent` verlinkt alle alten Trainer.
 - Zurück aus einer Linie landet man dort, wo sie geöffnet wurde (`src/lib/returnTo.ts`).
 - Meister erzählen **nur belegte Fakten**. Lord-Fog-Runden kommen aus den echten London-Linien (Test in `src/lib/king.test.ts`).
 - **Phase A (live seit 07.11. abends):** Schach-Check `#/check` (`src/lib/check.ts`, `src/screens/Check.tsx`, Startwert in `KingProgress.baseline`), Portal `#/portal` (`src/lib/portal.ts`, `src/screens/Portal.tsx`: Quests aus echten chess.com-Partien, Bericht je 20 Rapid-Partien, nur fertige Partien – Fair Play), Hauptweg `ROAD` Kannauj → Samarkand → Rom → Bagdad, Lichess-Puzzles CC0 in `src/data/lichess-puzzles.json`, Überfälle `#/encounter/<ziel>`, Kastanien 🌰 + Titel (`titleOf`), Knack (`fx.knack()` nur bei Wache/Drohung/Sicherheit). Lücken-Linien in `data/gaps_black.pgn`, `data/gaps_white.pgn`. `node scripts/check-lines.mjs 16 <dateiname>` (ohne `data/`).
@@ -111,7 +110,7 @@ Hauptnutzung: am Handy.
 - **Kern-Training:** „How do you react?“ (`bookCrossroads()`, Schritt `choose` je Station), „Your habits“ (`#/habits`, `habitCrossroads()` in `check.ts` aus den letzten 100 Rapid-Partien), Eröffnungs-Atlas (`#/atlas`, `src/lib/atlas.ts`, 24 Familien, Linien in `data/atlas*.pgn`), Kreuzungen in Paris.
 - **Echte Welt:** Schach-Check `#/check`, Portal `#/portal` (Quests aus echten Partien, Bericht je 20 Rapid-Partien). Training Camp `#/tent` (früher War Tent), Questbuch `#/quests`, Neustart in den Settings (`restartKing()`).
 - **Kastanien-Knack (BAUPLAN 1):** `ChestnutReward` (golden bei vorsichtigem Spiel), Knack im Sparring (`defusedThreat`), sauberer Glanz + Schatten-Zahl auf der Karte (`src/lib/clean.ts`), nach dem Warm-up `#/afterwards`.
-- **Prüfwerkzeuge:** `scripts/check-lines.mjs`, `scripts/check-rounds.mjs` (alle Brett-Aufgaben mit Stockfish), `scripts/extend-line.mjs`, Klicktests in `scripts/e2e/` (brauchen `playwright`).
+- **Prüfwerkzeuge:** `scripts/check-lines.mjs`, `scripts/check-rounds.mjs` (alle Brett-Aufgaben mit Stockfish), `scripts/extend-line.mjs`. **Kein Playwright** (Lus Entscheidung 08.11.2026): geprüft wird mit `tsc`, Lint und Vitest, angesehen in der Vorschau.
 - **Was noch fehlt:** siehe `BAUPLAN.md`.
 
 ## Lernkonzept und Kennzahl (Lus Entscheidungen 08.11.2026)

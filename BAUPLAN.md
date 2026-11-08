@@ -13,9 +13,7 @@ Vorschau: https://l13959733-max.github.io/chess-trainer/preview/
 ## Für Johanna: so geht's
 
 1. Die GitHub-Einladung annehmen: https://github.com/l13959733-max/chess-trainer/invitations
-2. Einmalig: `git clone https://github.com/l13959733-max/chess-trainer.git && cd chess-trainer && npm ci`
-   und für die Klicktests `npm i --no-save playwright && npx playwright install chromium`
-3. Claude Code im Ordner starten (`claude`) und `/weiterbauen` tippen. Claude zeigt den nächsten
+2. Einmalig: `git clone https://github.com/l13959733-max/chess-trainer.git && cd chess-trainer && npm ci`3. Claude Code im Ordner starten (`claude`) und `/weiterbauen` tippen. Claude zeigt den nächsten
    Punkt und baut ihn. Erlaubnis-Fragen mit OK bestätigen (oder Shift+Tab für „auto-accept edits“).
 4. Anschauen in der Vorschau-Adresse oben. Gefällt es: „übernehmen“ schreiben, dann geht es live.
 
@@ -26,13 +24,12 @@ Vorschau: https://l13959733-max.github.io/chess-trainer/preview/
 - **Deploy:** Ein Push auf `main` deployt automatisch beides (Live und `/preview/`). Nach einem Push
   nur auf `preview`: `gh workflow run Deploy --ref main`.
 - **Prüfen vor jedem Commit:** `npx tsc -b`, `npm run lint` (Stand: 12 Warnungen, nicht mehr werden),
-  `npx vitest run` (alle grün), dann im Browser: `npm run dev -- --port 5199` und
-  `node scripts/e2e/king-all.mjs http://localhost:5199/ noshots` (ganzes Spiel bis zur Krone),
-  `node scripts/e2e/regress.mjs http://localhost:5199/`, `node scripts/e2e/mirror.mjs`.
+  `npx vitest run` (alle grün). **Kein Playwright** (Lus Entscheidung 08.11.2026): keine Klicktests,
+  keine automatischen Bildschirmfotos. Neue Logik darum mit Vitest-Tests absichern.
   Neue Eröffnungslinien: `node scripts/check-lines.mjs 16 <datei.pgn>` (nur Dateiname, ohne `data/`).
   Neue Brett-Aufgaben: `npx tsx scripts/check-rounds.mjs`. Linien aus Stockfish vorschlagen lassen:
   `node scripts/extend-line.mjs "1.e4 e5 2.f4" 8 18`.
-- **Grüne Tests beweisen nichts ohne Blick ins Bild:** Bildschirmfotos (Handybreite 393 px) ansehen.
+- **Ansehen:** Lu oder Johanna schauen neue Seiten in der Vorschau am Handy an; in der Meldung sagen, was genau zu prüfen ist.
 - **Das Repo ist öffentlich:** niemals Schlüssel, Tokens, Passwörter oder Einladungscodes committen.
 - **Schach geht vor Geschichte.** Kern: welche Eröffnung wann, wie reagiere ich worauf, Drohung prüfen.
   Geschichte nur als kurzer Fakt, freiwillig.
@@ -183,7 +180,7 @@ Trainings-Seiten (in der Geschichte bleibt Hoppy). Die gemalte Welt (`.king-scre
 
 **Noch bauen:**
 1. Die bunten Kacheln auf `#/path` (Orange „My weaknesses“, Lila „Win it“) und die Farben in Drill, Puzzles,
-   Play im ruhigen Look angleichen; jede Seite einmal auf 393 px ansehen (Playwright-Fotos beider Looks).
+   Play im ruhigen Look angleichen; jede Seite einmal am Handy in beiden Looks ansehen (in der Vorschau).
 2. Beim ersten Start (`Welcome.tsx`) fragen: „Who is playing? A child / An adult“ → setzt den Look; jederzeit
    in den Settings änderbar.
 3. Texte im ruhigen Look sachlicher (z. B. weniger Ausrufezeichen); Inhalt bleibt gleich.

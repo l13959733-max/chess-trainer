@@ -6,6 +6,6 @@ Lies `BAUPLAN.md` und `CLAUDE.md`. Prüfe mit `git branch --show-current`, dass 
 steht, alle offenen Punkte nacheinander: $ARGUMENTS
 
 Sag in zwei Sätzen auf Deutsch, was du baust, und bau es dann nach den Regeln in `BAUPLAN.md`
-(prüfen, Bildschirmfotos ansehen, committen, Vorschau deployen). Setze den Punkt danach auf `[x]` und
+(prüfen mit tsc, Lint und Vitest, committen, Vorschau deployen). Setze den Punkt danach auf `[x]` und
 melde kurz: was fertig ist, wo man es in der Vorschau sieht, was als Nächstes kommt.
 Live geht es erst nach „übernehmen“.
