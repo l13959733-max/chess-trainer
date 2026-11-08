@@ -39,3 +39,28 @@ describe('reputation: the world sees Liam rise', () => {
     expect(reputation(Array.from({ length: 12 }, (_, i) => 's' + i)).greet).toMatch(/honour/)
   })
 })
+
+describe('How do you react? Crossroads from your own book', () => {
+  it('right answers are your book moves, wrong ones are legal moves your book does not play there', async () => {
+    const { Chess } = await import('chess.js')
+    const { bookCrossroads } = await import('./king')
+    const strip = (san: string) => san.replace(/^\d+\.(\.\.)?/, '')
+    let stations = 0
+    for (const s of [...STATIONS, ...MIRROR].filter((x) => x.lines)) {
+      const lines = stationLines(s, builtinLines)
+      const rounds = bookCrossroads(lines, 6)
+      if (rounds.length >= 3) stations++
+      for (const r of rounds) {
+        const legal = new Chess(r.fen).moves()
+        const book = new Set(lines.flatMap((l) => l.moves.filter((m) => m.fenBefore.split(' ').slice(0, 4).join(' ') === r.fen.split(' ').slice(0, 4).join(' ')).map((m) => m.san)))
+        expect(r.options.length, r.q).toBe(3)
+        expect(r.options.some((o) => o.ok), r.q).toBe(true)
+        for (const o of r.options) {
+          expect(legal, `${s.id}: ${r.q} ${o.san}`).toContain(strip(o.san))
+          expect(book.has(strip(o.san)), `${s.id}: ${r.q} ${o.san}`).toBe(!!o.ok)
+        }
+      }
+    }
+    expect(stations).toBeGreaterThanOrEqual(10)
+  })
+})

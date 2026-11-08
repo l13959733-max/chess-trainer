@@ -1,6 +1,7 @@
 // King of Chess: Liam, a street kid, and his horse Hoppy follow the game through 1,500 years of history.
-// Every station is open except Chennai, the finale, which opens when all other bosses are beaten.
+// The journey is guided: the cities open one after another (route()), Chennai is the finale.
 // Facts the masters tell are checked against sources before they go in (see CLAUDE.md).
+import { Chess } from 'chess.js'
 import type { Line } from './pgn'
 
 export interface Master {
@@ -780,4 +781,79 @@ export function lineRounds(lines: Line[], count: number): BoardRound[] {
     san: m.san,
     why: m.comment ?? `In your line you play ${m.san} here.`,
   }))
+}
+
+// ---------- "How do you react?": crossroads from your own book ----------
+// Wherever your opponent has more than one answer in the station's lines, the game asks:
+// "Black plays X – what do you play?" The right answers are your book moves (with the comment
+// of your line as the reason); the wrong ones are moves you play elsewhere in the book.
+function numbered(moves: { san: string; color: 'w' | 'b' }[], start = 0): string {
+  return moves
+    .map((m, k) => {
+      const ply = start + k
+      const no = Math.floor(ply / 2) + 1
+      return m.color === 'w' ? `${no}.${m.san}` : k === 0 ? `${no}...${m.san}` : m.san
+    })
+    .join(' ')
+}
+
+export function bookCrossroads(lines: Line[], count: number): Crossroad[] {
+  if (!lines.length) return []
+  const side = lines[0].side
+  const place = (fen: string) => fen.split(' ').slice(0, 4).join(' ')
+  // the opponent's answers in each position, and your answers after them
+  const theirs = new Map<string, Set<string>>()
+  const mine = new Map<string, { fen: string; sans: Set<string>; why: Map<string, string>; line: Line; ply: number }>()
+  const everyMine = new Set<string>()
+  for (const l of lines) {
+    l.moves.forEach((m, ply) => {
+      if (m.color === side) {
+        everyMine.add(m.san)
+        const k = place(m.fenBefore)
+        const e = mine.get(k) ?? { fen: m.fenBefore, sans: new Set<string>(), why: new Map<string, string>(), line: l, ply }
+        e.sans.add(m.san)
+        if (m.comment && !e.why.has(m.san)) e.why.set(m.san, m.comment)
+        mine.set(k, e)
+      } else {
+        const k = place(m.fenBefore)
+        theirs.set(k, (theirs.get(k) ?? new Set()).add(m.san))
+      }
+    })
+  }
+  const out: (Crossroad & { ply: number })[] = []
+  const seen = new Set<string>()
+  for (const l of lines) {
+    l.moves.forEach((m, ply) => {
+      // a crossroads: the opponent had several answers in the book, this is one of them
+      if (m.color === side || (theirs.get(place(m.fenBefore))?.size ?? 0) < 2) return
+      const here = mine.get(place(m.fenAfter))
+      if (!here || seen.has(place(m.fenAfter))) return
+      seen.add(place(m.fenAfter))
+      const right = [...here.sans].slice(0, 2)
+      const c = new Chess(m.fenAfter)
+      const legal = new Set(c.moves())
+      const wrong = [...everyMine].filter((x) => legal.has(x) && !here.sans.has(x)).slice(0, 3 - right.length)
+      if (wrong.length < 3 - right.length) {
+        for (const x of c.moves()) if (wrong.length < 3 - right.length && !here.sans.has(x) && !wrong.includes(x) && /^[NB]/.test(x)) wrong.push(x)
+      }
+      if (wrong.length < 3 - right.length) return
+      const no = (san: string) => numbered([{ san, color: side }], ply + 1)
+      const path = numbered(l.moves.slice(0, ply), 0)
+      const who = side === 'w' ? 'Black' : 'White'
+      // each book move brings the reason from its own line; it is shown only after you pick it
+      const reason = (x: string) => here.why.get(x) ?? `${x} – the move from your line “${here.line.title}”.`
+      const options = [...right.map((x) => ({ san: no(x), note: reason(x), ok: true })), ...wrong.map((x) => ({ san: no(x), note: '' }))]
+      // a stable shuffle, so the right answer is not always first
+      options.sort((a, b) => (a.san.length * 7 + a.san.charCodeAt(a.san.length - 1)) % 5 - (b.san.length * 7 + b.san.charCodeAt(b.san.length - 1)) % 5)
+      out.push({
+        fen: m.fenAfter,
+        q: `${path ? `After ${path}, ` : ''}${who} plays ${numbered([m], ply)}. What do you play?`,
+        options,
+        why: right.length > 1 ? `Both are in your book: ${right.map(no).join(' and ')}.` : reason(right[0]),
+        ply,
+      })
+    })
+  }
+  // the earliest crossroads first: which opening, then how to react deeper in the line
+  return out.sort((a, b) => a.ply - b.ply).slice(0, count).map((c) => ({ fen: c.fen, q: c.q, options: c.options, why: c.why }))
 }
