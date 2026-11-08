@@ -24,7 +24,7 @@ Vorschau: https://l13959733-max.github.io/chess-trainer/preview/
 - **Deploy:** Ein Push auf `main` deployt automatisch beides (Live und `/preview/`). Nach einem Push
   nur auf `preview`: `gh workflow run Deploy --ref main`.
 - **Prüfen vor jedem Commit:** `npx tsc -b`, `npm run lint` (Stand: 12 Warnungen, nicht mehr werden),
-  `npx vitest run` (alle grün). **Kein Playwright** (Lus Entscheidung 08.11.2026): keine Klicktests,
+  `npx vitest run` (alle grün). **Kein Playwright** (Entscheidung vom 08.11.2026, GitHub ayo-byte): keine Klicktests,
   keine automatischen Bildschirmfotos. Neue Logik darum mit Vitest-Tests absichern.
   Neue Eröffnungslinien: `node scripts/check-lines.mjs 16 <datei.pgn>` (nur Dateiname, ohne `data/`).
   Neue Brett-Aufgaben: `npx tsx scripts/check-rounds.mjs`. Linien aus Stockfish vorschlagen lassen:
