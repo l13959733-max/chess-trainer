@@ -396,10 +396,12 @@ export const STATIONS: Station[] = [
         { who: 'liam', text: 'Why is this system called London?' },
         { who: 'master', text: 'At the big London tournament of 1922 it was played seven times. That gave it the name.' },
         { who: 'master', text: 'The secret: bring your bishop to f4 before you play e3. Then build a strong pawn chain. And beware of Lord Fog!' },
+        { who: 'master', text: 'Two more weapons were named on this island. In 1824 Edinburgh played London by letter – that gave us the Scotch Game, 3.d4.' },
+        { who: 'master', text: 'And Howard Staunton played 1.c4 in his match of 1843 against Saint-Amant – that is why it is called the English Opening.' },
       ],
     },
     games: [],
-    lines: { opening: 'London System', side: 'w' },
+    lines: { opening: ['London System', 'English Opening', 'Scotch Game'], side: 'w' },
     boss: { name: 'Lord Fog of London', face: '🎩', img: 'boss-fog.jpg', kind: 'board', rounds: LORD_FOG, taunt: '1...d5 – the fog rolls in.', win: 'The fog lifts over London. You get the London badge.' },
   },
   {
@@ -521,23 +523,23 @@ export const STATIONS: Station[] = [
 const LU = { img: 'lu.jpg', name: 'Grandmaster Lu', from: 'Your teacher', skin: '#e0b48a', hair: '#cfcfcf', coat: '#3a3550', beard: true }
 export const MIRROR: Station[] = [
   {
-    id: 'mirror-gate', name: 'The Mirror Gate', year: 'Act 2 · Mirror World', x: 0, y: 0, color: '#6c4ab6',
-    intro: 'Through the mirror everything is reversed. Here you play Black – and your first answer to 1.e4 is 1...d5.',
+    id: 'mirror-gate', name: 'The Mirror North', year: 'Act 2 · Mirror World', x: 0, y: 0, color: '#6c4ab6',
+    intro: 'Through the mirror everything is reversed. Here you play Black – and your first answer to 1.e4 is 1...d5, the Scandinavian.',
     skills: ['1.e4 d5', 'Queen to a5 or d6', 'Develop with tempo'],
-    scene: 'mirror-kannauj.jpg',
+    scene: 'mirror-north.jpg',
     master: {
       ...LU,
       talk: [
         { who: 'master', text: 'Welcome to the Mirror World, Liam. Here the Shadow King moves first – you are Black now.' },
-        { who: 'master', text: 'When White plays 1.e4, you strike at once: 1...d5. Your pawn attacks e4 on the first move.' },
-        { who: 'master', text: 'After 2.exd5 Qxd5 3.Nc3 your queen must move again. Go to a5 or d6 – away from the knight, but still active.' },
+        { who: 'master', text: 'We start in the North: players from Scandinavia studied this defense in the 1800s, so it is called the Scandinavian.' },
+        { who: 'master', text: 'When White plays 1.e4, you strike at once: 1...d5. After 2.exd5 Qxd5 3.Nc3 your queen goes to a5 or d6 – away from the knight, but still active.' },
         { who: 'master', text: 'Then develop fast: knight to f6, bishop out, castle. The queen came out early, so do not waste more time with her.' },
-        { who: 'liam', text: 'A shadow with a captain’s helmet is waiting at the gate…' },
+        { who: 'liam', text: 'A shadow with an axe is waiting in the snow…' },
       ],
     },
     games: [],
     lines: { opening: 'Scandinavian', side: 'b' },
-    boss: { name: 'The Shadow Captain', face: '🛡️', img: 'boss-shadow-captain.jpg', kind: 'lines', taunt: 'I move first here. What is your answer?', win: 'The Shadow Captain melts into the mirror. Your 1...d5 stands.' },
+    boss: { name: 'The Shadow Berserker', face: '🪓', img: 'boss-shadow-berserker.jpg', kind: 'lines', taunt: 'I move first here. What is your answer?', win: 'The Shadow Berserker melts into the mirror. Your 1...d5 stands.' },
   },
   {
     id: 'mirror-fortress', name: 'The Shadow Fortress', year: 'Act 2 · Mirror World', x: 0, y: 0, color: '#4a4f8c',
@@ -559,22 +561,78 @@ export const MIRROR: Station[] = [
     boss: { name: 'The Shadow of Lord Fog', face: '🌫️', img: 'boss-shadow-fog.jpg', kind: 'lines', taunt: 'In the mirror, I play the London against you!', win: 'The fog lifts from the fortress. You know how to meet 1.d4.' },
   },
   {
-    id: 'mirror-caro', name: 'The Mirror Rome', year: 'Act 2 · Mirror World', x: 0, y: 0, color: '#7a3e6e',
-    intro: 'Your second weapon against 1.e4: the Caro-Kann. First ...c6, then ...d5 – solid like a Roman wall.',
+    id: 'mirror-caro', name: 'The Mirror Vienna', year: 'Act 2 · Mirror World', x: 0, y: 0, color: '#7a3e6e',
+    intro: 'Your second weapon against 1.e4: the Caro-Kann. First ...c6, then ...d5 – a solid wall.',
     skills: ['1...c6 and 2...d5', 'Bishop out before ...e6', 'Against the Advance: ...Bf5 and ...e6'],
-    scene: 'mirror-rome.jpg',
+    scene: 'mirror-vienna.jpg',
     master: {
       ...LU,
       talk: [
         { who: 'master', text: 'Some shadows know your 1...d5 too well. So you need a second answer to 1.e4: the Caro-Kann.' },
+        { who: 'master', text: 'It is named after two players who analysed it in 1886: Horatio Caro and Marcus Kann from Vienna.' },
         { who: 'master', text: 'First 1...c6, then 2...d5. The pawn on c6 supports d5, so you never have to take back with the queen.' },
         { who: 'master', text: 'The secret: bring your light bishop out to f5 or g4 before you play ...e6. Then it is not locked in.' },
-        { who: 'liam', text: 'Count Giuoco’s shadow tips his hat at me…' },
+        { who: 'liam', text: 'The shadow of the Turk is clicking in the dark…' },
       ],
     },
     games: [],
     lines: { opening: 'Caro-Kann', side: 'b' },
-    boss: { name: 'The Shadow of Count Giuoco', face: '🎩', img: 'boss-shadow-giuoco.jpg', kind: 'lines', taunt: 'Your Caro-Kann against my 1.e4 – show me!', win: 'The shadow of the count bows. Your Caro-Kann wall holds.' },
+    boss: { name: 'The Shadow Turk', face: '🤖', img: 'boss-shadow-turk.jpg', kind: 'lines', taunt: 'Click… whirr… your Caro-Kann against my 1.e4!', win: 'The shadow machine stops. Your Caro-Kann wall holds.' },
+  },
+  {
+    id: 'mirror-paris', name: 'The Mirror Paris', year: 'Act 2 · Mirror World', x: 0, y: 0, color: '#1864ab',
+    intro: 'A third answer to 1.e4: the French Defense. First ...e6, then ...d5 – and attack White’s pawn chain from the side.',
+    skills: ['1...e6 and 2...d5', 'Hit the chain with ...c5', 'Pressure on d4'],
+    scene: 'mirror-paris.jpg',
+    master: {
+      ...LU,
+      talk: [
+        { who: 'master', text: 'Paris, through the mirror. In 1834 London played Paris by letter – and the Paris team answered 1.e4 with 1...e6.' },
+        { who: 'master', text: 'Since then it is called the French Defense. First ...e6, then ...d5.' },
+        { who: 'master', text: 'Often White pushes e5 and the center closes. Then you attack the base of White’s pawn chain: ...c5 against d4.' },
+        { who: 'liam', text: 'Rocco’s shadow is waiting in the café…' },
+      ],
+    },
+    games: [],
+    lines: { opening: 'French Defense', side: 'b' },
+    boss: { name: 'The Shadow of Rocco', face: '♜', img: 'boss-shadow-rocco.jpg', kind: 'lines', taunt: 'Your French against my 1.e4 – en garde!', win: 'Rocco’s shadow lowers his rook. The French is yours.' },
+  },
+  {
+    id: 'mirror-slav', name: 'The Mirror Forest', year: 'Act 2 · Mirror World', x: 0, y: 0, color: '#1c7ed6',
+    intro: 'A second answer to the Queen’s Gambit: the Slav. Protect d5 with ...c6 – and your light bishop stays free.',
+    skills: ['2...c6 holds d5', 'Bishop to f5 before ...e6', 'Take on c4 at the right moment'],
+    scene: 'mirror-forest.jpg',
+    master: {
+      ...LU,
+      talk: [
+        { who: 'master', text: 'The snowy forests of the East, in the mirror. The Slav Defense got its name from the many Slavic players who made it popular.' },
+        { who: 'master', text: 'Against 2.c4 you play 2...c6: the pawn protects d5, and your light bishop can still come out to f5.' },
+        { who: 'master', text: 'That is the difference to the Queen’s Gambit Declined, where ...e6 locks the bishop in.' },
+        { who: 'liam', text: 'A bishop made of ice glides between the trees…' },
+      ],
+    },
+    games: [],
+    lines: { opening: 'Slav Defense', side: 'b' },
+    boss: { name: 'The Shadow Snow Bishop', face: '❄️', img: 'boss-shadow-snowbishop.jpg', kind: 'lines', taunt: 'My diagonals are cold. Is your Slav warm enough?', win: 'The ice bishop cracks. You know the Slav.' },
+  },
+  {
+    id: 'mirror-kid', name: 'The Mirror Kannauj', year: 'Act 2 · Mirror World', x: 0, y: 0, color: '#c2410c',
+    intro: 'Back where it all began – in the mirror. The King’s Indian: let White build a big center, then attack it.',
+    skills: ['Bishop to g7, castle', 'Strike with ...e5 or ...c5', 'Attack with ...f5'],
+    scene: 'mirror-kannauj.jpg',
+    master: {
+      ...LU,
+      talk: [
+        { who: 'master', text: 'We are back in Kannauj, Liam – in the mirror. Here you learn the King’s Indian.' },
+        { who: 'master', text: 'The “Indian” defenses are named after Moheschunder Bannerjee, a player from India in the 1850s.' },
+        { who: 'master', text: 'You answer 1.d4 with 1...Nf6 and put your bishop on g7. White builds a big center – and you strike it with ...e5 or ...c5.' },
+        { who: 'master', text: 'When the center closes, your attack comes on the kingside with ...f5. A fighter’s opening.' },
+        { who: 'liam', text: 'The shadow of the captain who once guarded this city…' },
+      ],
+    },
+    games: [],
+    lines: { opening: "King's Indian Defense", side: 'b' },
+    boss: { name: 'The Shadow Captain', face: '🛡️', img: 'boss-shadow-captain.jpg', kind: 'lines', taunt: 'You came back, street kid. Show me your King’s Indian!', win: 'The Shadow Captain bows. The Mirror World is free of shadows.' },
   },
 ]
 
@@ -595,6 +653,9 @@ export function route(): string[] {
 export function isOpen(s: Station, beaten: string[]): boolean {
   const order = route()
   const i = order.indexOf(s.id)
+  // the Mirror World is guided too: one shadow after another
+  const mi = MIRROR.indexOf(s)
+  if (mi >= 0) return mirrorOpen(beaten) && (beaten.includes(s.id) || MIRROR.slice(0, mi).every((m) => beaten.includes(m.id)))
   return i < 0 || beaten.includes(s.id) || order.slice(0, i).every((id) => beaten.includes(id))
 }
 // The city whose boss opens this one (for "still in the fog" hints)

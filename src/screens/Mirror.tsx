@@ -1,6 +1,6 @@
 import { Avatar } from '../components/KingArt'
 import { go } from '../hooks/useHashRoute'
-import { MIRROR, loadKing, mirrorOpen } from '../lib/king'
+import { MIRROR, isOpen, loadKing, mirrorOpen } from '../lib/king'
 import '../king.css'
 
 const IMG = import.meta.env.BASE_URL + 'king/'
@@ -22,7 +22,7 @@ export function Mirror() {
         <img className="king-avatar mirror-lu" src={IMG + 'lu.jpg'} alt="Grandmaster Lu" />
         <p className="king-say">
           {mirrorOpen(k.beaten)
-            ? 'In the mirror everything is reversed, Liam. The Shadow King moves first – you answer with Black. Beat his three shadows.'
+            ? 'In the mirror everything is reversed, Liam. The Shadow King moves first – you answer with Black. Beat his six shadows, one after another.'
             : 'The mirror is still dark. Beat Count Giuoco in Rome first – then you know how to react with White.'}
         </p>
       </div>
@@ -30,11 +30,12 @@ export function Mirror() {
         <>
           {MIRROR.map((s) => {
             const done = k.beaten.includes(s.id)
+            const open = isOpen(s, k.beaten)
             return (
-              <button key={s.id} type="button" className={`mirror-card ${done ? 'complete' : ''} ${s === next ? 'next' : ''}`} onClick={() => go(`king/${s.id}`)}>
+              <button key={s.id} type="button" className={`mirror-card ${done ? 'complete' : ''} ${s === next ? 'next' : ''} ${open ? '' : 'locked'}`} onClick={() => go(`king/${s.id}`)} disabled={!open}>
                 <img src={IMG + s.scene} alt="" />
                 <span>
-                  <small>{done ? `✓ ${s.boss.name} beaten` : s === next ? '▶ Next' : s.skills[0]}</small>
+                  <small>{done ? `✓ ${s.boss.name} beaten` : s === next ? '▶ Next' : '🔒 In the fog – beat the shadow before'}</small>
                   <b>{s.name}</b>
                   {s.intro}
                 </span>
@@ -45,8 +46,8 @@ export function Mirror() {
             <button type="button" className="primary wide" onClick={() => go(`king/${next.id}/next`)}>Continue: {next.name}</button>
           ) : (
             <div className="king-fb ok knack">
-              <b>All three shadows are beaten</b>
-              <p>You can answer 1.e4 and 1.d4 with Black. More of the Mirror World comes soon.</p>
+              <b>All six shadows are beaten</b>
+              <p>You have three answers to 1.e4 and three to 1.d4. Find more in the opening atlas.</p>
             </div>
           )}
         </>

@@ -18,7 +18,7 @@ describe('Mirror World (Act 2)', () => {
   it('opens after Rome, can be found by id, and does not block Chennai', () => {
     expect(mirrorOpen(['kannauj', 'samarkand'])).toBe(false)
     expect(mirrorOpen(['kannauj', 'samarkand', 'rome'])).toBe(true)
-    expect(stationById('mirror-gate')?.name).toBe('The Mirror Gate')
+    expect(stationById('mirror-gate')?.name).toBe('The Mirror North')
     const chennai = STATIONS.find((s) => s.finale)!
     const all = STATIONS.filter((s) => !s.finale).map((s) => s.id)
     expect(isOpen(chennai, all)).toBe(true) // Chennai does not wait for the mirror
@@ -62,5 +62,15 @@ describe('How do you react? Crossroads from your own book', () => {
       }
     }
     expect(stations).toBeGreaterThanOrEqual(10)
+  })
+})
+
+describe('the Mirror World is guided', () => {
+  it('opens after Rome, then one shadow after another', () => {
+    const open = (beaten: string[]) => MIRROR.filter((s) => isOpen(s, beaten)).map((s) => s.id)
+    expect(open(['kannauj', 'samarkand'])).toEqual([])
+    expect(open(['kannauj', 'samarkand', 'rome'])).toEqual(['mirror-gate'])
+    expect(open(['kannauj', 'samarkand', 'rome', 'mirror-gate'])).toEqual(['mirror-gate', 'mirror-fortress'])
+    expect(MIRROR.map((s) => s.lines?.opening).flat()).toEqual(['Scandinavian', "Queen's Gambit Declined", 'London & 2.Nf3', 'Caro-Kann', 'French Defense', 'Slav Defense', "King's Indian Defense"])
   })
 })

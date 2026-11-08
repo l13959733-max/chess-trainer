@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { go } from '../hooks/useHashRoute'
 import type { Repertoire } from '../hooks/useRepertoire'
 import { ATLAS, type AtlasEntry } from '../lib/atlas'
+import { MIRROR, STATIONS, isOpen, loadKing } from '../lib/king'
 import '../king.css'
 
 // The opening atlas: every big opening family, what you already play, and new weapons to learn
@@ -13,6 +14,10 @@ export function Atlas({ rep }: { rep: Repertoire }) {
     { title: 'With Black against 1.e4', entries: ATLAS.filter((e) => e.side === 'b' && e.against === 'vs 1.e4') },
     { title: 'With Black against 1.d4', entries: ATLAS.filter((e) => e.side === 'b' && e.against === 'vs 1.d4') },
   ]
+  // where on the journey you learn it: the station whose lines are this opening
+  const beaten = loadKing().beaten
+  const place = (e: AtlasEntry) =>
+    e.opening ? [...STATIONS, ...MIRROR].find((s) => s.lines && s.lines.side === e.side && [s.lines.opening].flat().includes(e.opening!)) : undefined
   const known = ATLAS.filter((e) => {
     const ls = lines(e)
     return ls.length && ls.every((l) => rep.srs.has(l.id))
@@ -47,6 +52,15 @@ export function Atlas({ rep }: { rep: Repertoire }) {
                 {open === e.id && (
                   <div className="atlas-more">
                     <p>{e.fits}</p>
+                    {(() => {
+                      const at = place(e)
+                      if (!at) return null
+                      return isOpen(at, beaten) ? (
+                        <button type="button" className="primary wide" onClick={() => go('king/' + at.id)}>Learn it on your journey: {at.name}</button>
+                      ) : (
+                        <p className="note">On your journey: {at.name} – it opens later. You can learn the lines here already.</p>
+                      )
+                    })()}
                     {ls.length ? (
                       ls.map((l) => (
                         <button key={l.id} type="button" className="wide" onClick={() => go((rep.srs.has(l.id) ? 'drill/' : 'learn/') + l.id)}>

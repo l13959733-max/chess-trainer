@@ -339,3 +339,4 @@
 .king-screen .atlas-more { display: grid; gap: 6px; padding: 4px 4px 10px 44px; }
 .king-screen .atlas-more p { margin: 0; }
 .king-screen .atlas-more button { text-align: left; }
+.king-screen .mirror-card.locked { opacity: 0.55; }
