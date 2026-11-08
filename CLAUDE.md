@@ -111,6 +111,7 @@ Hauptnutzung: am Handy.
 - **Echte Welt:** Schach-Check `#/check`, Portal `#/portal` (Quests aus echten Partien, Bericht je 20 Rapid-Partien). Training Camp `#/tent` (früher War Tent), Questbuch `#/quests`, Neustart in den Settings (`restartKing()`).
 - **Kastanien-Knack (BAUPLAN 1):** `ChestnutReward` (golden bei vorsichtigem Spiel), Knack im Sparring (`defusedThreat`), sauberer Glanz + Schatten-Zahl auf der Karte (`src/lib/clean.ts`), nach dem Warm-up `#/afterwards`.
 - **Armoury (BAUPLAN 2):** `#/armoury`, `src/lib/armoury.ts`, `src/screens/Armoury.tsx`; Fortschritt in localStorage `chess-trainer-armoury`. Lichess-Themen in `src/data/lichess-puzzles.json` nur ergänzen, die alten Listen nie neu würfeln (Stationen nutzen feste Positionen).
+- **Drachenhöhle (BAUPLAN 3):** `mirror-dragon`, letzte Station der Spiegelwelt (Sizilien, x 812 / y 402 auf `mirror-world.jpg`). Bilder sind Platzhalter (PIL), siehe BAUPLAN 12.
 - **Prüfwerkzeuge:** `scripts/check-lines.mjs`, `scripts/check-rounds.mjs` (alle Brett-Aufgaben mit Stockfish), `scripts/extend-line.mjs`. **Kein Playwright** (Lus Entscheidung 08.11.2026): geprüft wird mit `tsc`, Lint und Vitest, angesehen in der Vorschau.
 - **Was noch fehlt:** siehe `BAUPLAN.md`.
 

@@ -19,7 +19,7 @@ import { clampScore } from '../lib/blunders'
 import { ChestnutReward } from '../components/Chestnut'
 import { feedback as fx, resetCareful, takeCareful } from '../lib/feedback'
 import {
-  ARMY, CROSSROADS, MIRROR, mirrorOpen, FORKS, GRAIN, GUARD, GUARD_BOSS, LEWIS, MATES, QUEEN_TACTICS, RIDDLES, ROME_REACT, ROME_THREATS, ROME_TRAPS, ROOK_MATES, SAFE, STATIONS, TENT_AT, TURK,
+  ARMY, CROSSROADS, DRAGON_ALIVE, DRAGON_CFILE, DRAGON_FIRE, MIRROR, mirrorOpen, FORKS, GRAIN, GUARD, GUARD_BOSS, LEWIS, MATES, QUEEN_TACTICS, RIDDLES, ROME_REACT, ROME_THREATS, ROME_TRAPS, ROOK_MATES, SAFE, STATIONS, TENT_AT, TURK,
   bookCrossroads, earn, isOpen, liamPortrait, opensAfter, lineRounds, loadKing, nextStation, reputation, saveKing, stationById, stationLines, titleOf, type BoardRound, type Crossroad, type QuizQuestion, type Station,
 } from '../lib/king'
 import '../king.css'
@@ -393,6 +393,9 @@ function StationStep({ s, sub, rep }: { s: Station; sub?: string; rep: Repertoir
     case 'next': return <NextStep s={s} rep={rep} />
     case 'talk': return <KingTalk s={s} />
     case 'guard': return <BoardRounds key="quest" s={s} rounds={GUARD} title="The guard" lesson="Before every move, a good general asks: what is attacked – and what is guarded? Find the best move." />
+    case 'firebreath': return <QuizRounds key="quest" s={s} quiz={DRAGON_FIRE} title="Fire breath" lesson="Your dragon is the bishop on g7. Its fire is the long diagonal. Bring it out – safely." />
+    case 'keepdragon': return <QuizRounds key="quest" s={s} quiz={DRAGON_ALIVE} title="Keep the dragon alive" lesson="White wants to trade your dragon. Know the plan – and keep it." />
+    case 'cfile': return <QuizRounds key="quest" s={s} quiz={DRAGON_CFILE} title="The c-file" lesson="White attacks on the king side. You attack on the c-file. Who is faster?" />
     case 'safe': return <QuizRounds key="quest" s={s} quiz={SAFE} title="Is it safe?" lesson="Before you move a piece, check its new square: can the enemy take it there?" />
     case 'react': return <CrossRounds key="quest" s={s} rounds={ROME_REACT} title="How do you react?" lesson="1.e4 e5 2.Nf3 – and now your opponent has many answers. Which move does your book play?" />
     case 'traps': return <TrapRounds key="quest" s={s} rep={rep} />

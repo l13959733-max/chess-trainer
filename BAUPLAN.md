@@ -91,12 +91,19 @@ Bronze/Silber/Gold, Gold nur ohne Hilfe und nach 5 echten analysierten Partien i
 **Noch offen:** Überlastung (kein eigenes Lichess-Thema), Pläne aus Bauernstrukturen, Endspiele gegen
 Stockfish ausspielen (braucht geprüfte Texte bzw. Stellungen).
 
-### [ ] 3. Drachenhöhle (Sizilianisch Drache)
+### [x] 3. Drachenhöhle (Sizilianisch Drache)
 Station in der Spiegelwelt (Höhle unter dem Ätna). Der Drache ist ein Verbündeter = Läufer auf g7
 (Feueratem = lange Diagonale). Quests: Feueratem, den Drachen am Leben halten (Lg7 nicht tauschen),
 c-Linie und Qualitätsopfer auf c3. Boss: Drachenjäger (Jugoslawischer Angriff). Linien gibt es schon
 (Kapitel „Sicilian Dragon“). Fakt nur so: Den Namen gab laut eigener Aussage Fjodor Dus-Chotimirsky
 (Sternbild Drache).
+
+**Gebaut 08.11.:** Station `mirror-dragon` („The Dragon Cave“, letzte der Spiegelwelt, auf Sizilien) in `MIRROR`
+(`src/lib/king.ts`): Gespräch mit Lu, Quests `firebreath`, `keepdragon`, `cfile` (`DRAGON_FIRE/ALIVE/CFILE`,
+Stellungen aus den geprüften Linien in `data/sicilian.pgn`, Test prüft Legalität), Boss „The Shadow Dragon Hunter“
+(Linien-Boss). **Bilder sind Platzhalter** (kostenlos per PIL): `mirror-dragon.jpg` = eingefärbter Ausschnitt der
+Spiegelkarte um Sizilien, `boss-shadow-dragonhunter.jpg` = gespiegelte, glutrot eingefärbte `boss-guard.jpg`.
+Ein gemaltes Höhlenbild gehört zu Punkt 12.
 
 ### [ ] 4. Kastanien-Laden
 Kastanien kaufen nur Aussehen, nie Vorteile: Umhang, Stiefel, Sattel für Hoppy, Brettfarben.
@@ -134,6 +141,7 @@ mitwächst, Saisons, Freundes-Ligen statt öffentlicher Rangliste.
 Die Stadtbilder zeigen noch Liam als Prinzen (violettes Gewand, Goldreif). Lu: Straßenkind in Lumpen
 „sieht zu arm aus“ → Liam in den Städten in der Kleidung seines Rangs (wie `liam-2.jpg` bis `liam-5.jpg`).
 Edinburgh-Bild: Melone ist ein Zeitfehler (gab es erst ab etwa 1850).
+Drachenhöhle: echtes gemaltes Bild „Höhle unter dem Ätna“ (ohne Liam) und eigener Drachenjäger statt der Platzhalter.
 
 ### [ ] 13. Persönliche Linien für andere Spieler
 Die App kennt nur das eingebaute Buch. Für fremde Eröffnungen aus den Partien eines Spielers mit

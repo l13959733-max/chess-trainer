@@ -41,7 +41,7 @@ export interface QuizQuestion {
   why: string
 }
 
-export type GameId = 'army' | 'riddle' | 'grain' | 'fork' | 'squares' | 'lewis' | 'queen' | 'turk' | 'cross' | 'krk' | 'shuffle' | 'guard' | 'safe' | 'react' | 'traps' | 'forkhunt' | 'forkthreat' | 'mate1' | 'mate2'
+export type GameId = 'army' | 'riddle' | 'grain' | 'fork' | 'squares' | 'lewis' | 'queen' | 'turk' | 'cross' | 'krk' | 'shuffle' | 'guard' | 'safe' | 'react' | 'traps' | 'forkhunt' | 'forkthreat' | 'mate1' | 'mate2' | 'firebreath' | 'keepdragon' | 'cfile'
 
 export interface Station {
   id: string
@@ -543,6 +543,16 @@ export const STATIONS: Station[] = [
 // Places you know, seen in the Shadow King's mirror. Grandmaster Lu guides you; the bosses are shadows.
 // Not on the world map and not counted for Chennai: it has its own mirrored map (#/mirror),
 // each place near where its city lies in the mirror, spread out so the names stay readable.
+// The position after moves like "1.e4 c5 2.Nf3" (for quiz boards)
+function fenAfter(moves: string): string {
+  const c = new Chess()
+  for (const t of moves.split(/\s+/)) {
+    const san = t.replace(/^\d+\.+/, '')
+    if (san) c.move(san)
+  }
+  return c.fen()
+}
+
 const LU = { img: 'lu.jpg', name: 'Grandmaster Lu', from: 'Your teacher', skin: '#e0b48a', hair: '#cfcfcf', coat: '#3a3550', beard: true }
 export const MIRROR: Station[] = [
   {
@@ -678,8 +688,53 @@ export const MIRROR: Station[] = [
     },
     games: [],
     lines: { opening: 'Sicilian Najdorf', side: 'b' },
-    boss: { name: 'The Shadow Jaguar', face: '🐆', img: 'boss-shadow-jaguar.jpg', kind: 'lines', taunt: 'Your Najdorf against my 1.e4 – are you fast enough?', win: 'The Shadow Jaguar slinks into the mirror. The Mirror World is free of shadows!' },
+    boss: { name: 'The Shadow Jaguar', face: '🐆', img: 'boss-shadow-jaguar.jpg', kind: 'lines', taunt: 'Your Najdorf against my 1.e4 – are you fast enough?', win: 'The Shadow Jaguar slinks into the mirror. Only one shadow is left – deep under a volcano.' },
   },
+  {
+    id: 'mirror-dragon', name: 'The Dragon Cave', year: 'Act 2 · Mirror World', x: 812, y: 402, color: '#b23a12',
+    intro: 'Under Mount Etna in Sicily lives a dragon – and it is on your side. The Sicilian Dragon: your bishop on g7 breathes fire along the long diagonal.',
+    skills: ['...g6 and ...Bg7: the dragon', 'Keep the dragon alive', 'The c-file and ...Rxc3'],
+    scene: 'mirror-dragon.jpg',
+    master: {
+      ...LU,
+      talk: [
+        { who: 'master', text: 'Feel the heat, Liam? We are under Etna, the volcano of Sicily. Down here lives a dragon – your friend.' },
+        { who: 'master', text: 'After 1.e4 c5 2.Nf3 d6 3.d4 cxd4 4.Nxd4 Nf6 5.Nc3 you play 5...g6. The bishop goes to g7: that is the dragon. Its fire is the long diagonal from h8 to a1.' },
+        { who: 'master', text: 'The name? By his own account, Fyodor Dus-Chotimirsky gave it. He watched the stars, and Black\'s pawns reminded him of the constellation Draco – the dragon.' },
+        { who: 'master', text: 'Keep the dragon alive. White often plays Be3, Qd2 and Bh6 to trade it. Without your g7 bishop, the dark squares around your king are weak.' },
+        { who: 'master', text: 'Your attack comes on the c-file. Rook to c8 – and sometimes you even give it for the knight on c3, to break the pawns in front of White\'s king.' },
+        { who: 'liam', text: 'Someone in armour is waiting at the mouth of the cave. A dragon hunter…' },
+      ],
+    },
+    games: [
+      { id: 'firebreath', title: 'Fire breath' },
+      { id: 'keepdragon', title: 'Keep the dragon alive' },
+      { id: 'cfile', title: 'The c-file' },
+    ],
+    lines: { opening: 'Sicilian Dragon', side: 'b' },
+    boss: { name: 'The Shadow Dragon Hunter', face: '🛡', img: 'boss-shadow-dragonhunter.jpg', kind: 'lines', taunt: 'Be3, Qd2, castle long, h4 – the Yugoslav Attack. I hunt dragons!', win: 'The Dragon Hunter drops his lance. Your dragon breathes on – and the Mirror World is free of shadows!' },
+  },
+]
+
+// The Dragon Cave: positions from the Sicilian Dragon lines in data/sicilian.pgn (checked with Stockfish)
+const DRAGON = '1.e4 c5 2.Nf3 d6 3.d4 cxd4 4.Nxd4 Nf6 5.Nc3'
+const YUGO = `${DRAGON} g6 6.Be3 Bg7 7.f3 O-O 8.Qd2 Nc6`
+export const DRAGON_FIRE: QuizQuestion[] = [
+  { fen: fenAfter(DRAGON), q: 'Which move makes the dragon?', icon: '🐉', options: ['5...g6', '5...e5', '5...a6'], answer: '5...g6', why: '5...g6 – next comes ...Bg7, and the bishop breathes fire along the long diagonal from h8 to a1.' },
+  { fen: fenAfter(`${DRAGON} g6 6.Be3`), q: 'Where does your dark bishop go?', icon: '🔥', options: ['6...Bg7', '6...Bh6'], answer: '6...Bg7', why: 'On g7 the bishop looks along the whole long diagonal – at d4, c3, b2 and a1.' },
+  { fen: fenAfter(`${DRAGON} g6 6.f4`), q: 'Careful! White played 6.f4. After 6...Bg7? comes 7.e5. Which move guards e5 first?', icon: '⚠', options: ['6...Nbd7', '6...Bg7', '6...Nc6'], answer: '6...Nbd7', why: '6...Nbd7 – this knight guards e5. Then the bishop can go to g7 in peace.' },
+  { fen: fenAfter(`${DRAGON} g6 6.Bc4 Bg7 7.O-O O-O 8.h3 Nc6 9.Be3`), q: 'The fork trick: which capture works now?', icon: '🍴', options: ['9...Nxe4', '9...Nxd4', '9...Bd7'], answer: '9...Nxe4', why: 'You take e4 – and after 10.Nxe4 d5 a pawn fork hits the bishop on c4 and the knight on e4. You win the piece back.' },
+]
+export const DRAGON_ALIVE: QuizQuestion[] = [
+  { fen: fenAfter(YUGO), q: 'White put the bishop on e3 and the queen on d2. What is White planning?', icon: '🏹', options: ['Bh6 – trade your dragon bishop', 'Win your d6 pawn', 'Castle short'], answer: 'Bh6 – trade your dragon bishop', why: 'With Bh6 White wants to trade your g7 bishop. Then the dark squares around your king are weak.' },
+  { q: 'You can trade your g7 bishop for a white knight. Nothing forces you. Do it?', icon: '🐉', options: ['Yes', 'No'], answer: 'No', why: 'Keep the dragon alive! It guards the dark squares around your king and attacks along the long diagonal.' },
+  { fen: fenAfter(`${YUGO} 9.Bc4 Bd7 10.O-O-O Rc8 11.Bb3 Ne5 12.h4 h5`), q: 'Why did you play 12...h5?', icon: '🛡', options: ['To stop White\'s h-pawn', 'To give your king a square', 'To attack g4'], answer: 'To stop White\'s h-pawn', why: 'White wants h4-h5 to open lines against your king. 12...h5 stops the pawn – both sides race to attack.' },
+]
+export const DRAGON_CFILE: QuizQuestion[] = [
+  { fen: fenAfter(`${YUGO} 9.Bc4 Bd7 10.O-O-O`), q: 'White castled long. Where is YOUR attack?', icon: '♜', options: ['10...Rc8 – the open c-file', '10...h5 – the king side', '10...e5 – the center'], answer: '10...Rc8 – the open c-file', why: 'The c-file points straight at White\'s king on c1. That is where your attack is.' },
+  { fen: fenAfter(`${YUGO} 9.Bc4 Bd7 10.O-O-O Rc8 11.Bb3`), q: 'Where is your knight going with 11...Ne5?', icon: '🐴', options: ['To c4', 'To g4', 'To f3'], answer: 'To c4', why: 'From e5 the knight jumps to c4 – close to White\'s king, and from there it hits the queen on d2 and the bishop on e3.' },
+  { q: 'A famous Dragon idea: your rook takes the knight on c3 (...Rxc3). Why give a rook for a knight?', icon: '🔥', options: ['It breaks the pawns in front of White\'s king', 'A rook is worth less than a knight', 'To trade queens'], answer: 'It breaks the pawns in front of White\'s king', why: 'After ...Rxc3 bxc3 the white king has broken pawns, and your dragon bishop can bite along the long diagonal. The attack counts more than the material.' },
+  { fen: fenAfter(`${YUGO} 9.O-O-O`), q: 'White castled long at once (9.O-O-O). What is your best answer?', icon: '⚡', options: ['9...d5', '9...Bd7', '9...a6'], answer: '9...d5', why: '9...d5! – strike in the center at once. That is the best way to fight White\'s attack here.' },
 ]
 
 // The War Tent on the map (it travels with Liam, but the map shows it near Kannauj)

@@ -4,6 +4,7 @@ import { MIRROR, isOpen, loadKing, mirrorOpen } from '../lib/king'
 import '../king.css'
 
 const IMG = import.meta.env.BASE_URL + 'king/'
+const COUNT = ['no', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten'][MIRROR.length] ?? String(MIRROR.length)
 
 // Act 2: the Mirror World. Places you know, reversed – now you play Black against the Shadow King's generals.
 export function Mirror() {
@@ -22,7 +23,7 @@ export function Mirror() {
         <img className="king-avatar mirror-lu" src={IMG + 'lu.jpg'} alt="Grandmaster Lu" />
         <p className="king-say">
           {mirrorOpen(k.beaten)
-            ? 'In the mirror everything is reversed, Liam. The Shadow King moves first – you answer with Black. Beat his six shadows, one after another.'
+            ? `In the mirror everything is reversed, Liam. The Shadow King moves first – you answer with Black. Beat his ${COUNT} shadows, one after another.`
             : 'The mirror is still dark. Beat Count Giuoco in Rome first – then you know how to react with White.'}
         </p>
       </div>
@@ -47,8 +48,8 @@ export function Mirror() {
             <button type="button" className="primary wide" onClick={() => go(`king/${next.id}/next`)}>Continue: {next.name}</button>
           ) : (
             <div className="king-fb ok knack">
-              <b>All six shadows are beaten</b>
-              <p>You have three answers to 1.e4 and three to 1.d4. Find more in the opening atlas.</p>
+              <b>All {COUNT} shadows are beaten</b>
+              <p>You know how to answer 1.e4 and 1.d4 with Black – from the Scandinavian to the Dragon. Find more in the opening atlas.</p>
             </div>
           )}
         </>
@@ -61,11 +62,11 @@ export function Mirror() {
   )
 }
 
-// The painted world map, mirrored: the six shadows where their cities lie in the mirror, joined by your road
+// The painted world map, mirrored: the shadows where their cities lie in the mirror, joined by your road
 function MirrorMap({ beaten, next }: { beaten: string[]; next?: string }) {
   const road = MIRROR.map((s) => `${s.x},${s.y}`).join(' ')
   return (
-    <svg className="mirror-map" viewBox="268 55 830 470" role="img" aria-label="The mirrored world map with the six shadows">
+    <svg className="mirror-map" viewBox="268 55 830 470" role="img" aria-label={`The mirrored world map with the ${COUNT} shadows`}>
       <defs>
         <clipPath id="mirror-clip"><circle r="30" /></clipPath>
       </defs>
