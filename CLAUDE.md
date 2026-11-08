@@ -1,9 +1,12 @@
 # Chess Trainer – Projektspezifikation
 
-> **Startbefehl:** Wenn Lu „Chess Trainer" schreibt, lies diese Datei, prüfe welcher
-> Schritt unter „Reihenfolge" als Nächstes offen ist (anhand von Code + Git-Log),
-> und baue ihn ohne Rückfragen, außer du bist wirklich blockiert. Danach: committen,
-> deployen, kurz sagen was er testen soll.
+> **START (für jede neue Sitzung, auch für Johanna):** Die offene Arbeit steht in **`BAUPLAN.md`**.
+> Begrüße kurz, nenne den ersten offenen Punkt (`[ ]`) aus `BAUPLAN.md` und frage nur: „Soll ich
+> Punkt N bauen? (OK / alles)“. Bei OK, „los“, „weiter“ oder `/weiterbauen`: bauen nach den Regeln in
+> `BAUPLAN.md`, ohne weitere Rückfragen. Bei „alles“: alle offenen Punkte nacheinander.
+> Arbeit immer auf Branch `preview`; live (`main`) erst nach „übernehmen“.
+>
+> Alter Startbefehl: Wenn Lu „Chess Trainer" schreibt, gilt dasselbe.
 
 ## Ziel
 Persönliche Trainings-App für Lu (Chess.com: **l0o2**, Rapid ~574, Puzzles ~604).
@@ -102,7 +105,13 @@ Hauptnutzung: am Handy.
 - Zurück aus einer Linie landet man dort, wo sie geöffnet wurde (`src/lib/returnTo.ts`).
 - Meister erzählen **nur belegte Fakten**. Lord-Fog-Runden kommen aus den echten London-Linien (Test in `src/lib/king.test.ts`).
 - **Phase A (live seit 07.11. abends):** Schach-Check `#/check` (`src/lib/check.ts`, `src/screens/Check.tsx`, Startwert in `KingProgress.baseline`), Portal `#/portal` (`src/lib/portal.ts`, `src/screens/Portal.tsx`: Quests aus echten chess.com-Partien, Bericht je 20 Rapid-Partien, nur fertige Partien – Fair Play), Hauptweg `ROAD` Kannauj → Samarkand → Rom → Bagdad, Lichess-Puzzles CC0 in `src/data/lichess-puzzles.json`, Überfälle `#/encounter/<ziel>`, Kastanien 🌰 + Titel (`titleOf`), Knack (`fx.knack()` nur bei Wache/Drohung/Sicherheit). Lücken-Linien in `data/gaps_black.pgn`, `data/gaps_white.pgn`. `node scripts/check-lines.mjs 16 <dateiname>` (ohne `data/`).
-- Nächste Stufe (Phase B): Story-Rahmen (Großmeister, Schattenkönig, Charakter + Name), Spiegelwelt (Schwarz), Waffenkammer/Schilde, Schnellreise, Chronik, Drachenhöhle, Gefährten, offene Welt.
+- **Stand 08.11.2026 (alles live):** Liam ist ein Straßenkind, Großmeister **Lu** schickt ihn los (Intro `street-*.jpg`), Hoppy ist violett. Ansehen wächst mit den Bossen (`reputation()`), Porträt wächst mit dem Rang (`liamPortrait()`, `liam.jpg` … `liam-5.jpg`).
+- **Geführte Reise:** `route()` in `king.ts` = `ROAD` (Kannauj → Samarkand → Rom → Bagdad), dann die übrigen Städte in `STATIONS`-Reihenfolge, Chennai zuletzt. `isOpen()` öffnet nur die nächste Stadt; geschaffte bleiben offen. Edinburgh (Schottisch) liegt vor London.
+- **Spiegelwelt (Akt 2, Schwarz):** `MIRROR` in `king.ts` (nicht in `STATIONS`, zählt nicht für Chennai), öffnet nach Rom, geführt, eigene Karte `#/mirror` (`src/screens/Mirror.tsx`, `mirror-world.jpg`). Sieben Schatten, jede Eröffnung am Ort ihres Namens.
+- **Kern-Training:** „How do you react?“ (`bookCrossroads()`, Schritt `choose` je Station), „Your habits“ (`#/habits`, `habitCrossroads()` in `check.ts` aus den letzten 100 Rapid-Partien), Eröffnungs-Atlas (`#/atlas`, `src/lib/atlas.ts`, 24 Familien, Linien in `data/atlas*.pgn`), Kreuzungen in Paris.
+- **Echte Welt:** Schach-Check `#/check`, Portal `#/portal` (Quests aus echten Partien, Bericht je 20 Rapid-Partien). Training Camp `#/tent` (früher War Tent), Questbuch `#/quests`, Neustart in den Settings (`restartKing()`).
+- **Prüfwerkzeuge:** `scripts/check-lines.mjs`, `scripts/check-rounds.mjs` (alle Brett-Aufgaben mit Stockfish), `scripts/extend-line.mjs`, Klicktests in `scripts/e2e/` (brauchen `playwright`).
+- **Was noch fehlt:** siehe `BAUPLAN.md`.
 
 ## Reihenfolge
 1. Projekt-Setup, PWA, GitHub-Pages-Deploy

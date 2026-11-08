@@ -25,3 +25,4 @@ dist-ssr
 
 # Copied from node_modules by scripts/copy-stockfish.mjs
 public/stockfish
+e2e-shots/
