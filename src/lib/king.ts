@@ -385,6 +385,25 @@ export const STATIONS: Station[] = [
     boss: { name: 'Rocco the Rook, your rival', face: '♜', img: 'boss-rocco.jpg', kind: 'cross', taunt: 'Against your 1.e4, your opponents answered 1...e5 in 57% of games. Ready?', win: 'Rocco is speechless. You always know which road to take.' },
   },
   {
+    id: 'edinburgh', name: 'Edinburgh', year: '1824', x: 806, y: 196, medallion: true, sea: true, color: '#2f6f4f',
+    intro: 'A chess club, a castle on a rock – and a match played by letter. Here the Scotch Game got its name.',
+    skills: ['3.d4: open the center at once', 'Take back with the knight', 'Develop fast'],
+    scene: 'edinburgh.jpg',
+    master: {
+      img: 'edinburgh-club.jpg', name: 'An old club member', from: 'Edinburgh Chess Club', skin: '#f2c9a0', hair: '#cfcfcf', coat: '#2f6f4f', beard: true,
+      talk: [
+        { who: 'master', text: 'Welcome to Edinburgh, Liam. Mind the stairs – and the horse, please, stays outside.' },
+        { who: 'master', text: 'In 1824 our city played London at chess – by letter. Every move travelled for days.' },
+        { who: 'master', text: 'From that match the opening 1.e4 e5 2.Nf3 Nc6 3.d4 got its name: the Scotch Game.' },
+        { who: 'master', text: 'The idea: do not wait. Open the center on move 3, take back with the knight, and develop fast.' },
+        { who: 'liam', text: 'And who is that tower on the rock, looking at me?' },
+      ],
+    },
+    games: [],
+    lines: { opening: 'Scotch Game', side: 'w' },
+    boss: { name: 'The Castle Rook', face: '🏰', img: 'boss-castlerook.jpg', kind: 'lines', taunt: 'Nobody has taken my castle. Show me your Scotch!', win: 'The Castle Rook lowers its banner. The Scotch is yours.' },
+  },
+  {
     id: 'london', name: 'London', year: '1849–1922', x: 878, y: 228, sea: true, color: '#364fc7',
     intro: 'The Staunton pieces, the first big tournament – and a system named after this city.',
     skills: ['Bishop out before e3', 'Pawn chain c3-d4-e3', 'Keep the bishop: Bg3'],
@@ -396,12 +415,11 @@ export const STATIONS: Station[] = [
         { who: 'liam', text: 'Why is this system called London?' },
         { who: 'master', text: 'At the big London tournament of 1922 it was played seven times. That gave it the name.' },
         { who: 'master', text: 'The secret: bring your bishop to f4 before you play e3. Then build a strong pawn chain. And beware of Lord Fog!' },
-        { who: 'master', text: 'Two more weapons were named on this island. In 1824 Edinburgh played London by letter – that gave us the Scotch Game, 3.d4.' },
-        { who: 'master', text: 'And Howard Staunton played 1.c4 in his match of 1843 against Saint-Amant – that is why it is called the English Opening.' },
+        { who: 'master', text: 'One more weapon carries the name of this country. Howard Staunton of London played 1.c4 in his match of 1843 against Saint-Amant – that is why it is called the English Opening.' },
       ],
     },
     games: [],
-    lines: { opening: ['London System', 'English Opening', 'Scotch Game'], side: 'w' },
+    lines: { opening: ['London System', 'English Opening'], side: 'w' },
     boss: { name: 'Lord Fog of London', face: '🎩', img: 'boss-fog.jpg', kind: 'board', rounds: LORD_FOG, taunt: '1...d5 – the fog rolls in.', win: 'The fog lifts over London. You get the London badge.' },
   },
   {
@@ -519,11 +537,12 @@ export const STATIONS: Station[] = [
 
 // ---------- Act 2: the Mirror World – everything is reversed, now you play Black ----------
 // Places you know, seen in the Shadow King's mirror. Grandmaster Lu guides you; the bosses are shadows.
-// Not on the world map and not counted for Chennai: it has its own page (#/mirror).
+// Not on the world map and not counted for Chennai: it has its own mirrored map (#/mirror),
+// each place near where its city lies in the mirror, spread out so the names stay readable.
 const LU = { img: 'lu.jpg', name: 'Grandmaster Lu', from: 'Your teacher', skin: '#e0b48a', hair: '#cfcfcf', coat: '#3a3550', beard: true }
 export const MIRROR: Station[] = [
   {
-    id: 'mirror-gate', name: 'The Mirror North', year: 'Act 2 · Mirror World', x: 0, y: 0, color: '#6c4ab6',
+    id: 'mirror-gate', name: 'The Mirror North', year: 'Act 2 · Mirror World', x: 870, y: 120, color: '#6c4ab6',
     intro: 'Through the mirror everything is reversed. Here you play Black – and your first answer to 1.e4 is 1...d5, the Scandinavian.',
     skills: ['1.e4 d5', 'Queen to a5 or d6', 'Develop with tempo'],
     scene: 'mirror-north.jpg',
@@ -542,7 +561,7 @@ export const MIRROR: Station[] = [
     boss: { name: 'The Shadow Berserker', face: '🪓', img: 'boss-shadow-berserker.jpg', kind: 'lines', taunt: 'I move first here. What is your answer?', win: 'The Shadow Berserker melts into the mirror. Your 1...d5 stands.' },
   },
   {
-    id: 'mirror-fortress', name: 'The Shadow Fortress', year: 'Act 2 · Mirror World', x: 0, y: 0, color: '#4a4f8c',
+    id: 'mirror-fortress', name: 'The Shadow Fortress', year: 'Act 2 · Mirror World', x: 985, y: 222, color: '#4a4f8c',
     intro: 'In the mirror London, the shadows play 1.d4. You build a fortress: hold d5 and strike back with ...c5.',
     skills: ['Hold d5 with ...e6', 'Strike with ...c5', 'Against the London: ...c5 at once'],
     scene: 'mirror-london.jpg',
@@ -561,7 +580,7 @@ export const MIRROR: Station[] = [
     boss: { name: 'The Shadow of Lord Fog', face: '🌫️', img: 'boss-shadow-fog.jpg', kind: 'lines', taunt: 'In the mirror, I play the London against you!', win: 'The fog lifts from the fortress. You know how to meet 1.d4.' },
   },
   {
-    id: 'mirror-caro', name: 'The Mirror Vienna', year: 'Act 2 · Mirror World', x: 0, y: 0, color: '#7a3e6e',
+    id: 'mirror-caro', name: 'The Mirror Vienna', year: 'Act 2 · Mirror World', x: 785, y: 258, color: '#7a3e6e',
     intro: 'Your second weapon against 1.e4: the Caro-Kann. First ...c6, then ...d5 – a solid wall.',
     skills: ['1...c6 and 2...d5', 'Bishop out before ...e6', 'Against the Advance: ...Bf5 and ...e6'],
     scene: 'mirror-vienna.jpg',
@@ -580,7 +599,7 @@ export const MIRROR: Station[] = [
     boss: { name: 'The Shadow Turk', face: '🤖', img: 'boss-shadow-turk.jpg', kind: 'lines', taunt: 'Click… whirr… your Caro-Kann against my 1.e4!', win: 'The shadow machine stops. Your Caro-Kann wall holds.' },
   },
   {
-    id: 'mirror-paris', name: 'The Mirror Paris', year: 'Act 2 · Mirror World', x: 0, y: 0, color: '#1864ab',
+    id: 'mirror-paris', name: 'The Mirror Paris', year: 'Act 2 · Mirror World', x: 910, y: 345, color: '#1864ab',
     intro: 'A third answer to 1.e4: the French Defense. First ...e6, then ...d5 – and attack White’s pawn chain from the side.',
     skills: ['1...e6 and 2...d5', 'Hit the chain with ...c5', 'Pressure on d4'],
     scene: 'mirror-paris.jpg',
@@ -598,7 +617,7 @@ export const MIRROR: Station[] = [
     boss: { name: 'The Shadow of Rocco', face: '♜', img: 'boss-shadow-rocco.jpg', kind: 'lines', taunt: 'Your French against my 1.e4 – en garde!', win: 'Rocco’s shadow lowers his rook. The French is yours.' },
   },
   {
-    id: 'mirror-slav', name: 'The Mirror Forest', year: 'Act 2 · Mirror World', x: 0, y: 0, color: '#1c7ed6',
+    id: 'mirror-slav', name: 'The Mirror Forest', year: 'Act 2 · Mirror World', x: 640, y: 170, color: '#1c7ed6',
     intro: 'A second answer to the Queen’s Gambit: the Slav. Protect d5 with ...c6 – and your light bishop stays free.',
     skills: ['2...c6 holds d5', 'Bishop to f5 before ...e6', 'Take on c4 at the right moment'],
     scene: 'mirror-forest.jpg',
@@ -616,7 +635,7 @@ export const MIRROR: Station[] = [
     boss: { name: 'The Shadow Snow Bishop', face: '❄️', img: 'boss-shadow-snowbishop.jpg', kind: 'lines', taunt: 'My diagonals are cold. Is your Slav warm enough?', win: 'The ice bishop cracks. You know the Slav.' },
   },
   {
-    id: 'mirror-kid', name: 'The Mirror Kannauj', year: 'Act 2 · Mirror World', x: 0, y: 0, color: '#c2410c',
+    id: 'mirror-kid', name: 'The Mirror Kannauj', year: 'Act 2 · Mirror World', x: 395, y: 440, color: '#c2410c',
     intro: 'Back where it all began – in the mirror. The King’s Indian: let White build a big center, then attack it.',
     skills: ['Bishop to g7, castle', 'Strike with ...e5 or ...c5', 'Attack with ...f5'],
     scene: 'mirror-kannauj.jpg',

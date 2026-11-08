@@ -102,3 +102,17 @@
 [Result "*"]
 
 1. d4 d5 2. c4 c6 3. Nf3 Nf6 4. e3 {White closes in the light bishop – yours can still come out.} Bf5 {The Slav idea: bishop out before ...e6.} 5. Nc3 e6 6. Nh4 {White hunts your bishop.} Bg6 {Step back – if White takes, you get the open h-file for your rook.} 7. Nxg6 hxg6 8. Qb3 Qc7 *
+
+[Event "Scotch: 3...Nxd4"]
+[Opening "Scotch Game"]
+[Side "White"]
+[Result "*"]
+
+1. e4 e5 2. Nf3 Nc6 3. d4 Nxd4 {Black trades knights at once.} 4. Nxd4 exd4 5. Qxd4 {Your queen takes the center pawn – and stands strong on d4.} Qf6 6. e5 {Push the queen away with tempo.} Qb6 7. Qxb6 axb6 *
+
+[Event "Scotch: 4...Qh4"]
+[Opening "Scotch Game"]
+[Side "White"]
+[Result "*"]
+
+1. e4 e5 2. Nf3 Nc6 3. d4 exd4 4. Nxd4 Qh4 {The queen attacks e4.} 5. Nc3 {Develop and protect e4 – do not panic.} Bb4 6. Be2 {Let Black take on e4: your pieces come out fast.} Qxe4 7. Nb5 {Threat: Nxc7+, a fork of king and rook!} Bxc3+ 8. bxc3 *

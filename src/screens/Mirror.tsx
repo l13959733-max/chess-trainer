@@ -28,6 +28,7 @@ export function Mirror() {
       </div>
       {mirrorOpen(k.beaten) && (
         <>
+          <MirrorMap beaten={k.beaten} next={next?.id} />
           {MIRROR.map((s) => {
             const done = k.beaten.includes(s.id)
             const open = isOpen(s, k.beaten)
@@ -57,5 +58,33 @@ export function Mirror() {
         <p className="king-say">Hoppy snorts at his own reflection. He does not like mirrors.</p>
       </div>
     </div>
+  )
+}
+
+// The painted world map, mirrored: the six shadows where their cities lie in the mirror, joined by your road
+function MirrorMap({ beaten, next }: { beaten: string[]; next?: string }) {
+  const road = MIRROR.map((s) => `${s.x},${s.y}`).join(' ')
+  return (
+    <svg className="mirror-map" viewBox="268 55 830 470" role="img" aria-label="The mirrored world map with the six shadows">
+      <defs>
+        <clipPath id="mirror-clip"><circle r="30" /></clipPath>
+      </defs>
+      <image href={IMG + 'mirror-world.jpg'} x="0" y="0" width="1800" height="764" preserveAspectRatio="none" />
+      <polyline points={road} fill="none" stroke="#e9dcff" strokeWidth="4" strokeDasharray="10 9" opacity=".8" />
+      {MIRROR.map((s) => {
+        const done = beaten.includes(s.id)
+        const open = isOpen(s, beaten)
+        return (
+          <g key={s.id} transform={`translate(${s.x},${s.y})`} className={`mirror-stop ${open ? '' : 'locked'}`} role="button" tabIndex={open ? 0 : -1} aria-label={`${s.name}${done ? ', beaten' : open ? '' : ', still in the fog'}`} onClick={() => open && go(`king/${s.id}`)} onKeyDown={(e) => e.key === 'Enter' && open && go(`king/${s.id}`)}>
+            {s.id === next && <circle r="40" fill="#c9a8ff" opacity=".45" className="king-pulse" />}
+            <circle r="33" fill={done ? '#c9a227' : '#2b2140'} />
+            <image href={IMG + s.scene} x="-30" y="-30" width="60" height="60" clipPath="url(#mirror-clip)" preserveAspectRatio="xMidYMid slice" opacity={open ? 1 : 0.35} />
+            {!open && <text y="9" textAnchor="middle" fontSize="24" aria-hidden="true">🔒</text>}
+            {done && <text x="24" y="-20" textAnchor="middle" fontSize="18" aria-hidden="true">✓</text>}
+            <text className="king-label mirror-label" y="52" textAnchor="middle">{s.name.replace('The ', '')}</text>
+          </g>
+        )
+      })}
+    </svg>
   )
 }
