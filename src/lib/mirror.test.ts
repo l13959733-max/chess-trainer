@@ -71,6 +71,6 @@ describe('the Mirror World is guided', () => {
     expect(open(['kannauj', 'samarkand'])).toEqual([])
     expect(open(['kannauj', 'samarkand', 'rome'])).toEqual(['mirror-gate'])
     expect(open(['kannauj', 'samarkand', 'rome', 'mirror-gate'])).toEqual(['mirror-gate', 'mirror-fortress'])
-    expect(MIRROR.map((s) => s.lines?.opening).flat()).toEqual(['Scandinavian', "Queen's Gambit Declined", 'London & 2.Nf3', 'Caro-Kann', 'French Defense', 'Slav Defense', "King's Indian Defense"])
+    expect(MIRROR.map((s) => s.lines?.opening).flat()).toEqual(['Scandinavian', 'Nimzo-Indian', "Queen's Gambit Declined", 'London & 2.Nf3', 'Dutch Defense', 'Caro-Kann', 'Grünfeld Defense', 'French Defense', 'Slav Defense', 'Pirc Defense', "King's Indian Defense", 'Sicilian Najdorf'])
   })
 })

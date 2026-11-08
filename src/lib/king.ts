@@ -122,7 +122,7 @@ export interface Crossroad {
 }
 export const CROSSROADS: Crossroad[] = [
   { fen: 'r1bqkbnr/pppp1ppp/2n5/4p3/4P3/5N2/PPPP1PPP/RNBQKB1R w KQkq - 2 3', q: 'After 1.e4 e5 2.Nf3, Black plays 2...Nc6. Which road?', options: [{ san: '3.Bc4', note: 'to Rome – Italian Game', ok: true }, { san: '3.Bb5', note: 'to Valencia – Ruy Lopez', ok: true }, { san: '3.Nc3', note: 'another knight out?' }], why: 'Rome (3.Bc4) or the Ruy Lopez (3.Bb5) – both are in your book.' },
-  { fen: 'rnbqkb1r/pppppppp/5n2/8/3P4/8/PPP1PPPP/RNBQKBNR w KQkq - 1 2', q: 'Black answers 1.d4 with 1...Nf6. Which road?', options: [{ san: '2.Bg5', note: 'to Rio – Trompowsky', ok: true }, { san: '2.c4', note: 'the big center?' }, { san: '2.Nf3', note: 'calm development?' }], why: 'Against 1...Nf6 the bishop jumps out: 2.Bg5, the Trompowsky.' },
+  { fen: 'rnbqkb1r/pppppppp/5n2/8/3P4/8/PPP1PPPP/RNBQKBNR w KQkq - 1 2', q: 'Black answers 1.d4 with 1...Nf6. Which road?', options: [{ san: '2.Bg5', note: 'to Rio – Trompowsky', ok: true }, { san: '2.c4', note: 'to Valencia – the Catalan', ok: true }, { san: '2.Nf3', note: 'calm development?' }], why: 'Two roads: 2.Bg5, the Trompowsky – or 2.c4 and later g3, the Catalan.' },
   { fen: 'rnbqkbnr/ppp1pppp/8/3p4/3P4/8/PPP1PPPP/RNBQKBNR w KQkq - 0 2', q: 'Black answers 1.d4 with 1...d5. Which road?', options: [{ san: '2.Bf4', note: 'to London', ok: true }, { san: '2.c4', note: "to the Queen's Palace", ok: true }, { san: '2.Bg5', note: 'to the Winter Forest – Levitsky', ok: true }], why: 'All three roads work against 1...d5. Pick the one you like best!' },
   { fen: 'rnbqkbnr/pppp1ppp/4p3/8/3P4/8/PPP1PPPP/RNBQKBNR w KQkq - 0 2', q: 'Black answers 1.d4 with 1...e6. Which road?', options: [{ san: '2.Bg5', note: 'to Rio?' }, { san: '2.e4', note: 'take the whole center – the French', ok: true }, { san: '2.Bf4', note: 'to London?' }], why: '2.e4 takes the whole center – you are in your 1.e4 lines against the French.' },
 ]
@@ -301,10 +301,11 @@ export const STATIONS: Station[] = [
         { who: 'master', text: 'Suddenly she could move as far as she liked, in any direction. People called it the “mad queen’s chess”.' },
         { who: 'master', text: 'In 1561 I printed my own chess book. My name stuck to an opening: 1.e4 e5 2.Nf3 Nc6 3.Bb5.' },
         { who: 'hoppy', text: 'The Ruy Lopez! Those lines are in your book, Liam.' },
+        { who: 'master', text: 'Up the coast, in Catalonia, a tournament in Barcelona in 1929 gave another opening its name: the Catalan.' },
       ],
     },
     games: [{ id: 'queen', title: 'The queen awakens', extra: true }],
-    lines: { opening: 'Ruy Lopez', side: 'w' },
+    lines: { opening: ['Ruy Lopez', 'Catalan'], side: 'w' },
     boss: { name: 'The Mad Queen', face: '👑', img: 'boss-madqueen.jpg', kind: 'board', rounds: QUEEN_TACTICS, taunt: 'Now I can go anywhere – and so can you?', win: 'The Mad Queen bows to you. You command the strongest piece on the board.' },
   },
   {
@@ -416,10 +417,11 @@ export const STATIONS: Station[] = [
         { who: 'master', text: 'At the big London tournament of 1922 it was played seven times. That gave it the name.' },
         { who: 'master', text: 'The secret: bring your bishop to f4 before you play e3. Then build a strong pawn chain. And beware of Lord Fog!' },
         { who: 'master', text: 'One more weapon carries the name of this country. Howard Staunton of London played 1.c4 in his match of 1843 against Saint-Amant – that is why it is called the English Opening.' },
+        { who: 'master', text: 'And in London in 1851, Adolf Anderssen won the famous “Immortal Game” – with the King’s Gambit, 2.f4.' },
       ],
     },
     games: [],
-    lines: { opening: ['London System', 'English Opening'], side: 'w' },
+    lines: { opening: ['London System', 'English Opening', "King's Gambit"], side: 'w' },
     boss: { name: 'Lord Fog of London', face: '🎩', img: 'boss-fog.jpg', kind: 'board', rounds: LORD_FOG, taunt: '1...d5 – the fog rolls in.', win: 'The fog lifts over London. You get the London badge.' },
   },
   {
@@ -469,9 +471,11 @@ export const STATIONS: Station[] = [
         { who: 'master', text: 'In 1912 the Spanish engineer Torres Quevedo built a machine that could mate a lone king with king and rook – every time.' },
         { who: 'master', text: 'And in 1997, here in New York, the computer Deep Blue beat the world champion Garry Kasparov.' },
         { who: 'hoppy', text: 'So the Machine knows how to mate. Do we?' },
+        { who: 'master', text: 'One more thing: here in New York in 1924, Richard Réti beat Capablanca with 1.Nf3 – the Réti Opening. Learn it here.' },
       ],
     },
     games: [{ id: 'krk', title: 'King and rook against king' }],
+    lines: { opening: 'Réti Opening', side: 'w' },
     boss: { name: 'The Machine', face: '🖥', img: 'boss-machine.jpg', kind: 'krk', taunt: 'I will escape. Probability: 99.7%.', win: 'Checkmate. The Machine prints a single word: RESPECT.' },
   },
   {
@@ -554,10 +558,11 @@ export const MIRROR: Station[] = [
         { who: 'master', text: 'When White plays 1.e4, you strike at once: 1...d5. After 2.exd5 Qxd5 3.Nc3 your queen goes to a5 or d6 – away from the knight, but still active.' },
         { who: 'master', text: 'Then develop fast: knight to f6, bishop out, castle. The queen came out early, so do not waste more time with her.' },
         { who: 'liam', text: 'A shadow with an axe is waiting in the snow…' },
+        { who: 'master', text: 'One more weapon from the North, against 1.d4: Aron Nimzowitsch lived in Copenhagen. His Nimzo-Indian pins White’s knight with ...Bb4.' },
       ],
     },
     games: [],
-    lines: { opening: 'Scandinavian', side: 'b' },
+    lines: { opening: ['Scandinavian', 'Nimzo-Indian'], side: 'b' },
     boss: { name: 'The Shadow Berserker', face: '🪓', img: 'boss-shadow-berserker.jpg', kind: 'lines', taunt: 'I move first here. What is your answer?', win: 'The Shadow Berserker melts into the mirror. Your 1...d5 stands.' },
   },
   {
@@ -573,10 +578,11 @@ export const MIRROR: Station[] = [
         { who: 'master', text: 'Against calm systems like the London with Bf4, or 2.Nf3 and 2.e3, strike at once with ...c5.' },
         { who: 'master', text: 'Develop, castle, and only then open the position. A fortress first, then the attack.' },
         { who: 'liam', text: 'The fog in this fortress has a face…' },
+        { who: 'master', text: 'Across the sea lies Holland. In 1789 Elias Stein, a player in the Netherlands, recommended 1...f5 – the Dutch Defense, for days when you want to attack.' },
       ],
     },
     games: [],
-    lines: { opening: ["Queen's Gambit Declined", 'London & 2.Nf3'], side: 'b' },
+    lines: { opening: ["Queen's Gambit Declined", 'London & 2.Nf3', 'Dutch Defense'], side: 'b' },
     boss: { name: 'The Shadow of Lord Fog', face: '🌫️', img: 'boss-shadow-fog.jpg', kind: 'lines', taunt: 'In the mirror, I play the London against you!', win: 'The fog lifts from the fortress. You know how to meet 1.d4.' },
   },
   {
@@ -592,10 +598,11 @@ export const MIRROR: Station[] = [
         { who: 'master', text: 'First 1...c6, then 2...d5. The pawn on c6 supports d5, so you never have to take back with the queen.' },
         { who: 'master', text: 'The secret: bring your light bishop out to f5 or g4 before you play ...e6. Then it is not locked in.' },
         { who: 'liam', text: 'The shadow of the Turk is clicking in the dark…' },
+        { who: 'master', text: 'Vienna gave us one more: Ernst Grünfeld from Vienna introduced his defense in 1922. Give White the center – then attack it.' },
       ],
     },
     games: [],
-    lines: { opening: 'Caro-Kann', side: 'b' },
+    lines: { opening: ['Caro-Kann', 'Grünfeld Defense'], side: 'b' },
     boss: { name: 'The Shadow Turk', face: '🤖', img: 'boss-shadow-turk.jpg', kind: 'lines', taunt: 'Click… whirr… your Caro-Kann against my 1.e4!', win: 'The shadow machine stops. Your Caro-Kann wall holds.' },
   },
   {
@@ -628,10 +635,11 @@ export const MIRROR: Station[] = [
         { who: 'master', text: 'Against 2.c4 you play 2...c6: the pawn protects d5, and your light bishop can still come out to f5.' },
         { who: 'master', text: 'That is the difference to the Queen’s Gambit Declined, where ...e6 locks the bishop in.' },
         { who: 'liam', text: 'A bishop made of ice glides between the trees…' },
+        { who: 'master', text: 'And from Slovenia, a Slavic country too: Vasja Pirc gave his name to the Pirc Defense against 1.e4.' },
       ],
     },
     games: [],
-    lines: { opening: 'Slav Defense', side: 'b' },
+    lines: { opening: ['Slav Defense', 'Pirc Defense'], side: 'b' },
     boss: { name: 'The Shadow Snow Bishop', face: '❄️', img: 'boss-shadow-snowbishop.jpg', kind: 'lines', taunt: 'My diagonals are cold. Is your Slav warm enough?', win: 'The ice bishop cracks. You know the Slav.' },
   },
   {
@@ -651,7 +659,26 @@ export const MIRROR: Station[] = [
     },
     games: [],
     lines: { opening: "King's Indian Defense", side: 'b' },
-    boss: { name: 'The Shadow Captain', face: '🛡️', img: 'boss-shadow-captain.jpg', kind: 'lines', taunt: 'You came back, street kid. Show me your King’s Indian!', win: 'The Shadow Captain bows. The Mirror World is free of shadows.' },
+    boss: { name: 'The Shadow Captain', face: '🛡️', img: 'boss-shadow-captain.jpg', kind: 'lines', taunt: 'You came back, street kid. Show me your King’s Indian!', win: 'The Shadow Captain bows. One last shadow waits across the sea.' },
+  },
+  {
+    id: 'mirror-najdorf', name: 'The Mirror Rio', year: 'Act 2 · Mirror World', x: 610, y: 488, color: '#2b8a3e',
+    intro: 'Across the sea, in the mirror: the Najdorf, the sharpest weapon against 1.e4.',
+    skills: ['...a6: no knight on b5', 'Strike with ...e5', 'Fight for d5'],
+    scene: 'mirror-rio.jpg',
+    master: {
+      ...LU,
+      talk: [
+        { who: 'master', text: 'We crossed the sea, Liam. South America, in the mirror.' },
+        { who: 'master', text: 'Miguel Najdorf came to Buenos Aires for the Chess Olympiad of 1939 – and stayed in Argentina. His Sicilian carries his name.' },
+        { who: 'master', text: 'After 5.Nc3 you play 5...a6. It keeps White’s knights off b5 and gets ready for ...e5 or ...b5.' },
+        { who: 'master', text: 'Then fight for d5 – the most important square in the Najdorf.' },
+        { who: 'liam', text: 'Something with spots is moving in the jungle of the mirror…' },
+      ],
+    },
+    games: [],
+    lines: { opening: 'Sicilian Najdorf', side: 'b' },
+    boss: { name: 'The Shadow Jaguar', face: '🐆', img: 'boss-shadow-jaguar.jpg', kind: 'lines', taunt: 'Your Najdorf against my 1.e4 – are you fast enough?', win: 'The Shadow Jaguar slinks into the mirror. The Mirror World is free of shadows!' },
   },
 ]
 
@@ -805,6 +832,18 @@ export function nextStation(after: string, beaten: string[]): Station | undefine
   const order = [...ROAD, ...STATIONS.map((s) => s.id).filter((id) => !ROAD.includes(id))]
   const rest = order.slice(order.indexOf(after) + 1).concat(order.slice(0, order.indexOf(after)))
   return rest.map((id) => stationById(id)!).find((s) => !beaten.includes(s.id) && s.id !== after && isOpen(s, beaten))
+}
+
+// A fresh journey from Kannauj: cities, bosses, chestnuts and titles start again.
+// Your real chess.com data stays: the chess check (baseline) and the reports you already got.
+export function restartKing() {
+  const p = loadKing()
+  saveKing({ ...FRESH, baseline: p.baseline, reports: p.reports })
+  try {
+    localStorage.removeItem('chess-trainer-ambush')
+  } catch {
+    // storage blocked: nothing to forget
+  }
 }
 
 export function saveKing(p: KingProgress) {

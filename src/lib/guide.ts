@@ -197,6 +197,46 @@ export const GUIDE: Record<string, Guide> = {
     ideas: ['...c6 holds d5', 'Bishop to f5 or g4 before ...e6', 'Take on c4 when White must spend time to win it back'],
     style: 'Solid',
   },
+  'Réti Opening|w': {
+    about: 'You start with 1.Nf3 and 2.c4 and attack the center from the side. You decide later where your pawns go.',
+    ideas: ['Bishop to g2 on the long diagonal', 'Hit d5 with c4', 'Castle early, then strike with e3, d3 or b4'],
+    style: 'Solid',
+  },
+  "King's Gambit|w": {
+    about: 'You give the f-pawn on move 2 for the open f-file and a fast attack. Old, wild and fun.',
+    ideas: ['Nf3 stops ...Qh4+', 'Win the pawn on f4 back with Bxf4', 'Castle and use the open f-file'],
+    style: 'Gambit',
+  },
+  'Catalan|w': {
+    about: 'Queen’s Gambit ideas with the bishop on g2. It presses on d5 and b7 for a long time.',
+    ideas: ['Bishop to g2, castle', 'If Black takes on c4: win it back with the queen', 'Long pressure on the long diagonal'],
+    style: 'Solid',
+  },
+  'Sicilian Najdorf|b': {
+    about: 'The sharpest Sicilian: 5...a6 keeps White’s knights off b5 and prepares ...e5 or ...b5.',
+    ideas: ['...a6 first', 'Strike with ...e5 and fight for d5', 'Know the sharp lines – White attacks too'],
+    style: 'Sharp',
+  },
+  'Pirc Defense|b': {
+    about: 'You let White build a center with e4 and d4, put your bishop on g7 and hit the center later.',
+    ideas: ['...d6, ...Nf6, ...g6 and ...Bg7', 'Castle early', 'Strike with ...c5, ...e5 or ...d5'],
+    style: 'Active',
+  },
+  'Nimzo-Indian|b': {
+    about: 'You pin White’s knight on c3 with ...Bb4. Often you take it and play against White’s pawns.',
+    ideas: ['...Bb4 pins the knight that supports e4', '...Bxc3 when it hurts White’s pawns', 'Hit the center with ...c5 or ...d5'],
+    style: 'Solid',
+  },
+  'Grünfeld Defense|b': {
+    about: 'You give White a big center on purpose – and then attack it with your pieces and ...c5.',
+    ideas: ['...d5 and trade on c3', 'Bishop on g7 hits c3 and d4', 'Strike with ...c5'],
+    style: 'Sharp',
+  },
+  'Dutch Defense|b': {
+    about: '1...f5 fights for e4 and prepares an attack on the kingside. Unbalanced games.',
+    ideas: ['Stonewall: pawns on f5, e6, d5 hold e4', 'Leningrad: bishop on g7', 'Castle soon – the diagonal to your king is open'],
+    style: 'Active',
+  },
   'Alekhine Defense|w': {
     about: 'Black\'s knight on f6 invites your pawns forward. You chase it and take space – then develop calmly.',
     ideas: ['e5 chases the knight, d4 and c4 build a big center', 'Do not push too far: develop first', 'More space means more room for your pieces'],

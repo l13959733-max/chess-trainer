@@ -119,6 +119,11 @@ export async function putSrs(state: SrsState): Promise<void> {
   await (await db()).put('srs', state)
 }
 
+// "Start again": every line is new again (used by the fresh-game button in the settings)
+export async function clearSrs(): Promise<void> {
+  await (await db()).clear('srs')
+}
+
 export async function getImports(): Promise<ImportRecord[]> {
   return (await db()).getAll('imports')
 }

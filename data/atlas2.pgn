@@ -1,0 +1,164 @@
+[Event "Réti: 2...d4"]
+[Opening "Réti Opening"]
+[Side "White"]
+[Result "*"]
+
+1. Nf3 {The Réti: a knight first – you decide about the center later.} d5 2. c4 {Hit d5 from the side.} d4 {Black grabs space.} 3. e3 {Attack the pawn on d4 at once.} c5 4. d3 Nc6 5. exd4 cxd4 6. g3 {Your bishop goes to g2 and looks at the long diagonal.} e5 *
+
+[Event "Réti: 2...e6"]
+[Opening "Réti Opening"]
+[Side "White"]
+[Result "*"]
+
+1. Nf3 d5 2. c4 e6 3. g3 {Bishop to g2 – the heart of the Réti.} Nf6 4. Bg2 d4 5. d3 Bb4+ 6. Bd2 a5 7. O-O {King safe first, then attack Black's center with e3 or b4.} O-O 8. e3 *
+
+[Event "Réti: 2...dxc4"]
+[Opening "Réti Opening"]
+[Side "White"]
+[Result "*"]
+
+1. Nf3 d5 2. c4 dxc4 {Black takes the pawn.} 3. e3 {Open the bishop – it takes c4 back.} Be6 4. Nc3 Nc6 5. Ng5 {Hit the bishop on e6.} Bf5 6. Bxc4 {Pawn back, and your pieces are active.} e6 *
+
+[Event "King's Gambit: Kieseritzky"]
+[Opening "King's Gambit"]
+[Side "White"]
+[Check "gambit"]
+[Result "*"]
+
+1. e4 e5 2. f4 {The King's Gambit: a pawn for the open f-file and a fast attack.} exf4 3. Nf3 {Stop ...Qh4+.} g5 {Black holds the extra pawn.} 4. h4 {Break the pawn chain at once.} g4 5. Ne5 {The knight jumps forward instead of retreating.} Nf6 6. d4 d6 7. Nd3 Nxe4 8. Bxf4 {Pawn back – and your pieces are out.} *
+
+[Event "King's Gambit: 3...d5"]
+[Opening "King's Gambit"]
+[Side "White"]
+[Check "gambit"]
+[Result "*"]
+
+1. e4 e5 2. f4 exf4 3. Nf3 d5 {Black gives the pawn back for fast development.} 4. exd5 Nf6 5. Bc4 c6 6. d4 cxd5 7. Bb5+ {Check first – then win back the pawn on f4.} Nc6 8. Bxf4 *
+
+[Event "King's Gambit: Falkbeer 2...d5"]
+[Opening "King's Gambit"]
+[Side "White"]
+[Check "gambit"]
+[Result "*"]
+
+1. e4 e5 2. f4 d5 {The Falkbeer: a counter-gambit.} 3. exd5 {Take it.} exf4 4. Nf3 {Stop ...Qh4+ – the same idea as in the main line.} Nf6 {This is the same position as after 2...exf4 3.Nf3 d5 4.exd5 Nf6 – go on with 5.Bc4 from that line.} *
+
+[Event "King's Gambit declined: 2...Bc5"]
+[Opening "King's Gambit"]
+[Side "White"]
+[Check "gambit"]
+[Result "*"]
+
+1. e4 e5 2. f4 Bc5 {Declined: the bishop stops you from castling short for now.} 3. Nf3 d6 4. c3 {Prepare d4 to kick the bishop.} Nf6 5. d4 exd4 6. cxd4 Bb6 7. Nc3 {A big center.} *
+
+[Event "Catalan: Open 4...dxc4"]
+[Opening "Catalan"]
+[Side "White"]
+[Result "*"]
+
+1. d4 Nf6 2. c4 e6 3. g3 {The Catalan: your bishop on g2 presses on d5 and b7.} d5 4. Bg2 dxc4 {Black takes the pawn.} 5. Nf3 Bb4+ 6. Bd2 a5 7. Qc2 {You will take c4 back with the queen.} Bxd2+ 8. Nbxd2 *
+
+[Event "Catalan: Closed 4...Be7"]
+[Opening "Catalan"]
+[Side "White"]
+[Result "*"]
+
+1. d4 Nf6 2. c4 e6 3. g3 d5 4. Bg2 Be7 5. Nf3 O-O 6. O-O dxc4 7. Qc2 {Win the pawn back.} a6 8. a4 {Stop ...b5.} Bd7 9. Qxc4 *
+
+[Event "Najdorf: English Attack 6.Be3"]
+[Opening "Sicilian Najdorf"]
+[Side "Black"]
+[Result "*"]
+
+1. e4 c5 2. Nf3 d6 3. d4 cxd4 4. Nxd4 Nf6 5. Nc3 a6 {The Najdorf: ...a6 keeps the knights off b5 and prepares ...e5 or ...b5.} 6. Be3 e5 {Kick the knight and take space.} 7. Nde2 Be6 {Fight for d5 – the key square.} 8. Nd5 Bxd5 {Take the knight before it settles on d5.} 9. exd5 Ng4 {Hunt White's strong bishop on e3.} 10. Nc3 Nxe3 11. fxe3 {White's strong bishop is gone, and White's pawns are loose: no f-pawn and a weak pawn on e3.} *
+
+[Event "Najdorf: 6.Bg5"]
+[Opening "Sicilian Najdorf"]
+[Side "Black"]
+[Result "*"]
+
+1. e4 c5 2. Nf3 d6 3. d4 cxd4 4. Nxd4 Nf6 5. Nc3 a6 6. Bg5 {The sharpest line.} e6 7. f4 Be7 8. Qf3 Qc7 {Develop and wait for the right moment to hit back.} 9. f5 h6 *
+
+[Event "Najdorf: 6.Be2"]
+[Opening "Sicilian Najdorf"]
+[Side "Black"]
+[Result "*"]
+
+1. e4 c5 2. Nf3 d6 3. d4 cxd4 4. Nxd4 Nf6 5. Nc3 a6 6. Be2 {The quiet main line.} e5 7. Nb3 Be6 {Your bishop fights for d5.} 8. f4 Be7 9. f5 Bd7 *
+
+[Event "Pirc: Austrian Attack 4.f4"]
+[Opening "Pirc Defense"]
+[Side "Black"]
+[Result "*"]
+
+1. e4 d6 2. d4 Nf6 3. Nc3 g6 {The Pirc: bishop to g7, castle, then hit White's center.} 4. f4 {The Austrian Attack: a huge center.} Bg7 5. Nf3 O-O 6. Bd3 Nc6 {Pressure on d4 and a jump to b4.} 7. h3 Nb4 *
+
+[Event "Pirc: 4.Nf3"]
+[Opening "Pirc Defense"]
+[Side "Black"]
+[Result "*"]
+
+1. e4 d6 2. d4 Nf6 3. Nc3 g6 4. Nf3 Bg7 5. Be3 O-O 6. Qd2 d5 {Strike the center at once – the bishop on e3 and queen on d2 want to attack.} 7. exd5 Nxd5 *
+
+[Event "Pirc: 4.Be3"]
+[Opening "Pirc Defense"]
+[Side "Black"]
+[Result "*"]
+
+1. e4 d6 2. d4 Nf6 3. Nc3 g6 4. Be3 Bg7 5. h3 O-O 6. Nf3 b6 {Your other bishop goes to b7 and also hits e4.} 7. Qd2 Bb7 *
+
+[Event "Nimzo-Indian: Rubinstein 4.e3"]
+[Opening "Nimzo-Indian"]
+[Side "Black"]
+[Result "*"]
+
+1. d4 Nf6 2. c4 e6 3. Nc3 Bb4 {The Nimzo-Indian: pin the knight that wants to support e4.} 4. e3 c5 {Hit the center from the side.} 5. Ne2 d5 6. a3 Bxc3+ {Take the knight – White gets doubled pawns or loses time.} 7. Nxc3 cxd4 8. exd4 *
+
+[Event "Nimzo-Indian: Classical 4.Qc2"]
+[Opening "Nimzo-Indian"]
+[Side "Black"]
+[Result "*"]
+
+1. d4 Nf6 2. c4 e6 3. Nc3 Bb4 4. Qc2 {White avoids doubled pawns.} d5 5. a3 Bxc3+ 6. Qxc3 O-O 7. Nf3 b6 {The light bishop goes to b7 or a6.} *
+
+[Event "Nimzo-Indian: Sämisch 4.a3"]
+[Opening "Nimzo-Indian"]
+[Side "Black"]
+[Result "*"]
+
+1. d4 Nf6 2. c4 e6 3. Nc3 Bb4 4. a3 {White asks the question at once.} Bxc3+ 5. bxc3 O-O {White has the two bishops, you have the better pawns.} 6. e3 d5 7. cxd5 exd5 *
+
+[Event "Grünfeld: Exchange 4.cxd5"]
+[Opening "Grünfeld Defense"]
+[Side "Black"]
+[Result "*"]
+
+1. d4 Nf6 2. c4 g6 3. Nc3 d5 {The Grünfeld: give White the center – then attack it.} 4. cxd5 Nxd5 5. e4 Nxc3 6. bxc3 Bg7 {Your bishop hits c3 and d4.} 7. Be3 c5 {Strike d4 again.} 8. Nf3 *
+
+[Event "Grünfeld: 4.Nf3"]
+[Opening "Grünfeld Defense"]
+[Side "Black"]
+[Result "*"]
+
+1. d4 Nf6 2. c4 g6 3. Nc3 d5 4. Nf3 Bg7 5. cxd5 Nxd5 6. e4 Nxc3 7. bxc3 c5 {Pressure on d4 – the Grünfeld plan.} 8. Bb5+ *
+
+[Event "Dutch: Leningrad vs 2.g3"]
+[Opening "Dutch Defense"]
+[Side "Black"]
+[Result "*"]
+
+1. d4 f5 {The Dutch: control e4 and prepare an attack on the kingside.} 2. g3 Nf6 3. Bg2 g6 {The Leningrad Dutch: your bishop on g7 joins the fight for e5 and e4.} 4. Nf3 Bg7 5. O-O O-O {Castle soon – your king's diagonal is open after ...f5.} 6. c4 d6 *
+
+[Event "Dutch: vs 2.c4"]
+[Opening "Dutch Defense"]
+[Side "Black"]
+[Result "*"]
+
+1. d4 f5 2. c4 Nf6 3. g3 e6 4. Nf3 d5 {The Stonewall: pawns on f5, e6 and d5 hold e4 like a wall.} 5. Bg2 Bd6 6. c5 Be7 *
+
+[Event "Dutch: vs 2.Nf3"]
+[Opening "Dutch Defense"]
+[Side "Black"]
+[Result "*"]
+
+1. d4 f5 2. Nf3 e6 3. g3 Nf6 4. Bg2 d5 {The Stonewall again: hold e4.} 5. c4 Bd6 6. c5 Be7 *

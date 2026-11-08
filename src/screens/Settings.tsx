@@ -2,6 +2,8 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { SpeakButton } from '../components/SpeakButton'
 import { go } from '../hooks/useHashRoute'
 import { reset as resetAnalyzer } from '../lib/analyzer'
+import { clearSrs } from '../lib/db'
+import { restartKing } from '../lib/king'
 import { findPlayer, setPlayer } from '../lib/chesscom'
 import { feedback, getFeedbackPrefs, setFeedbackPrefs } from '../lib/feedback'
 import type { Line } from '../lib/pgn'
@@ -121,6 +123,8 @@ export function Settings({ incoming, lines, player, onPlayer, incomingPlayer }: 
           <h2>Sound &amp; voice</h2>
         </div>
       </div>
+
+      <FreshStart />
 
       <div className="form">
         <label className="label" htmlFor="profile-name">Your name</label>
@@ -247,6 +251,36 @@ export function Settings({ incoming, lines, player, onPlayer, incomingPlayer }: 
         <p className="note small">App version {__APP_VERSION__}</p>
         {CLONE_VOICE && <p className="note">The address is stored only on this device. The first sentence can take 10–20 seconds; repeated sentences play instantly.</p>}
       </div>
+    </div>
+  )
+}
+
+// Play King of Chess again from the start – with a second tap to be sure
+function FreshStart() {
+  const [ask, setAsk] = useState(false)
+  const [lines, setLines] = useState(true)
+  const start = async () => {
+    restartKing()
+    if (lines) await clearSrs()
+    location.hash = '#/'
+    location.reload()
+  }
+  return (
+    <div className="form">
+      <span className="label">King of Chess: start again</span>
+      <p className="note">A fresh journey from Kannauj: the intro, every city, the bosses, chestnuts and titles start again. Your chess check and your reports from chess.com stay.</p>
+      <label className="check-row" htmlFor="fresh-lines">
+        <input id="fresh-lines" type="checkbox" checked={lines} onChange={(e) => setLines(e.target.checked)} /> Also learn every opening line again from the start
+      </label>
+      {ask ? (
+        <>
+          <p className="note"><b>Sure?</b> Your journey so far is gone after this.</p>
+          <button type="button" className="primary wide" onClick={start}>Yes, start a fresh game</button>
+          <button type="button" className="wide" onClick={() => setAsk(false)}>No, keep my journey</button>
+        </>
+      ) : (
+        <button type="button" className="wide" onClick={() => setAsk(true)}>Start a fresh game</button>
+      )}
     </div>
   )
 }

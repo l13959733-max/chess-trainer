@@ -6,8 +6,8 @@ describe('opening map', () => {
   const white = buildTree(builtinLines, 'w')
   const child = (n: typeof white, san: string) => n.children.find((c) => c.path[c.path.length - 1] === san)!
 
-  it('starts with 1.e4 and 1.d4 for White – and 1.c4 from the atlas', () => {
-    expect(white.children.map((c) => c.path[0]).sort()).toEqual(['c4', 'd4', 'e4'])
+  it('starts with 1.e4 and 1.d4 for White – and 1.c4 and 1.Nf3 from the atlas', () => {
+    expect(white.children.map((c) => c.path[0]).sort()).toEqual(['Nf3', 'c4', 'd4', 'e4'])
   })
 
   it('offers all three systems against 1.d4 d5', () => {
@@ -24,9 +24,10 @@ describe('opening map', () => {
   })
 
   it('skips moves without a choice', () => {
-    const tromp = child(child(white, 'd4'), 'Nf6')
-    const { node, skipped } = nextChoice(tromp)
-    expect(skipped).toEqual(['Bg5'])
+    // after 1.Nf3 d5 your book has only 2.c4 – then Black has several answers
+    const reti = child(child(white, 'Nf3'), 'd5')
+    const { node, skipped } = nextChoice(reti)
+    expect(skipped).toEqual(['c4'])
     expect(node.children.length).toBeGreaterThan(1)
   })
 
