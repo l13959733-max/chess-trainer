@@ -22,6 +22,7 @@ const LAYOUT: { group: string; side: Side; chapters: { opening: string; title?: 
       { opening: 'Philidor Defense', moves: '1.e4 e5 2.Nf3 d6' },
       { opening: 'Vienna Game', moves: '1.e4 e5 2.Nc3' },
       { opening: "Bishop's Opening", moves: '1.e4 e5 2.Bc4' },
+      { opening: 'Scotch Game', moves: '1.e4 e5 2.Nf3 Nc6 3.d4 · atlas' },
     ],
   },
   {
@@ -50,11 +51,17 @@ const LAYOUT: { group: string; side: Side; chapters: { opening: string; title?: 
     ],
   },
   {
+    group: 'White · other first moves',
+    side: 'w',
+    chapters: [{ opening: 'English Opening', moves: '1.c4 · atlas' }],
+  },
+  {
     group: 'Black · against 1.e4',
     side: 'b',
     chapters: [
       { opening: 'Scandinavian', moves: '1.e4 d5' },
       { opening: 'Caro-Kann', moves: '1.e4 c6' },
+      { opening: 'French Defense', moves: '1.e4 e6 · atlas' },
       { opening: 'Sicilian Dragon', moves: '1.e4 c5 2.Nf3 d6 3.d4 cxd4 4.Nxd4 Nf6 5.Nc3 g6' },
       { opening: "Sicilian: White's other tries", title: 'Sicilian · other White moves', moves: 'Smith-Morra, Alapin, 3.Bb5+, Grand Prix, 2.Bc4' },
       { opening: 'Italian Game', moves: '1.e4 e5 2.Nf3 Nc6 3.Bc4 Bc5' },
@@ -69,6 +76,8 @@ const LAYOUT: { group: string; side: Side; chapters: { opening: string; title?: 
     side: 'b',
     chapters: [
       { opening: "Queen's Gambit Declined", moves: '1.d4 d5 2.c4 e6' },
+      { opening: 'Slav Defense', moves: '1.d4 d5 2.c4 c6 · atlas' },
+      { opening: "King's Indian Defense", moves: '1.d4 Nf6 2.c4 g6 · atlas' },
       { opening: 'London & 2.Nf3', title: 'London System & 2.Nf3', moves: '1.d4 d5 2.Bf4 · 2.Nf3 · 2.e3 · 2.Nc3' },
     ],
   },

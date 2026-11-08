@@ -23,6 +23,7 @@ import { ChessCheck } from './screens/Check'
 import { Portal } from './screens/Portal'
 import { QuestBook } from './screens/QuestBook'
 import { Mirror } from './screens/Mirror'
+import { Atlas } from './screens/Atlas'
 import { Encounter, Habits, KingHome, KingStation, WarmUp, WarTent } from './screens/King'
 import { OpeningMap } from './screens/OpeningMap'
 import { Import } from './screens/Import'
@@ -60,6 +61,7 @@ function App() {
     else if (page === 'play' && id === 'line' && arg) rememberLine(arg)
     else if (page) rememberLine(null)
     if (page === 'path') rememberOrigin('path')
+    else if (page === 'atlas') rememberOrigin('atlas')
     else if (page === 'king' && id && !arg) rememberOrigin('king/' + id)
   }, [page, id, arg])
   // The start page is the world map; back from a line you land where you opened it
@@ -129,6 +131,7 @@ function App() {
   else if (page === 'habits') body = <Habits rep={rep} />
   else if (page === 'quests') body = <QuestBook />
   else if (page === 'mirror') body = <Mirror />
+  else if (page === 'atlas') body = <Atlas rep={rep} />
   else if (page === 'check') body = <ChessCheck rep={rep} />
   else if (page === 'portal') body = <Portal rep={rep} />
   else if (page === 'encounter') body = <Encounter key={id ?? ''} to={id} rep={rep} />

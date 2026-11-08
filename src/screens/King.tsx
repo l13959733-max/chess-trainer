@@ -1581,6 +1581,10 @@ export function WarTent({ puzzles }: { puzzles: Puzzles }) {
         <small>2 minutes · before you play on chess.com</small>
         Warm-up before your game
       </button>
+      <button type="button" className="wide king-continue" onClick={() => go('atlas')}>
+        <small>new weapons · every big opening family</small>
+        Opening atlas: widen your horizon
+      </button>
       <button type="button" className="wide king-continue" onClick={() => go('habits')}>
         <small>from your last 100 rapid games</small>
         Your habits: where you leave your book

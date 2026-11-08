@@ -6,8 +6,8 @@ describe('opening map', () => {
   const white = buildTree(builtinLines, 'w')
   const child = (n: typeof white, san: string) => n.children.find((c) => c.path[c.path.length - 1] === san)!
 
-  it('starts with 1.e4 and 1.d4 for White', () => {
-    expect(white.children.map((c) => c.path[0]).sort()).toEqual(['d4', 'e4'])
+  it('starts with 1.e4 and 1.d4 for White – and 1.c4 from the atlas', () => {
+    expect(white.children.map((c) => c.path[0]).sort()).toEqual(['c4', 'd4', 'e4'])
   })
 
   it('offers all three systems against 1.d4 d5', () => {

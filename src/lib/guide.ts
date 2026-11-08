@@ -172,6 +172,31 @@ export const GUIDE: Record<string, Guide> = {
     ideas: ['d4: two pawns in the center', 'Protect e4 with pieces, not with pawn moves', 'Develop fast while Black plays on the wing'],
     style: 'Solid',
   },
+  'Scotch Game|w': {
+    about: 'You open the center on move 3 with d4. Clear play, open lines, and fast development.',
+    ideas: ['3.d4 and take back on d4 with the knight', 'Against ...Nf6: e5 kicks the knight', 'Develop fast and castle – the center is open'],
+    style: 'Active',
+  },
+  'English Opening|w': {
+    about: 'You start with 1.c4 and fight for d5 from the side. Flexible: you decide your center later.',
+    ideas: ['Bishop to g2 on the long diagonal', 'Knight to c3, pressure on d5', 'Push d4 or d3 when your pieces are ready'],
+    style: 'Solid',
+  },
+  'French Defense|b': {
+    about: 'First ...e6, then ...d5. Often the center closes – and you attack White\'s pawn chain from the side.',
+    ideas: ['Hit the base of the chain with ...c5', 'More pressure on d4 with ...Nc6 and ...Qb6', 'Your light bishop is the problem piece – trade it or free it'],
+    style: 'Solid',
+  },
+  "King's Indian Defense|b": {
+    about: 'You let White build a big center, castle behind your bishop on g7 – and then strike with ...e5 or ...c5.',
+    ideas: ['Bishop to g7, castle early', 'Strike with ...e5 (or ...c5 against the London)', 'When the center closes: attack the king with ...f5'],
+    style: 'Sharp',
+  },
+  'Slav Defense|b': {
+    about: 'You protect d5 with ...c6. Solid like the Queen\'s Gambit Declined – but your light bishop comes out before ...e6.',
+    ideas: ['...c6 holds d5', 'Bishop to f5 or g4 before ...e6', 'Take on c4 when White must spend time to win it back'],
+    style: 'Solid',
+  },
   'Alekhine Defense|w': {
     about: 'Black\'s knight on f6 invites your pawns forward. You chase it and take space – then develop calmly.',
     ideas: ['e5 chases the knight, d4 and c4 build a big center', 'Do not push too far: develop first', 'More space means more room for your pieces'],

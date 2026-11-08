@@ -332,3 +332,10 @@
 .king-screen .mirror-card small { color: #6c4ab6; font-weight: 800; }
 .king-screen .mirror-card.complete { border-color: #3c7a3c; opacity: 0.85; }
 .king-screen .mirror-card.next { box-shadow: 0 0 0 3px rgba(108, 74, 182, 0.35); }
+
+/* opening atlas */
+.king-screen .atlas-entry.soon .quest-row { opacity: 0.6; }
+.king-screen .atlas-entry.learned .quest-row { background: rgba(60, 120, 60, 0.12); }
+.king-screen .atlas-more { display: grid; gap: 6px; padding: 4px 4px 10px 44px; }
+.king-screen .atlas-more p { margin: 0; }
+.king-screen .atlas-more button { text-align: left; }
