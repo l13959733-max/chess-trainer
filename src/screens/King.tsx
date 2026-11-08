@@ -8,6 +8,9 @@ import { go } from '../hooks/useHashRoute'
 import type { Puzzles } from '../hooks/usePuzzles'
 import type { Repertoire } from '../hooks/useRepertoire'
 import type { Line } from '../lib/pgn'
+import { recentRapid } from '../lib/analyzer'
+import { bookReport, habitCrossroads } from '../lib/check'
+import { getPlayer, myColor } from '../lib/chesscom'
 import { REAL_QUESTS } from '../lib/portal'
 import PUZZLES from '../data/lichess-puzzles.json'
 import { clampScore } from '../lib/blunders'
@@ -1476,6 +1479,40 @@ function EncounterWon({ onRide, target }: { onRide: () => void; target?: string 
   )
 }
 
+// ---------- your habits: where you leave your book in your real games ----------
+
+export function Habits({ rep }: { rep: Repertoire }) {
+  const k = loadKing()
+  const player = k.baseline?.player ?? getPlayer()
+  const [rounds, setRounds] = useState<Crossroad[] | null>(null)
+  const [games, setGames] = useState(0)
+  const [error, setError] = useState<string | null>(null)
+  useEffect(() => {
+    if (!player) return
+    // finished games only: the app never looks at a game that is still running
+    recentRapid(player, 100)
+      .then((all) => {
+        const book = rep.lines.filter((l) => l.source !== 'import')
+        setGames(all.length)
+        setRounds(habitCrossroads(bookReport(all.map((g) => ({ pgn: g.pgn, color: myColor(g, player) })), book, 8), book))
+      })
+      .catch(() => setError('chess.com cannot be reached right now. Try again later.'))
+  }, [player, rep.lines])
+  const camp = { ...stationById('kannauj')!, id: 'habits', name: 'Training Camp', year: 'your habits' }
+  const wait = (text: string, action?: React.ReactNode) => (
+    <div className="screen king-screen">
+      <StationHead s={camp} back={() => go('tent')} title="Your habits" />
+      <p className="king-lesson">{text}</p>
+      {action}
+    </div>
+  )
+  if (!player) return wait('First tell me your chess.com name in the chess check.', <button type="button" className="primary wide" onClick={() => go('check')}>Check my chess</button>)
+  if (error) return wait(error)
+  if (!rounds) return wait('Hoppy reads your last rapid games…')
+  if (!rounds.length) return wait(`In your last ${games} rapid games you never left your book twice at the same place. Well done!`)
+  return <CrossRounds s={camp} rounds={rounds} title="Your habits" fromBook lesson={`From your last ${games} rapid games: here you left your book most often. Which move does your book play?`} />
+}
+
 // ---------- warm-up before a real game: the guard, a threat, your lines ----------
 
 export function WarmUp({ rep }: { rep: Repertoire }) {
@@ -1543,6 +1580,10 @@ export function WarTent({ puzzles }: { puzzles: Puzzles }) {
       <button type="button" className="primary wide king-continue" onClick={() => go('warmup')}>
         <small>2 minutes · before you play on chess.com</small>
         Warm-up before your game
+      </button>
+      <button type="button" className="wide king-continue" onClick={() => go('habits')}>
+        <small>from your last 100 rapid games</small>
+        Your habits: where you leave your book
       </button>
       <div className="king-stations">
         <button type="button" onClick={() => go('review')}><span aria-hidden="true">🗺</span><b>Battle Plans</b><small>Your opening lines that are due</small></button>

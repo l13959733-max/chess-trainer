@@ -52,3 +52,22 @@ describe('portal to the real world', () => {
     expect(c.rating).toEqual({ before: 602, now: 640 })
   })
 })
+
+describe('your habits', () => {
+  it('turns the places where you leave your book into crossroads', async () => {
+    const { habitCrossroads } = await import('./check')
+    const games = [
+      { pgn: '1. e4 d5 2. e5 Bf5 *', color: 'w' as const },
+      { pgn: '1. e4 d5 2. e5 c5 *', color: 'w' as const },
+      { pgn: '1. e4 d5 2. e5 Nc6 *', color: 'w' as const },
+      { pgn: '1. g3 e5 *', color: 'w' as const }, // only once: not a habit yet
+    ]
+    const r = bookReport(games, builtinLines, 8)
+    const c = habitCrossroads(r, builtinLines)
+    expect(c).toHaveLength(1)
+    expect(c[0].q).toContain('2.e5 in 3 of your games')
+    expect(c[0].options.find((o) => o.san === '2.exd5')?.ok).toBe(true)
+    expect(c[0].options.find((o) => o.san === '2.e5')?.ok).toBeFalsy()
+    expect(c[0].options.find((o) => o.san === '2.e5')?.note).toContain('habit')
+  })
+})

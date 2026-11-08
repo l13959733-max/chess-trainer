@@ -2,14 +2,10 @@
 // which moves of your opponents your book does not cover yet, and how many mistakes a game costs you.
 import { Chess } from 'chess.js'
 import type { Puzzle } from './db'
+import type { Crossroad } from './king'
 import type { Line } from './pgn'
 import { CATEGORY, type Category } from './weakness'
 
-// how many departures the report keeps per kind
-export let TOP = 3
-export function setTop(n: number) {
-  TOP = n
-}
 const key = (fen: string) => fen.split(' ').slice(0, 2).join(' ')
 
 export interface CheckGame {
@@ -19,6 +15,7 @@ export interface CheckGame {
 
 export interface Departure {
   moves: string // the moves before, e.g. "1.e4 d5"
+  fen?: string // the position before the move
   played: string
   book: string[]
   count: number
@@ -83,10 +80,10 @@ export function followBook(game: CheckGame, book: Book): Followed | null {
     const moves = numbered(sans.slice(0, i))
     if (r.turn() === game.color) {
       if (!e.mine.size) break
-      if (!e.mine.has(san)) return { sans, plies, left: { who: 'you', departure: { moves, played: san, book: [...e.mine], count: 1 } } }
+      if (!e.mine.has(san)) return { sans, plies, left: { who: 'you', departure: { moves, fen: r.fen(), played: san, book: [...e.mine], count: 1 } } }
     } else {
       if (!e.theirs.size) break
-      if (!e.theirs.has(san)) return { sans, plies, left: { who: 'they', departure: { moves, played: san, book: [...e.theirs], count: 1 } } }
+      if (!e.theirs.has(san)) return { sans, plies, left: { who: 'they', departure: { moves, fen: r.fen(), played: san, book: [...e.theirs], count: 1 } } }
     }
     r.move(san)
     plies++
@@ -94,7 +91,7 @@ export function followBook(game: CheckGame, book: Book): Followed | null {
   return { sans, plies, left: null }
 }
 
-export function bookReport(games: CheckGame[], lines: Line[]): BookReport {
+export function bookReport(games: CheckGame[], lines: Line[], keep = 3): BookReport {
   const book = buildBook(lines)
   const blank = () => ({ games: 0, plies: 0, youLeft: 0, theyLeft: 0, youLeftAt: new Map<string, Departure>(), gaps: new Map<string, Departure>() })
   const out = { w: blank(), b: blank() }
@@ -113,7 +110,7 @@ export function bookReport(games: CheckGame[], lines: Line[]): BookReport {
     d.count++
     into.set(k, d)
   }
-  const top = (m: Map<string, Departure>) => [...m.values()].sort((a, b) => b.count - a.count).slice(0, TOP)
+  const top = (m: Map<string, Departure>) => [...m.values()].sort((a, b) => b.count - a.count).slice(0, keep)
   const report = (s: ReturnType<typeof blank>): SideReport => ({
     games: s.games,
     inBook: s.games ? s.plies / s.games : 0,
@@ -163,4 +160,35 @@ export function compare(base: { mistakes: number; threats: number; rating: numbe
     rating: { before: base.rating, now: rating },
     better: now.mistakes < base.mistakes,
   }
+}
+
+// "Your habits": the places where you leave your book most often become crossroads.
+// Right: your book move (with the reason from its line). Wrong: your habit – and one more move.
+export function habitCrossroads(report: BookReport, lines: Line[], count = 8): Crossroad[] {
+  const reason = (fen: string, san: string) => {
+    const at = fen.split(' ').slice(0, 4).join(' ')
+    for (const l of lines) for (const m of l.moves) if (m.san === san && m.comment && m.fenBefore.split(' ').slice(0, 4).join(' ') === at) return m.comment
+    return `${san} is the move of your book here.`
+  }
+  const out: (Crossroad & { n: number })[] = []
+  for (const d of [...report.w.youLeftAt, ...report.b.youLeftAt]) {
+    if (!d.fen || d.count < 2) continue
+    const c = new Chess(d.fen)
+    const no = (san: string) => `${c.moveNumber()}${c.turn() === 'w' ? '.' : '...'}${san}`
+    const right = d.book.slice(0, 2)
+    const other = c.moves().find((x) => !d.book.includes(x) && x !== d.played && /^[NB]/.test(x))
+    const options = [
+      ...right.map((x) => ({ san: no(x), note: reason(d.fen!, x), ok: true })),
+      { san: no(d.played), note: `your habit – you played it ${d.count} times` },
+      ...(other ? [{ san: no(other), note: '' }] : []),
+    ].sort((a, b) => a.san.localeCompare(b.san))
+    out.push({
+      fen: d.fen,
+      q: `${d.moves ? `After ${d.moves}, you` : 'You'} played ${no(d.played)} in ${d.count} of your games. Which move does your book play?`,
+      options,
+      why: reason(d.fen, right[0]),
+      n: d.count,
+    })
+  }
+  return out.sort((a, b) => b.n - a.n).slice(0, count).map((x) => ({ fen: x.fen, q: x.q, options: x.options, why: x.why }))
 }
