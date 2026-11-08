@@ -44,6 +44,10 @@ Vorschau: https://l13959733-max.github.io/chess-trainer/preview/
 - **Bilder:** Higgsfield ist Lus Konto (kostet Geld, nur nach Absprache). Kostenlos geht: vorhandene
   Bilder per Python/PIL spiegeln und einfärben (so ist die Spiegelwelt gemacht). Neue Stadtbilder ohne Liam malen.
 - **Nach jedem Schritt muss die App laufen.** Bestehendes verbessern, nicht verschlechtern; nichts löschen, was Lu mag.
+- **Lernprinzipien beachten** (Recherche vom 08.11., Kurzfassung in `docs/LERNKONZEPT.md`, vor jedem Punkt lesen):
+  selbst abrufen statt anschauen, kurz und verteilt wiederholen, Aufgaben mischen, erst raten lassen, dann
+  erklären, Hilfe nach und nach weglassen, Lob nur mit Information („gut, weil …“) und nur für das richtige
+  Verhalten (Drohung geprüft, sicherer Zug), Belohnungen eher überraschend als angekündigt.
 
 ## Die Punkte
 
@@ -131,31 +135,50 @@ Teilen-Karte für den Bericht, `CLAUDE.md` aktuell halten.
 Endgültiger Name (Favorit „Pawn to King“; „King of Chess“ kollidiert mit anderen Apps), Android über
 Bubblewrap, **Stockfish ist GPL-3.0** (vor dem Store-Start klären), erwachsener Standard-Look.
 
-### [ ] 16. Zugbewertung und Genauigkeit – erst testen, dann eigene Formel (Lus Wunsch 08.11.)
+### [ ] 16. Zugbewertung und „sichere Züge in %“ als Hauptkennzahl (Lus Wunsch 08.11.)
 Vorbild chess.com: Anerkennung für gute Züge motiviert (Brilliant, Great, Good, Genauigkeit in %).
-Lu vertraut fremden Formeln nicht blind → **zuerst ein Test, dann entscheidet Lu.**
-Schon da: `verdict()` in `src/lib/coach.ts` (great/good/inaccuracy/mistake/blunder nach verlorener
-Gewinnchance) und `winChance()` in `src/lib/bot.ts` (= Lichess-Kurve Stufe 1).
+Lu vertraut fremden Formeln nicht blind. **Lus Entscheidung 08.11.: „sichere Züge in %“ wird die
+Hauptkennzahl der App** (misst genau seine wichtigste Gewohnheit: Drohung prüfen, nichts einstellen).
+Lichess-Formel und chess.com bleiben nur zum Vergleich.
 
-**Schritt A – Testseite `#/accuracy` (nur Vorschau):**
-- Fertige chess.com-Partien laden (nur fertige – Fair Play). Analyse mit **unserem eigenen Stockfish**
-  im Browser (`src/lib/engine.ts`), nicht mit dem von Lichess; Tiefe einstellbar (14 / 18).
-- Pro Partie drei Zahlen nebeneinander:
-  (1) chess.com-Genauigkeit, falls die Partie dort ausgewertet wurde (Feld `accuracies` im
-  Partie-JSON; ergänzen in `ChessComGame`, fehlt es → „–“),
-  (2) Lichess-Formel: Zug-Genauigkeit = 103.1668·exp(−0.04354·Verlust Win%) − 3.1669, Partie = Mittel
-  aus gewichtetem und harmonischem Mittel,
-  (3) eigene Formel, Startvorschlag: **„sichere Züge in %“** = Anteil der Züge ohne eingestellte Figur
-  und ohne übersehene Drohung (`piecesInDanger` / Blunder-Grenze), passt zu Lus Hauptfehler.
-- **Alles nachrechenbar:** Antippen einer Partie zeigt jeden Zug mit roher Stockfish-Bewertung →
-  Gewinnchance → Genauigkeit je Formel. Keine Zahl ohne Herkunft.
-- Formeln in einer eigenen Datei `src/lib/accuracy.ts` mit Vitest-Tests, damit sie austauschbar sind.
+**Schon gebaut (Prototyp, Branch `preview`):**
+- `src/lib/accuracy.ts` (+ Tests): `scoreGame()` liefert pro Zug alle Zwischenwerte (Bewertung vorher/nachher,
+  Gewinnchance, Lichess-Zug-Genauigkeit, sicher ja/nein) und pro Partie `safePct`, `lichess`, `meanAccuracy`.
+  „Sicher“ = weniger als `SAFE_CP` (= `BLUNDER_CP`, 2 Bauern) verloren, dieselbe Grenze wie der Blunder-Trainer.
+- `src/lib/scores.ts`: bewertet die neuesten fertigen Rapid-Partien mit unserem Stockfish (Tiefe 12/14/18),
+  speichert getrennt in localStorage `chess-trainer-scores` (fasst die Puzzle-Daten nicht an).
+  chess.com-Zahl aus dem Feld `accuracies`, nur wenn die Partie dort ausgewertet wurde.
+- Testseite `#/accuracy` (`src/screens/Accuracy.tsx`), Link im Training Camp „How well did I play? (test)“:
+  drei Zahlen nebeneinander, Antippen zeigt jeden Zug mit allen Werten.
+- Erkenntnis aus dem Test: Nach der Lichess-Formel bekommt ein Zug, der Matt in 1 zulässt, noch etwa 13 %
+  (weil die Gewinnchance vorher nur ~45 % war). Ein Grund mehr für „sicher ja/nein“.
 
-**Schritt B – nach Lus Entscheidung einbauen:**
-- Zeichen pro Zug: **Brilliant (!!)** = (fast) bester Zug mit Materialopfer, der gut steht – selten,
-  goldene Kastanie + Knack; dazu Best / Great / Good. Eigene Zeichen im Pergament-Stil, keine
-  chess.com-Symbole oder -Farben.
-- Partie-Zusammenfassung nach Bot-Partien (`Play.tsx`) und im Portal für chess.com-Partien:
-  Genauigkeit (Lus Formel), Anzahl je Zeichen, „bester Zug der Partie“ zum Nachspielen,
-  Verlauf über die letzten 20 Partien.
-- Ehrlich: Lob und Prozente nur aus echten Engine-Werten, nie während einer laufenden chess.com-Partie.
+**Noch bauen (in dieser Reihenfolge, jeden Schritt einzeln in die Vorschau):**
+1. **Kennzahl überall gleich:** `safePct` auch für Partien gegen Hoppy-Bot berechnen (`analyzeBotGame` in
+   `src/lib/analyzer.ts` hat die Bewertungen schon) und für chess.com-Partien im Portal-Bericht (je 20 Partien).
+2. **Sichtbar machen:** Auf der Startkarte bzw. im Portal „Safe moves: 72 % (last 20 games, was 61 %)“ mit
+   kleinem Verlauf. Nur echte Zahlen; ohne Daten nichts anzeigen.
+3. **Nach jeder Partie:** kurze Zusammenfassung: sichere Züge in %, der unsicherste Zug zum Nachspielen
+   („Where would the watch have helped?“), der beste Zug der Partie mit Begründung.
+4. **Zeichen pro Zug** (nach 1–3): Brilliant (!!) = (fast) bester Zug mit Materialopfer, der gut steht – selten,
+   goldene Kastanie + Knack; dazu Best / Great / Good. Lob immer mit Grund (`reason()` in `coach.ts`).
+   Eigene Zeichen im Pergament-Stil, keine chess.com-Symbole oder -Farben.
+5. Testseite `#/accuracy` danach behalten, aber aus dem Training Camp in die Settings verschieben.
+- Grenzen: Fair Play (nur fertige Partien), keine erfundenen Zahlen, keine Versprechen wie „+100 Elo“.
+
+### [ ] 17. Ruhiger Look für Erwachsene (Lus Wunsch 08.11.)
+Die App soll auch für andere sein; der bunte Kinder-Look kann Erwachsene abschrecken.
+
+**Schon gebaut (Prototyp, Branch `preview`):** Settings → „Look“: *Playful* (Standard) oder *Calm (for adults)*.
+`src/lib/look.ts` (localStorage `chess-trainer-look`, setzt `<html class="look-calm">`), Styles in
+`src/theme-calm.css`: ruhige Farben, Systemschrift, flache Knöpfe, kein Maskottchen auf den einfachen
+Trainings-Seiten (in der Geschichte bleibt Hoppy). Die gemalte Welt (`.king-screen`) bleibt in beiden Looks gleich.
+
+**Noch bauen:**
+1. Die bunten Kacheln auf `#/path` (Orange „My weaknesses“, Lila „Win it“) und die Farben in Drill, Puzzles,
+   Play im ruhigen Look angleichen; jede Seite einmal auf 393 px ansehen (Playwright-Fotos beider Looks).
+2. Beim ersten Start (`Welcome.tsx`) fragen: „Who is playing? A child / An adult“ → setzt den Look; jederzeit
+   in den Settings änderbar.
+3. Texte im ruhigen Look sachlicher (z. B. weniger Ausrufezeichen); Inhalt bleibt gleich.
+4. Prüfen, ob die Weltkarte im ruhigen Look so bleiben soll (Lu fragen, Bild zeigen).
+Hängt mit Punkt 15 (Play Store, „erwachsener Standard-Look“) zusammen.

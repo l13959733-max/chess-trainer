@@ -1601,6 +1601,7 @@ export function WarTent({ puzzles }: { puzzles: Puzzles }) {
         <button type="button" onClick={() => go('path')}>All openings</button>
         <button type="button" onClick={() => go('attacks')}>Attacks & Traps</button>
         <button type="button" onClick={() => go('weaknesses')}>My weaknesses</button>
+        <button type="button" onClick={() => go('accuracy')}>How well did I play? (test)</button>
         <button type="button" onClick={() => go('trophies')}>Trophies</button>
         <button type="button" onClick={() => go('watch')}>Together with Johanna</button>
       </div>

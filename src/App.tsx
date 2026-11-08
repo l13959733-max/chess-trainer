@@ -34,6 +34,7 @@ import { Settings } from './screens/Settings'
 import { MuteButton } from './components/MuteButton'
 import { ThreatView } from './screens/Threat'
 import { Trophies } from './screens/Trophies'
+import { Accuracy } from './screens/Accuracy'
 import { Watch } from './screens/Watch'
 import { Welcome } from './screens/Welcome'
 import { Weaknesses } from './screens/Weaknesses'
@@ -119,6 +120,7 @@ function App() {
   else if (page === 'threats') body = <ThreatSession key={id ?? 'all'} puzzles={puzzles} progress={progress} category={id && id in CATEGORY ? (id as Category) : undefined} />
   else if (page === 'weaknesses') body = <Weaknesses puzzles={puzzles} player={player} />
   else if (page === 'trophies') body = <Trophies achievements={trophies} />
+  else if (page === 'accuracy') body = <Accuracy player={player} />
   else if (page === 'attacks') body = <Attacks rep={rep} />
   else if (page === 'map') body = <OpeningMap rep={rep} side={id} />
   else if (page === 'surprise') body = <Surprise rep={rep} progress={progress} side={id === 'b' ? 'b' : 'w'} />

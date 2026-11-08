@@ -56,6 +56,7 @@ export interface ChessComGame {
   rated: boolean
   white: { username: string; result: string; rating: number }
   black: { username: string; result: string; rating: number }
+  accuracies?: { white: number; black: number } // only when the game was reviewed on chess.com
 }
 
 export async function fetchArchives(user = USERNAME): Promise<string[]> {

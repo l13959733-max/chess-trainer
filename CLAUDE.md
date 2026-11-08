@@ -113,6 +113,13 @@ Hauptnutzung: am Handy.
 - **Prüfwerkzeuge:** `scripts/check-lines.mjs`, `scripts/check-rounds.mjs` (alle Brett-Aufgaben mit Stockfish), `scripts/extend-line.mjs`, Klicktests in `scripts/e2e/` (brauchen `playwright`).
 - **Was noch fehlt:** siehe `BAUPLAN.md`.
 
+## Lernkonzept und Kennzahl (Lus Entscheidungen 08.11.2026)
+- **Vor jedem Punkt `docs/LERNKONZEPT.md` lesen** (Recherche: wie man am besten lernt und beibringt). Alles danach bauen.
+- **Hauptkennzahl „sichere Züge in %“** (`safePct` in `src/lib/accuracy.ts`): Anteil der Züge, die weniger als 2 Bauern
+  verlieren. Lichess-Formel und chess.com nur zum Vergleich. Testseite `#/accuracy` (`src/screens/Accuracy.tsx`, `src/lib/scores.ts`).
+- **Zwei Looks:** Settings → Look: Playful (Standard) / Calm for adults (`src/lib/look.ts`, `src/theme-calm.css`, Klasse `look-calm` auf `<html>`).
+  Neue Seiten in beiden Looks ansehen.
+
 ## Reihenfolge
 1. Projekt-Setup, PWA, GitHub-Pages-Deploy
 2. Modul 1 komplett (Lernen, Drill, SRS) mit dem Italienisch-Repertoire
