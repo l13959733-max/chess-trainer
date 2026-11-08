@@ -174,6 +174,12 @@ export async function getAnalyzedGameIds(player: string): Promise<Set<string>> {
   return new Set(keys.filter((k) => ownerOfKey(k) === player).map((k) => (k.includes(':') ? k.slice(k.indexOf(':') + 1) : k)))
 }
 
+// The analysed chess.com games of this player (not the games against Hoppy-Bot)
+export async function getGameRecords(player: string): Promise<GameRecord[]> {
+  const all = await (await db()).getAll('games')
+  return all.filter((g) => ownerOfKey(g.uuid) === player)
+}
+
 export async function saveAnalyzedGame(game: GameRecord, puzzles: Puzzle[]): Promise<void> {
   const tx = (await db()).transaction(['games', 'puzzles'], 'readwrite')
   await Promise.all([tx.objectStore('games').put(game), ...puzzles.map((p) => tx.objectStore('puzzles').put(p)), tx.done])

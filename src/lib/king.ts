@@ -759,6 +759,7 @@ export interface KingProgress {
   baseline?: Baseline // the chess check: your real games before the training
   quests?: Record<string, number> // real-world quests: when each one started
   reports?: number // reports already shown (one per 20 games after the start)
+  warmupAt?: number // left for chess.com after the warm-up: on return the app offers to read that game
 }
 
 export interface Baseline {

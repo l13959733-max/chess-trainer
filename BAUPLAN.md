@@ -51,7 +51,7 @@ Vorschau: https://l13959733-max.github.io/chess-trainer/preview/
 
 ## Die Punkte
 
-### [ ] 1. Kastanien-Knacken: das Gefühl für den sicheren Zug (Lus wichtigster Wunsch)
+### [x] 1. Kastanien-Knacken: das Gefühl für den sicheren Zug (Lus wichtigster Wunsch)
 Idee aus „Die Macht der Gewohnheit“ (Pepsodent-Zahnpasta prickelt, das Prickeln wird mit „sauber“
 verbunden). Bei uns: Das „Knack“ gehört an das **richtige Verhalten** – vor dem Zug die Drohung prüfen und
 sicher spielen. Nur dafür, nicht für alles. Schon gebaut: `fx.knack()` in `src/lib/feedback.ts`
@@ -69,6 +69,13 @@ Noch bauen:
 - **Das Problem spürbar machen:** Auf der Karte ehrlich aus echten Partien, z. B. „Der Schatten hat in
   deinen letzten 10 Partien 7-mal zugeschlagen“ (Zahlen aus dem Schach-Check, nie erfunden).
 - **Grenze:** keine Schuldgefühle, keine Dauer-Pushs, keine Serien, die man verliert.
+
+**Gebaut 08.11.:** `src/components/Chestnut.tsx` (`ChestnutReward`: Igel-Schale fliegt ein, knackt, Kastanien
+purzeln, Zahl zählt hoch; golden = `takeCareful()` in `feedback.ts`: mindestens ein Knack und kein Fehler seit
+Beginn der Aufgabe). Sparring-Knack: `defusedThreat()` in `src/lib/safety.ts`, Hinweis in `Play.tsx`.
+Sauberer Glanz + Schatten-Zahl: `src/lib/clean.ts` (nur analysierte Partien, Glanz ab dem Schach-Check),
+Karte unten. Schleife: Warm-up merkt `warmupAt`, Karte zeigt „Back from chess.com?“ → `#/afterwards`
+(`src/screens/Afterwards.tsx`) → `#/threats/games/<uuids>`.
 
 ### [ ] 2. Waffenkammer und Schilde (Taktik, Verteidigung, Mittelspiel, Endspiel)
 Im Training Camp: jede Technik ist eine Waffe (Angriff) oder ein Schild (Verteidigung) mit Bronze,

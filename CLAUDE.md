@@ -110,6 +110,7 @@ Hauptnutzung: am Handy.
 - **Spiegelwelt (Akt 2, Schwarz):** `MIRROR` in `king.ts` (nicht in `STATIONS`, zählt nicht für Chennai), öffnet nach Rom, geführt, eigene Karte `#/mirror` (`src/screens/Mirror.tsx`, `mirror-world.jpg`). Sieben Schatten, jede Eröffnung am Ort ihres Namens.
 - **Kern-Training:** „How do you react?“ (`bookCrossroads()`, Schritt `choose` je Station), „Your habits“ (`#/habits`, `habitCrossroads()` in `check.ts` aus den letzten 100 Rapid-Partien), Eröffnungs-Atlas (`#/atlas`, `src/lib/atlas.ts`, 24 Familien, Linien in `data/atlas*.pgn`), Kreuzungen in Paris.
 - **Echte Welt:** Schach-Check `#/check`, Portal `#/portal` (Quests aus echten Partien, Bericht je 20 Rapid-Partien). Training Camp `#/tent` (früher War Tent), Questbuch `#/quests`, Neustart in den Settings (`restartKing()`).
+- **Kastanien-Knack (BAUPLAN 1):** `ChestnutReward` (golden bei vorsichtigem Spiel), Knack im Sparring (`defusedThreat`), sauberer Glanz + Schatten-Zahl auf der Karte (`src/lib/clean.ts`), nach dem Warm-up `#/afterwards`.
 - **Prüfwerkzeuge:** `scripts/check-lines.mjs`, `scripts/check-rounds.mjs` (alle Brett-Aufgaben mit Stockfish), `scripts/extend-line.mjs`, Klicktests in `scripts/e2e/` (brauchen `playwright`).
 - **Was noch fehlt:** siehe `BAUPLAN.md`.
 

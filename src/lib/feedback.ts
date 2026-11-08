@@ -135,6 +135,18 @@ function shake() {
   })
 }
 
+// Careful play since the last reward: a quest finished with a knack and no wrong move earns a golden chestnut
+let careful = { knacks: 0, wrongs: 0 }
+export function takeCareful(): boolean {
+  const gold = careful.knacks > 0 && careful.wrongs === 0
+  careful = { knacks: 0, wrongs: 0 }
+  return gold
+}
+// Start counting fresh (a new quest begins)
+export function resetCareful() {
+  careful = { knacks: 0, wrongs: 0 }
+}
+
 export const feedback = {
   // A move on the board. `mine` = played by Lu (stronger feedback than the opponent's reply).
   move(san: string, mine = true) {
@@ -148,6 +160,7 @@ export const feedback = {
     if (mine) vibrate(capture ? [18, 40, 18] : 15)
   },
   wrong() {
+    careful.wrongs++
     const ac = audio()
     if (ac) tone(ac, ac.currentTime + 0.005, 260, 0.22, 0.25, 'sine', 170)
     vibrate([40, 60, 40])
@@ -164,6 +177,7 @@ export const feedback = {
   // "Knack": a chestnut cracking open plus a bright ring of the shield. Only for checked, safe play
   // (taking what is free, spotting a threat), so the feeling sticks to exactly that habit.
   knack() {
+    careful.knacks++
     const ac = audio()
     if (ac) {
       const t = ac.currentTime + 0.005
@@ -173,5 +187,20 @@ export const feedback = {
       tone(ac, t + 0.09, 2349.32, 0.18, 0.06, 'sine')
     }
     vibrate([10, 25, 10, 25, 30])
+  },
+  // A plain chestnut shell breaking (any reward). The bright knack stays for careful play only.
+  crack() {
+    const ac = audio()
+    if (ac) {
+      const t = ac.currentTime + 0.005
+      clack(ac, t, 0.8, 1.5)
+      clack(ac, t + 0.03, 0.5, 1.2)
+    }
+    vibrate(12)
+  },
+  // One chestnut landing while the counter goes up
+  tick(i: number) {
+    const ac = audio()
+    if (ac) clack(ac, ac.currentTime + 0.005, 0.25, 1.6 + (i % 4) * 0.12)
   },
 }

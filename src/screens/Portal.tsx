@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
+import { ChestnutReward } from '../components/Chestnut'
 import { Avatar } from '../components/KingArt'
 import { go } from '../hooks/useHashRoute'
 import { useAnalyzer } from '../hooks/useAnalyzer'
@@ -95,7 +96,9 @@ function QuestCard({ q, games, rep, player }: { q: RealQuest; games: ChessComGam
   const mine = (games ?? []).filter((g) => start && g.end_time * 1000 >= start).sort((a, b) => a.end_time - b.end_time)
   const done =
     q.id === 'guard' ? mine.length >= q.games : mine.some((g) => myColor(g, player) === 'w' && romeDone(followAsWhite(g, book)))
-  // the reward is paid once; the card always shows what the quest was worth
+  // the reward is paid once; the chestnut cracks only that one time, afterwards the card shows the sum
+  const [paidBefore] = useState(() => loadKing().got.includes(`real/${q.id}`))
+  const fresh = done && !paidBefore ? q.chestnuts : 0
   useEffect(() => {
     if (done) earn(`real/${q.id}`, q.chestnuts)
   }, [done, q])
@@ -113,7 +116,7 @@ function QuestCard({ q, games, rep, player }: { q: RealQuest; games: ChessComGam
       <b>{done ? '✓ ' : ''}{q.title}</b>
       <p>{q.text}</p>
       {q.id === 'guard' && <p className="note">{Math.min(mine.length, q.games)} of {q.games} games played.</p>}
-      {done && <div className="king-coins-won">+{q.chestnuts} 🌰</div>}
+      {done && (fresh ? <ChestnutReward amount={fresh} /> : <div className="king-coins-won">+{q.chestnuts} 🌰</div>)}
       {q.id === 'guard' && done && <GuardResult games={mine.slice(0, q.games)} />}
     </div>
   )
