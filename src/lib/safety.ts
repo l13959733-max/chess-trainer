@@ -21,3 +21,20 @@ export function piecesInDanger(fen: string, color: Color): Square[] {
   }
   return out
 }
+
+// Sparring "knack": the opponent threatened one of your pieces and your move made everything safe
+// again without leaving something else hanging. Returns the squares that were in danger, or null.
+export function defusedThreat(fenBefore: string, move: { from: string; to: string; promotion?: string }): Square[] | null {
+  const chess = new Chess(fenBefore)
+  const me = chess.turn()
+  const before = piecesInDanger(fenBefore, me)
+  if (!before.length) return null
+  try {
+    chess.move({ from: move.from, to: move.to, promotion: move.promotion ?? 'q' })
+  } catch {
+    return null
+  }
+  // giving mate is always safe
+  if (chess.isCheckmate()) return before
+  return piecesInDanger(chess.fen(), me).length ? null : before
+}

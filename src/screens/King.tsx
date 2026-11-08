@@ -11,17 +11,21 @@ import type { Line } from '../lib/pgn'
 import { recentRapid } from '../lib/analyzer'
 import { bookReport, habitCrossroads } from '../lib/check'
 import { getPlayer, myColor } from '../lib/chesscom'
+import { cleanGames, shadowStrikes, shine } from '../lib/clean'
+import { getGameRecords, getPuzzles } from '../lib/db'
 import { REAL_QUESTS } from '../lib/portal'
 import PUZZLES from '../data/lichess-puzzles.json'
 import { clampScore } from '../lib/blunders'
-import { feedback as fx } from '../lib/feedback'
+import { ChestnutReward } from '../components/Chestnut'
+import { feedback as fx, resetCareful, takeCareful } from '../lib/feedback'
 import {
-  ARMY, CROSSROADS, MIRROR, mirrorOpen, FORKS, GRAIN, GUARD, GUARD_BOSS, LEWIS, MATES, QUEEN_TACTICS, RIDDLES, ROME_REACT, ROME_THREATS, ROME_TRAPS, ROOK_MATES, SAFE, STATIONS, TENT_AT, TURK,
+  ARMY, CROSSROADS, DRAGON_ALIVE, DRAGON_CFILE, DRAGON_FIRE, MIRROR, mirrorOpen, FORKS, GRAIN, GUARD, GUARD_BOSS, LEWIS, MATES, QUEEN_TACTICS, RIDDLES, ROME_REACT, ROME_THREATS, ROME_TRAPS, ROOK_MATES, SAFE, STATIONS, TENT_AT, TURK,
   bookCrossroads, earn, isOpen, liamPortrait, opensAfter, lineRounds, loadKing, nextStation, reputation, saveKing, stationById, stationLines, titleOf, type BoardRound, type Crossroad, type QuizQuestion, type Station,
 } from '../lib/king'
 import '../king.css'
 
 const IMG = import.meta.env.BASE_URL + 'king/'
+const HINT_PIECE: CSSProperties = { boxShadow: 'inset 0 0 0 4px rgba(201, 162, 39, 0.95)' }
 // Liam's medallion floats this far above the city
 const TOKEN_LIFT = 72
 const BOSSES = STATIONS.filter((s) => !s.finale).length
@@ -70,6 +74,15 @@ function KingMap() {
   const here = stationById(state.here) ?? STATIONS[0]
   const beatenCount = state.beaten.filter((id) => STATIONS.some((s) => s.id === id && !s.finale)).length
   const crowned = state.beaten.includes('chennai')
+  // honest numbers from the analysed real games: clean games brighten the map, the Shadow's strikes
+  const [real, setReal] = useState<{ clean: number; shadow: { games: number; struck: number } | null } | null>(null)
+  useEffect(() => {
+    const player = state.baseline?.player ?? getPlayer()
+    Promise.all([getGameRecords(player), getPuzzles()])
+      .then(([records, puzzles]) => setReal({ clean: state.baseline ? cleanGames(records, state.baseline.at).length : 0, shadow: shadowStrikes(records, puzzles.filter((p) => (p.player ?? 'l0o2') === player && p.source !== 'bot')) }))
+      .catch(() => {})
+  }, [state.baseline])
+  const glow = shine(real?.clean ?? 0)
 
   // After a boss Liam rides on by himself to the next station
   const travelNow = useRef<(to: Station, ambushAllowed?: boolean) => void>(() => {})
@@ -162,6 +175,7 @@ function KingMap() {
             <clipPath id="king-clip-small"><circle r="9" /></clipPath>
           </defs>
           <image href={IMG + 'worldmap.jpg'} x="0" y="0" width="1800" height="764" />
+          {glow > 0 && <rect className="king-shine" x="0" y="0" width="1800" height="764" fill="#fff3c4" opacity={(0.08 + 0.3 * glow).toFixed(2)} />}
           {STATIONS.map((s) => {
             const beaten = state.beaten.includes(s.id)
             const open = isOpen(s, state.beaten)
@@ -243,6 +257,20 @@ function KingMap() {
           )}
         </div>
       </div>
+      {(state.warmupAt || (real && (real.shadow || real.clean > 0))) && (
+        <div className="king-real">
+          {state.warmupAt ? (
+            <button type="button" className="king-real-back" onClick={() => go('afterwards')}>
+              <b>Back from chess.com?</b> How did it go – read your game
+            </button>
+          ) : (
+            <button type="button" onClick={() => go(state.beaten.includes('kannauj') ? 'portal' : 'check')}>
+              {real?.shadow && (real.shadow.struck ? <span>🌫 The Shadow struck in <b>{real.shadow.struck} of your last {real.shadow.games}</b> games</span> : <span>🛡 The Shadow did not strike in your last {real.shadow.games} games</span>)}
+              {real && real.clean > 0 && <span>✦ <b>{real.clean}</b> clean {real.clean === 1 ? 'game' : 'games'} – the map grows brighter</span>}
+            </button>
+          )}
+        </div>
+      )}
       {toast && <div className="king-toast" role="status">{toast}</div>}
       <nav className="king-dock" aria-label="Places">
         <button type="button" onClick={() => go('tent')}><span aria-hidden="true">⛺</span>Training Camp</button>
@@ -283,7 +311,7 @@ const PALETTES: Record<string, Palette> = {
 const BoardContext = createContext<{ elephants: boolean; palette: Palette }>({ elephants: false, palette: 'forest' })
 const boardAt = (id: string) => ({ elephants: ASIA.includes(id), palette: PALETTES[id] ?? 'forest' })
 
-function KBoard(props: ComponentProps<typeof Board>) {
+export function KBoard(props: ComponentProps<typeof Board>) {
   const { elephants, palette } = useContext(BoardContext)
   return (
     <div className={`king-bleed pal-${palette}`}>
@@ -358,11 +386,16 @@ function StationScreen({ s, sub, rep }: { s: Station; sub?: string; rep: Reperto
 }
 
 function StationStep({ s, sub, rep }: { s: Station; sub?: string; rep: Repertoire }) {
+  // a golden chestnut counts only the careful moves of this step
+  useState(resetCareful)
   // Keys: a quest and its boss can share a screen, but each starts fresh
   switch (sub) {
     case 'next': return <NextStep s={s} rep={rep} />
     case 'talk': return <KingTalk s={s} />
     case 'guard': return <BoardRounds key="quest" s={s} rounds={GUARD} title="The guard" lesson="Before every move, a good general asks: what is attacked – and what is guarded? Find the best move." />
+    case 'firebreath': return <QuizRounds key="quest" s={s} quiz={DRAGON_FIRE} title="Fire breath" lesson="Your dragon is the bishop on g7. Its fire is the long diagonal. Bring it out – safely." />
+    case 'keepdragon': return <QuizRounds key="quest" s={s} quiz={DRAGON_ALIVE} title="Keep the dragon alive" lesson="White wants to trade your dragon. Know the plan – and keep it." />
+    case 'cfile': return <QuizRounds key="quest" s={s} quiz={DRAGON_CFILE} title="The c-file" lesson="White attacks on the king side. You attack on the c-file. Who is faster?" />
     case 'safe': return <QuizRounds key="quest" s={s} quiz={SAFE} title="Is it safe?" lesson="Before you move a piece, check its new square: can the enemy take it there?" />
     case 'react': return <CrossRounds key="quest" s={s} rounds={ROME_REACT} title="How do you react?" lesson="1.e4 e5 2.Nf3 – and now your opponent has many answers. Which move does your book play?" />
     case 'traps': return <TrapRounds key="quest" s={s} rep={rep} />
@@ -592,11 +625,11 @@ function beat(id: string) {
 }
 
 function Victory({ s }: { s: Station }) {
-  const [{ coins, title }] = useState(() => {
+  const [{ coins, title, gold }] = useState(() => {
     const before = titleOf(loadKing().beaten)
     beat(s.id)
     const after = titleOf(loadKing().beaten)
-    return { coins: earn(`${s.id}/boss`, s.finale ? 200 : 50), title: after !== before ? after : null }
+    return { coins: earn(`${s.id}/boss`, s.finale ? 200 : 50), title: after !== before ? after : null, gold: takeCareful() }
   })
   useEffect(() => {
     fx.success()
@@ -615,7 +648,7 @@ function Victory({ s }: { s: Station }) {
         </div>
         <div className="done-title">{crown ? 'King of Chess!' : `${s.boss.name} is beaten!`}</div>
         <p>{s.boss.win}</p>
-        {coins > 0 && <div className="king-coins-won">+{coins} 🌰</div>}
+        {coins > 0 && <ChestnutReward amount={coins} gold={gold} />}
         {title && (
           <div className="king-title-won">
             <small>New title</small>
@@ -659,7 +692,7 @@ function Victory({ s }: { s: Station }) {
 function QuestDone({ s, icon, title, text }: { s: Station; icon: string; title: string; text: string }) {
   const step = useContext(StepContext)
   const extra = s.games.find((g) => g.id === step)?.extra
-  const [coins] = useState(() => earn(`${s.id}/${step}`, extra ? 5 : 10))
+  const [{ coins, gold }] = useState(() => ({ coins: earn(`${s.id}/${step}`, extra ? 5 : 10), gold: takeCareful() }))
   useEffect(() => {
     fx.success()
   }, [])
@@ -669,7 +702,7 @@ function QuestDone({ s, icon, title, text }: { s: Station; icon: string; title: 
         <div className="king-medal" aria-hidden="true">{icon}</div>
         <div className="done-title">{title}</div>
         <p>{text}</p>
-        {coins > 0 && <div className="king-coins-won">+{coins} 🌰</div>}
+        {coins > 0 && <ChestnutReward amount={coins} gold={gold} />}
         <div className="done-actions">
           <button type="button" onClick={() => go('king/' + s.id)}>{s.name}</button>
           <button type="button" className="primary" onClick={() => go(`king/${s.id}/next`)}>Continue</button>
@@ -1007,11 +1040,13 @@ function PuzzleRounds({ s, puzzles, boss, title, lesson, threat, back, finish }:
   )
 }
 
-function OnePuzzle({ p, threat, onMistake, onSolved }: { p: LPuzzle; threat?: boolean; onMistake: () => void; onSolved: () => void }) {
+// `onHelp`: shows a hint button (first the piece, then the move); each press is counted
+export function OnePuzzle({ p, threat, onMistake, onSolved, onHelp }: { p: LPuzzle; threat?: boolean; onMistake: () => void; onSolved: () => void; onHelp?: () => void }) {
   const [fen, setFen] = useState(p.fen)
   const [step, setStep] = useState(0) // index of the next move in p.moves
   const [last, setLast] = useState<{ from: string; to: string } | null>(null)
   const [hint, setHint] = useState<string | null>(null)
+  const [piece, setPiece] = useState<string | null>(null) // first hint: which piece moves
   const [done, setDone] = useState(false)
   const toMove = new Chess(p.fen).turn() === 'w' ? 'white' : 'black'
   const me = p.direct ? toMove : toMove === 'white' ? 'black' : 'white' // the side that solves
@@ -1040,7 +1075,7 @@ function OnePuzzle({ p, threat, onMistake, onSolved }: { p: LPuzzle; threat?: bo
       <KBoard
         fen={fen}
         orientation={orientation}
-        squareStyles={last ? { [last.from]: LAST_MOVE, [last.to]: LAST_MOVE } : {}}
+        squareStyles={{ ...(last ? { [last.from]: LAST_MOVE, [last.to]: LAST_MOVE } : {}), ...(piece && !hint ? { [piece]: HINT_PIECE } : {}) }}
         arrows={hint ? [{ startSquare: hint.slice(0, 2), endSquare: hint.slice(2, 4), color: ARROW.correct }] : []}
         onMove={
           !yourTurn
@@ -1058,6 +1093,7 @@ function OnePuzzle({ p, threat, onMistake, onSolved }: { p: LPuzzle; threat?: bo
                   return false
                 }
                 setHint(null)
+                setPiece(null)
                 setFen(c.fen())
                 setLast({ from, to })
                 const next = step + 1
@@ -1091,10 +1127,23 @@ function OnePuzzle({ p, threat, onMistake, onSolved }: { p: LPuzzle; threat?: bo
             </>
           ) : (
             <>
-              {orientation === 'white' ? 'White' : 'Black'} to move. {hint ? 'Play the green arrow.' : 'Find the best move.'}
+              {orientation === 'white' ? 'White' : 'Black'} to move. {hint ? 'Play the green arrow.' : piece ? 'This piece moves.' : 'Find the best move.'}
             </>
           )}
         </p>
+      )}
+      {onHelp && yourTurn && !hint && (
+        <button
+          type="button"
+          className="wide"
+          onClick={() => {
+            onHelp()
+            if (!piece) setPiece(want.slice(0, 2))
+            else setHint(want)
+          }}
+        >
+          {piece ? 'Show me the move' : 'Hint: which piece?'}
+        </button>
       )}
     </>
   )
@@ -1439,7 +1488,10 @@ function canBeAmbushed(beaten: string[]): boolean {
 
 export function Encounter({ to, rep }: { to?: string; rep: Repertoire }) {
   const target = stationById(to)
-  const [tasks] = useState(() => shuffle(roadPool(loadKing().beaten, rep.lines)).slice(0, 3))
+  const [tasks] = useState(() => {
+    resetCareful()
+    return shuffle(roadPool(loadKing().beaten, rep.lines)).slice(0, 3)
+  })
   const road = { ...stationById('kannauj')!, id: 'road', name: 'On the road', year: target ? `to ${target.name}` : '' }
   const rideOn = () => {
     if (target) saveKing({ ...loadKing(), travel: target.id })
@@ -1460,7 +1512,7 @@ export function Encounter({ to, rep }: { to?: string; rep: Repertoire }) {
 }
 
 function EncounterWon({ onRide, target }: { onRide: () => void; target?: string }) {
-  const [nuts] = useState(() => earn(`road/${new Date().toDateString()}/${Math.random().toString(36).slice(2, 6)}`, 10))
+  const [{ nuts, gold }] = useState(() => ({ nuts: earn(`road/${new Date().toDateString()}/${Math.random().toString(36).slice(2, 6)}`, 10), gold: takeCareful() }))
   useEffect(() => {
     fx.success()
   }, [])
@@ -1470,7 +1522,7 @@ function EncounterWon({ onRide, target }: { onRide: () => void; target?: string 
         <div className="king-medal" aria-hidden="true">🌫</div>
         <div className="done-title">The scout flees!</div>
         <p>What you learned is still there. The shadow did not get a single point.</p>
-        <div className="king-coins-won">+{nuts} 🌰</div>
+        <ChestnutReward amount={nuts} gold={gold} />
         <div className="done-actions">
           <button type="button" className="primary" onClick={onRide}>{target ? `Ride on to ${target}` : 'World map'}</button>
         </div>
@@ -1543,7 +1595,7 @@ export function WarmUp({ rep }: { rep: Repertoire }) {
               <p>Before every move: what does your opponent threaten? Good luck – on chess.com you fight alone.</p>
               <div className="done-actions">
                 <button type="button" onClick={() => go('tent')}>Training Camp</button>
-                <a className="button primary" href="https://www.chess.com/play/online" target="_blank" rel="noopener">Play on chess.com</a>
+                <a className="button primary" href="https://www.chess.com/play/online" target="_blank" rel="noopener" onClick={() => saveKing({ ...loadKing(), warmupAt: Date.now() })}>Play on chess.com</a>
               </div>
             </div>
           </div>
@@ -1581,6 +1633,10 @@ export function WarTent({ puzzles }: { puzzles: Puzzles }) {
         <small>2 minutes · before you play on chess.com</small>
         Warm-up before your game
       </button>
+      <button type="button" className="wide king-continue" onClick={() => go('armoury')}>
+        <small>tactics, mates, middlegame, endgame · bronze, silver, gold</small>
+        Armoury & Shields
+      </button>
       <button type="button" className="wide king-continue" onClick={() => go('atlas')}>
         <small>new weapons · every big opening family</small>
         Opening atlas: widen your horizon
@@ -1601,6 +1657,7 @@ export function WarTent({ puzzles }: { puzzles: Puzzles }) {
         <button type="button" onClick={() => go('path')}>All openings</button>
         <button type="button" onClick={() => go('attacks')}>Attacks & Traps</button>
         <button type="button" onClick={() => go('weaknesses')}>My weaknesses</button>
+        <button type="button" onClick={() => go('accuracy')}>How well did I play? (test)</button>
         <button type="button" onClick={() => go('trophies')}>Trophies</button>
         <button type="button" onClick={() => go('watch')}>Together with Johanna</button>
       </div>

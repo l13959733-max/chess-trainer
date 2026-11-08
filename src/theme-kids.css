@@ -468,3 +468,10 @@ button:active:not(:disabled) { transition-duration: 0.04s; filter: brightness(0.
 .screen > .opening-story { margin-inline: 16px; }
 .opening-story { background: #fffbea; border: 2px solid #ffe7a3; border-radius: 18px; padding: 10px 14px; line-height: 1.45; }
 .opening-story p { margin: 6px 0 0; }
+/* the "knack" in sparring: a threat checked and defused (gold, shines once) */
+.explain.knack { position: relative; overflow: hidden; border-color: #c9a227; background: linear-gradient(135deg, #fff8dc, #f6e7ad); }
+.explain.knack::before { border-color: #c9a227; background: #fff8dc; }
+.explain.knack .move { color: #8f7116; }
+.explain.knack::after { content: ''; position: absolute; inset: 0; background: linear-gradient(110deg, transparent 30%, rgba(255, 255, 255, .75) 48%, transparent 62%); transform: translateX(-120%); animation: knack-shine .9s ease-out .05s; pointer-events: none; }
+@keyframes knack-shine { to { transform: translateX(120%); } }
+@media (prefers-reduced-motion: reduce) { .explain.knack::after { animation: none; } }

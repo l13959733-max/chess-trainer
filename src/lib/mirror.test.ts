@@ -71,6 +71,25 @@ describe('the Mirror World is guided', () => {
     expect(open(['kannauj', 'samarkand'])).toEqual([])
     expect(open(['kannauj', 'samarkand', 'rome'])).toEqual(['mirror-gate'])
     expect(open(['kannauj', 'samarkand', 'rome', 'mirror-gate'])).toEqual(['mirror-gate', 'mirror-fortress'])
-    expect(MIRROR.map((s) => s.lines?.opening).flat()).toEqual(['Scandinavian', 'Nimzo-Indian', "Queen's Gambit Declined", 'London & 2.Nf3', 'Dutch Defense', 'Caro-Kann', 'Grünfeld Defense', 'French Defense', 'Slav Defense', 'Pirc Defense', "King's Indian Defense", 'Sicilian Najdorf'])
+    expect(MIRROR.map((s) => s.lines?.opening).flat()).toEqual(['Scandinavian', 'Nimzo-Indian', "Queen's Gambit Declined", 'London & 2.Nf3', 'Dutch Defense', 'Caro-Kann', 'Grünfeld Defense', 'French Defense', 'Slav Defense', 'Pirc Defense', "King's Indian Defense", 'Sicilian Najdorf', 'Sicilian Dragon'])
+  })
+})
+
+describe('the Dragon Cave', () => {
+  it('every quiz answer is one of its options, and move answers are legal for Black in the position', async () => {
+    const { Chess } = await import('chess.js')
+    const { DRAGON_FIRE, DRAGON_ALIVE, DRAGON_CFILE } = await import('./king')
+    for (const q of [...DRAGON_FIRE, ...DRAGON_ALIVE, ...DRAGON_CFILE]) {
+      expect(q.options, q.q).toContain(q.answer)
+      if (!q.fen) continue
+      const moves = q.options.map((o) => o.match(/^\d+\.\.\.(\S+)/)?.[1]).filter((m): m is string => !!m)
+      if (moves.length) expect(new Chess(q.fen).turn(), q.q).toBe('b')
+      for (const san of moves) expect(() => new Chess(q.fen!).move(san), `${q.q} ${san}`).not.toThrow()
+    }
+  })
+  it('is the last shadow, and tells the name story only as Dus-Chotimirsky\'s own account', () => {
+    const d = stationById('mirror-dragon')!
+    expect(MIRROR.at(-1)).toBe(d)
+    expect(d.master.talk.map((t) => t.text).join(' ')).toMatch(/By his own account, Fyodor Dus-Chotimirsky/)
   })
 })

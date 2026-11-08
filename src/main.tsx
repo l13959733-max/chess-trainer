@@ -3,6 +3,8 @@ import { createRoot } from 'react-dom/client'
 import './index.css'
 import App from './App.tsx'
 import './theme-kids.css'
+import './theme-calm.css'
+import { applyLook } from './lib/look'
 import { registerSW } from 'virtual:pwa-register'
 
 // New versions take over right away: the page reloads itself once the new service worker is active,
@@ -13,6 +15,8 @@ registerSW({
     if (reg) setInterval(() => reg.update().catch(() => {}), 60_000)
   },
 })
+
+applyLook()
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>

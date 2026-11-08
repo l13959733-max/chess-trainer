@@ -1,4 +1,4 @@
-import { Chess } from 'chess.js'
+import { Chess, type Square } from 'chess.js'
 import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
 import type { Arrow } from 'react-chessboard'
 import { Board, LAST_MOVE } from '../components/Board'
@@ -17,7 +17,7 @@ import { allMoves } from '../lib/engine'
 import { feedback } from '../lib/feedback'
 import { deviceId, isOver, replay, shareGame, useBeat, useLive, type LiveGame } from '../lib/live'
 import type { Line } from '../lib/pgn'
-import { piecesInDanger } from '../lib/safety'
+import { defusedThreat, piecesInDanger } from '../lib/safety'
 
 export type PlayMode = { kind: 'new' } | { kind: 'line'; line: Line } | { kind: 'puzzle'; puzzle: Puzzle }
 
@@ -306,6 +306,8 @@ export function GameView({ game, setGame, book, thinking, setThinking, lastBotWi
       // not remembered
     }
   }
+  // "Knack": the opponent threatened something and your move made it safe (the habit the app trains)
+  const [knack, setKnack] = useState<{ ply: number; text: string } | null>(null)
   const [lastVerdict, setLastVerdict] = useState<{ san: string; verdict: Verdict; bestSan: string; why: string[]; ply: number } | null>(null)
 
   // The coach looks at the player's position as soon as it is their turn
@@ -391,6 +393,14 @@ export function GameView({ game, setGame, book, thinking, setThinking, lastBotWi
       return false
     }
     feedback.move(m.san)
+    const saved = defusedThreat(fen, m)
+    if (saved) {
+      const names: Record<string, string> = { p: 'pawn', n: 'knight', b: 'bishop', r: 'rook', q: 'queen' }
+      const board = new Chess(fen)
+      const what = saved.map((sq) => `${names[board.get(sq as Square)!.type]} on ${sq}`).join(' and your ')
+      setTimeout(() => feedback.knack(), 120)
+      setKnack({ ply: game.moves.length, text: `${m.san} – your ${what} was attacked, and now nothing hangs.${safety ? '' : ' You saw it without the safety check!'}` })
+    } else setKnack(null)
     const uci = m.from + m.to + (m.promotion ?? '')
     if (coach && cands?.fen === fen) {
       const v = verdict(cands.list, uci)
@@ -492,6 +502,14 @@ export function GameView({ game, setGame, book, thinking, setThinking, lastBotWi
         </div>
       )}
       {!over && driving && !coach && game.rated && <p className="note small coach-note">Turning the coach on makes this a practice game (no rating change).</p>}
+
+      {driving && knack && !over && game.moves.length - knack.ply <= 2 && (
+        <div className="explain knack" role="status">
+          <Mascot mood="cheer" />
+          <div className="move">Crack! Threat checked.</div>
+          <p>{knack.text}</p>
+        </div>
+      )}
 
       {driving && coach && lastVerdict && !over && (
         <div className={`explain coach-verdict ${lastVerdict.verdict}`}>

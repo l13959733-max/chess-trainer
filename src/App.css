@@ -285,3 +285,19 @@
   cursor: pointer;
 }
 .toggle input { width: 22px; height: 22px; accent-color: var(--accent); }
+
+/* Test page: how well did I play? (#/accuracy, BAUPLAN 16) */
+.accuracy .acc-legend { margin: 0 0 12px; padding-left: 20px; font-size: 14px; line-height: 1.5; }
+.accuracy .acc-controls { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-bottom: 8px; }
+.accuracy .acc-controls select { font: inherit; padding: 6px; border-radius: 8px; }
+.accuracy .hint.error { color: #c0392b; }
+.acc-table, .acc-moves { width: 100%; border-collapse: collapse; font-size: 14px; }
+.acc-table th, .acc-table td, .acc-moves th, .acc-moves td { padding: 6px 4px; text-align: right; border-bottom: 1px solid rgba(0, 0, 0, 0.08); }
+.acc-table th:first-child, .acc-table td:first-child, .acc-moves th:first-child, .acc-moves td:first-child { text-align: left; }
+.acc-table .acc-game { cursor: pointer; }
+.acc-table .muted { display: block; font-size: 12px; opacity: 0.65; }
+.acc-moves { font-size: 12px; font-variant-numeric: tabular-nums; }
+.acc-moves tr.unsafe td { background: rgba(231, 76, 60, 0.12); }
+.look-choice { display: flex; gap: 8px; margin-bottom: 12px; } .look-choice button { flex: 1; }
+.accuracy > p, .accuracy > ul, .accuracy > .acc-controls, .accuracy > .acc-table { margin-inline: 16px; }
+.accuracy > .acc-table { width: calc(100% - 32px); }

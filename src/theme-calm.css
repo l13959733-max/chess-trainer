@@ -1,0 +1,51 @@
+/* Calm look for adults (BAUPLAN 17, prototype). Only active with <html class="look-calm">,
+   switched in Settings. Overrides theme-kids.css; the painted world (.king-screen) keeps its style. */
+html.look-calm {
+  --bg: #f6f5f2;
+  --surface: #ffffff;
+  --line: #dcd9d2;
+  --text: #22252a;
+  --muted: #6b7078;
+  --accent: #2f6f5e;
+  --accent-dark: #24574a;
+  --good: #2f6f5e;
+  --bad: #b8433f;
+  --bad-dark: #94332f;
+  --idea: #3a6ea5;
+  --idea-dark: #2c5684;
+  --sun: #b08a3e;
+  --sun-dark: #8c6c2c;
+  --grape: #5b5f8a;
+  --board-light: #ecebe4;
+  --board-dark: #8a9a7b;
+  font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+}
+html.look-calm button {
+  font-weight: 600;
+  border: 1px solid var(--line);
+  border-bottom-width: 1px;
+  border-radius: 10px;
+  text-transform: none;
+  letter-spacing: 0;
+}
+html.look-calm button:active:not(:disabled) { transform: none; border-bottom-width: 1px; margin-bottom: 0; opacity: 0.85; }
+html.look-calm button.primary { background: var(--accent); border-color: var(--accent); color: #fff; text-transform: none; letter-spacing: 0; }
+html.look-calm .top .brand { font-weight: 700; color: var(--text); font-size: 1.2rem; letter-spacing: 0; }
+html.look-calm .label { font-weight: 600; letter-spacing: 0.04em; }
+html.look-calm .eyebrow { font-weight: 600; color: var(--muted); }
+html.look-calm .screen-head h2 { font-weight: 700; }
+html.look-calm .stat, html.look-calm .goal-card, html.look-calm .due-card, html.look-calm .line-card,
+html.look-calm .tile, html.look-calm .preview, html.look-calm .done { border: 1px solid var(--line); border-radius: 12px; }
+html.look-calm .bar { height: 8px; }
+html.look-calm .bar span { box-shadow: none; }
+html.look-calm .big, html.look-calm .stat-value { font-weight: 700; }
+/* the mascot stays in the story (world map, stations), not on the plain training screens */
+html.look-calm .screen:not(.king-screen) .mascot { display: none; }
+/* without the mascot the speech bubble spans the width and loses its tail */
+html.look-calm .screen:not(.king-screen) > .explain,
+html.look-calm .screen:not(.king-screen) > .greet { margin-left: 16px; }
+html.look-calm .screen:not(.king-screen) .explain::before,
+html.look-calm .screen:not(.king-screen) .greet::before,
+html.look-calm .screen:not(.king-screen) .explain::after,
+html.look-calm .screen:not(.king-screen) .greet::after { display: none; }
+html.look-calm .greet { font-weight: 600; }

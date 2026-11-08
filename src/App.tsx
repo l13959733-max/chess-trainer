@@ -21,6 +21,8 @@ import { Home } from './screens/Home'
 import { backFromLine, rememberLine, rememberOrigin, stationOrigin } from './lib/returnTo'
 import { ChessCheck } from './screens/Check'
 import { Portal } from './screens/Portal'
+import { Afterwards } from './screens/Afterwards'
+import { ArmouryScreen } from './screens/Armoury'
 import { QuestBook } from './screens/QuestBook'
 import { Mirror } from './screens/Mirror'
 import { Atlas } from './screens/Atlas'
@@ -34,6 +36,7 @@ import { Settings } from './screens/Settings'
 import { MuteButton } from './components/MuteButton'
 import { ThreatView } from './screens/Threat'
 import { Trophies } from './screens/Trophies'
+import { Accuracy } from './screens/Accuracy'
 import { Watch } from './screens/Watch'
 import { Welcome } from './screens/Welcome'
 import { Weaknesses } from './screens/Weaknesses'
@@ -116,9 +119,12 @@ function App() {
     const mode = playLine ? { kind: 'line' as const, line: playLine } : playPuzzle ? { kind: 'puzzle' as const, puzzle: playPuzzle } : { kind: 'new' as const }
     body = <Play key={`${id ?? ''}/${arg ?? ''}`} mode={mode} lines={rep.lines} player={player} onGame={progress.recordGame} onPuzzlesFound={() => setBotFound((n) => n + 1)} />
   } else if (page === 'puzzles') body = <PuzzleSession key={id ?? 'all'} puzzles={puzzles} progress={progress} category={id && id in CATEGORY ? (id as Category) : undefined} />
-  else if (page === 'threats') body = <ThreatSession key={id ?? 'all'} puzzles={puzzles} progress={progress} category={id && id in CATEGORY ? (id as Category) : undefined} />
+  else if (page === 'threats') body = <ThreatSession key={(id ?? 'all') + (arg ?? '')} puzzles={puzzles} progress={progress} category={id && id in CATEGORY ? (id as Category) : undefined} games={id === 'games' ? arg?.split(',') : undefined} />
+  else if (page === 'afterwards') body = <Afterwards />
+  else if (page === 'armoury') body = <ArmouryScreen key={(id ?? '') + '/' + (arg ?? '')} id={id} stage={arg} />
   else if (page === 'weaknesses') body = <Weaknesses puzzles={puzzles} player={player} />
   else if (page === 'trophies') body = <Trophies achievements={trophies} />
+  else if (page === 'accuracy') body = <Accuracy player={player} />
   else if (page === 'attacks') body = <Attacks rep={rep} />
   else if (page === 'map') body = <OpeningMap rep={rep} side={id} />
   else if (page === 'surprise') body = <Surprise rep={rep} progress={progress} side={id === 'b' ? 'b' : 'w'} />
@@ -298,9 +304,12 @@ function PuzzleSession({ puzzles, progress, category }: { puzzles: ReturnType<ty
 }
 
 // "What's the threat?" positions: mistakes where the opponent could punish, with the stored answer
-function ThreatSession({ puzzles, progress, category }: { puzzles: ReturnType<typeof usePuzzles>; progress: ReturnType<typeof useProgress>; category?: Category }) {
+function ThreatSession({ puzzles, progress, category, games }: { puzzles: ReturnType<typeof usePuzzles>; progress: ReturnType<typeof useProgress>; category?: Category; games?: string[] }) {
+  // `games`: only the positions from these games (after a real game: "where would the watch have helped?")
   const [queue] = useState(() =>
-    sessionQueue(puzzles, 't:', (p) => !!p.refutation && !!p.category && CATEGORY[p.category].family === 'opponent' && (!category || p.category === category)),
+    games
+      ? puzzles.puzzles.filter((p) => games.includes(p.gameUuid) && !!p.refutation && !!p.category && CATEGORY[p.category].family === 'opponent').map((p) => p.id)
+      : sessionQueue(puzzles, 't:', (p) => !!p.refutation && !!p.category && CATEGORY[p.category].family === 'opponent' && (!category || p.category === category)),
   )
   const [index, setIndex] = useState(0)
   const puzzle = puzzles.puzzles.find((p) => p.id === queue[index])

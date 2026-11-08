@@ -13,9 +13,7 @@ Vorschau: https://l13959733-max.github.io/chess-trainer/preview/
 ## Für Johanna: so geht's
 
 1. Die GitHub-Einladung annehmen: https://github.com/l13959733-max/chess-trainer/invitations
-2. Einmalig: `git clone https://github.com/l13959733-max/chess-trainer.git && cd chess-trainer && npm ci`
-   und für die Klicktests `npm i --no-save playwright && npx playwright install chromium`
-3. Claude Code im Ordner starten (`claude`) und `/weiterbauen` tippen. Claude zeigt den nächsten
+2. Einmalig: `git clone https://github.com/l13959733-max/chess-trainer.git && cd chess-trainer && npm ci`3. Claude Code im Ordner starten (`claude`) und `/weiterbauen` tippen. Claude zeigt den nächsten
    Punkt und baut ihn. Erlaubnis-Fragen mit OK bestätigen (oder Shift+Tab für „auto-accept edits“).
 4. Anschauen in der Vorschau-Adresse oben. Gefällt es: „übernehmen“ schreiben, dann geht es live.
 
@@ -26,13 +24,12 @@ Vorschau: https://l13959733-max.github.io/chess-trainer/preview/
 - **Deploy:** Ein Push auf `main` deployt automatisch beides (Live und `/preview/`). Nach einem Push
   nur auf `preview`: `gh workflow run Deploy --ref main`.
 - **Prüfen vor jedem Commit:** `npx tsc -b`, `npm run lint` (Stand: 12 Warnungen, nicht mehr werden),
-  `npx vitest run` (alle grün), dann im Browser: `npm run dev -- --port 5199` und
-  `node scripts/e2e/king-all.mjs http://localhost:5199/ noshots` (ganzes Spiel bis zur Krone),
-  `node scripts/e2e/regress.mjs http://localhost:5199/`, `node scripts/e2e/mirror.mjs`.
+  `npx vitest run` (alle grün). **Kein Playwright** (Entscheidung vom 08.11.2026, GitHub ayo-byte): keine Klicktests,
+  keine automatischen Bildschirmfotos. Neue Logik darum mit Vitest-Tests absichern.
   Neue Eröffnungslinien: `node scripts/check-lines.mjs 16 <datei.pgn>` (nur Dateiname, ohne `data/`).
   Neue Brett-Aufgaben: `npx tsx scripts/check-rounds.mjs`. Linien aus Stockfish vorschlagen lassen:
   `node scripts/extend-line.mjs "1.e4 e5 2.f4" 8 18`.
-- **Grüne Tests beweisen nichts ohne Blick ins Bild:** Bildschirmfotos (Handybreite 393 px) ansehen.
+- **Ansehen:** Lu oder Johanna schauen neue Seiten in der Vorschau am Handy an; in der Meldung sagen, was genau zu prüfen ist.
 - **Das Repo ist öffentlich:** niemals Schlüssel, Tokens, Passwörter oder Einladungscodes committen.
 - **Schach geht vor Geschichte.** Kern: welche Eröffnung wann, wie reagiere ich worauf, Drohung prüfen.
   Geschichte nur als kurzer Fakt, freiwillig.
@@ -44,10 +41,14 @@ Vorschau: https://l13959733-max.github.io/chess-trainer/preview/
 - **Bilder:** Higgsfield ist Lus Konto (kostet Geld, nur nach Absprache). Kostenlos geht: vorhandene
   Bilder per Python/PIL spiegeln und einfärben (so ist die Spiegelwelt gemacht). Neue Stadtbilder ohne Liam malen.
 - **Nach jedem Schritt muss die App laufen.** Bestehendes verbessern, nicht verschlechtern; nichts löschen, was Lu mag.
+- **Lernprinzipien beachten** (Recherche vom 08.11., Kurzfassung in `docs/LERNKONZEPT.md`, vor jedem Punkt lesen):
+  selbst abrufen statt anschauen, kurz und verteilt wiederholen, Aufgaben mischen, erst raten lassen, dann
+  erklären, Hilfe nach und nach weglassen, Lob nur mit Information („gut, weil …“) und nur für das richtige
+  Verhalten (Drohung geprüft, sicherer Zug), Belohnungen eher überraschend als angekündigt.
 
 ## Die Punkte
 
-### [ ] 1. Kastanien-Knacken: das Gefühl für den sicheren Zug (Lus wichtigster Wunsch)
+### [x] 1. Kastanien-Knacken: das Gefühl für den sicheren Zug (Lus wichtigster Wunsch)
 Idee aus „Die Macht der Gewohnheit“ (Pepsodent-Zahnpasta prickelt, das Prickeln wird mit „sauber“
 verbunden). Bei uns: Das „Knack“ gehört an das **richtige Verhalten** – vor dem Zug die Drohung prüfen und
 sicher spielen. Nur dafür, nicht für alles. Schon gebaut: `fx.knack()` in `src/lib/feedback.ts`
@@ -66,7 +67,14 @@ Noch bauen:
   deinen letzten 10 Partien 7-mal zugeschlagen“ (Zahlen aus dem Schach-Check, nie erfunden).
 - **Grenze:** keine Schuldgefühle, keine Dauer-Pushs, keine Serien, die man verliert.
 
-### [ ] 2. Waffenkammer und Schilde (Taktik, Verteidigung, Mittelspiel, Endspiel)
+**Gebaut 08.11.:** `src/components/Chestnut.tsx` (`ChestnutReward`: Igel-Schale fliegt ein, knackt, Kastanien
+purzeln, Zahl zählt hoch; golden = `takeCareful()` in `feedback.ts`: mindestens ein Knack und kein Fehler seit
+Beginn der Aufgabe). Sparring-Knack: `defusedThreat()` in `src/lib/safety.ts`, Hinweis in `Play.tsx`.
+Sauberer Glanz + Schatten-Zahl: `src/lib/clean.ts` (nur analysierte Partien, Glanz ab dem Schach-Check),
+Karte unten. Schleife: Warm-up merkt `warmupAt`, Karte zeigt „Back from chess.com?“ → `#/afterwards`
+(`src/screens/Afterwards.tsx`) → `#/threats/games/<uuids>`.
+
+### [x] 2. Waffenkammer und Schilde (Taktik, Verteidigung, Mittelspiel, Endspiel)
 Im Training Camp: jede Technik ist eine Waffe (Angriff) oder ein Schild (Verteidigung) mit Bronze,
 Silber, Gold. Gold nur ohne Hilfe und erst, wenn es in echten Partien klappt. Ablauf je Technik:
 zeigen → mit Hilfe → frei → verteidigen → gemischt → echte Welt. Reihenfolge Taktik: Wache → Gabel →
@@ -75,12 +83,27 @@ Fesselung → Spieß → Abzug → Beseitigung des Verteidigers → Ablenkung/Hi
 Endspiel (einfach → schwer, gegen Stockfish ausspielen). Aufgaben aus der Lichess-Datenbank (CC0):
 `scripts/pick-lichess-puzzles.py` erzeugt `src/data/lichess-puzzles.json`; Themen dort erweitern.
 
-### [ ] 3. Drachenhöhle (Sizilianisch Drache)
+**Gebaut 08.11.:** `#/armoury` (Training Camp → „Armoury & Shields“), `src/lib/armoury.ts` (+ Tests),
+`src/screens/Armoury.tsx`. 23 Techniken: 10 Taktiken, 7 Mattbilder, 2 Mittelspiel (Vorteil verwerten,
+Verteidigen), 4 Endspiele. Stufen: See it → With help (Hinweis-Knopf) → Alone → Shield → Mixed → Real world.
+Bronze/Silber/Gold, Gold nur ohne Hilfe und nach 5 echten analysierten Partien in Folge ohne diesen Fehler.
+15 neue Lichess-Themen (die 8 alten Listen sind unverändert, damit die Stationen gleich bleiben).
+**Noch offen:** Überlastung (kein eigenes Lichess-Thema), Pläne aus Bauernstrukturen, Endspiele gegen
+Stockfish ausspielen (braucht geprüfte Texte bzw. Stellungen).
+
+### [x] 3. Drachenhöhle (Sizilianisch Drache)
 Station in der Spiegelwelt (Höhle unter dem Ätna). Der Drache ist ein Verbündeter = Läufer auf g7
 (Feueratem = lange Diagonale). Quests: Feueratem, den Drachen am Leben halten (Lg7 nicht tauschen),
 c-Linie und Qualitätsopfer auf c3. Boss: Drachenjäger (Jugoslawischer Angriff). Linien gibt es schon
 (Kapitel „Sicilian Dragon“). Fakt nur so: Den Namen gab laut eigener Aussage Fjodor Dus-Chotimirsky
 (Sternbild Drache).
+
+**Gebaut 08.11.:** Station `mirror-dragon` („The Dragon Cave“, letzte der Spiegelwelt, auf Sizilien) in `MIRROR`
+(`src/lib/king.ts`): Gespräch mit Lu, Quests `firebreath`, `keepdragon`, `cfile` (`DRAGON_FIRE/ALIVE/CFILE`,
+Stellungen aus den geprüften Linien in `data/sicilian.pgn`, Test prüft Legalität), Boss „The Shadow Dragon Hunter“
+(Linien-Boss). **Bilder sind Platzhalter** (kostenlos per PIL): `mirror-dragon.jpg` = eingefärbter Ausschnitt der
+Spiegelkarte um Sizilien, `boss-shadow-dragonhunter.jpg` = gespiegelte, glutrot eingefärbte `boss-guard.jpg`.
+Ein gemaltes Höhlenbild gehört zu Punkt 12.
 
 ### [ ] 4. Kastanien-Laden
 Kastanien kaufen nur Aussehen, nie Vorteile: Umhang, Stiefel, Sattel für Hoppy, Brettfarben.
@@ -118,6 +141,7 @@ mitwächst, Saisons, Freundes-Ligen statt öffentlicher Rangliste.
 Die Stadtbilder zeigen noch Liam als Prinzen (violettes Gewand, Goldreif). Lu: Straßenkind in Lumpen
 „sieht zu arm aus“ → Liam in den Städten in der Kleidung seines Rangs (wie `liam-2.jpg` bis `liam-5.jpg`).
 Edinburgh-Bild: Melone ist ein Zeitfehler (gab es erst ab etwa 1850).
+Drachenhöhle: echtes gemaltes Bild „Höhle unter dem Ätna“ (ohne Liam) und eigener Drachenjäger statt der Platzhalter.
 
 ### [ ] 13. Persönliche Linien für andere Spieler
 Die App kennt nur das eingebaute Buch. Für fremde Eröffnungen aus den Partien eines Spielers mit
@@ -130,3 +154,51 @@ Teilen-Karte für den Bericht, `CLAUDE.md` aktuell halten.
 ### [ ] 15. Vor dem Play Store (Entscheidungen von Lu nötig)
 Endgültiger Name (Favorit „Pawn to King“; „King of Chess“ kollidiert mit anderen Apps), Android über
 Bubblewrap, **Stockfish ist GPL-3.0** (vor dem Store-Start klären), erwachsener Standard-Look.
+
+### [ ] 16. Zugbewertung und „sichere Züge in %“ als Hauptkennzahl (Lus Wunsch 08.11.)
+Vorbild chess.com: Anerkennung für gute Züge motiviert (Brilliant, Great, Good, Genauigkeit in %).
+Lu vertraut fremden Formeln nicht blind. **Lus Entscheidung 08.11.: „sichere Züge in %“ wird die
+Hauptkennzahl der App** (misst genau seine wichtigste Gewohnheit: Drohung prüfen, nichts einstellen).
+Lichess-Formel und chess.com bleiben nur zum Vergleich.
+
+**Schon gebaut (Prototyp, Branch `preview`):**
+- `src/lib/accuracy.ts` (+ Tests): `scoreGame()` liefert pro Zug alle Zwischenwerte (Bewertung vorher/nachher,
+  Gewinnchance, Lichess-Zug-Genauigkeit, sicher ja/nein) und pro Partie `safePct`, `lichess`, `meanAccuracy`.
+  „Sicher“ = weniger als `SAFE_CP` (= `BLUNDER_CP`, 2 Bauern) verloren, dieselbe Grenze wie der Blunder-Trainer.
+- `src/lib/scores.ts`: bewertet die neuesten fertigen Rapid-Partien mit unserem Stockfish (Tiefe 12/14/18),
+  speichert getrennt in localStorage `chess-trainer-scores` (fasst die Puzzle-Daten nicht an).
+  chess.com-Zahl aus dem Feld `accuracies`, nur wenn die Partie dort ausgewertet wurde.
+- Testseite `#/accuracy` (`src/screens/Accuracy.tsx`), Link im Training Camp „How well did I play? (test)“:
+  drei Zahlen nebeneinander, Antippen zeigt jeden Zug mit allen Werten.
+- Erkenntnis aus dem Test: Nach der Lichess-Formel bekommt ein Zug, der Matt in 1 zulässt, noch etwa 13 %
+  (weil die Gewinnchance vorher nur ~45 % war). Ein Grund mehr für „sicher ja/nein“.
+
+**Noch bauen (in dieser Reihenfolge, jeden Schritt einzeln in die Vorschau):**
+1. **Kennzahl überall gleich:** `safePct` auch für Partien gegen Hoppy-Bot berechnen (`analyzeBotGame` in
+   `src/lib/analyzer.ts` hat die Bewertungen schon) und für chess.com-Partien im Portal-Bericht (je 20 Partien).
+2. **Sichtbar machen:** Auf der Startkarte bzw. im Portal „Safe moves: 72 % (last 20 games, was 61 %)“ mit
+   kleinem Verlauf. Nur echte Zahlen; ohne Daten nichts anzeigen.
+3. **Nach jeder Partie:** kurze Zusammenfassung: sichere Züge in %, der unsicherste Zug zum Nachspielen
+   („Where would the watch have helped?“), der beste Zug der Partie mit Begründung.
+4. **Zeichen pro Zug** (nach 1–3): Brilliant (!!) = (fast) bester Zug mit Materialopfer, der gut steht – selten,
+   goldene Kastanie + Knack; dazu Best / Great / Good. Lob immer mit Grund (`reason()` in `coach.ts`).
+   Eigene Zeichen im Pergament-Stil, keine chess.com-Symbole oder -Farben.
+5. Testseite `#/accuracy` danach behalten, aber aus dem Training Camp in die Settings verschieben.
+- Grenzen: Fair Play (nur fertige Partien), keine erfundenen Zahlen, keine Versprechen wie „+100 Elo“.
+
+### [ ] 17. Ruhiger Look für Erwachsene (Lus Wunsch 08.11.)
+Die App soll auch für andere sein; der bunte Kinder-Look kann Erwachsene abschrecken.
+
+**Schon gebaut (Prototyp, Branch `preview`):** Settings → „Look“: *Playful* (Standard) oder *Calm (for adults)*.
+`src/lib/look.ts` (localStorage `chess-trainer-look`, setzt `<html class="look-calm">`), Styles in
+`src/theme-calm.css`: ruhige Farben, Systemschrift, flache Knöpfe, kein Maskottchen auf den einfachen
+Trainings-Seiten (in der Geschichte bleibt Hoppy). Die gemalte Welt (`.king-screen`) bleibt in beiden Looks gleich.
+
+**Noch bauen:**
+1. Die bunten Kacheln auf `#/path` (Orange „My weaknesses“, Lila „Win it“) und die Farben in Drill, Puzzles,
+   Play im ruhigen Look angleichen; jede Seite einmal am Handy in beiden Looks ansehen (in der Vorschau).
+2. Beim ersten Start (`Welcome.tsx`) fragen: „Who is playing? A child / An adult“ → setzt den Look; jederzeit
+   in den Settings änderbar.
+3. Texte im ruhigen Look sachlicher (z. B. weniger Ausrufezeichen); Inhalt bleibt gleich.
+4. Prüfen, ob die Weltkarte im ruhigen Look so bleiben soll (Lu fragen, Bild zeigen).
+Hängt mit Punkt 15 (Play Store, „erwachsener Standard-Look“) zusammen.

@@ -1,5 +1,5 @@
 import { expect, it } from 'vitest'
-import { piecesInDanger } from './safety'
+import { defusedThreat, piecesInDanger } from './safety'
 
 it('finds undefended attacked pieces and pieces attacked by cheaper ones', () => {
   // White knight on e5 attacked by the d6 pawn (cheaper) and the e4 pawn hanging to the queen on h4;
@@ -14,4 +14,13 @@ it('a protected piece attacked by an equal piece is fine', () => {
   const fen = '4k3/1p6/2n5/8/3N4/4P3/8/4K3 w - - 0 1'
   expect(piecesInDanger(fen, 'w')).toEqual([])
   expect(piecesInDanger(fen, 'b')).toEqual([])
+})
+
+it('knack: the move that saves the threatened piece without hanging another', () => {
+  // the knight on e5 is attacked by the d6 pawn
+  const fen = '4k3/8/3p4/4N3/8/8/8/4K3 w - - 0 1'
+  expect(defusedThreat(fen, { from: 'e5', to: 'f3' })).toEqual(['e5'])
+  expect(defusedThreat(fen, { from: 'e1', to: 'e2' })).toBeNull() // ignored the threat
+  expect(defusedThreat(fen, { from: 'e5', to: 'd7' })).toBeNull() // into the king's reach
+  expect(defusedThreat('4k3/8/8/4N3/8/8/8/4K3 w - - 0 1', { from: 'e5', to: 'f3' })).toBeNull() // nothing was threatened
 })

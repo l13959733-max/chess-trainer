@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
+import { getLook, setLook } from '../lib/look'
 import { SpeakButton } from '../components/SpeakButton'
 import { go } from '../hooks/useHashRoute'
 import { reset as resetAnalyzer } from '../lib/analyzer'
@@ -28,6 +29,7 @@ export function Settings({ incoming, lines, player, onPlayer, incomingPlayer }: 
   const [saved, setSaved] = useState(false)
   const [check, setCheck] = useState<Check>({ kind: 'idle' })
   const [fb, setFb] = useState(getFeedbackPrefs)
+  const [look, setLookState] = useState(getLook)
 
   function toggle(key: 'sound' | 'haptics' | 'autoRead') {
     const next = { ...fb, [key]: !fb[key] }
@@ -149,6 +151,15 @@ export function Settings({ incoming, lines, player, onPlayer, incomingPlayer }: 
         />
         <button type="button" className="primary wide" onClick={() => saveAccount()}>Use this account</button>
         {accountMsg && <p className={accountMsg.ok ? 'good' : 'bad'} role="status">{accountMsg.text}</p>}
+
+        <div className="label">Look</div>
+        <div className="look-choice" role="radiogroup" aria-label="Look">
+          {(['playful', 'calm'] as const).map((l) => (
+            <button key={l} type="button" role="radio" aria-checked={look === l} className={look === l ? 'primary' : ''} onClick={() => { setLook(l); setLookState(l) }}>
+              {l === 'playful' ? 'Playful' : 'Calm (for adults)'}
+            </button>
+          ))}
+        </div>
 
         <div className="label">Sound &amp; vibration</div>
         <label className="toggle" htmlFor="fb-sound">

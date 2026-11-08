@@ -1,5 +1,6 @@
 # Pick well-liked Lichess puzzles (CC0) per theme for King of Chess, spread over the ratings of a
 # 600-1200 player. Reads the decompressed CSV from stdin, writes JSON.
+# zstd -dc lichess_db_puzzle.csv.zst | python3 scripts/pick-lichess-puzzles.py > src/data/lichess-puzzles.json
 # Columns: PuzzleId,FEN,Moves,Rating,RatingDeviation,Popularity,NbPlays,Themes,GameUrl,OpeningTags
 import csv, json, sys, random
 
@@ -12,6 +13,22 @@ THEMES = {
     'backrank': {'need': ['backRankMate'], 'avoid': []},
     'mate2': {'need': ['mateIn2'], 'avoid': []},
     'smothered': {'need': ['smotheredMate'], 'avoid': []},
+    # the armoury (BAUPLAN 2): one theme per weapon / shield, mating patterns, endgames, middlegame
+    'discovered': {'need': ['discoveredAttack'], 'avoid': ['mate']},
+    'removal': {'need': ['capturingDefender'], 'avoid': ['mate']},
+    'deflection': {'need': ['deflection'], 'avoid': ['mate']},
+    'attraction': {'need': ['attraction'], 'avoid': []},
+    'intermezzo': {'need': ['intermezzo'], 'avoid': ['mate']},
+    'combo': {'need': ['sacrifice', 'advantage'], 'avoid': ['mate', 'oneMove']},
+    'arabian': {'need': ['arabianMate'], 'avoid': []},
+    'anastasia': {'need': ['anastasiaMate'], 'avoid': []},
+    'hook': {'need': ['hookMate'], 'avoid': []},
+    'pawnEnd': {'need': ['pawnEndgame'], 'avoid': ['mate']},
+    'rookEnd': {'need': ['rookEndgame'], 'avoid': ['mate']},
+    'minorEnd': {'need': ['knightEndgame'], 'avoid': ['mate'], 'or': ['bishopEndgame']},
+    'queenEnd': {'need': ['queenEndgame'], 'avoid': ['mate']},
+    'convert': {'need': ['middlegame', 'crushing', 'quietMove'], 'avoid': ['mate']},
+    'defend': {'need': ['defensiveMove', 'middlegame'], 'avoid': ['mate']},
 }
 LOW, HIGH = 450, 1350
 PER = 40
@@ -28,7 +45,8 @@ for row in r:
     if len(ms) > 6:
         continue
     for k, rule in THEMES.items():
-        if all(n in t for n in rule['need']) and not any(a in t for a in rule['avoid']):
+        need = all(n in t for n in rule['need']) or ('or' in rule and all(n in t for n in rule['or']))
+        if need and not any(a in t for a in rule['avoid']):
             pools[k].append({'id': pid, 'fen': fen, 'moves': ms, 'rating': rating, 'plays': plays})
 random.seed(7)
 out = {}
