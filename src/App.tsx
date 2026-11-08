@@ -22,6 +22,7 @@ import { backFromLine, rememberLine, rememberOrigin, stationOrigin } from './lib
 import { ChessCheck } from './screens/Check'
 import { Portal } from './screens/Portal'
 import { Afterwards } from './screens/Afterwards'
+import { ArmouryScreen } from './screens/Armoury'
 import { QuestBook } from './screens/QuestBook'
 import { Mirror } from './screens/Mirror'
 import { Atlas } from './screens/Atlas'
@@ -120,6 +121,7 @@ function App() {
   } else if (page === 'puzzles') body = <PuzzleSession key={id ?? 'all'} puzzles={puzzles} progress={progress} category={id && id in CATEGORY ? (id as Category) : undefined} />
   else if (page === 'threats') body = <ThreatSession key={(id ?? 'all') + (arg ?? '')} puzzles={puzzles} progress={progress} category={id && id in CATEGORY ? (id as Category) : undefined} games={id === 'games' ? arg?.split(',') : undefined} />
   else if (page === 'afterwards') body = <Afterwards />
+  else if (page === 'armoury') body = <ArmouryScreen key={(id ?? '') + '/' + (arg ?? '')} id={id} stage={arg} />
   else if (page === 'weaknesses') body = <Weaknesses puzzles={puzzles} player={player} />
   else if (page === 'trophies') body = <Trophies achievements={trophies} />
   else if (page === 'accuracy') body = <Accuracy player={player} />

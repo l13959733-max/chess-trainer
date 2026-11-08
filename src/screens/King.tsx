@@ -25,6 +25,7 @@ import {
 import '../king.css'
 
 const IMG = import.meta.env.BASE_URL + 'king/'
+const HINT_PIECE: CSSProperties = { boxShadow: 'inset 0 0 0 4px rgba(201, 162, 39, 0.95)' }
 // Liam's medallion floats this far above the city
 const TOKEN_LIFT = 72
 const BOSSES = STATIONS.filter((s) => !s.finale).length
@@ -310,7 +311,7 @@ const PALETTES: Record<string, Palette> = {
 const BoardContext = createContext<{ elephants: boolean; palette: Palette }>({ elephants: false, palette: 'forest' })
 const boardAt = (id: string) => ({ elephants: ASIA.includes(id), palette: PALETTES[id] ?? 'forest' })
 
-function KBoard(props: ComponentProps<typeof Board>) {
+export function KBoard(props: ComponentProps<typeof Board>) {
   const { elephants, palette } = useContext(BoardContext)
   return (
     <div className={`king-bleed pal-${palette}`}>
@@ -1036,11 +1037,13 @@ function PuzzleRounds({ s, puzzles, boss, title, lesson, threat, back, finish }:
   )
 }
 
-function OnePuzzle({ p, threat, onMistake, onSolved }: { p: LPuzzle; threat?: boolean; onMistake: () => void; onSolved: () => void }) {
+// `onHelp`: shows a hint button (first the piece, then the move); each press is counted
+export function OnePuzzle({ p, threat, onMistake, onSolved, onHelp }: { p: LPuzzle; threat?: boolean; onMistake: () => void; onSolved: () => void; onHelp?: () => void }) {
   const [fen, setFen] = useState(p.fen)
   const [step, setStep] = useState(0) // index of the next move in p.moves
   const [last, setLast] = useState<{ from: string; to: string } | null>(null)
   const [hint, setHint] = useState<string | null>(null)
+  const [piece, setPiece] = useState<string | null>(null) // first hint: which piece moves
   const [done, setDone] = useState(false)
   const toMove = new Chess(p.fen).turn() === 'w' ? 'white' : 'black'
   const me = p.direct ? toMove : toMove === 'white' ? 'black' : 'white' // the side that solves
@@ -1069,7 +1072,7 @@ function OnePuzzle({ p, threat, onMistake, onSolved }: { p: LPuzzle; threat?: bo
       <KBoard
         fen={fen}
         orientation={orientation}
-        squareStyles={last ? { [last.from]: LAST_MOVE, [last.to]: LAST_MOVE } : {}}
+        squareStyles={{ ...(last ? { [last.from]: LAST_MOVE, [last.to]: LAST_MOVE } : {}), ...(piece && !hint ? { [piece]: HINT_PIECE } : {}) }}
         arrows={hint ? [{ startSquare: hint.slice(0, 2), endSquare: hint.slice(2, 4), color: ARROW.correct }] : []}
         onMove={
           !yourTurn
@@ -1087,6 +1090,7 @@ function OnePuzzle({ p, threat, onMistake, onSolved }: { p: LPuzzle; threat?: bo
                   return false
                 }
                 setHint(null)
+                setPiece(null)
                 setFen(c.fen())
                 setLast({ from, to })
                 const next = step + 1
@@ -1120,10 +1124,23 @@ function OnePuzzle({ p, threat, onMistake, onSolved }: { p: LPuzzle; threat?: bo
             </>
           ) : (
             <>
-              {orientation === 'white' ? 'White' : 'Black'} to move. {hint ? 'Play the green arrow.' : 'Find the best move.'}
+              {orientation === 'white' ? 'White' : 'Black'} to move. {hint ? 'Play the green arrow.' : piece ? 'This piece moves.' : 'Find the best move.'}
             </>
           )}
         </p>
+      )}
+      {onHelp && yourTurn && !hint && (
+        <button
+          type="button"
+          className="wide"
+          onClick={() => {
+            onHelp()
+            if (!piece) setPiece(want.slice(0, 2))
+            else setHint(want)
+          }}
+        >
+          {piece ? 'Show me the move' : 'Hint: which piece?'}
+        </button>
       )}
     </>
   )
@@ -1612,6 +1629,10 @@ export function WarTent({ puzzles }: { puzzles: Puzzles }) {
       <button type="button" className="primary wide king-continue" onClick={() => go('warmup')}>
         <small>2 minutes · before you play on chess.com</small>
         Warm-up before your game
+      </button>
+      <button type="button" className="wide king-continue" onClick={() => go('armoury')}>
+        <small>tactics, mates, middlegame, endgame · bronze, silver, gold</small>
+        Armoury & Shields
       </button>
       <button type="button" className="wide king-continue" onClick={() => go('atlas')}>
         <small>new weapons · every big opening family</small>

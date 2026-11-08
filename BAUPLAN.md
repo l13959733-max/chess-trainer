@@ -74,7 +74,7 @@ Sauberer Glanz + Schatten-Zahl: `src/lib/clean.ts` (nur analysierte Partien, Gla
 Karte unten. Schleife: Warm-up merkt `warmupAt`, Karte zeigt „Back from chess.com?“ → `#/afterwards`
 (`src/screens/Afterwards.tsx`) → `#/threats/games/<uuids>`.
 
-### [ ] 2. Waffenkammer und Schilde (Taktik, Verteidigung, Mittelspiel, Endspiel)
+### [x] 2. Waffenkammer und Schilde (Taktik, Verteidigung, Mittelspiel, Endspiel)
 Im Training Camp: jede Technik ist eine Waffe (Angriff) oder ein Schild (Verteidigung) mit Bronze,
 Silber, Gold. Gold nur ohne Hilfe und erst, wenn es in echten Partien klappt. Ablauf je Technik:
 zeigen → mit Hilfe → frei → verteidigen → gemischt → echte Welt. Reihenfolge Taktik: Wache → Gabel →
@@ -82,6 +82,14 @@ Fesselung → Spieß → Abzug → Beseitigung des Verteidigers → Ablenkung/Hi
 → Kombinationen. Dazu Mattbilder, Mittelspiel (Pläne aus typischen Bauernstrukturen, Vorteil verwerten),
 Endspiel (einfach → schwer, gegen Stockfish ausspielen). Aufgaben aus der Lichess-Datenbank (CC0):
 `scripts/pick-lichess-puzzles.py` erzeugt `src/data/lichess-puzzles.json`; Themen dort erweitern.
+
+**Gebaut 08.11.:** `#/armoury` (Training Camp → „Armoury & Shields“), `src/lib/armoury.ts` (+ Tests),
+`src/screens/Armoury.tsx`. 23 Techniken: 10 Taktiken, 7 Mattbilder, 2 Mittelspiel (Vorteil verwerten,
+Verteidigen), 4 Endspiele. Stufen: See it → With help (Hinweis-Knopf) → Alone → Shield → Mixed → Real world.
+Bronze/Silber/Gold, Gold nur ohne Hilfe und nach 5 echten analysierten Partien in Folge ohne diesen Fehler.
+15 neue Lichess-Themen (die 8 alten Listen sind unverändert, damit die Stationen gleich bleiben).
+**Noch offen:** Überlastung (kein eigenes Lichess-Thema), Pläne aus Bauernstrukturen, Endspiele gegen
+Stockfish ausspielen (braucht geprüfte Texte bzw. Stellungen).
 
 ### [ ] 3. Drachenhöhle (Sizilianisch Drache)
 Station in der Spiegelwelt (Höhle unter dem Ätna). Der Drache ist ein Verbündeter = Läufer auf g7
