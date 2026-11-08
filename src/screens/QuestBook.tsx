@@ -1,5 +1,5 @@
 import { go } from '../hooks/useHashRoute'
-import { ROAD, STATIONS, isOpen, loadKing, stationById, type Station } from '../lib/king'
+import { ROAD, STATIONS, isOpen, loadKing, opensAfter, stationById, type Station } from '../lib/king'
 import { REAL_QUESTS } from '../lib/portal'
 import '../king.css'
 
@@ -83,7 +83,7 @@ function StationRow({ s, state }: { s: Station; state: 'next' | 'done' | 'open' 
           {state === 'done'
             ? `${s.boss.name} beaten`
             : state === 'locked'
-              ? 'Opens when every other boss is beaten'
+              ? `In the fog – opens after ${opensAfter(s, loadKing().beaten)?.name ?? 'the city before'}`
               : quests.length
                 ? `${quests.map((g) => g.title).join(' · ')} · ${solved} of ${quests.length} done`
                 : `Boss: ${s.boss.name}`}

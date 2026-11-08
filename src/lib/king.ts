@@ -454,7 +454,7 @@ export const STATIONS: Station[] = [
     boss: { name: 'The Machine', face: '🖥', img: 'boss-machine.jpg', kind: 'krk', taunt: 'I will escape. Probability: 99.7%.', win: 'Checkmate. The Machine prints a single word: RESPECT.' },
   },
   {
-    id: 'rio', name: 'Rio', year: '1930s', x: 600, y: 692, sea: true, color: '#2b8a3e',
+    id: 'rio', name: 'Rio', year: '1930s', x: 600, y: 610, medallion: true, sea: true, color: '#2b8a3e',
     intro: 'A Brazilian master and his bishop jump: 1.d4 Nf6 2.Bg5!',
     skills: ['Bishop jump: 2.Bg5', 'Kick the knight: f3'],
     scene: 'rio.jpg',
@@ -584,9 +584,22 @@ export const stationById = (id: string | undefined) => STATIONS.find((s) => s.id
 // The Mirror World opens when Rome's boss is beaten: by then you know how to react with White
 export const mirrorOpen = (beaten: string[]) => beaten.includes('rome')
 
-// Chennai waits until every other boss is beaten
+// The journey is guided (Lu's rule): the cities lie in the fog and open one after another –
+// the main road first, then the other cities, Chennai last. A beaten city always stays open.
+// Stations outside the route (the Mirror World) have their own gate.
+export function route(): string[] {
+  const rest = STATIONS.filter((x) => !ROAD.includes(x.id) && !x.finale).map((x) => x.id)
+  return [...ROAD, ...rest, ...STATIONS.filter((x) => x.finale).map((x) => x.id)]
+}
 export function isOpen(s: Station, beaten: string[]): boolean {
-  return !s.finale || STATIONS.filter((x) => !x.finale).every((x) => beaten.includes(x.id))
+  const order = route()
+  const i = order.indexOf(s.id)
+  return i < 0 || beaten.includes(s.id) || order.slice(0, i).every((id) => beaten.includes(id))
+}
+// The city whose boss opens this one (for "still in the fog" hints)
+export function opensAfter(s: Station, beaten: string[]): Station | undefined {
+  const order = route()
+  return order.slice(0, Math.max(0, order.indexOf(s.id))).map((id) => stationById(id)!).find((x) => !beaten.includes(x.id))
 }
 
 // Indian names of the pieces (Hindi); the game started with these four parts of an army
@@ -678,6 +691,16 @@ export const TITLES: { bosses: number; name: string }[] = [
   { bosses: 8, name: 'Bishop of the Board' },
   { bosses: 12, name: "Queen's Champion" },
 ]
+// Liam's portrait grows with his rank: from rags to the crown (painted in public/king)
+export function liamPortrait(beaten: string[]): string {
+  if (beaten.includes('chennai')) return 'liam-5.jpg'
+  const n = beaten.length
+  if (n >= 12) return 'liam-4.jpg' // Queen's Champion: violet and gold
+  if (n >= 5) return 'liam-3.jpg' // Knight Owl, Bishop of the Board: a fine blue coat
+  if (n >= 3) return 'liam-2.jpg' // Rook-ie: clean travel clothes
+  return 'liam.jpg' // Pawn, Pawn Star: the street kid
+}
+
 // How the world sees Liam: at first a barefoot boy nobody takes seriously, at the end a legend.
 // Masters greet him by his fame, bosses open with it. Grows with every boss beaten (like the titles).
 export function reputation(beaten: string[]): { greet: string; boss: string } {

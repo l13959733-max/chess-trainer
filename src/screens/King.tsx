@@ -14,7 +14,7 @@ import { clampScore } from '../lib/blunders'
 import { feedback as fx } from '../lib/feedback'
 import {
   ARMY, CROSSROADS, MIRROR, mirrorOpen, FORKS, GRAIN, GUARD, GUARD_BOSS, LEWIS, MATES, QUEEN_TACTICS, RIDDLES, ROME_REACT, ROME_THREATS, ROME_TRAPS, ROOK_MATES, SAFE, STATIONS, TENT_AT, TURK,
-  earn, isOpen, lineRounds, loadKing, nextStation, reputation, saveKing, stationById, stationLines, titleOf, type BoardRound, type Crossroad, type QuizQuestion, type Station,
+  earn, isOpen, liamPortrait, opensAfter, lineRounds, loadKing, nextStation, reputation, saveKing, stationById, stationLines, titleOf, type BoardRound, type Crossroad, type QuizQuestion, type Station,
 } from '../lib/king'
 import '../king.css'
 
@@ -94,7 +94,7 @@ function KingMap() {
   function travel(target: Station, ambushAllowed = true) {
     if (traveling.current) return
     if (!isOpen(target, state.beaten)) {
-      showToast(`${target.name} opens when all ${BOSSES} bosses are beaten – ${BOSSES - beatenCount} to go.`)
+      showToast(`${target.name} is still in the fog. First beat the boss in ${opensAfter(target, state.beaten)?.name ?? 'the city before'}.`)
       return
     }
     if (target.id === here.id) {
@@ -212,7 +212,7 @@ function KingMap() {
           <g ref={token} transform={`translate(${here.x},${here.y - TOKEN_LIFT})`} aria-label="Liam and Hoppy are here">
             <g className="king-bob">
               <path d="M-8,24 L0,40 L8,24 Z" fill="#8b6b3d" />
-              <Medallion img="liam.jpg" />
+              <Medallion img={liamPortrait(state.beaten)} />
               {crowned && <text y="-26" textAnchor="middle" fontSize="22" aria-hidden="true">👑</text>}
               <g transform="translate(20,18)">
                 <circle r="11.5" fill="#c9a227" stroke="#5c3d12" strokeWidth="1.5" />
@@ -593,7 +593,7 @@ function Victory({ s }: { s: Station }) {
     <div className="screen king-screen">
       <div className={`done king-victory ${crown ? 'crown' : ''}`}>
         <div className="king-defeated" aria-hidden="true">
-          <img src={IMG + (crown ? 'liam.jpg' : s.boss.img)} alt="" />
+          <img src={IMG + (crown ? 'liam-5.jpg' : s.boss.img)} alt="" />
           <span>{crown ? '👑' : '🏅'}</span>
         </div>
         <div className="done-title">{crown ? 'King of Chess!' : `${s.boss.name} is beaten!`}</div>

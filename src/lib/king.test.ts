@@ -78,7 +78,25 @@ describe('King of Chess', () => {
     const others = STATIONS.filter((s) => !s.finale).map((s) => s.id)
     expect(isOpen(chennai, others.slice(1))).toBe(false)
     expect(isOpen(chennai, others)).toBe(true)
-    expect(STATIONS.filter((s) => !isOpen(s, [])).map((s) => s.id)).toEqual(['chennai'])
+  })
+
+  it('the journey is guided: cities open one after another, beaten cities stay open', () => {
+    const open = (beaten: string[]) => STATIONS.filter((s) => isOpen(s, beaten)).map((s) => s.id)
+    expect(open([])).toEqual(['kannauj'])
+    expect(open(['kannauj'])).toEqual(['kannauj', 'samarkand'])
+    expect(open(['kannauj', 'samarkand', 'rome', 'baghdad'])).toContain('persia')
+    expect(open(['kannauj', 'samarkand', 'rome', 'baghdad'])).not.toContain('north')
+    // an old save with a city beaten out of order: that city stays open, the next gap opens
+    expect(open(['valencia'])).toEqual(['kannauj', 'valencia'])
+    // every city's "next" is the one the route opens
+    let beaten: string[] = []
+    for (let k = 0; k < STATIONS.length - 1; k++) {
+      const n = nextStation(beaten.at(-1) ?? 'kannauj', beaten) ?? STATIONS.find((s) => s.id === 'kannauj')!
+      const target = k === 0 ? 'kannauj' : n.id
+      expect(isOpen(STATIONS.find((s) => s.id === target)!, beaten), target).toBe(true)
+      beaten = [...beaten, target]
+    }
+    expect(beaten.length).toBe(STATIONS.length - 1)
   })
 
   it("line bosses only ask positions with one answer in the station's book", () => {
