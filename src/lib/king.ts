@@ -678,6 +678,17 @@ export const TITLES: { bosses: number; name: string }[] = [
   { bosses: 8, name: 'Bishop of the Board' },
   { bosses: 12, name: "Queen's Champion" },
 ]
+// How the world sees Liam: at first a barefoot boy nobody takes seriously, at the end a legend.
+// Masters greet him by his fame, bosses open with it. Grows with every boss beaten (like the titles).
+export function reputation(beaten: string[]): { greet: string; boss: string } {
+  const n = beaten.filter((id) => id !== 'chennai').length
+  if (n >= 12) return { greet: 'Liam! The whole world of chess talks about you. It is an honour that you visit me.', boss: 'The famous Liam… I hoped you would never come here.' }
+  if (n >= 8) return { greet: 'The street kid who beat the bosses – you are welcome at my table, Liam.', boss: 'So you are the one everyone talks about.' }
+  if (n >= 3) return { greet: 'I have heard of you, Liam. A boy from the bazaar who beats bosses? Show me.', boss: 'The traders tell stories about you. Stories are not moves.' }
+  if (n >= 1) return { greet: 'You beat a boss already? Not bad for a boy without shoes.', boss: 'One lucky win, street kid. That is all.' }
+  return { greet: 'A barefoot boy with a horse? Hm. Sit down – let us see what you know.', boss: 'Go home, street kid. Oh wait – you have no home.' }
+}
+
 export function titleOf(beaten: string[]): string {
   if (beaten.includes('chennai')) return 'King of Chess'
   const n = beaten.filter((id) => id !== 'chennai').length

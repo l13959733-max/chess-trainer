@@ -29,3 +29,13 @@ describe('Mirror World (Act 2)', () => {
     expect(titleOf(['mirror-gate'])).toBe(titleOf(['kannauj']))
   })
 })
+
+describe('reputation: the world sees Liam rise', () => {
+  it('starts as a barefoot boy and ends as a legend', async () => {
+    const { reputation } = await import('./king')
+    expect(reputation([]).greet).toMatch(/barefoot/)
+    expect(reputation(['kannauj']).boss).toMatch(/street kid/)
+    expect(reputation(['a', 'b', 'c']).greet).toMatch(/heard of you/)
+    expect(reputation(Array.from({ length: 12 }, (_, i) => 's' + i)).greet).toMatch(/honour/)
+  })
+})

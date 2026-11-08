@@ -14,7 +14,7 @@ import { clampScore } from '../lib/blunders'
 import { feedback as fx } from '../lib/feedback'
 import {
   ARMY, CROSSROADS, MIRROR, mirrorOpen, FORKS, GRAIN, GUARD, GUARD_BOSS, LEWIS, MATES, QUEEN_TACTICS, RIDDLES, ROME_REACT, ROME_THREATS, ROME_TRAPS, ROOK_MATES, SAFE, STATIONS, TENT_AT, TURK,
-  earn, isOpen, lineRounds, loadKing, nextStation, saveKing, stationById, stationLines, titleOf, type BoardRound, type Crossroad, type QuizQuestion, type Station,
+  earn, isOpen, lineRounds, loadKing, nextStation, reputation, saveKing, stationById, stationLines, titleOf, type BoardRound, type Crossroad, type QuizQuestion, type Station,
 } from '../lib/king'
 import '../king.css'
 
@@ -510,6 +510,8 @@ function StationPage({ s, rep }: { s: Station; rep: Repertoire }) {
 
 function KingTalk({ s }: { s: Station }) {
   const m = s.master
+  // masters out in the world greet Liam by his fame; Grandmaster Lu in the mirror is his teacher
+  const [talk] = useState(() => (MIRROR.includes(s) ? m.talk : [{ who: 'master' as const, text: reputation(loadKing().beaten).greet }, ...m.talk]))
   const [n, setN] = useState(1)
   const end = useRef<HTMLDivElement>(null)
   useEffect(() => {
@@ -519,7 +521,7 @@ function KingTalk({ s }: { s: Station }) {
     <div className="screen king-screen">
       <StationHead s={s} back={() => go('king/' + s.id)} title={m.name} />
       <div className="king-talk">
-        {m.talk.slice(0, n).map((l, i) => (
+        {talk.slice(0, n).map((l, i) => (
           <div key={i} className={`king-line ${l.who === 'master' ? '' : 'me'}`}>
             {l.who === 'master' ? <Portrait m={m} className="king-avatar" /> : <Avatar who={l.who} className="king-avatar" />}
             <div className="king-say">{l.text}</div>
@@ -531,12 +533,12 @@ function KingTalk({ s }: { s: Station }) {
           type="button"
           className="primary wide"
           onClick={() => {
-            if (n < m.talk.length) return setN(n + 1)
+            if (n < talk.length) return setN(n + 1)
             earn(`${s.id}/talk`, 5)
             go(`king/${s.id}/next`)
           }}
         >
-          {n < m.talk.length ? 'Next' : 'Continue'}
+          {n < talk.length ? 'Next' : 'Continue'}
         </button>
       </div>
     </div>
@@ -555,7 +557,7 @@ function BossCard({ s, line, progress, hearts }: { s: Station; line: string; pro
       <img className="king-boss-img" src={IMG + s.boss.img} alt="" />
       <div>
         <b className="king-boss-name">{s.boss.name}</b>
-        <q>{line}</q>
+        <q>{line === s.boss.taunt && !MIRROR.includes(s) ? `${reputation(loadKing().beaten).boss} ${line}` : line}</q>
         {progress !== undefined && <div className="king-hp"><span style={{ width: `${progress}%` }} /></div>}
         {hearts !== undefined && <Hearts n={hearts} />}
       </div>
