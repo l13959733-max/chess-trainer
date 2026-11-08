@@ -130,3 +130,32 @@ Teilen-Karte für den Bericht, `CLAUDE.md` aktuell halten.
 ### [ ] 15. Vor dem Play Store (Entscheidungen von Lu nötig)
 Endgültiger Name (Favorit „Pawn to King“; „King of Chess“ kollidiert mit anderen Apps), Android über
 Bubblewrap, **Stockfish ist GPL-3.0** (vor dem Store-Start klären), erwachsener Standard-Look.
+
+### [ ] 16. Zugbewertung und Genauigkeit – erst testen, dann eigene Formel (Lus Wunsch 08.11.)
+Vorbild chess.com: Anerkennung für gute Züge motiviert (Brilliant, Great, Good, Genauigkeit in %).
+Lu vertraut fremden Formeln nicht blind → **zuerst ein Test, dann entscheidet Lu.**
+Schon da: `verdict()` in `src/lib/coach.ts` (great/good/inaccuracy/mistake/blunder nach verlorener
+Gewinnchance) und `winChance()` in `src/lib/bot.ts` (= Lichess-Kurve Stufe 1).
+
+**Schritt A – Testseite `#/accuracy` (nur Vorschau):**
+- Fertige chess.com-Partien laden (nur fertige – Fair Play). Analyse mit **unserem eigenen Stockfish**
+  im Browser (`src/lib/engine.ts`), nicht mit dem von Lichess; Tiefe einstellbar (14 / 18).
+- Pro Partie drei Zahlen nebeneinander:
+  (1) chess.com-Genauigkeit, falls die Partie dort ausgewertet wurde (Feld `accuracies` im
+  Partie-JSON; ergänzen in `ChessComGame`, fehlt es → „–“),
+  (2) Lichess-Formel: Zug-Genauigkeit = 103.1668·exp(−0.04354·Verlust Win%) − 3.1669, Partie = Mittel
+  aus gewichtetem und harmonischem Mittel,
+  (3) eigene Formel, Startvorschlag: **„sichere Züge in %“** = Anteil der Züge ohne eingestellte Figur
+  und ohne übersehene Drohung (`piecesInDanger` / Blunder-Grenze), passt zu Lus Hauptfehler.
+- **Alles nachrechenbar:** Antippen einer Partie zeigt jeden Zug mit roher Stockfish-Bewertung →
+  Gewinnchance → Genauigkeit je Formel. Keine Zahl ohne Herkunft.
+- Formeln in einer eigenen Datei `src/lib/accuracy.ts` mit Vitest-Tests, damit sie austauschbar sind.
+
+**Schritt B – nach Lus Entscheidung einbauen:**
+- Zeichen pro Zug: **Brilliant (!!)** = (fast) bester Zug mit Materialopfer, der gut steht – selten,
+  goldene Kastanie + Knack; dazu Best / Great / Good. Eigene Zeichen im Pergament-Stil, keine
+  chess.com-Symbole oder -Farben.
+- Partie-Zusammenfassung nach Bot-Partien (`Play.tsx`) und im Portal für chess.com-Partien:
+  Genauigkeit (Lus Formel), Anzahl je Zeichen, „bester Zug der Partie“ zum Nachspielen,
+  Verlauf über die letzten 20 Partien.
+- Ehrlich: Lob und Prozente nur aus echten Engine-Werten, nie während einer laufenden chess.com-Partie.
