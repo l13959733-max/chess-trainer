@@ -1,0 +1,55 @@
+[Event "Vienna Gambit: 4...Qe7"]
+[Opening "Vienna Game"]
+[Side "White"]
+[Result "*"]
+
+1. e4 e5 2. Nc3 Nf6 3. f4 exf4 4. e5 Qe7 {Black pins your pawn on e5 against your king.} 5. Qe2 {Pin back! Your queen guards e5 and blocks the e-file.} Ng8 6. Nf3 {Develop and protect e5 a second time.} Qe6 7. d4 {Take the center while Black's pieces stand at home.} d5 8. Qf2 {Now you win back the pawn on f4.} Ne7 *
+
+[Event "Vienna Gambit: 3...d6"]
+[Opening "Vienna Game"]
+[Side "White"]
+[Result "*"]
+
+1. e4 e5 2. Nc3 Nf6 3. f4 d6 {Solid: Black holds e5.} 4. Nf3 {Develop first – the pawn on f4 is safe.} exf4 5. d4 {A big center. The pawn on f4 falls later with Bxf4.} Nh5 6. Be2 {Break the pin ideas and prepare to castle.} *
+
+[Event "Vienna Gambit: 3...Nc6"]
+[Opening "Vienna Game"]
+[Side "White"]
+[Result "*"]
+
+1. e4 e5 2. Nc3 Nf6 3. f4 Nc6 4. fxe5 {Take: the pawn on e5 kicks the knight next.} Nxe5 5. d4 {Hit the knight again – with tempo.} Ng6 6. e5 {Chase the other knight back home.} Ng8 7. Nf3 {You are far ahead in space and development.} *
+
+[Event "Vienna: 3.Bc4 Nc6"]
+[Opening "Vienna Game"]
+[Side "White"]
+[Result "*"]
+
+1. e4 e5 2. Nc3 Nf6 3. Bc4 Nc6 4. d3 {Protect e4 calmly, as in your Italian.} Na5 {Black hunts your bishop.} 5. Nge2 {Let it go – you develop and keep f4 possible.} Bc5 6. O-O d6 7. Bg5 {Pin the knight while Black spends time on your bishop.} Nxc4 8. dxc4 *
+
+[Event "Vienna: 2...Nc6 3.Bc4 Bc5"]
+[Opening "Vienna Game"]
+[Side "White"]
+[Result "*"]
+
+1. e4 e5 2. Nc3 Nc6 3. Bc4 Bc5 {Both bishops aim at the weak f-pawn.} 4. d3 {Protect e4 and open your other bishop.} Nf6 5. f4 {The Vienna idea: open the f-file against Black's king.} d6 6. Nf3 *
+
+[Event "Vienna vs 2...b6"]
+[Opening "Vienna Game"]
+[Side "White"]
+[Result "*"]
+
+1. e4 e5 2. Nc3 b6 {Slow: Black wants the bishop on b7.} 3. Nf3 {Attack e5 at once.} Nc6 4. Bc4 {Aim at f7 – Black lost a move with ...b6.} Bc5 5. O-O Nf6 6. d4 {Open the center while you are ahead in development.} exd4 7. e5 {Do not take back – kick the knight first! If Black takes your knight with ...dxc3, you take the knight on f6 and open the e-file against the king.} *
+
+[Event "Vienna vs 2...f6"]
+[Opening "Vienna Game"]
+[Side "White"]
+[Result "*"]
+
+1. e4 e5 2. Nc3 f6 {A weak move: it takes the best square from Black's knight and opens the diagonal to the king.} 3. Nge2 Nc6 4. d4 {Strike in the center.} Bb4 5. d5 {Gain space and push the knight away.} Nce7 6. a3 *
+
+[Event "vs Owen's Defense 1...b6"]
+[Opening "Other replies to 1.e4"]
+[Side "White"]
+[Result "*"]
+
+1. e4 b6 {Owen's Defense: the bishop will attack e4 from b7.} 2. d4 {Take the whole center.} Bb7 3. Bd3 {Protect e4 with a piece that develops.} e6 4. Nf3 c5 5. c3 {Keep a strong pawn on d4.} Nf6 6. Qe2 {Protect e4 once more.} *

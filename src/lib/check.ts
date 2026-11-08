@@ -5,6 +5,11 @@ import type { Puzzle } from './db'
 import type { Line } from './pgn'
 import { CATEGORY, type Category } from './weakness'
 
+// how many departures the report keeps per kind
+export let TOP = 3
+export function setTop(n: number) {
+  TOP = n
+}
 const key = (fen: string) => fen.split(' ').slice(0, 2).join(' ')
 
 export interface CheckGame {
@@ -108,7 +113,7 @@ export function bookReport(games: CheckGame[], lines: Line[]): BookReport {
     d.count++
     into.set(k, d)
   }
-  const top = (m: Map<string, Departure>) => [...m.values()].sort((a, b) => b.count - a.count).slice(0, 3)
+  const top = (m: Map<string, Departure>) => [...m.values()].sort((a, b) => b.count - a.count).slice(0, TOP)
   const report = (s: ReturnType<typeof blank>): SideReport => ({
     games: s.games,
     inBook: s.games ? s.plies / s.games : 0,

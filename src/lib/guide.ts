@@ -167,6 +167,11 @@ export const GUIDE: Record<string, Guide> = {
     ideas: ['Smith-Morra: take the pawn, develop solidly', 'Alapin 2.c3: hit e4 with ...Nf6', 'Grand Prix: fianchetto your bishop'],
     style: 'Active',
   },
+  'Other replies to 1.e4|w': {
+    about: 'Rare answers to 1.e4, like Owen\'s Defense 1...b6. Black gives you the center – take it.',
+    ideas: ['d4: two pawns in the center', 'Protect e4 with pieces, not with pawn moves', 'Develop fast while Black plays on the wing'],
+    style: 'Solid',
+  },
   'Alekhine Defense|w': {
     about: 'Black\'s knight on f6 invites your pawns forward. You chase it and take space – then develop calmly.',
     ideas: ['e5 chases the knight, d4 and c4 build a big center', 'Do not push too far: develop first', 'More space means more room for your pieces'],

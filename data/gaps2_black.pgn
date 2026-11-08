@@ -1,0 +1,76 @@
+[Event "Sicilian vs 2.e5"]
+[Opening "Sicilian: White's other tries"]
+[Side "Black"]
+[Result "*"]
+
+1. e4 c5 2. e5 {White pushes too early.} Nc6 {Attack the pawn on e5 right away.} 3. Nf3 d6 {Hit it again – now it must take or fall.} 4. exd6 e6 {Take back with the bishop next and develop fast.} 5. d4 Bxd6 *
+
+[Event "Sicilian vs 2.Nc3 Nc6 3.Nf3"]
+[Opening "Sicilian: White's other tries"]
+[Side "Black"]
+[Result "*"]
+
+1. e4 c5 2. Nc3 Nc6 3. Nf3 g6 {Your Dragon bishop goes to g7 – like in your main lines.} 4. d4 cxd4 5. Nxd4 Bg7 {The long diagonal hits the knight on d4 and the center.} 6. Be3 Nf6 *
+
+[Event "Sicilian vs 2.Nc3 Nc6 3.Bc4"]
+[Opening "Sicilian: White's other tries"]
+[Side "Black"]
+[Result "*"]
+
+1. e4 c5 2. Nc3 Nc6 3. Bc4 Nf6 {Develop and attack e4.} 4. Nf3 e6 {Block the bishop's road to f7.} 5. d4 d5 {Strike back in the center: the bishop on c4 is hit.} *
+
+[Event "Sicilian vs 2.d3"]
+[Opening "Sicilian: White's other tries"]
+[Side "Black"]
+[Result "*"]
+
+1. e4 c5 2. d3 {A quiet setup.} Nc6 3. g3 g6 {Mirror it: your bishop on g7 is as strong as White's on g2.} 4. Bg2 Bg7 5. f4 d6 {Hold e5 so White's f-pawn cannot push you around.} *
+
+[Event "Sicilian vs 2.c4"]
+[Opening "Sicilian: White's other tries"]
+[Side "Black"]
+[Result "*"]
+
+1. e4 c5 2. c4 {White grabs d5 but leaves a hole on d4.} Nc6 3. Nf3 e5 {Your knight will jump into d4 – no white pawn can chase it.} 4. Nc3 g6 5. a3 d6 *
+
+[Event "Sicilian vs 2.Qf3"]
+[Opening "Sicilian: White's other tries"]
+[Side "Black"]
+[Result "*"]
+
+1. e4 c5 2. Qf3 {An early queen.} Nc6 {Develop – you will chase the queen later.} 3. Qg3 g6 {Shut the queen out of g7 and prepare your bishop.} 4. Be2 Bg7 *
+
+[Event "Scandinavian vs 2.d3"]
+[Opening "Scandinavian"]
+[Side "Black"]
+[Result "*"]
+
+1. e4 d5 2. d3 {White lets you take on e4.} dxe4 3. dxe4 Qxd1+ {Trade the queens: White's king loses the right to castle.} 4. Kxd1 e5 {Hold the center and develop fast.} 5. Nc3 Nc6 *
+
+[Event "Caro-Kann: Exchange 4.Nc3"]
+[Opening "Caro-Kann"]
+[Side "Black"]
+[Result "*"]
+
+1. e4 c6 2. d4 d5 3. exd5 cxd5 4. Nc3 {White attacks d5.} Nf6 {Protect d5 with a piece that develops.} 5. Nf3 Nc6 {Pressure on d4.} 6. Bb5 Bg4 {Develop the light bishop before ...e6, as always in your Caro-Kann.} *
+
+[Event "vs 1.e4 e5 2.d3"]
+[Opening "1.e4 e5: White's other tries"]
+[Side "Black"]
+[Result "*"]
+
+1. e4 e5 2. d3 {Quiet: White gives you the initiative.} Nf6 {Develop and attack e4.} 3. Nf3 Nc6 4. g3 d5 {Take the center – White played too slowly.} 5. exd5 Nxd5 6. Bg2 Bc5 *
+
+[Event "vs 1.Nc3"]
+[Opening "Other first moves"]
+[Side "Black"]
+[Result "*"]
+
+1. Nc3 d5 {Take the center, as against 1.d4.} 2. d4 Nf6 3. Bf4 {A London setup with the knight on c3.} c5 {Strike at d4 at once – your plan against the London.} 4. e3 cxd4 5. exd4 a6 {No jump to b5 for the knight.} *
+
+[Event "vs 1.d3"]
+[Opening "Other first moves"]
+[Side "Black"]
+[Result "*"]
+
+1. d3 d5 {Take the center.} 2. e4 dxe4 3. dxe4 Qxd1+ {Trade the queens: White's king loses the right to castle.} 4. Kxd1 e5 {The same position as after 1.e4 d5 2.d3 – hold the center and develop fast.} 5. Nc3 Nc6 *

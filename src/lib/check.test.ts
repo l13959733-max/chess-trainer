@@ -9,7 +9,7 @@ describe('chess check', () => {
     const r = bookReport(
       [
         { pgn: '1. e4 d5 2. e5 Bf5 *', color: 'w' }, // you leave: the book plays 2.exd5
-        { pgn: '1. e4 b6 2. d4 Bb7 *', color: 'w' }, // Owen's Defense is not in the book
+        { pgn: '1. e4 a6 2. d4 b5 *', color: 'w' }, // St. George's Defense 1...a6 is not in the book
         { pgn: '1. e4 e5 2. Nf3 Nc6 3. Bc4 Bc5 4. c3 *', color: 'w' }, // all book
         { pgn: '1. e4 e5 2. Bc4 Nf6 *', color: 'b' }, // 2.Bc4 against you is not covered
       ],
@@ -20,7 +20,7 @@ describe('chess check', () => {
     expect(r.w.youLeftAt[0]).toMatchObject({ moves: '1.e4 d5', played: 'e5' })
     expect(r.w.youLeftAt[0].book).toContain('exd5')
     expect(r.w.theyLeft).toBe(1)
-    expect(r.w.gaps[0]).toMatchObject({ moves: '1.e4', played: 'b6' })
+    expect(r.w.gaps[0]).toMatchObject({ moves: '1.e4', played: 'a6' })
     expect(r.b.gaps[0]).toMatchObject({ moves: '1.e4 e5', played: 'Bc4' })
     expect(r.w.inBook).toBeGreaterThan(2)
   })
