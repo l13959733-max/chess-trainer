@@ -422,7 +422,11 @@ function StationStep({ s, sub, rep }: { s: Station; sub?: string; rep: Repertoir
 
 function BossFight({ s, rep }: { s: Station; rep: Repertoire }) {
   const b = s.boss
-  if (b.kind === 'army') return <QuizRounds s={s} quiz={armyQuiz()} boss />
+  // dealt once per fight: the app redraws often (e.g. every move while your games are analysed),
+  // and a new shuffle each time swapped the task under your finger
+  const [quiz] = useState(() => (b.kind === 'army' ? armyQuiz() : []))
+  const [puzzles] = useState(() => (b.kind === 'puzzles' ? shuffle(b.puzzles!.flatMap((t) => pick([t], 10, 6))).slice(0, 5) : []))
+  if (b.kind === 'army') return <QuizRounds s={s} quiz={quiz} boss />
   if (b.kind === 'riddle') return <KingRiddle s={s} boss />
   if (b.kind === 'board') return <BoardRounds s={s} rounds={b.rounds!} boss />
   if (b.kind === 'lines') return <LineBoss s={s} rep={rep} />
@@ -430,7 +434,7 @@ function BossFight({ s, rep }: { s: Station; rep: Repertoire }) {
   if (b.kind === 'cross') return <CrossRounds s={s} rounds={CROSSROADS} boss />
   if (b.kind === 'krk') return <KingRook s={s} boss />
   if (b.kind === 'mixed') return <MixedBoss s={s} rep={rep} />
-  if (b.kind === 'puzzles') return <PuzzleRounds s={s} puzzles={shuffle(b.puzzles!.flatMap((t) => pick([t], 10, 6))).slice(0, 5)} boss />
+  if (b.kind === 'puzzles') return <PuzzleRounds s={s} puzzles={puzzles} boss />
   return <GrandTour s={s} rep={rep} />
 }
 

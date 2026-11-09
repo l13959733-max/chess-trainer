@@ -48,6 +48,19 @@ Vorschau: https://l13959733-max.github.io/chess-trainer/preview/
 
 ## Die Punkte
 
+### [x] 0. FEHLER ZUERST: Nach einem Spiel reagiert die App nicht mehr (Lu, 09.11.2026) – behoben 09.11.
+Lu: „Ich spiele ein Spiel und danach reagiert das nicht mehr, lädt nicht mehr, ich kann nicht weiterspielen“
+(z. B. Gabel-Training in Samarkand, am Handy, live).
+**Ursache (im Handy-Format nachgespielt):** Die Rätsel-Bosse (Samarkand: Caravan Thief, Bagdad: Grandee) und der
+Armee-Boss mischten ihre Aufgaben bei *jedem Neuzeichnen* der App neu (`shuffle(...)` direkt in `BossFight`).
+Läuft im Hintergrund die Analyse der chess.com-Partien (Portal, Schach-Check, Your habits – sie läuft weiter,
+auch wenn man die Seite verlässt), zeichnet die App nach jedem analysierten Halbzug neu → das Brett sprang auf
+eine andere Aufgabe, der Zug kam nie an. Gemessen: alter Code 9 verschiedene Bretter in 7,5 s, neuer Code 2
+(Startstellung + Gegnerzug). Fix: Aufgaben einmal pro Kampf ziehen (`useState` in `BossFight`).
+„Continue“/`NextStep`/`isOpen`/`route()` geprüft: keine Weiterleitungs-Schleife gefunden.
+**Nicht geprüft (kann ich nicht sehen):** ob auf Lus Handy gerade eine Analyse lief. Tritt es nach dem Update
+noch auf: Lu fragen, welches Spiel genau, und ob vorher Portal/Schach-Check/Your habits offen war.
+
 ### [x] 1. Kastanien-Knacken: das Gefühl für den sicheren Zug (Lus wichtigster Wunsch)
 Idee aus „Die Macht der Gewohnheit“ (Pepsodent-Zahnpasta prickelt, das Prickeln wird mit „sauber“
 verbunden). Bei uns: Das „Knack“ gehört an das **richtige Verhalten** – vor dem Zug die Drohung prüfen und
