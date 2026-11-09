@@ -237,10 +237,18 @@ Entwürfe zum Anschauen (nur für Lu sichtbar, bis er sie teilt): https://claude
 – obere Reihe = erste Variante im Duolingo-Stil (Lu: zu weit weg vom alten Design), untere Reihe = Zwischending A und B.
 Die Geschichte bleibt Zusatz: Chronik-Karten zum Lesen, nie abgefragt wie Vokabeln.
 
-### [ ] 18. Daily Threat Check + Teilen-Raster + Herausforderungs-Link
+### [x] 18. Daily Threat Check + Teilen-Raster + Herausforderungs-Link – Tagesrätsel + Teilen gebaut 09.11. (Vorschau)
 Ein Tagesrätsel, für alle gleich (aus `src/data/lichess-puzzles.json`, Auswahl über das Datum, ohne Server), Thema
 „Is it safe?“ / Drohung erkennen, ein Versuch. Danach Teilen-Text ohne Spoiler (Nummer, Zeit, Raster aus Quadraten,
 Link). Herausforderungs-Link: Stellung steckt in der Adresse („Spot it before I did“). Hängt mit Punkt 14 (Teilen-Karte) zusammen.
+
+**Gebaut 09.11.:** `src/lib/threatcheck.ts` (+ Test): Tag 1 = 09.11.2026 (lokale Tage), Pool aus 7 Themen (hanging, fork,
+mate1, pin, backrank, skewer, discovered), Positionen 18–33 jeder Liste, Doppelte raus (109 Tage, dann von vorn).
+Seite `#/threat-check` (`src/screens/ThreatCheck.tsx`, nutzt `OnePuzzle` im Drohungs-Modus): ein Versuch, Zeit läuft ab
+dem eigenen Zug, Ergebnis in localStorage `chess-trainer-threatcheck`, am selben Tag kein zweiter Versuch. Teilen über
+das Teilen-Menü des Handys, sonst Zwischenablage; Text ohne Zug und ohne Thema („🟩🟩🟩 spotted in 9 s“ / „🟥 the Shadow
+got me“). Karte auf der Weltkarte unter Hoppys Sprechblase (`DailyCard` in `King.tsx`).
+**Noch offen:** Herausforderungs-Link mit eigener Stellung in der Adresse.
 
 ### [x] 19. Leuchten beim richtigen Zug (Entwurf B) – gebaut 09.11. (Vorschau)
 In Drill, Puzzles, Quests: richtiger Zug → Zielfeld und Figur leuchten grün und pulsieren. Vorsichtig und richtig

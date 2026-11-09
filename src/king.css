@@ -371,6 +371,13 @@
 @media (prefers-reduced-motion: reduce) { .nut-burr, .nut-drop, .nut-reward.gold .nut-stage::before { animation: none !important; } .nut-burr g { transition: none !important; } }
 
 /* the real world on the map: honest numbers from your analysed games, and "back from chess.com?" */
+/* Daily Threat Check: a small card right under Hoppy's bubble (BAUPLAN 18) */
+/* it hangs under the bubble without making the HUD taller, so Hoppy and the chestnuts stay where they were */
+.king-hud-side { position: relative; }
+.king-daily { position: absolute; right: 0; top: calc(100% + 6px); white-space: nowrap; pointer-events: auto; min-height: 0; display: grid; gap: 1px; padding: 6px 12px; border-radius: 12px; background: #3b2a14; border: 2px solid #c9a227; color: #f8ecd0; font-family: 'Nunito', sans-serif; font-size: .74rem; font-weight: 700; text-transform: none; letter-spacing: 0; text-align: right; box-shadow: 0 2px 0 rgba(0, 0, 0, .2); }
+.king-daily b { font-family: 'Cinzel', Georgia, serif; font-size: .86rem; color: #f3d98a; }
+.threat-squares { font-size: 1.6rem; letter-spacing: .1em; margin: 2px 0; }
+.threat-share { white-space: pre-wrap; font-family: 'Nunito', sans-serif; font-size: .85rem; background: #fbf3df; border: 1px dashed #c9ad7a; border-radius: 10px; padding: 8px 10px; user-select: all; }
 .king-real { position: absolute; left: 10px; right: 10px; bottom: 84px; display: flex; justify-content: center; pointer-events: none; }
 .king-real button { pointer-events: auto; display: grid; gap: 2px; min-height: 0; padding: 6px 12px; border-radius: 12px; background: rgba(244, 228, 193, .95); border: 2px solid #8b6b3d; color: #3b2a14; font-family: 'Nunito', sans-serif; font-size: .8rem; font-weight: 700; text-transform: none; letter-spacing: 0; box-shadow: 0 2px 0 rgba(0, 0, 0, .15); }
 .king-real button b { font-weight: 900; }

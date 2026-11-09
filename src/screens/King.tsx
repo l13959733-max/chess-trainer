@@ -18,6 +18,7 @@ import PUZZLES from '../data/lichess-puzzles.json'
 import { clampScore } from '../lib/blunders'
 import { ChestnutReward } from '../components/Chestnut'
 import { feedback as fx, resetCareful, takeCareful } from '../lib/feedback'
+import { dayNumber, loadResults, squares } from '../lib/threatcheck'
 import {
   ARMY, CROSSROADS, DRAGON_ALIVE, DRAGON_CFILE, DRAGON_FIRE, MIRROR, mirrorOpen, FORKS, GRAIN, GUARD, GUARD_BOSS, LEWIS, MATES, QUEEN_TACTICS, RIDDLES, ROME_REACT, ROME_THREATS, ROME_TRAPS, ROOK_MATES, SAFE, STATIONS, TENT_AT, TURK,
   bookCrossroads, earn, isOpen, liamPortrait, opensAfter, lineRounds, loadKing, nextStation, reputation, saveKing, stationById, stationLines, titleOf, type BoardRound, type Crossroad, type QuizQuestion, type Station,
@@ -245,6 +246,7 @@ function KingMap() {
         <span className="king-coins" aria-label={`${titleOf(state.beaten)}, ${state.coins} chestnuts`}>
           <small>{titleOf(state.beaten)}</small>🌰 {state.coins}
         </span>
+        <div className="king-hud-side">
         <div className="king-bubble">
           {crowned ? (
             <>All hail <b>King Liam</b>! You conquered the whole world of chess.</>
@@ -255,6 +257,8 @@ function KingMap() {
           ) : (
             <>{beatenCount} of {BOSSES} bosses beaten. Where to next?</>
           )}
+        </div>
+        <DailyCard />
         </div>
       </div>
       {(state.warmupAt || (real && (real.shadow || real.clean > 0))) && (
@@ -283,6 +287,18 @@ function KingMap() {
         <button type="button" onClick={() => go('watch')}><span aria-hidden="true">👫</span>Together</button>
       </nav>
     </div>
+  )
+}
+
+// The Daily Threat Check on the map: today's number, or how it went
+function DailyCard() {
+  const [day] = useState(() => dayNumber())
+  const [result] = useState(() => loadResults()[day])
+  return (
+    <button type="button" className="king-daily" onClick={() => go('threat-check')}>
+      <b>Daily Threat Check #{day}</b>
+      <span>{result ? `${squares(result)} done – share it` : 'one puzzle, same for everyone'}</span>
+    </button>
   )
 }
 
