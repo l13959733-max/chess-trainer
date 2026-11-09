@@ -7,7 +7,7 @@
 > Schreibt jemand „alles“, arbeitest du die Punkte nacheinander ab, jeden einzeln in die Vorschau.
 > Live (Branch `main`) geht etwas erst, wenn Lu oder Johanna „übernehmen“ sagt.
 
-Stand: 8. November 2026. Live: https://l13959733-max.github.io/chess-trainer/ ·
+Stand: 9. November 2026. Live: https://l13959733-max.github.io/chess-trainer/ ·
 Vorschau: https://l13959733-max.github.io/chess-trainer/preview/
 
 ## Für Johanna: so geht's
@@ -86,7 +86,8 @@ Noch bauen:
   „Wie lief's? Partie auswerten“ an (nur fertige Partien) und zeigt „Wo hätte die Wache geholfen?“ als Aufgabe.
 - **Das Problem spürbar machen:** Auf der Karte ehrlich aus echten Partien, z. B. „Der Schatten hat in
   deinen letzten 10 Partien 7-mal zugeschlagen“ (Zahlen aus dem Schach-Check, nie erfunden).
-- **Grenze:** keine Schuldgefühle, keine Dauer-Pushs, keine Serien, die man verliert.
+- **Grenze:** keine Schuldgefühle, keine Dauer-Pushs. Serien sind erlaubt (Lu, 09.11.2026), aber mit Schutztagen
+  und bleibendem Rekord, siehe Punkt 21.
 
 **Gebaut 08.11.:** `src/components/Chestnut.tsx` (`ChestnutReward`: Igel-Schale fliegt ein, knackt, Kastanien
 purzeln, Zahl zählt hoch; golden = `takeCareful()` in `feedback.ts`: mindestens ein Knack und kein Fehler seit
@@ -156,7 +157,7 @@ Je Eröffnungsfamilie der Stand gesehen / gelernt / gemeistert aus den echten Pa
 ### [ ] 11. Offene Welt nach der Route
 Neue Regionen öffnen mit echter chess.com-Wertung (1500 / 1800 / 2000+): Rechnen, Pläne, Verwerten,
 Zeit, schwere Endspiele, Meisterprüfungen. Endlose Lichess-Aufgaben in eigener Stärke, ein Rivale, der
-mitwächst, Saisons, Freundes-Ligen statt öffentlicher Rangliste.
+mitwächst, Saisons. Ranglisten: erst eine Freundes-Liga, später kleine Ligen nach Niveau (Lu, 09.11.2026, Punkt 22).
 
 ### [ ] 12. Bilder aufräumen (braucht Higgsfield-Credits, nur nach Absprache mit Lu)
 Die Stadtbilder zeigen noch Liam als Prinzen (violettes Gewand, Goldreif). Lu: Straßenkind in Lumpen
@@ -223,3 +224,50 @@ Trainings-Seiten (in der Geschichte bleibt Hoppy). Die gemalte Welt (`.king-scre
 3. Texte im ruhigen Look sachlicher (z. B. weniger Ausrufezeichen); Inhalt bleibt gleich.
 4. Prüfen, ob die Weltkarte im ruhigen Look so bleiben soll (Lu fragen, Bild zeigen).
 Hängt mit Punkt 15 (Play Store, „erwachsener Standard-Look“) zusammen.
+
+## Viral (Lus Auftrag 09.11.2026)
+
+Ziel: eine App, mit der man wirklich gut Schach lernt, die man verkaufen kann und die sich über TikTok,
+YouTube Shorts und Instagram Reels verbreitet. Kern in einem Satz: **„Look before you move – or the Shadow takes it.“**
+(Hope Chess = Figuren einstellen, der häufigste Fehler unter 1200 und Lus Hauptfehler.)
+Entwürfe zum Anschauen (nur für Lu sichtbar, bis er sie teilt): https://claude.ai/artifact/76Q5Mpf49WYrrskYKfaX9G
+– obere Reihe = erste Variante im Duolingo-Stil (Lu: zu weit weg vom alten Design), untere Reihe = Zwischending A und B.
+Die Geschichte bleibt Zusatz: Chronik-Karten zum Lesen, nie abgefragt wie Vokabeln.
+
+### [ ] 18. Daily Threat Check + Teilen-Raster + Herausforderungs-Link
+Ein Tagesrätsel, für alle gleich (aus `src/data/lichess-puzzles.json`, Auswahl über das Datum, ohne Server), Thema
+„Is it safe?“ / Drohung erkennen, ein Versuch. Danach Teilen-Text ohne Spoiler (Nummer, Zeit, Raster aus Quadraten,
+Link). Herausforderungs-Link: Stellung steckt in der Adresse („Spot it before I did“). Hängt mit Punkt 14 (Teilen-Karte) zusammen.
+
+### [ ] 19. Leuchten beim richtigen Zug (Entwurf B)
+In Drill, Puzzles, Quests: richtiger Zug → Zielfeld und Figur leuchten grün und pulsieren. Vorsichtig und richtig
+(`takeCareful()`, ohne Hilfe) → gold, stärker, mit Knack und goldener Kastanie. Mit Hinweis/Hilfe: Zug zählt, aber kein
+Leuchten, kein Gold. So stark, dass es auf einer Bildschirmaufnahme gut zu sehen ist. `prefers-reduced-motion` beachten.
+„Brilliant !!“ erst mit Punkt 16.4 (Stockfish-Prüfung).
+
+### [ ] 20. Schatten-Geschichte
+Ein Gegenspieler für alles: der Schatten = das Einstellen von Figuren. Er wächst aus den echten Partien (Zahlen nur
+aus dem Schach-Check, `src/lib/clean.ts`), jede saubere Partie schwächt ihn. Jeder Meister hat ihn einmal besiegt und
+gibt Liam eine Waffe. Finale Chennai: der eigene Schatten aus eigenen Fehlerstellungen. Vor allem Texte; bestehende
+Schatten (Spiegelwelt, Lord Fog) einordnen, nichts löschen. Hoppy reagiert (Augen zu bei eingestellter Figur, stolz bei
+erkannter Drohung) – Humor über den Zug, nie über die Person.
+
+### [ ] 21. Serie mit Schutztagen
+Tagesserie behalten (Lu: „Serien sind geil, wenn man sie behalten will“). Zählt nur mit echtem Mindestinhalt
+(z. B. Daily Threat Check + eine fällige Linie). Schutztage mit Kastanien verdienen. Rekord („Best: 52 days“) bleibt
+immer stehen. `streak` in `src/lib/progress.ts`.
+
+### [ ] 22. Ligen (braucht Lus Entscheidung: Server)
+Erst Freundes-Liga, später kleine Ligen (20–30 Leute, ähnliches Niveau, wöchentlich, Auf-/Abstieg). Gezählt werden
+sichere Züge bzw. gelöste Aufgaben, nicht Spielzeit. Braucht einen Server mit Datenbank (Kosten, Pflege) – heute hat
+die App keinen. Spitznamen statt echter Namen (Kinder, DSGVO). Gegen Schummeln: ein Versuch, auf Zeit.
+
+### [ ] 23. Clips im Format 9:16 aus der App
+„Can you spot the threat in 5 seconds?“ mit Countdown, aus dem Tagesrätsel; ein Clip für TikTok, Shorts und Reels.
+Englisch. Bilder über Higgsfield nur nach Absprache (kostet Geld).
+
+### [ ] 24. Weltkarte mit klarem Weg (Entwurf A)
+Gemalte Karte bleibt, dazu: goldene Linie = gereist, nummerierte Punkte = als Nächstes, Liam pulsiert am aktuellen
+Ort, darunter die Straße mit den Stadtbildern und „Continue in …“. **Offen (Lu entscheidet):** `route()` springt quer
+über die Karte (Rom → Bagdad → Persien → Norden → Valencia …); eine geografische Reihenfolge wäre klarer, ändert aber
+die Geschichte.

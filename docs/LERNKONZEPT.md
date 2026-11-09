@@ -45,8 +45,11 @@ vor jedem Zug die Drohung prüfen.
 
 1. „Erst raten, dann erklären“ als eigener Punkt (kurze Frage vor jeder Erklärung).
 2. Hilfe passt sich an: Hinweise verschwinden nach drei Erfolgen ohne Hilfe, kommen nach zwei Fehlversuchen zurück.
-3. Tagesserie (`streak` in `src/lib/progress.ts`) durch Wochenziel oder Schutztag ersetzen – die heutige
-   Tagesserie widerspricht BAUPLAN 1 („keine Serien, die man verliert“).
+3. ~~Tagesserie ersetzen~~ – **entschieden 09.11.2026:** Lu will Serien und Ranglisten (motivieren, machen
+   ehrgeizig). Gebaut wird die Serie mit Schutztagen und bleibendem Rekord (BAUPLAN 21), Ranglisten als kleine
+   Ligen auf ähnlichem Niveau, zuerst unter Freunden (BAUPLAN 22). Bekannte Kehrseiten, darum so gebaut: Man übt
+   sonst für die Zahl statt fürs Lernen, nach einer gerissenen Serie hören viele auf, und in großen Ranglisten
+   geben die weit unten auf.
 4. Tagesplan nach Zeit: 5 / 15 / 30 Minuten.
 
 ## Quellen (Auswahl)
