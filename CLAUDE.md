@@ -93,7 +93,7 @@ Hauptnutzung: am Handy.
 - Nach einer Linie scrollt die Übersicht zurück zu dieser Linie (`src/lib/returnTo.ts`).
 
 ## King of Chess (Lus Konzept, ab 07.11.2026)
-- **Seit 09.11. (Vorschau): Startseite `#/` = der Weg (`KingRoad`, Städte untereinander, Duolingo-artig), die gemalte Weltkarte liegt unter `#/world`** (BAUPLAN 24). Klicktests öffnen die Karte über `#/world`.
+- **Seit 09.11. (Vorschau): Startseite `#/` = die gemalte Karte, aufgeräumt (keine Nebelwolken/Jahres-Plaketten, Nummern-Siegel, `RoadLines`), auch unter `#/world`. Schnellreise `#/road` = Städte als Liste (`KingRoad`)** (BAUPLAN 8, 24). Klicktests öffnen die Karte über `#/world`.
 - Ursprünglich war die Startseite (`#/`) eine Weltkarte: Prinz **Liam** aus Kannauj reitet mit seinem Pferd **Hoppy** durch 1.500 Jahre Schachgeschichte. Konzept + Prototyp: Claude-Artifact „King of Chess“.
 - **Stil B „gemalt“** (Johannas Wahl): Aquarell/Pergament, Schrift Cinzel für Überschriften. Alle Bilder in `public/king/` (KI-erzeugt mit Higgsfield/Nano Banana Pro). Neue Bilder im selben Stil erzeugen und vor dem Einbau ansehen (Orte auf der Karte prüfen!).
 - Code: `src/lib/king.ts` (Stationen mit Kartenposition auf 1800×764, Meister-Gespräche, Rätsel, Lord-Fog-Runden, Fortschritt in localStorage `chess-trainer-king`), `src/screens/King.tsx` (Karte, Intro, Station, Gespräch, Minispiele, Bosse, Kriegszelt), `src/components/KingArt.tsx`, `src/king.css` (`.king-screen` = Pergament-Design).

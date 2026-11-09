@@ -30,6 +30,9 @@ const HINT_PIECE: CSSProperties = { boxShadow: 'inset 0 0 0 4px rgba(201, 162, 3
 // Liam's medallion floats this far above the city
 const TOKEN_LIFT = 72
 const BOSSES = STATIONS.filter((s) => !s.finale).length
+// a city's number on the road (1 = Kannauj … Chennai last)
+const ROUTE = route()
+const roadNo = (id: string) => ROUTE.indexOf(id) + 1
 
 function useToast(): [string | null, (t: string) => void] {
   const [text, setText] = useState<string | null>(null)
@@ -57,15 +60,20 @@ export function KingHome() {
         }}
       />
     )
-  return <KingRoad />
+  return <KingMap />
 }
 
-// The painted world map, one tap away from the road (#/world)
+// The painted world map (#/world, also the start page)
 export function KingWorld() {
   return <KingMap />
 }
 
-// ---------- the road: the cities one after another, top to bottom (Lu, 09.11.: clearer than the map) ----------
+// Fast travel (#/road, BAUPLAN 8): the cities as a list from top to bottom, one tap to any open city
+export function KingFastTravel() {
+  return <KingRoad />
+}
+
+// ---------- fast travel: the cities one after another, top to bottom (Lu, 09.11.) ----------
 
 // On the way to a new city a scout of the Shadow Realm may block the road, like on the map
 function roadAmbush(beaten: string[]): boolean {
@@ -200,9 +208,6 @@ function KingRoad() {
   )
 }
 
-// Soft, painted-looking fog over places not discovered yet
-const FOG = (x: number, y: number) =>
-  `<g filter="url(#king-fog)" opacity=".94"><ellipse cx="${x - 16}" cy="${y - 4}" rx="38" ry="18" fill="#f6eedc"/><ellipse cx="${x + 20}" cy="${y + 6}" rx="32" ry="15" fill="#efe4cc"/><ellipse cx="${x + 2}" cy="${y - 20}" rx="26" ry="15" fill="#fbf5e6"/></g><text x="${x}" y="${y + 4}" text-anchor="middle" font-family="Cinzel, Georgia, serif" font-size="22" font-weight="900" fill="#8b6b3d" opacity=".75">?</text>`
 
 function KingMap() {
   const [state, setState] = useState(loadKing)
@@ -310,13 +315,13 @@ function KingMap() {
       <div className="king-scroll" ref={scroller}>
         <svg ref={svg} className="king-world" viewBox="0 0 1800 764" role="img" aria-label="World map of Liam's journey">
           <defs>
-            <filter id="king-fog" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="3.2" /></filter>
             <radialGradient id="king-glow"><stop offset="0" stopColor="#ffe08a" stopOpacity=".75" /><stop offset="1" stopColor="#ffe08a" stopOpacity="0" /></radialGradient>
             <clipPath id="king-clip-big"><circle r="23" /></clipPath>
             <clipPath id="king-clip-small"><circle r="9" /></clipPath>
           </defs>
           <image href={IMG + 'worldmap.jpg'} x="0" y="0" width="1800" height="764" />
           {glow > 0 && <rect className="king-shine" x="0" y="0" width="1800" height="764" fill="#fff3c4" opacity={(0.08 + 0.3 * glow).toFixed(2)} />}
+          <RoadLines beaten={state.beaten} />
           {STATIONS.map((s) => {
             const beaten = state.beaten.includes(s.id)
             const open = isOpen(s, state.beaten)
@@ -337,7 +342,7 @@ function KingMap() {
                 }}
               >
                 {open && !beaten && <circle r="36" fill="url(#king-glow)" className={s.id === here.id ? '' : 'king-pulse'} />}
-                {s.medallion && <Medallion img={s.scene} />}
+                {s.medallion && open && <Medallion img={s.scene} />}
                 <circle r="38" fill="transparent" />
                 {beaten && (
                   <g transform="translate(30,2)" aria-hidden="true">
@@ -346,12 +351,16 @@ function KingMap() {
                     <text y="4.5" fontSize="12" textAnchor="middle" fontWeight="900" fill="#3b2a14">✓</text>
                   </g>
                 )}
-                <text className="king-label" y="42" textAnchor="middle">{s.name}</text>
-                <g transform="translate(0,57)">
-                  <rect x="-42" y="-10" width="84" height="17" rx="3" fill="#3b2a14" opacity=".9" stroke="#c9a227" strokeWidth="1" />
-                  <text className="king-year" y="3" textAnchor="middle">{s.year}</text>
-                </g>
-                {!open && <g pointerEvents="none" dangerouslySetInnerHTML={{ __html: FOG(0, -10) }} />}
+                {/* Lu, 09.11.: less clutter – no fog clouds and year plates; a city still in the fog is a small
+                    seal with its number on the road, the name shows once it is open */}
+                {open ? (
+                  <text className="king-label" y="42" textAnchor="middle">{s.name}</text>
+                ) : (
+                  <g className="king-seal" aria-hidden="true">
+                    <circle r="15" fill="#f4e4c1" stroke="#8b6b3d" strokeWidth="2.5" />
+                    <text y="5.5" fontSize="15" textAnchor="middle" fontWeight="900" fill="#6b5a3f" fontFamily="Cinzel, Georgia, serif">{roadNo(s.id)}</text>
+                  </g>
+                )}
               </g>
             )
           })}
@@ -416,8 +425,9 @@ function KingMap() {
         </div>
       )}
       {toast && <div className="king-toast" role="status">{toast}</div>}
-      <nav className="king-dock" aria-label="Places">
+      <nav className="king-dock dock5" aria-label="Places">
         <button type="button" onClick={() => go('tent')}><span aria-hidden="true">⛺</span>Training Camp</button>
+        <button type="button" onClick={() => go('road')}><span aria-hidden="true">🧭</span>Fast travel</button>
         {state.beaten.includes('kannauj') ? (
           <button type="button" className="dock-portal" onClick={() => go('portal')}><span aria-hidden="true">🌀</span>Real world</button>
         ) : (
@@ -439,6 +449,34 @@ function DailyCard() {
       <b>Daily Threat Check #{day}</b>
       <span>{result ? `${squares(result)} done – share it` : 'one puzzle, same for everyone'}</span>
     </button>
+  )
+}
+
+// The road on the map: the cities whose boss is beaten (in travel order), the last leg in gold, dotted to the next one.
+// Curved like Liam's own travel line, wider over the sea.
+function RoadLines({ beaten }: { beaten: string[] }) {
+  const cities = ROUTE.map((id) => STATIONS.find((s) => s.id === id)!)
+  const done = cities.filter((s) => beaten.includes(s.id))
+  const next = cities.find((s) => isOpen(s, beaten) && !beaten.includes(s.id))
+  const leg = (a: Station, b: Station) => {
+    const bend = a.sea || b.sea ? 0.2 : 0.1
+    const mx = (a.x + b.x) / 2
+    const my = (a.y + b.y) / 2
+    return `Q${mx - (b.y - a.y) * bend},${my + (b.x - a.x) * bend} ${b.x},${b.y}`
+  }
+  // the whole road so far only faint, the last leg bold – so the map stays calm late in the game
+  const past = done.length > 1 ? `M${done[0].x},${done[0].y} ` + done.slice(1).map((b, i) => leg(done[i], b)).join(' ') : ''
+  const last = done.length > 1 ? `M${done.at(-2)!.x},${done.at(-2)!.y} ${leg(done.at(-2)!, done.at(-1)!)}` : ''
+  const from = done.at(-1)
+  const ahead = from && next ? `M${from.x},${from.y} ${leg(from, next)}` : ''
+  return (
+    <g className="king-road-lines" aria-hidden="true" pointerEvents="none">
+      {past && <path d={past} className="road-past" />}
+      {last && <path d={last} className="road-under" />}
+      {last && <path d={last} className="road-gold" />}
+      {ahead && <path d={ahead} className="road-under dotted" />}
+      {ahead && <path d={ahead} className="road-next" />}
+    </g>
   )
 }
 
@@ -1796,6 +1834,10 @@ export function WarTent({ puzzles }: { puzzles: Puzzles }) {
       <button type="button" className="primary wide king-continue" onClick={() => go('warmup')}>
         <small>2 minutes · before you play on chess.com</small>
         Warm-up before your game
+      </button>
+      <button type="button" className="wide king-continue" onClick={() => go('road')}>
+        <small>every city in a list · one tap to travel</small>
+        Fast travel
       </button>
       <button type="button" className="wide king-continue" onClick={() => go('armoury')}>
         <small>tactics, mates, middlegame, endgame · bronze, silver, gold</small>

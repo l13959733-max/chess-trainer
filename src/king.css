@@ -447,3 +447,14 @@
 .road-go { margin-top: 4px; min-height: 36px; padding: 4px 14px; font-size: .8rem; width: max-content; }
 .road-dock { position: fixed; left: 8px; right: 8px; bottom: 8px; max-width: 520px; margin: 0 auto; z-index: 5; }
 .road-toast { position: fixed; bottom: 84px; z-index: 6; }
+
+/* the road on the painted map (RoadLines): gold where Liam has been, dotted to the next city */
+.king-road-lines path { fill: none; stroke-linecap: round; stroke-linejoin: round; }
+.king-road-lines .road-under { stroke: #3b2a14; stroke-opacity: .45; stroke-width: 11; }
+.king-road-lines .road-under.dotted { stroke-width: 10; stroke-dasharray: 0.1 18; }
+.king-road-lines .road-gold { stroke: #e6c45a; stroke-width: 6; }
+.king-road-lines .road-next { stroke: #fff7e0; stroke-width: 6; stroke-dasharray: 0.1 18; }
+.king-seal { opacity: .9; }
+.king-dock.dock5 { grid-template-columns: repeat(5, 1fr); gap: 4px; }
+.king-dock.dock5 button { font-size: .66rem; padding: 4px 2px; }
+.king-road-lines .road-past { stroke: #c9a227; stroke-opacity: .45; stroke-width: 3; }

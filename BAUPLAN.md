@@ -144,7 +144,7 @@ Gefährten-Liste mit einem eigenen privaten Raum je Freund, Online-Anzeige. Je G
 Knopf zum Profil (dort live zuschauen), Herausfordern-Link (Adresse vorher prüfen), seine fertigen Partien.
 Nie Hilfe während einer laufenden Partie, auch nicht für Zuschauer.
 
-### [ ] 8. Schnellreise aus dem Training Camp
+### [x] 8. Schnellreise aus dem Training Camp – gebaut 09.11. (Vorschau): `#/road`, Knopf „Fast travel“ auf der Karte und im Training Camp
 Liste der freien Orte mit „fällig“-Zahl (Linien zum Wiederholen), Antippen = direkt dorthin.
 
 ### [ ] 9. Chronik
@@ -284,7 +284,13 @@ die App keinen. Spitznamen statt echter Namen (Kinder, DSGVO). Gegen Schummeln: 
 „Can you spot the threat in 5 seconds?“ mit Countdown, aus dem Tagesrätsel; ein Clip für TikTok, Shorts und Reels.
 Englisch. Bilder über Higgsfield nur nach Absprache (kostet Geld).
 
-### [ ] 24. Weltkarte mit klarem Weg (Entwurf A) – Prototyp „Weg“ 09.11. in der Vorschau, Lu prüft
+### [ ] 24. Weltkarte mit klarem Weg (Entwurf A) – aufgeräumte Karte 09.11. in der Vorschau, Lu prüft
+
+**Stand 09.11. abends (Lu: „die geile Illustration nehmen, Hintergrund-Klatter aussäubern, besser verbinden“; der
+Listen-Weg „kann man gut als Schnellreise-Map benutzen“):** Startseite `#/` ist wieder die gemalte Karte, aufgeräumt:
+keine Nebelwolken und Jahres-Plaketten mehr; gesperrte Städte = kleines Siegel mit ihrer Nummer auf dem Weg, Name erst
+wenn offen; `RoadLines` in `King.tsx`: bisheriger Weg fein und blass, letzte Etappe kräftig gold, gepunktet zur nächsten
+Stadt. Leiste unten mit 5 Knöpfen (neu: „Fast travel“). Der Listen-Weg (`KingRoad`) ist jetzt die Schnellreise `#/road`.
 
 **Prototyp 09.11. (Lu: „Karte zu unübersichtlich … Zwischending mit Duolingo, Städte trotzdem übernehmen“):** Startseite
 `#/` ist jetzt `KingRoad` in `King.tsx`: die Städte in `route()`-Reihenfolge von oben nach unten, runde Stadtbilder,
