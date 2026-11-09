@@ -399,6 +399,8 @@ export function GameView({ game, setGame, book, thinking, setThinking, lastBotWi
       const board = new Chess(fen)
       const what = saved.map((sq) => `${names[board.get(sq as Square)!.type]} on ${sq}`).join(' and your ')
       setTimeout(() => feedback.knack(), 120)
+      // gold only when you saw it yourself: with the safety check switched on it was help
+      feedback.glow(m.to, 'gold', safety)
       setKnack({ ply: game.moves.length, text: `${m.san} – your ${what} was attacked, and now nothing hangs.${safety ? '' : ' You saw it without the safety check!'}` })
     } else setKnack(null)
     const uci = m.from + m.to + (m.promotion ?? '')

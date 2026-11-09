@@ -81,6 +81,7 @@ export function PuzzleView({ puzzle, progress, onSolved, onNext, isLast }: Props
     if (uci === puzzle.best) {
       feedback.move(move.san)
       feedback.success()
+      feedback.glow(to, 'good', revealed)
       setSolvedWith({ san: move.san, from, to, fen: move.after, exact: true })
       setPhase('solved')
       return true
@@ -103,6 +104,7 @@ export function PuzzleView({ puzzle, progress, onSolved, onNext, isLast }: Props
       const top = -clampScore(bestEv.score)
       if (top - mine <= GOOD_ENOUGH) {
         feedback.success()
+        feedback.glow(to, 'good', revealed)
         setSolvedWith({ san: move.san, from, to, fen: move.after, exact: false })
         setPhase('solved')
       } else {

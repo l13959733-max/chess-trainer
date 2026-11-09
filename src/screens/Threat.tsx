@@ -66,6 +66,7 @@ export function ThreatView({ puzzle, progress, onSolved, onNext, isLast }: Props
     feedback.move(move.san, false)
     if (uci === ref.best || uci.slice(0, 4) === ref.best.slice(0, 4)) {
       feedback.success()
+      feedback.glow(to, 'good', revealed)
       setSolved({ san: move.san, fen: move.after, from, to, exact: true })
       setPhase('solved')
       return true
@@ -77,6 +78,7 @@ export function ThreatView({ puzzle, progress, onSolved, onNext, isLast }: Props
     Promise.all([evaluate(move.after, 12, true), evaluate(best.fen(), 12, true)]).then(([mine, top]) => {
       if (-clampScore(top.score) - -clampScore(mine.score) <= GOOD_ENOUGH) {
         feedback.success()
+        feedback.glow(to, 'good', revealed)
         setSolved({ san: move.san, fen: move.after, from, to, exact: false })
         setPhase('solved')
       } else {

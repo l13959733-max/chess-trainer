@@ -917,6 +917,8 @@ function BoardRounds({ s, rounds, boss, title, lesson, hint, orientation = 'whit
                 if (from === r.from && to === r.to) {
                   if (careful) fx.knack()
                   else fx.move(r.san)
+                  // after a wrong try the green arrow showed the answer: no glow
+                  fx.glow(to, careful ? 'gold' : 'good', state === 'wrong')
                   setState('hit')
                   return true
                 }
@@ -1096,6 +1098,8 @@ export function OnePuzzle({ p, threat, onMistake, onSolved, onHelp }: { p: LPuzz
                   setHint(want)
                   return false
                 }
+                // a hint (the piece or the arrow) was used for this move: it counts, but does not light up
+                fx.glow(to, threat ? 'gold' : 'good', !!hint || !!piece)
                 setHint(null)
                 setPiece(null)
                 setFen(c.fen())

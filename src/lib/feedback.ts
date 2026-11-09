@@ -135,6 +135,17 @@ function shake() {
   })
 }
 
+// The right move lights up on the board (see Board): green, gold for careful play (threat checked, nothing hangs).
+// A move played with help (hint, green arrow, safety check) gets no glow – the glow is for what you saw yourself.
+export type Glow = 'good' | 'gold'
+const glowers = new Set<(square: string, kind: Glow) => void>()
+export function onGlow(fn: (square: string, kind: Glow) => void): () => void {
+  glowers.add(fn)
+  return () => {
+    glowers.delete(fn)
+  }
+}
+
 // Careful play since the last reward: a quest finished with a knack and no wrong move earns a golden chestnut
 let careful = { knacks: 0, wrongs: 0 }
 export function takeCareful(): boolean {
@@ -187,6 +198,10 @@ export const feedback = {
       tone(ac, t + 0.09, 2349.32, 0.18, 0.06, 'sine')
     }
     vibrate([10, 25, 10, 25, 30])
+  },
+  // The right move: its square lights up. `helped`: played with a hint – no glow
+  glow(square: string, kind: Glow = 'good', helped = false) {
+    if (!helped) glowers.forEach((f) => f(square, kind))
   },
   // A plain chestnut shell breaking (any reward). The bright knack stays for careful play only.
   crack() {

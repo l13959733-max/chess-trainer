@@ -120,6 +120,8 @@ export function Drill({ line, onDone, after, progress }: Props) {
       return false
     }
     fx.move(current.san)
+    // after a wrong try the right move was shown – then it counts, but does not light up
+    fx.glow(to, 'good', mistakePlies.has(ply))
     setFeedback(current.comment ? { kind: 'info', move: current, ply } : null)
     setLastBy(by ? { ...by, san: current.san } : null)
     setPly(ply + 1)

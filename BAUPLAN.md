@@ -242,11 +242,18 @@ Ein Tagesrätsel, für alle gleich (aus `src/data/lichess-puzzles.json`, Auswahl
 „Is it safe?“ / Drohung erkennen, ein Versuch. Danach Teilen-Text ohne Spoiler (Nummer, Zeit, Raster aus Quadraten,
 Link). Herausforderungs-Link: Stellung steckt in der Adresse („Spot it before I did“). Hängt mit Punkt 14 (Teilen-Karte) zusammen.
 
-### [ ] 19. Leuchten beim richtigen Zug (Entwurf B)
+### [x] 19. Leuchten beim richtigen Zug (Entwurf B) – gebaut 09.11. (Vorschau)
 In Drill, Puzzles, Quests: richtiger Zug → Zielfeld und Figur leuchten grün und pulsieren. Vorsichtig und richtig
 (`takeCareful()`, ohne Hilfe) → gold, stärker, mit Knack und goldener Kastanie. Mit Hinweis/Hilfe: Zug zählt, aber kein
 Leuchten, kein Gold. So stark, dass es auf einer Bildschirmaufnahme gut zu sehen ist. `prefers-reduced-motion` beachten.
 „Brilliant !!“ erst mit Punkt 16.4 (Stockfish-Prüfung).
+
+**Gebaut 09.11.:** `fx.glow(feld, 'good' | 'gold', geholfen)` in `src/lib/feedback.ts` (+ Test), das Brett hört über
+`onGlow` zu (`src/components/Board.tsx`, nur `box-shadow`, Keyframes `glow-good`/`glow-gold` in `src/theme-kids.css`;
+ohne Bewegung bleibt die Farbe kurz stehen). Angeschlossen: Drill (kein Leuchten, wenn nach einem Fehler der Zug gezeigt
+wurde), Puzzles und „Punish it“ (kein Leuchten nach der Auflösung), Stadt-Aufgaben `BoardRounds` (gold bei Wache/Drohung,
+kein Leuchten nach dem grünen Pfeil), `OnePuzzle` auch in der Armoury (gold bei Drohungs-Aufgaben, kein Leuchten nach
+Hinweis), Sparring (gold bei abgewehrter Drohung, nur ohne Safety Check). Lernen-Modus leuchtet nicht (dort wird gezeigt).
 
 ### [ ] 20. Schatten-Geschichte
 Ein Gegenspieler für alles: der Schatten = das Einstellen von Figuren. Er wächst aus den echten Partien (Zahlen nur

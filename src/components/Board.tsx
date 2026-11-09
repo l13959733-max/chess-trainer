@@ -1,6 +1,7 @@
 import { Chess, type Square } from 'chess.js'
-import { useLayoutEffect, useMemo, useState, type CSSProperties } from 'react'
+import { useEffect, useLayoutEffect, useMemo, useState, type CSSProperties } from 'react'
 import { Chessboard, defaultPieces, type Arrow } from 'react-chessboard'
+import { onGlow, type Glow } from '../lib/feedback'
 
 interface Props {
   fen: string
@@ -40,6 +41,17 @@ const SELECTED: CSSProperties = { backgroundColor: 'rgba(255, 214, 102, 0.6)' }
 const CHECK: CSSProperties = { background: 'radial-gradient(circle, rgba(255, 40, 40, 0.85) 0%, rgba(231, 0, 0, 0.5) 45%, transparent 75%)' }
 const DOT: CSSProperties = { background: 'radial-gradient(circle, rgba(20,23,28,0.35) 22%, transparent 24%)', animation: 'dot-pop 0.16s ease-out' }
 const RING: CSSProperties = { background: 'radial-gradient(circle, transparent 58%, rgba(20,23,28,0.35) 60%)', animation: 'dot-pop 0.16s ease-out' }
+// The right move pulses green, careful play gold (keyframes in theme-kids.css). Only box-shadow, so it never
+// fights the background of the last-move colour. Without motion: the colour simply stays for a moment.
+const GLOW: Record<Glow, CSSProperties> = {
+  good: { position: 'relative', zIndex: 2, animation: 'glow-good 0.85s ease-out 2' },
+  gold: { position: 'relative', zIndex: 2, animation: 'glow-gold 0.8s ease-out 3' },
+}
+const GLOW_STILL: Record<Glow, CSSProperties> = {
+  good: { boxShadow: 'inset 0 0 0 100px rgba(94, 224, 138, 0.45)' },
+  gold: { boxShadow: 'inset 0 0 0 100px rgba(245, 197, 66, 0.55)' },
+}
+const GLOW_MS: Record<Glow, number> = { good: 1700, gold: 2400 }
 
 // Board with dragging AND tapping (tap a piece, then the target square) – often easier on a phone.
 export function Board({ fen, orientation, onMove, arrows = [], squareStyles = {}, elephants }: Props) {
@@ -51,6 +63,20 @@ export function Board({ fen, orientation, onMove, arrows = [], squareStyles = {}
   }, [])
   const [selected, setSelected] = useState<{ square: string; fen: string } | null>(null)
   const sel = selected && selected.fen === fen ? selected.square : null
+
+  const [glow, setGlow] = useState<{ square: string; kind: Glow } | null>(null)
+  useEffect(() => {
+    let t: number | undefined
+    const off = onGlow((square, kind) => {
+      setGlow({ square, kind })
+      window.clearTimeout(t)
+      t = window.setTimeout(() => setGlow(null), GLOW_MS[kind])
+    })
+    return () => {
+      off()
+      window.clearTimeout(t)
+    }
+  }, [])
 
   const targets = useMemo(() => {
     if (!sel) return []
@@ -95,6 +121,10 @@ export function Board({ fen, orientation, onMove, arrows = [], squareStyles = {}
   if (checkSquare) styles[checkSquare] = { ...styles[checkSquare], ...CHECK }
   if (sel) styles[sel] = { ...styles[sel], ...SELECTED }
   for (const t of targets) styles[t.to] = { ...styles[t.to], ...(t.capture ? RING : DOT) }
+  if (glow) {
+    const still = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches
+    styles[glow.square] = { ...styles[glow.square], ...(still ? GLOW_STILL : GLOW)[glow.kind] }
+  }
 
   return (
     <div className="board-wrap" onAnimationEnd={(e) => e.currentTarget.classList.remove('shake')}>
