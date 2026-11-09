@@ -174,7 +174,10 @@ React-Warnung im Brett (`background` und `backgroundColor` gemischt bei Letzter-
 Teilen-Karte für den Bericht, `CLAUDE.md` aktuell halten.
 
 ### [ ] 15. Vor dem Play Store (Entscheidungen von Lu nötig)
-Endgültiger Name (Favorit „Pawn to King“; „King of Chess“ kollidiert mit anderen Apps), Android über
+Name: **Hoppy** (Lu, 09.11.2026; Prototyp in der Vorschau). Auf dem Handy „Hoppy“, im Store „Hoppy Chess“, weil es
+im App Store schon Bier-, Happy-Hour- und Dating-Apps „Hoppy“ gibt und „Hoppy“ eine japanische Getränkemarke ist
+(Hoppy Beverage Co.). Vor dem Store: Markenprüfung „Hoppy Chess“ in TMview/EUIPO, Klassen 9 und 41 (nicht geprüft).
+hoppychess.com war am 09.11. laut Whois frei (nicht gekauft). Die Geschichte heißt weiter „King of Chess“. Android über
 Bubblewrap, **Stockfish ist GPL-3.0** (vor dem Store-Start klären), erwachsener Standard-Look.
 
 ### [ ] 16. Zugbewertung und „sichere Züge in %“ als Hauptkennzahl (Lus Wunsch 08.11.)

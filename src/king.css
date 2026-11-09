@@ -216,7 +216,7 @@
 .king-intro-art { position: relative; }
 .king-intro-art img { position: absolute; inset: 0; width: 100%; height: 100%; }
 
-/* The app is called King of Chess: the name in the header in the painted style */
+/* The app is called Hoppy (story: King of Chess): the name in the header in the painted style */
 :root .top .brand { font-family: 'Cinzel', Georgia, serif; font-weight: 900; color: #6b4a2b; letter-spacing: .01em; }
 
 /* games of the cities */

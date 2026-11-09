@@ -96,7 +96,9 @@ Hauptnutzung: am Handy.
 - Die Startseite (`#/`) ist eine Weltkarte: Prinz **Liam** aus Kannauj reitet mit seinem Pferd **Hoppy** durch 1.500 Jahre Schachgeschichte. Konzept + Prototyp: Claude-Artifact „King of Chess“.
 - **Stil B „gemalt“** (Johannas Wahl): Aquarell/Pergament, Schrift Cinzel für Überschriften. Alle Bilder in `public/king/` (KI-erzeugt mit Higgsfield/Nano Banana Pro). Neue Bilder im selben Stil erzeugen und vor dem Einbau ansehen (Orte auf der Karte prüfen!).
 - Code: `src/lib/king.ts` (Stationen mit Kartenposition auf 1800×764, Meister-Gespräche, Rätsel, Lord-Fog-Runden, Fortschritt in localStorage `chess-trainer-king`), `src/screens/King.tsx` (Karte, Intro, Station, Gespräch, Minispiele, Bosse, Kriegszelt), `src/components/KingArt.tsx`, `src/king.css` (`.king-screen` = Pergament-Design).
-- App heißt seit 07.11. **King of Chess** (Titel, Manifest, Kopfzeile).
+- App hieß seit 07.11. **King of Chess**. Seit 09.11. (Prototyp in der Vorschau) heißt die App **Hoppy**: Kopfzeile „Hoppy“,
+  Symbol auf dem Handy „Hoppy“, Titel/Manifest „Hoppy Chess“ (Store-Name). Die Geschichte (Liams Reise, Finale, Titel
+  `titleOf`) heißt weiter „King of Chess“.
 - **Alle 17 Stationen gebaut** (07.11.): Kannauj, Persien, Samarkand, Bagdad, Der Norden, Valencia, Rom, Queen's Palace, Wien, Paris, London, Winterwald, Reykjavík, New York, Rio, Orbit, Chennai (Finale, öffnet erst wenn alle 16 anderen Bosse besiegt sind, `isOpen`). Jede Station: Bild, Meister mit Gespräch, Quests (`games`), eigene Linien (`lines` = Kapitel aus dem Repertoire) und ein Boss (`boss.kind`: army, riddle, board, lines, quiz, cross, krk, grand).
 - Spiele (King.tsx): `BoardRounds` (Züge finden, 3 Herzen), `QuizRounds`, `KingSquares` (Blind-Felder), `KingQueen`, `CrossRounds` (welche Eröffnung wann), `KingRook` (Matt mit K+T gegen die „Maschine“), `Shuffle` (Chess960), `GrandTour`.
 - Linien-Bosse (`lineRounds` in king.ts) fragen **nur Stellungen mit genau einer Antwort** im Buch der Station (z. B. Wiener: 3.f4 und 3.Bc4 beide richtig → wird nicht gefragt). Test sichert das ab.

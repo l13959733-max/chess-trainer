@@ -54,7 +54,7 @@ export function InstallBanner() {
           <Mascot mood="happy" className="install-icon" />
           <div className="install-text">
             <b>Get the app: 3 taps</b>
-            <span>Full screen, King of Chess on your home screen.</span>
+            <span>Full screen, Hoppy on your home screen.</span>
           </div>
           <button type="button" className="install-later" onClick={later}>Later</button>
         </div>
@@ -81,7 +81,7 @@ export function InstallBanner() {
           {help ? (
             <span>Tap the menu <b>⋮</b> at the top right, then <b>“Install app”</b> or <b>“Add to Home screen”</b>.</span>
           ) : (
-            <span>Full screen, King of Chess on your home screen.</span>
+            <span>Full screen, Hoppy on your home screen.</span>
           )}
         </div>
         <div className="install-actions">
