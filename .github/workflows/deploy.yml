@@ -54,3 +54,6 @@ jobs:
     steps:
       - id: deployment
         uses: actions/deploy-pages@v4
+        # the site is big (voice files twice: live + preview); on slow days Pages needs more than the default 10 minutes
+        with:
+          timeout: 1800000
