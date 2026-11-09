@@ -13,7 +13,9 @@ Vorschau: https://l13959733-max.github.io/chess-trainer/preview/
 ## Für Johanna: so geht's
 
 1. Die GitHub-Einladung annehmen: https://github.com/l13959733-max/chess-trainer/invitations
-2. Einmalig: `git clone https://github.com/l13959733-max/chess-trainer.git && cd chess-trainer && npm ci`3. Claude Code im Ordner starten (`claude`) und `/weiterbauen` tippen. Claude zeigt den nächsten
+2. Einmalig: `git clone https://github.com/l13959733-max/chess-trainer.git && cd chess-trainer && npm ci`
+   (Klicktests mit Playwright brauchst du nicht – die laufen nur auf Lus Laptop.)
+3. Claude Code im Ordner starten (`claude`) und `/weiterbauen` tippen. Claude zeigt den nächsten
    Punkt und baut ihn. Erlaubnis-Fragen mit OK bestätigen (oder Shift+Tab für „auto-accept edits“).
 4. Anschauen in der Vorschau-Adresse oben. Gefällt es: „übernehmen“ schreiben, dann geht es live.
 
@@ -24,8 +26,14 @@ Vorschau: https://l13959733-max.github.io/chess-trainer/preview/
 - **Deploy:** Ein Push auf `main` deployt automatisch beides (Live und `/preview/`). Nach einem Push
   nur auf `preview`: `gh workflow run Deploy --ref main`.
 - **Prüfen vor jedem Commit:** `npx tsc -b`, `npm run lint` (Stand: 12 Warnungen, nicht mehr werden),
-  `npx vitest run` (alle grün). **Kein Playwright** (Entscheidung vom 08.11.2026, GitHub ayo-byte): keine Klicktests,
-  keine automatischen Bildschirmfotos. Neue Logik darum mit Vitest-Tests absichern.
+  `npx vitest run` (alle grün). **Klicktests mit Playwright nur auf Lus Laptop** (Lu, 09.11.2026; Johanna will
+  Playwright auf ihrem Laptop nicht – dort nicht installieren, dann reichen tsc, Lint, Vitest und Vitest-Tests für
+  neue Logik). Ob Playwright da ist: `node -e "require('playwright')"`. Wenn ja, im Browser im Handy-Format:
+  `npm run dev -- --port 5199`, dann `node scripts/e2e/king-all.mjs http://localhost:5199/ noshots` (ganzes Spiel
+  bis zur Krone), `node scripts/e2e/regress.mjs http://localhost:5199/`, `node scripts/e2e/mirror.mjs`,
+  `node scripts/e2e/continue.mjs http://localhost:5199/` (Continue nach einer Quest, Boss bei laufender Analyse;
+  mit `webkit` als 2. Argument wie am iPhone). Einrichten: `npm i --no-save playwright && npx playwright install chromium`.
+  Fehler, die Lu am Handy meldet: so nachspielen, nicht raten.
   Neue Eröffnungslinien: `node scripts/check-lines.mjs 16 <datei.pgn>` (nur Dateiname, ohne `data/`).
   Neue Brett-Aufgaben: `npx tsx scripts/check-rounds.mjs`. Linien aus Stockfish vorschlagen lassen:
   `node scripts/extend-line.mjs "1.e4 e5 2.f4" 8 18`.
