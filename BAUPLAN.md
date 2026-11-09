@@ -284,7 +284,16 @@ die App keinen. Spitznamen statt echter Namen (Kinder, DSGVO). Gegen Schummeln: 
 „Can you spot the threat in 5 seconds?“ mit Countdown, aus dem Tagesrätsel; ein Clip für TikTok, Shorts und Reels.
 Englisch. Bilder über Higgsfield nur nach Absprache (kostet Geld).
 
-### [ ] 24. Weltkarte mit klarem Weg (Entwurf A)
+### [ ] 24. Weltkarte mit klarem Weg (Entwurf A) – Prototyp „Weg“ 09.11. in der Vorschau, Lu prüft
+
+**Prototyp 09.11. (Lu: „Karte zu unübersichtlich … Zwischending mit Duolingo, Städte trotzdem übernehmen“):** Startseite
+`#/` ist jetzt `KingRoad` in `King.tsx`: die Städte in `route()`-Reihenfolge von oben nach unten, runde Stadtbilder,
+Weg schwingt Mitte/rechts/Mitte/links, Gold bis zum letzten besiegten Boss, nächste Stadt groß + pulsierend + „Start/
+Continue“, gesperrte Städte blass mit „?“, Liam-Medaillon am aktuellen Ort, Wegelagerer wie auf der Karte. Oben Hoppy,
+Kastanien, Sprechblase, Tagesrätsel, „Back from chess.com?“, Spiegelwelt-Karte (ab Rom). Die gemalte Weltkarte bleibt
+unverändert unter `#/world` (Knopf „World map“). Stile `.road-*` in `src/king.css`. Klicktests öffnen die Karte jetzt
+über `#/world`. Nicht auf dem Weg: Schatten-/Glanz-Zahlen (bleiben auf der Weltkarte).
+Ursprünglicher Plan:
 Gemalte Karte bleibt, dazu: goldene Linie = gereist, nummerierte Punkte = als Nächstes, Liam pulsiert am aktuellen
 Ort, darunter die Straße mit den Stadtbildern und „Continue in …“. **Offen (Lu entscheidet):** `route()` springt quer
 über die Karte (Rom → Bagdad → Persien → Norden → Valencia …); eine geografische Reihenfolge wäre klarer, ändert aber

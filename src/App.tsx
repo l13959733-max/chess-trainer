@@ -27,7 +27,7 @@ import { QuestBook } from './screens/QuestBook'
 import { Mirror } from './screens/Mirror'
 import { Atlas } from './screens/Atlas'
 import { ThreatCheck } from './screens/ThreatCheck'
-import { Encounter, Habits, KingHome, KingStation, WarmUp, WarTent } from './screens/King'
+import { Encounter, Habits, KingHome, KingStation, KingWorld, WarmUp, WarTent } from './screens/King'
 import { OpeningMap } from './screens/OpeningMap'
 import { Import } from './screens/Import'
 import { Learn } from './screens/Learn'
@@ -140,6 +140,7 @@ function App() {
   else if (page === 'mirror') body = <Mirror />
   else if (page === 'atlas') body = <Atlas rep={rep} />
   else if (page === 'threat-check') body = <ThreatCheck />
+  else if (page === 'world') body = <KingWorld />
   else if (page === 'check') body = <ChessCheck rep={rep} />
   else if (page === 'portal') body = <Portal rep={rep} />
   else if (page === 'encounter') body = <Encounter key={id ?? ''} to={id} rep={rep} />

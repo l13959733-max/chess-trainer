@@ -6,7 +6,7 @@ const b = await chromium.launch(); const errs = []
 const p = await (await b.newContext({ viewport: { width: 393, height: 873 }, isMobile: true, hasTouch: true })).newPage()
 p.on('pageerror', (e) => errs.push(e.message))
 await p.addInitScript(() => { localStorage.setItem('chess-trainer-name', 'Lu'); localStorage.setItem('chess-trainer-king', JSON.stringify({ intro: true, here: 'kannauj', beaten: ['kannauj','samarkand','rome','baghdad','persia','north','valencia','palace','vienna','paris','london','forest','reykjavik','newyork','rio','orbit','edinburgh','mirror-gate'], coins: 0, got: [] })) })
-await p.goto(U); await p.waitForSelector('.king-world')
+await p.goto(U + '#/world'); await p.waitForSelector('.king-world')
 await p.evaluate(async () => { window.K = await import('/src/lib/king.ts'); window.R = await import('/src/lib/repertoire.ts') })
 for (const id of ['valencia', 'london', 'rio', 'mirror-gate', 'mirror-fortress']) {
   await p.goto(U + `#/king/${id}`); await p.waitForSelector('.king-banner')

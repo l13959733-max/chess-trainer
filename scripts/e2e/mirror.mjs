@@ -6,7 +6,7 @@ const b = await chromium.launch(); const errs = []
 const p = await (await b.newContext({ viewport: { width: 393, height: 873 }, isMobile: true, hasTouch: true })).newPage()
 p.on('pageerror', (e) => errs.push(e.message))
 await p.addInitScript(() => { localStorage.setItem('chess-trainer-name', 'Lu'); if (!sessionStorage.getItem('x')) { sessionStorage.setItem('x', '1'); localStorage.setItem('chess-trainer-king', JSON.stringify({ intro: true, here: 'rome', beaten: ['kannauj', 'samarkand', 'rome'], coins: 200, got: [] })) } })
-await p.goto(U); await p.waitForSelector('.king-world')
+await p.goto(U + '#/world'); await p.waitForSelector('.king-world')
 console.log('mirror on map:', await p.locator('.king-mirror').count())
 await p.locator('.king-mirror').dispatchEvent('click')
 await p.waitForSelector('.mirror-card'); await p.waitForTimeout(600)

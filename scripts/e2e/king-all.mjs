@@ -17,7 +17,7 @@ p.on('pageerror', e => errs.push(e.message)); p.on('console', m => m.type() === 
 p.on('requestfailed', r => errs.push('failed: ' + r.url()))
 p.on('response', r => r.status() >= 400 && errs.push(r.status() + ' ' + r.url()))
 await p.addInitScript(() => { localStorage.setItem('chess-trainer-name', 'Lu'); if (!localStorage.getItem('chess-trainer-king')) localStorage.setItem('chess-trainer-king', JSON.stringify({ intro: true, here: 'kannauj', beaten: [] })) })
-await p.goto(U); await p.waitForSelector('.king-world', { timeout: 20000 })
+await p.goto(U + '#/world'); await p.waitForSelector('.king-world', { timeout: 20000 })
 const base = new URL(U).pathname
 // the real data, straight from the source the app uses
 await p.evaluate(async (base) => { window.K = await import(base + 'src/lib/king.ts'); window.R = await import(base + 'src/lib/repertoire.ts') }, base)
@@ -196,11 +196,11 @@ for (const id of ids) {
   try { await station(id) } catch (e) { log('FAIL', id, e.message.split('\n')[0]); await p.screenshot({ path: `${S}/FAIL-${id}.png` }) }
 }
 // the map with everything beaten → Chennai opens
-await p.goto(U); await p.waitForSelector('.king-world'); await p.evaluate(async (base) => { window.K = await import(base + 'src/lib/king.ts'); window.R = await import(base + 'src/lib/repertoire.ts') }, base); await shot('map-all')
+await p.goto(U + '#/world'); await p.waitForSelector('.king-world'); await p.evaluate(async (base) => { window.K = await import(base + 'src/lib/king.ts'); window.R = await import(base + 'src/lib/repertoire.ts') }, base); await shot('map-all')
 log('HUD:', await p.locator('.king-bubble').innerText())
 if (!only) {
   try { await station('chennai') } catch (e) { log('FAIL chennai', e.message.split('\n')[0]); await p.screenshot({ path: `${S}/FAIL-chennai.png` }) }
-  await p.goto(U); await p.waitForSelector('.king-world'); await shot('map-crowned'); log('HUD:', await p.locator('.king-bubble').innerText())
+  await p.goto(U + '#/world'); await p.waitForSelector('.king-world'); await shot('map-crowned'); log('HUD:', await p.locator('.king-bubble').innerText())
 }
 log('page width', await p.evaluate(() => document.documentElement.scrollWidth))
 log('errors:', [...new Set(errs)])

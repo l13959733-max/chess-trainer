@@ -21,7 +21,7 @@ import { feedback as fx, resetCareful, takeCareful } from '../lib/feedback'
 import { dayNumber, loadResults, squares } from '../lib/threatcheck'
 import {
   ARMY, CROSSROADS, DRAGON_ALIVE, DRAGON_CFILE, DRAGON_FIRE, MIRROR, mirrorOpen, FORKS, GRAIN, GUARD, GUARD_BOSS, LEWIS, MATES, QUEEN_TACTICS, RIDDLES, ROME_REACT, ROME_THREATS, ROME_TRAPS, ROOK_MATES, SAFE, STATIONS, TENT_AT, TURK,
-  bookCrossroads, earn, isOpen, liamPortrait, opensAfter, lineRounds, loadKing, nextStation, reputation, saveKing, stationById, stationLines, titleOf, type BoardRound, type Crossroad, type QuizQuestion, type Station,
+  bookCrossroads, earn, isOpen, liamPortrait, opensAfter, lineRounds, loadKing, nextStation, reputation, route, saveKing, stationById, stationLines, titleOf, type BoardRound, type Crossroad, type QuizQuestion, type Station,
 } from '../lib/king'
 import '../king.css'
 
@@ -57,7 +57,147 @@ export function KingHome() {
         }}
       />
     )
+  return <KingRoad />
+}
+
+// The painted world map, one tap away from the road (#/world)
+export function KingWorld() {
   return <KingMap />
+}
+
+// ---------- the road: the cities one after another, top to bottom (Lu, 09.11.: clearer than the map) ----------
+
+// On the way to a new city a scout of the Shadow Realm may block the road, like on the map
+function roadAmbush(beaten: string[]): boolean {
+  const reduce = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches
+  if (reduce || !canBeAmbushed(beaten) || Math.random() >= 0.35 || Date.now() - lastAmbush() <= 15 * 60 * 1000) return false
+  markAmbush()
+  return true
+}
+
+const ROW = 112 // height of one city on the road
+const SWAY = [0, 1, 0, -1] // the road winds: middle, right, middle, left
+const ROAD_W = 360
+
+function KingRoad() {
+  const [state] = useState(loadKing)
+  const [toast, showToast] = useToast()
+  const here = stationById(state.here) ?? STATIONS[0]
+  const cities = route().map((id) => STATIONS.find((s) => s.id === id)!)
+  const beatenCount = state.beaten.filter((id) => STATIONS.some((s) => s.id === id && !s.finale)).length
+  const crowned = state.beaten.includes('chennai')
+  // the city to play next: the first open one whose boss is still waiting
+  const next = cities.find((s) => isOpen(s, state.beaten) && !state.beaten.includes(s.id))
+  const nextRef = useRef<HTMLButtonElement>(null)
+  useEffect(() => {
+    nextRef.current?.scrollIntoView({ block: 'center' })
+  }, [])
+
+  const at = (i: number) => ({ x: ROAD_W / 2 + SWAY[i % SWAY.length] * 82, y: 56 + i * ROW })
+  // how far the gold reaches: up to the last city whose boss is beaten
+  const lastBeaten = cities.reduce((n, s, i) => (state.beaten.includes(s.id) ? i : n), -1)
+
+  function open(s: Station) {
+    if (!isOpen(s, state.beaten)) {
+      showToast(`${s.name} is still in the fog. First beat the boss in ${opensAfter(s, state.beaten)?.name ?? 'the city before'}.`)
+      return
+    }
+    if (s.id !== here.id) {
+      if (roadAmbush(state.beaten)) {
+        go('encounter/' + s.id)
+        return
+      }
+      saveKing({ ...loadKing(), here: s.id })
+    }
+    go('king/' + s.id)
+  }
+
+  return (
+    <div className="screen king-screen king-road">
+      <div className="road-hud">
+        <Avatar who="hoppy" className="king-hud-face" />
+        <span className="king-coins" aria-label={`${titleOf(state.beaten)}, ${state.coins} chestnuts`}>
+          <small>{titleOf(state.beaten)}</small>🌰 {state.coins}
+        </span>
+        <button type="button" className="road-world" onClick={() => go('world')}>World map</button>
+      </div>
+      <p className="king-bubble road-bubble">
+        {crowned ? (
+          <>All hail <b>King Liam</b>! You conquered the whole world of chess.</>
+        ) : beatenCount === 0 ? (
+          <>Liam, our road starts in <b>Kannauj</b>. One city after another!</>
+        ) : (
+          <>{beatenCount} of {BOSSES} bosses beaten.{next ? <> Next: <b>{next.name}</b>.</> : null}</>
+        )}
+      </p>
+      <div className="road-cards">
+        <DailyCard />
+        {state.warmupAt && (
+          <button type="button" className="road-card road-card-dark" onClick={() => go('afterwards')}>
+            <b>Back from chess.com?</b> How did it go – read your game
+          </button>
+        )}
+        {mirrorOpen(state.beaten) && (
+          <button type="button" className="road-card" onClick={() => go('mirror')}>
+            <b>Act 2 · The Mirror World</b> You play Black – eight shadows wait
+          </button>
+        )}
+      </div>
+
+      <div className="road" style={{ height: 56 + cities.length * ROW }}>
+        <svg className="road-line" width={ROAD_W} height={56 + cities.length * ROW} aria-hidden="true">
+          <polyline points={cities.map((_, i) => `${at(i).x},${at(i).y}`).join(' ')} className="road-ahead" />
+          {lastBeaten > 0 && <polyline points={cities.slice(0, lastBeaten + 1).map((_, i) => `${at(i).x},${at(i).y}`).join(' ')} className="road-done" />}
+        </svg>
+        {cities.map((s, i) => {
+          const { x, y } = at(i)
+          const done = state.beaten.includes(s.id)
+          const isNext = s.id === next?.id
+          const locked = !isOpen(s, state.beaten)
+          const right = SWAY[i % SWAY.length] <= 0 // the name stands right of the city, or left when the road sways right
+          return (
+            <div key={s.id}>
+              <button
+                type="button"
+                ref={isNext ? nextRef : undefined}
+                className={`road-node${done ? ' beaten' : ''}${isNext ? ' next' : ''}${locked ? ' locked' : ''}${s.finale ? ' finale' : ''}`}
+                style={{ left: x, top: y }}
+                onClick={() => open(s)}
+                aria-label={`${i + 1}. ${s.name}${done ? ', boss beaten' : locked ? ', still in the fog' : ''}`}
+              >
+                <img src={IMG + s.scene} alt="" />
+                {done && <span className="road-badge" aria-hidden="true">✓</span>}
+                {locked && <span className="road-badge lock" aria-hidden="true">?</span>}
+                {s.id === here.id && <img className="road-liam" src={IMG + liamPortrait(state.beaten)} alt="" />}
+              </button>
+              <div className={`road-label${right ? '' : ' left'}${locked ? ' locked' : ''}`} style={right ? { left: x + 50, top: y - 30 } : { right: ROAD_W - x + 50, top: y - 30 }}>
+                <b>{i + 1}. {s.name}</b>
+                <small>{s.year}</small>
+                {!locked && <span>{s.skills.slice(0, 2).join(' · ')}</span>}
+                {isNext && (
+                  <button type="button" className="primary road-go" onClick={() => open(s)}>
+                    {state.got.some((g) => g.startsWith(s.id + '/')) ? 'Continue' : 'Start'}
+                  </button>
+                )}
+              </div>
+            </div>
+          )
+        })}
+      </div>
+
+      {toast && <div className="king-toast road-toast" role="status">{toast}</div>}
+      <nav className="king-dock road-dock" aria-label="Places">
+        <button type="button" onClick={() => go('tent')}><span aria-hidden="true">⛺</span>Training Camp</button>
+        {state.beaten.includes('kannauj') ? (
+          <button type="button" className="dock-portal" onClick={() => go('portal')}><span aria-hidden="true">🌀</span>Real world</button>
+        ) : (
+          <button type="button" onClick={() => go('path')}><span aria-hidden="true">📚</span>All openings</button>
+        )}
+        <button type="button" onClick={() => go('quests')}><span aria-hidden="true">📖</span>Quest book</button>
+        <button type="button" onClick={() => go('watch')}><span aria-hidden="true">👫</span>Together</button>
+      </nav>
+    </div>
+  )
 }
 
 // Soft, painted-looking fog over places not discovered yet
