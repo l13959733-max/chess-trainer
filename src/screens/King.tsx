@@ -26,6 +26,8 @@ import {
   bareSan, bookCrossroads, earn, isOpen, openingName, opensAfter, lineRounds, loadKing, nextStation, reputation, route, saveKing, stationById, stationLines, titleOf, type BoardRound, type Crossroad, type QuizQuestion, type Station,
 } from '../lib/king'
 import { StoryBox } from '../components/StoryBox'
+import { chapterOf } from '../lib/cityBook'
+import { CityBook } from './CityBook'
 import '../king.css'
 
 const IMG = import.meta.env.BASE_URL + 'king/'
@@ -691,8 +693,32 @@ function NextStep({ s, rep }: { s: Station; rep: Repertoire }) {
 function StationPage({ s, rep }: { s: Station; rep: Repertoire }) {
   const [now] = useState(() => Date.now())
   const [open, setOpen] = useState<string | null>(null)
+  const [, setTick] = useState(0)
   const lines = useMemo(() => stationLines(s, rep.lines), [rep.lines, s])
   const steps = stationSteps(s, lines, rep)
+  // Lu, 12.11.: a city opens as a book chapter – the story first, then the exercises
+  const ch = MIRROR.includes(s) ? undefined : chapterOf(s.id)
+  if (ch) {
+    const blackSt = ch.black ? stationById(ch.black) : undefined
+    const black = blackSt ? stationLines(blackSt, rep.lines) : []
+    return (
+      <CityBook
+        key={s.id}
+        s={s}
+        ch={ch}
+        chapterNo={route().indexOf(s.id) + 1}
+        steps={steps}
+        white={lines}
+        black={black}
+        blackFrom={blackSt?.intro}
+        known={(id) => rep.srs.has(id)}
+        extras={s.games.filter((g) => g.extra).map((g) => ({ id: g.id, title: g.title, done: loadKing().got.includes(`${s.id}/${g.id}`) }))}
+        onStoryRead={() => {
+          if (earn(`${s.id}/talk`, 5)) setTick((t) => t + 1)
+        }}
+      />
+    )
+  }
   const next = steps.find((x) => !x.done)
   const done = steps.filter((x) => x.done).length
   const got = (k: string) => steps.find((x) => x.key === k)?.done

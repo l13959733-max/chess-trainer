@@ -104,16 +104,23 @@ async function solvePuzzles(prefix) {
 }
 
 async function station(id) {
-  await p.goto(U + '#/king/' + id); await p.waitForSelector('.king-banner', { timeout: 15000 })
+  await p.goto(U + '#/king/' + id); await p.waitForSelector('.book-cover, .king-banner', { timeout: 15000 })
   const s = await p.evaluate((id) => { const s = K.stationById(id); return { name: s.name, games: s.games.map(g => g.id), boss: s.boss.kind, bossName: s.boss.name } }, id)
   await shot(id + '-0-page')
-  // the master talks
-  await p.click('.king-master button:has-text("Talk")')
-  await shot(id + '-1-talk-start')
-  // Game Boy talk (12.11.): tap the box until the line is done and the last line is reached, then back to the city
-  for (let k = 0; k < 40 && !(await p.locator('button.primary:has-text("Back to")').count()); k++) await p.click('.gb-box')
-  await shot(id + '-1-talk')
-  await p.click('button.primary:has-text("Back to")'); await p.waitForTimeout(600)
+  if (await p.locator('.book-cover').count()) {
+    // book chapter (12.11. late): read the story, then back to the table of contents
+    await p.click('.book-toc button:has-text("The story")'); await p.waitForSelector('.book-night')
+    await shot(id + '-1-story')
+    await p.click('.book-night .book-back'); await p.waitForTimeout(400)
+  } else {
+    // the master talks
+    await p.click('.king-master button:has-text("Talk")')
+    await shot(id + '-1-talk-start')
+    // Game Boy talk (12.11.): tap the box until the line is done and the last line is reached, then back to the city
+    for (let k = 0; k < 40 && !(await p.locator('button.primary:has-text("Back to")').count()); k++) await p.click('.gb-box')
+    await shot(id + '-1-talk')
+    await p.click('button.primary:has-text("Back to")'); await p.waitForTimeout(600)
+  }
   for (const g of s.games) {
     await p.goto(U + `#/king/${id}/${g}`); await p.waitForSelector('.king-screen')
     if (['grain', 'lewis', 'turk'].includes(g)) await answerQuiz(`${id}-2-${g}`)
