@@ -812,3 +812,55 @@
 .book-tale-in { padding: 26px 22px 30px; }
 .book-tale .book-from { margin: 0 0 14px; font-size: 11px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--accent); opacity: 1; }
 .book .book-on { display: block; margin: 26px auto 0; border: 1.5px solid rgba(243, 236, 224, .6); border-radius: 99px; background: none; color: #f3ece0; font-weight: 700; font-size: 14px; padding: 12px 20px; text-align: center; cursor: pointer; }
+
+/* The chapter in pages (12.11. night, Lu: no scrolling – one screen per page, tap on) */
+.book-paged .bp { position: absolute; inset: 0 0 calc(84px + env(safe-area-inset-bottom, 0px)); display: flex; flex-direction: column; overflow: hidden; animation: bp-in .25s ease; }
+@keyframes bp-in { from { opacity: 0; transform: translateX(14px); } }
+.book-paged .book-top { flex: none; }
+.book-paged .book-top.light { position: absolute; inset: 0 0 auto; }
+.book-paged .book-top.light .book-back { background: rgba(238, 232, 220, .92); border-radius: 50%; width: 40px; height: 40px; margin: 0; padding: 0; display: grid; place-items: center; }
+.book-paged .book-top.light .book-no { background: rgba(238, 232, 220, .92); border-radius: 99px; padding: 3px 9px; color: var(--ink); }
+.book-paged .book-go { flex: none; margin: 10px 22px 6px; width: auto; }
+.book-paged .book-go.light { background: #f3ece0; color: var(--house); }
+/* cover */
+.bp-cover h1 { margin: 22px 22px 2px; }
+.bp-cover .book-art { flex: 1 1 0; min-height: 0; aspect-ratio: auto; margin-top: 18px; }
+/* story */
+.bp-story { background: var(--house); color: #f3ece0; }
+.bp-img { position: relative; flex: 0 1 38%; min-height: 120px; overflow: hidden; background: var(--paper); }
+.bp-img img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.bp-img::after { content: ""; position: absolute; inset: auto 0 0; height: 35%; background: linear-gradient(transparent, var(--house)); }
+.bp-text { flex: 1 1 0; min-height: 0; padding: 8px 24px 0; display: flex; flex-direction: column; justify-content: center; cursor: pointer; }
+.bp-kick { margin: 0 0 10px; font-size: 11px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--accent); }
+.bp-para { margin: 0; font-family: 'EB Garamond', Georgia, serif; font-size: clamp(19px, 5.6vw, 23px); line-height: 1.42; animation: bp-in .3s ease; }
+.bp-para.first::first-letter { float: left; font-size: 3.1em; line-height: .85; padding: 5px 8px 0 0; color: var(--accent); }
+.bp-para.board { font-family: Inter, sans-serif; font-size: clamp(16px, 4.6vw, 18px); line-height: 1.5; border-left: 3px solid var(--accent); padding-left: 14px; }
+.bp-dots { flex: none; display: flex; justify-content: center; gap: 6px; padding: 10px 0 2px; }
+.bp-dots i { width: 7px; height: 7px; border-radius: 50%; background: rgba(243, 236, 224, .3); }
+.bp-dots i.seen { background: rgba(243, 236, 224, .6); }
+.bp-dots i.on { background: var(--accent); width: 20px; border-radius: 4px; }
+/* techniques */
+.bp-tech h2, .bp-list h2 { font-family: 'EB Garamond', Georgia, serif; font-weight: 500; font-size: clamp(28px, 8vw, 34px); line-height: 1.05; margin: 14px 22px 6px; text-wrap: balance; flex: none; }
+.bp-tech .book-body { margin: 0 22px 2px; font-size: 14px; flex: none; }
+.bp-tiles { flex: 1 1 0; min-height: 0; display: grid; grid-template-columns: 1fr 1fr; grid-auto-rows: 1fr; gap: 8px; margin: 8px 22px 0; }
+.bp-tile { border: 1px solid var(--line); background: #f8f3ea; border-radius: 16px; padding: 10px 12px; display: flex; flex-direction: column; justify-content: space-between; cursor: pointer; min-height: 0; overflow: hidden; }
+.bp-tile b { font-family: 'EB Garamond', Georgia, serif; font-weight: 500; font-size: clamp(17px, 4.8vw, 20px); line-height: 1.1; }
+.bp-tile small { font-size: 11.5px; color: var(--soft); line-height: 1.3; }
+.bp-tile.is-done small { color: var(--house); font-weight: 700; }
+.bp-tile.boss { grid-column: 1 / -1; background: var(--house); border-color: var(--house); color: #fff; }
+.bp-tile.boss small { color: var(--accent); }
+.bp-extras { flex: none; display: flex; flex-wrap: wrap; gap: 6px; margin: 8px 22px 0; }
+.bp-extras button { border: 1px dashed var(--line); border-radius: 99px; padding: 6px 12px; font-size: 12px; background: none; cursor: pointer; }
+/* one tile's variations */
+.bp-list .book-note { margin: 0 22px 6px; flex: none; }
+.bp-listbody { flex: 1 1 0; min-height: 0; overflow-y: auto; padding: 0 22px 8px; }
+.bp-group h5 { margin: 10px 0 6px; font-size: 11px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: var(--house); display: flex; gap: 8px; align-items: center; }
+.bp-group h5 span { background: var(--accent); color: var(--house); border-radius: 99px; padding: 1px 7px; letter-spacing: 0; }
+.bp-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+.bp-grid button { display: flex; justify-content: space-between; align-items: center; gap: 6px; border: 1px solid var(--line); background: #f8f3ea; border-radius: 12px; padding: 9px 10px; font-family: 'EB Garamond', Georgia, serif; font-size: 15.5px; line-height: 1.15; cursor: pointer; min-height: 44px; }
+.bp-grid button small { font-family: Inter, sans-serif; font-size: 10.5px; color: var(--soft); flex: none; }
+.bp-grid button.is-done { border-color: var(--house); }
+.bp-grid button.is-done small { color: var(--house); font-weight: 700; }
+@media (prefers-reduced-motion: reduce) { .book-paged .bp, .bp-para { animation: none; } }
+.bp-cover h1 { font-family: 'EB Garamond', Georgia, serif; font-weight: 500; font-size: clamp(36px, 11vw, 46px); line-height: 1.02; text-wrap: balance; }
+.book-paged .book-top.light .book-back { color: #1b1612; }

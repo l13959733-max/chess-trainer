@@ -1,26 +1,16 @@
-import { useEffect, useRef, type CSSProperties } from 'react'
+import { useEffect, useRef, useState, type CSSProperties, type TouchEvent } from 'react'
 import { BottomBar } from '../components/BottomBar'
 import { go } from '../hooks/useHashRoute'
 import type { Chapter } from '../lib/cityBook'
 import type { Station } from '../lib/king'
 import type { Line } from '../lib/pgn'
 
-// A city as a book chapter (Lu, 12.11.: "Stadt öffnen → erst die Geschichte im Buch-Design → von da ins Üben").
-// Lu, 12.11. night: cover → the story runs first → then the introduction to the techniques with the table of contents.
-// Coming back from an exercise, the chapter opens at the techniques (the story is already read).
-// Every entry opens one exercise; when it is done you come back here (one level up, never across).
+// A city as a book chapter, in PAGES like an app – no scrolling (Lu, 12.11. night: „auf Apps ist es geiler, wenn alles
+// immer auf einer Seite ist“). Cover → the story, one page per part, tap through → the techniques page with tiles →
+// one tile opens its variations on a page of their own. Back always goes one page up. Back from an exercise, the
+// chapter opens on the page you left.
 
 const IMG = import.meta.env.BASE_URL + 'king/'
-function roman(n: number): string {
-  const v: [number, string][] = [[50, 'L'], [40, 'XL'], [10, 'X'], [9, 'IX'], [5, 'V'], [4, 'IV'], [1, 'I']]
-  let out = ''
-  for (const [k, r] of v)
-    while (n >= k) {
-      out += r
-      n -= k
-    }
-  return out
-}
 
 export interface BookStep {
   key: string
@@ -28,6 +18,7 @@ export interface BookStep {
   route: string
   done: boolean
 }
+type Page = { kind: 'cover' } | { kind: 'story'; i: number } | { kind: 'tech' } | { kind: 'list'; group: 'steps' | 'white' | 'black' }
 
 function group(lines: Line[]): [string, Line[]][] {
   const m = new Map<string, Line[]>()
@@ -42,6 +33,15 @@ const short = (title: string, opening: string) => {
   const first = opening.split(' ')[0] + ': '
   const t = title.startsWith(p) ? title.slice(p.length) : title.startsWith(first) ? title.slice(first.length) : title
   return t.charAt(0).toUpperCase() + t.slice(1)
+}
+const pageKey = (id: string) => 'hoppy-book-page-' + id
+function savedPage(id: string): Page | null {
+  try {
+    const v = sessionStorage.getItem(pageKey(id))
+    return v ? (JSON.parse(v) as Page) : null
+  } catch {
+    return null
+  }
 }
 
 export function CityBook({
@@ -67,186 +67,180 @@ export function CityBook({
   extras: { id: string; title: string; done: boolean }[]
   onStoryRead: () => void
 }) {
-  const scroller = useRef<HTMLDivElement>(null)
-  const storyRef = useRef<HTMLElement>(null)
-  const chapRef = useRef<HTMLElement>(null)
-  const endRef = useRef<HTMLDivElement>(null)
   const storyDone = steps.find((x) => x.key === 'talk')?.done ?? false
+  // the story pages: every part of the story, then the "On the board" hints
+  const parts = [...ch.story.map((text) => ({ text, board: false })), ...(ch.board ?? []).map((text) => ({ text, board: true }))]
+  const [page, setPage] = useState<Page>(() => savedPage(s.id) ?? (storyDone ? { kind: 'tech' } : { kind: 'cover' }))
+  useEffect(() => {
+    try {
+      sessionStorage.setItem(pageKey(s.id), JSON.stringify(page))
+    } catch {
+      // not remembered
+    }
+    if (page.kind === 'tech' || (page.kind === 'story' && page.i === parts.length - 1)) onStoryRead()
+  }, [page, s.id, parts.length, onStoryRead])
+
   const next = steps.find((x) => !x.done && x.key !== 'talk')
-  const games = steps.filter((x) => x.key !== 'talk' && x.key !== 'boss' && x.key !== 'choose' && !x.key.startsWith('line:'))
-  const choose = steps.find((x) => x.key === 'choose')
+  const practice = steps.filter((x) => x.key !== 'talk' && x.key !== 'boss' && !x.key.startsWith('line:'))
   const boss = steps.find((x) => x.key === 'boss')!
   const lineRoute = (l: Line) => (known(l.id) ? 'drill/' : 'learn/') + l.id
-  let n = 0
-  const no = () => roman(++n)
-  const scrollTo = (el: HTMLElement | null, smooth = true) => {
-    const sc = scroller.current
-    if (sc && el) sc.scrollTo({ top: el.offsetTop, behavior: smooth ? 'smooth' : 'auto' })
+  const cover = IMG + 'book/' + (ch.cover ?? `${s.id}.jpg`)
+  const storyImg = ch.storyImg ? IMG + 'book/' + ch.storyImg : cover
+  const vars = { '--house': ch.region.color, '--accent': ch.region.accent } as CSSProperties
+  const count = (ls: Line[]) => `${ls.filter((l) => known(l.id)).length}/${ls.length}`
+
+  function back() {
+    if (page.kind === 'cover' || page.kind === 'tech') return go('journey')
+    if (page.kind === 'story') return setPage(page.i === 0 ? { kind: 'cover' } : { kind: 'story', i: page.i - 1 })
+    setPage({ kind: 'tech' })
+  }
+  function forward() {
+    if (page.kind === 'cover') setPage({ kind: 'story', i: 0 })
+    else if (page.kind === 'story') setPage(page.i + 1 < parts.length ? { kind: 'story', i: page.i + 1 } : { kind: 'tech' })
+  }
+  // swipe left = next page, swipe right = one page back (cover and story)
+  const touch = useRef<number | null>(null)
+  const onTouchStart = (e: TouchEvent) => {
+    touch.current = e.touches[0].clientX
+  }
+  const onTouchEnd = (e: TouchEvent) => {
+    if (touch.current === null || (page.kind !== 'story' && page.kind !== 'cover')) return
+    const dx = e.changedTouches[0].clientX - touch.current
+    touch.current = null
+    if (dx < -50) forward()
+    else if (dx > 50 && page.kind === 'story') back()
   }
 
-  // back from an exercise: open at the techniques, the story is already read
-  const first = useRef(storyDone)
-  useEffect(() => {
-    if (first.current) scrollTo(chapRef.current, false)
-  }, [])
-  // reaching the end of the story counts as the first step (it was "Meet the master" before)
-  useEffect(() => {
-    const el = endRef.current
-    if (!el || typeof IntersectionObserver === 'undefined') return
-    const io = new IntersectionObserver((e) => {
-      if (e.some((x) => x.isIntersecting)) {
-        onStoryRead()
-        io.disconnect()
-      }
-    })
-    io.observe(el)
-    return () => io.disconnect()
-  }, [onStoryRead])
+  const top = (label: string, light = false) => (
+    <div className={`book-top${light ? ' light' : ''}`}>
+      <button type="button" className="book-back" onClick={back} aria-label="Back">
+        <svg width="24" height="16" viewBox="0 0 26 16" aria-hidden="true"><path d="M24 8H3M9 2L3 8l6 6" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" /></svg>
+      </button>
+      <span className="book-no">{label}</span>
+    </div>
+  )
 
-  const cover = IMG + 'book/' + (ch.cover ?? `${s.id}.jpg`)
-  const vars = { '--house': ch.region.color, '--accent': ch.region.accent } as CSSProperties
-  const nextLabel = next ? `${steps.some((x) => x.done && x.key !== 'talk') ? 'Continue' : 'Start'}: ${next.title}` : 'Back to the world map'
-  const goNext = () => (next ? go(next.route) : go('journey'))
+  let body
+  if (page.kind === 'cover') {
+    body = (
+      <section className="bp bp-cover" aria-label="Cover">
+        {top(`Chapter ${chapterNo}`)}
+        <h1>{s.name}, {s.year}</h1>
+        <p className="book-sub">{ch.subtitle}</p>
+        <div className="book-art"><img src={cover} alt="" /></div>
+        <button type="button" className="book-go" onClick={forward}>{storyDone ? 'Read the story again' : 'Begin the story'} →</button>
+      </section>
+    )
+  } else if (page.kind === 'story') {
+    const part = parts[page.i]
+    const last = page.i === parts.length - 1
+    body = (
+      <section className="bp bp-story" aria-label={`The story of ${s.name}, page ${page.i + 1} of ${parts.length}`}>
+        <div className="bp-img">
+          <img src={storyImg} alt="" />
+          {top(`${page.i + 1} / ${parts.length}`, true)}
+        </div>
+        <div className="bp-text" onClick={forward}>
+          <p className="bp-kick">{part.board ? 'On the board' : 'The story'}</p>
+          <p key={page.i} className={`bp-para${part.board ? ' board' : ''}${page.i === 0 ? ' first' : ''}`}>{part.text}</p>
+        </div>
+        <div className="bp-dots" aria-hidden="true">
+          {parts.map((_, k) => <i key={k} className={k === page.i ? 'on' : k < page.i ? 'seen' : ''} />)}
+        </div>
+        <button type="button" className="book-go light" onClick={forward}>{last ? 'To the techniques →' : 'Next →'}</button>
+      </section>
+    )
+  } else if (page.kind === 'tech') {
+    body = (
+      <section className="bp bp-tech" aria-label="Techniques">
+        {top(`Chapter ${chapterNo} · ${ch.region.name}`)}
+        <h2>{ch.headline}</h2>
+        <p className="book-body">{s.intro}</p>
+        <button type="button" className="book-go" onClick={() => (next ? go(next.route) : go('journey'))}>
+          {next ? `${steps.some((x) => x.done && x.key !== 'talk') ? 'Continue' : 'Start'}: ${next.title}` : 'Back to the world map'}
+        </button>
+        <div className="bp-tiles">
+          <button type="button" className={`bp-tile${storyDone ? ' is-done' : ''}`} onClick={() => setPage({ kind: 'story', i: 0 })}>
+            <b>The story</b>
+            <small>{storyDone ? '✓ read' : `${parts.length} pages`}</small>
+          </button>
+          {practice.length > 0 && (
+            <button type="button" className="bp-tile" onClick={() => setPage({ kind: 'list', group: 'steps' })}>
+              <b>Practice</b>
+              <small>{practice.filter((x) => x.done).length}/{practice.length} done</small>
+            </button>
+          )}
+          {white.length > 0 && (
+            <button type="button" className="bp-tile" onClick={() => setPage({ kind: 'list', group: 'white' })}>
+              <b><span aria-hidden="true">♔ </span>As White</b>
+              <small>{group(white).map(([op]) => op).join(' · ')} · {count(white)}</small>
+            </button>
+          )}
+          {black.length > 0 && (
+            <button type="button" className="bp-tile" onClick={() => setPage({ kind: 'list', group: 'black' })}>
+              <b><span aria-hidden="true">♚ </span>As Black</b>
+              <small>{group(black).map(([op]) => op).join(' · ')} · {count(black)}</small>
+            </button>
+          )}
+          <button type="button" className={`bp-tile boss${boss.done ? ' is-done' : ''}`} onClick={() => go(boss.route)}>
+            <b>{s.boss.name}</b>
+            <small>{boss.done ? '✓ Beaten' : 'Boss'}</small>
+          </button>
+        </div>
+        {extras.length > 0 && (
+          <div className="bp-extras">
+            {extras.map((g) => (
+              <button type="button" key={g.id} onClick={() => go(`king/${s.id}/${g.id}`)}>
+                {g.title}
+                {g.done ? ' ✓' : ''}
+              </button>
+            ))}
+          </div>
+        )}
+      </section>
+    )
+  } else {
+    const ls = page.group === 'white' ? white : page.group === 'black' ? black : []
+    body = (
+      <section className="bp bp-list" aria-label={page.group === 'steps' ? 'Practice' : page.group === 'white' ? 'As White' : 'As Black'}>
+        {top(ch.headline)}
+        <h2>{page.group === 'steps' ? 'Practice' : page.group === 'white' ? '♔ As White' : '♚ As Black'}</h2>
+        {page.group === 'black' && blackFrom && <p className="book-note">{blackFrom}</p>}
+        <div className="bp-listbody">
+          {page.group === 'steps' ? (
+            <div className="bp-grid">
+              {practice.map((x) => (
+                <button type="button" key={x.key} className={x.done ? 'is-done' : ''} onClick={() => go(x.route)}>
+                  {x.title}
+                  <small>{x.done ? '✓' : 'Play'}</small>
+                </button>
+              ))}
+            </div>
+          ) : (
+            group(ls).map(([op, lines]) => (
+              <div key={op} className="bp-group">
+                <h5>
+                  {op} <span>{count(lines)}</span>
+                </h5>
+                <div className="bp-grid">
+                  {lines.map((l) => (
+                    <button type="button" key={l.id} className={known(l.id) ? 'is-done' : ''} onClick={() => go(lineRoute(l))}>
+                      {short(l.title, op)}
+                      <small>{known(l.id) ? '✓' : 'Learn'}</small>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            ))
+          )}
+        </div>
+      </section>
+    )
+  }
 
   return (
-    <div className="book" style={vars}>
-      <div className="book-scroll" ref={scroller}>
-        <section className="book-cover" aria-label="Cover">
-          <div className="book-top">
-            <button type="button" className="book-back" onClick={() => go('journey')} aria-label="Back to the world map">
-              <svg width="24" height="16" viewBox="0 0 26 16" aria-hidden="true"><path d="M24 8H3M9 2L3 8l6 6" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" /></svg>
-            </button>
-            <span className="book-no">Chapter {chapterNo}</span>
-          </div>
-          <h1>{s.name}, {s.year}</h1>
-          <p className="book-sub">{ch.subtitle}</p>
-          <div className="book-art"><img src={cover} alt="" /></div>
-        </section>
-
-        <section className="book-tale" ref={storyRef} aria-label={`The story of ${s.name}`}>
-          {ch.storyImg && <img className="book-tale-img" src={IMG + 'book/' + ch.storyImg} alt="" />}
-          <div className="book-tale-in">
-            <p className="book-from">The story</p>
-            <div className="book-story">
-              {ch.story.map((p, i) => <p key={i}>{p}</p>)}
-              {ch.board?.map((p, i) => (
-                <p key={'b' + i} className="aside"><b>On the board</b>{p}</p>
-              ))}
-            </div>
-            <div ref={endRef} />
-            <button type="button" className="book-on" onClick={() => scrollTo(chapRef.current)}>To the techniques ↓</button>
-          </div>
-        </section>
-
-        <section className="book-chap" ref={chapRef} aria-label="Chapter">
-          <p className="book-eyebrow">Chapter {chapterNo} · {ch.region.name}</p>
-          <h2>{ch.headline}</h2>
-          <p className="book-body">{s.intro}</p>
-          <ul className="book-skills" aria-label="What you learn here">
-            {s.skills.map((k) => <li key={k}>{k}</li>)}
-          </ul>
-          <button type="button" className="book-go" onClick={goNext}>{nextLabel}</button>
-
-          <h3>Table of content</h3>
-          <ol className="book-toc">
-            <li className={storyDone ? 'is-done' : ''}>
-              <button type="button" onClick={() => scrollTo(storyRef.current)}>
-                <span className="n">{no()}</span>
-                <span className="t">The story<small>{ch.subtitle}</small></span>
-                <span className="s">{storyDone ? '✓' : 'Read'}</span>
-              </button>
-            </li>
-            {games.map((g) => (
-              <li key={g.key} className={g.done ? 'is-done' : ''}>
-                <button type="button" onClick={() => go(g.route)}>
-                  <span className="n">{no()}</span>
-                  <span className="t">{g.title}</span>
-                  <span className="s">{g.done ? '✓' : 'Play'}</span>
-                </button>
-              </li>
-            ))}
-          </ol>
-
-          {white.length > 0 && (
-            <>
-              <h4 className="book-side"><span aria-hidden="true">♔</span> As White <small>you attack</small></h4>
-              {group(white).map(([op, ls]) => (
-                <div key={op} className="book-grp">
-                  <h5>{op} <span>{ls.length}</span></h5>
-                  <ol className="book-toc">
-                    {ls.map((l) => (
-                      <li key={l.id} className={known(l.id) ? 'is-done' : ''}>
-                        <button type="button" onClick={() => go(lineRoute(l))}>
-                          <span className="n">{no()}</span>
-                          <span className="t">{short(l.title, op)}</span>
-                          <span className="s">{known(l.id) ? '✓' : 'Learn'}</span>
-                        </button>
-                      </li>
-                    ))}
-                  </ol>
-                </div>
-              ))}
-            </>
-          )}
-
-          {black.length > 0 && (
-            <>
-              <h4 className="book-side black"><span aria-hidden="true">♚</span> As Black <small>you defend</small></h4>
-              {blackFrom && <p className="book-note">{blackFrom}</p>}
-              {group(black).map(([op, ls]) => (
-                <div key={op} className="book-grp">
-                  <h5>{op} <span>{ls.length}</span></h5>
-                  <ol className="book-toc">
-                    {ls.map((l) => (
-                      <li key={l.id} className={known(l.id) ? 'is-done' : ''}>
-                        <button type="button" onClick={() => go(lineRoute(l))}>
-                          <span className="n">{no()}</span>
-                          <span className="t">{short(l.title, op)}</span>
-                          <span className="s">{known(l.id) ? '✓' : 'Learn'}</span>
-                        </button>
-                      </li>
-                    ))}
-                  </ol>
-                </div>
-              ))}
-            </>
-          )}
-
-          {choose && (
-            <ol className="book-toc">
-              <li className={choose.done ? 'is-done' : ''}>
-                <button type="button" onClick={() => go(choose.route)}>
-                  <span className="n">{no()}</span>
-                  <span className="t">How do you react?<small>which move against which answer</small></span>
-                  <span className="s">{choose.done ? '✓' : 'Play'}</span>
-                </button>
-              </li>
-            </ol>
-          )}
-          <ol className="book-toc">
-            <li className={`book-boss${boss.done ? ' is-done' : ''}`}>
-              <button type="button" onClick={() => go(boss.route)}>
-                <span className="n">{no()}</span>
-                <span className="t">{s.boss.name}<small>“{s.boss.taunt}”</small></span>
-                <span className="s">{boss.done ? '✓ Beaten' : 'Boss'}</span>
-              </button>
-            </li>
-          </ol>
-
-          {extras.length > 0 && (
-            <div className="book-extras">
-              <b>Extras · history for fun</b>
-              {extras.map((g) => (
-                <button type="button" key={g.id} onClick={() => go(`king/${s.id}/${g.id}`)}>
-                  {g.title}
-                  {g.done ? ' ✓' : ''}
-                </button>
-              ))}
-            </div>
-          )}
-        </section>
-      </div>
-
+    <div className={`book book-paged page-${page.kind}`} style={vars} onTouchStart={onTouchStart} onTouchEnd={onTouchEnd}>
+      {body}
       <BottomBar active="map" />
     </div>
   )

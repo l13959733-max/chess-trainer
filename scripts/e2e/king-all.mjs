@@ -104,14 +104,14 @@ async function solvePuzzles(prefix) {
 }
 
 async function station(id) {
-  await p.goto(U + '#/king/' + id); await p.waitForSelector('.book-cover, .king-banner', { timeout: 15000 })
+  await p.goto(U + '#/king/' + id); await p.waitForSelector('.bp-cover, .bp-tech, .king-banner', { timeout: 15000 })
   const s = await p.evaluate((id) => { const s = K.stationById(id); return { name: s.name, games: s.games.map(g => g.id), boss: s.boss.kind, bossName: s.boss.name } }, id)
   await shot(id + '-0-page')
-  if (await p.locator('.book-cover').count()) {
-    // book chapter (12.11. night): the story runs after the cover – read it to the end, then on to the techniques
-    await p.locator('.book-on').scrollIntoViewIfNeeded(); await p.waitForTimeout(400)
-    await shot(id + '-1-story')
-    await p.click('.book-on'); await p.waitForTimeout(500)
+  if (await p.locator('.bp-cover').count()) {
+    // book chapter in pages (12.11. night): cover → tap through the story → the techniques page
+    await p.click('.bp-cover .book-go')
+    for (let k = 0; k < 20 && !(await p.locator('.bp-tech').count()); k++) { if (k === 1) await shot(id + '-1-story'); await p.click('.bp-story .book-go') }
+    await p.waitForSelector('.bp-tech')
   } else {
     // the master talks
     await p.click('.king-master button:has-text("Talk")')
