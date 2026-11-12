@@ -284,7 +284,7 @@ die App keinen. Spitznamen statt echter Namen (Kinder, DSGVO). Gegen Schummeln: 
 „Can you spot the threat in 5 seconds?“ mit Countdown, aus dem Tagesrätsel; ein Clip für TikTok, Shorts und Reels.
 Englisch. Bilder über Higgsfield nur nach Absprache (kostet Geld).
 
-### [ ] 28. Square Rush – Felder lernen mit Candy-Crush-Gefühl (Entwurf 12.11. abends, Lu prüft)
+### [x] 28. Square Rush – Felder lernen mit Candy-Crush-Gefühl – gebaut 12.11. abends (Vorschau `#/rush`, Training + More; Lu: „richtig geil“, Knöpfe später anpassen)
 Lu: „Bischof g2 – dann muss ich ewig suchen … ein Spiel mit leerem Brett, wechselnde Figuren, aufs Feld ziehen, Bumm …
 Belohnung wie Candy Crush: dreimal, dann explodiert es, mit Geräuschen, Vibration, Feeling.“
 Entwurf (nicht in der App): https://claude.ai/artifact/KfcDN3316iuxHj9GRf3Mgq – Hoppy nennt „Knight to f3“, mögliche Züge
