@@ -464,3 +464,11 @@
 .king-opening b { font-weight: 900; }
 .king-opening.played { background: #e4ecd0; border-color: #6b8e3a; }
 .king-hint { display: block; font-weight: 700; font-size: .8rem; color: #6b5a3f; }
+
+/* Hoppy is the drawn Duolingo-style knight again (Lu, 12.11.), in a round frame wherever he speaks */
+.king-hoppy { display: grid; place-items: center; overflow: hidden; background: #fff7e2; border-radius: 50%; border: 2px solid #c9a227; box-sizing: border-box; }
+.king-hoppy .mascot { width: 92%; height: 92%; margin-top: 6%; }
+.road-liam.king-hoppy { padding: 0; }
+.king-crown-hoppy { width: 100%; height: 100%; border-width: 3px; }
+.king-intro-hoppy { width: 100%; height: 100%; display: grid; place-items: center; background: radial-gradient(circle at 50% 45%, #fff3c4 0 30%, #f4e4c1 31% 55%, #2c1f12 56%); }
+.king-intro-hoppy .mascot { width: min(62%, 260px); height: auto; aspect-ratio: 1; }

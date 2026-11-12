@@ -3,6 +3,7 @@ import { createContext, useContext, useEffect, useMemo, useRef, useState, type C
 import type { Arrow } from 'react-chessboard'
 import { ARROW, Board, LAST_MOVE } from '../components/Board'
 import { Avatar, Portrait, SHIP_INNER } from '../components/KingArt'
+import { Mascot, MascotDrawing } from '../components/Mascot'
 import { PathStep } from '../components/PathStep'
 import { go } from '../hooks/useHashRoute'
 import type { Puzzles } from '../hooks/usePuzzles'
@@ -176,7 +177,7 @@ function KingRoad() {
                 <img src={IMG + s.scene} alt="" />
                 {done && <span className="road-badge" aria-hidden="true">✓</span>}
                 {locked && <span className="road-badge lock" aria-hidden="true">?</span>}
-                {s.id === here.id && <img className="road-liam" src={IMG + 'hoppy.jpg'} alt="" />}
+                {s.id === here.id && <span className="road-liam king-hoppy"><Mascot /></span>}
               </button>
               <div className={`road-label${right ? '' : ' left'}${locked ? ' locked' : ''}`} style={right ? { left: x + 50, top: y - 30 } : { right: ROAD_W - x + 50, top: y - 30 }}>
                 <b>{i + 1}. {s.name}</b>
@@ -379,7 +380,7 @@ function KingMap() {
           <g ref={token} transform={`translate(${here.x},${here.y - TOKEN_LIFT})`} aria-label="You and Hoppy are here">
             <g className="king-bob">
               <path d="M-8,24 L0,40 L8,24 Z" fill="#8b6b3d" />
-              <Medallion img="hoppy.jpg" />
+              <HoppyMedallion />
               {crowned && <text y="-26" textAnchor="middle" fontSize="22" aria-hidden="true">👑</text>}
               <g ref={ship} style={{ display: 'none' }} transform="translate(-24,22) scale(.7)" dangerouslySetInnerHTML={{ __html: SHIP_INNER }} />
             </g>
@@ -476,6 +477,19 @@ function RoadLines({ beaten }: { beaten: string[] }) {
   )
 }
 
+// Hoppy on the map: the drawn knight in a gold frame (Lu, 12.11.)
+function HoppyMedallion() {
+  return (
+    <g>
+      <circle r="27" fill="#c9a227" stroke="#5c3d12" strokeWidth="2" />
+      <circle r="23" fill="#fff7e2" />
+      <g transform="translate(-21,-22) scale(.35)">
+        <MascotDrawing />
+      </g>
+    </g>
+  )
+}
+
 // A round painted picture in a gold frame (Hoppy on the map, the War Tent, places not on the painting)
 function Medallion({ img }: { img: string }) {
   return (
@@ -513,8 +527,8 @@ export function KBoard(props: ComponentProps<typeof Board>) {
 // ---------- intro ----------
 
 // Lu, 12.11.: no Liam any more – Hoppy tells the story of chess while you travel together
-const SCENES: { img: string; cls?: string; alt: string; kicker: string; title: string; text: string }[] = [
-  { img: 'hoppy.jpg', alt: 'Hoppy, a little purple horse, smiles in a meadow', kicker: 'Hi, I am Hoppy!', title: 'A little horse who jumps like the knight', text: 'I know where chess was born – and how it travelled around the world. Come with me, I will tell you the story.' },
+const SCENES: { img: string; mascot?: boolean; cls?: string; alt: string; kicker: string; title: string; text: string }[] = [
+  { img: '', mascot: true, alt: 'Hoppy, a little purple knight, smiles', kicker: 'Hi, I am Hoppy!', title: 'A little horse who jumps like the knight', text: 'I know where chess was born – and how it travelled around the world. Come with me, I will tell you the story.' },
   { img: 'worldmap.jpg', cls: 'map-crop', alt: 'The painted world map with the cities of the journey', kicker: `1,500 years · ${STATIONS.length} cities`, title: 'From India around the whole world', text: 'In every city a master teaches you an opening and a trick. Then a boss tests you – beat him, and we ride on.' },
   { img: 'lu.jpg', alt: 'The old Grandmaster Lu smiles', kicker: 'The old Grandmaster Lu', title: '“A king is not born. He is made – move by move.”', text: '“The Shadow King feeds on blunders,” says Lu. “Before every move, ask: what does my opponent threaten?” Then off we go!' },
 ]
@@ -525,7 +539,7 @@ function KingIntro({ onDone }: { onDone: () => void }) {
   return (
     <div className="king-intro">
       <div className="king-intro-art street">
-        <img src={IMG + s.img} alt={s.alt} className={s.cls} />
+        {s.mascot ? <div className="king-intro-hoppy" role="img" aria-label={s.alt}><Mascot mood="cheer" /></div> : <img src={IMG + s.img} alt={s.alt} className={s.cls} />}
       </div>
       <div className="king-intro-text">
         <span className="king-kicker">{s.kicker}</span>
@@ -838,7 +852,7 @@ function Victory({ s }: { s: Station }) {
     <div className="screen king-screen">
       <div className={`done king-victory ${crown ? 'crown' : ''}`}>
         <div className="king-defeated" aria-hidden="true">
-          <img src={IMG + (crown ? 'hoppy.jpg' : s.boss.img)} alt="" />
+          {crown ? <span className="king-hoppy king-crown-hoppy"><Mascot mood="cheer" /></span> : <img src={IMG + s.boss.img} alt="" />}
           <span>{crown ? '👑' : '🏅'}</span>
         </div>
         <div className="done-title">{crown ? 'King of Chess!' : `${s.boss.name} is beaten!`}</div>

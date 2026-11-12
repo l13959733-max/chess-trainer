@@ -1,3 +1,4 @@
+import { Mascot } from './Mascot'
 import { type Master } from '../lib/king'
 
 // Pictures for King of Chess: the ship for sea travel and the painted portraits.
@@ -7,8 +8,13 @@ export const SHIP_INNER =
 const IMG = import.meta.env.BASE_URL + 'king/'
 
 // Painted portraits for the dialogues
-export function Avatar({ who, className = '' }: { who: 'hoppy'; className?: string }) {
-  return <img className={`king-pimg ${className}`} src={IMG + who + '.jpg'} alt="" />
+// Lu, 12.11.: Hoppy looks like at the beginning again – the drawn Duolingo-style knight, not the painted horse
+export function Avatar({ className = '' }: { who: 'hoppy'; className?: string }) {
+  return (
+    <span className={`king-pimg king-hoppy ${className}`}>
+      <Mascot />
+    </span>
+  )
 }
 
 // Painted portrait (or a drawn one as fallback) – no likeness of the real person intended

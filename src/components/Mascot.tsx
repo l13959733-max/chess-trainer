@@ -4,6 +4,15 @@ export type Mood = 'happy' | 'oops' | 'cheer'
 export function Mascot({ mood = 'happy', className = '' }: { mood?: Mood; className?: string }) {
   return (
     <svg className={`mascot mood-${mood} ${className}`} viewBox="0 0 120 120" aria-hidden="true">
+      <MascotDrawing mood={mood} />
+    </svg>
+  )
+}
+
+// The same Hoppy as plain SVG shapes in a 120×120 box – to place him inside another SVG (the world map)
+export function MascotDrawing({ mood = 'happy' }: { mood?: Mood }) {
+  return (
+    <g>
       {/* mane */}
       <path d="M38 30 L30 18 L44 24 L44 10 L54 22 L60 8 L66 22 L76 10 L76 24 L90 18 L82 30 Z" fill="#5b36c9" />
       {/* ears */}
@@ -41,6 +50,6 @@ export function Mascot({ mood = 'happy', className = '' }: { mood?: Mood; classN
       <circle cx="86" cy="68" r="5" fill="#ff8fb8" opacity="0.6" />
       {/* base, like a chess piece */}
       <rect x="30" y="100" width="60" height="14" rx="7" fill="#5b36c9" />
-    </svg>
+    </g>
   )
 }
