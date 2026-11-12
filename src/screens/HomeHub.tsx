@@ -104,14 +104,14 @@ export function HomeHub({ rep, progress, puzzles, player }: { rep: ReturnType<ty
         </div>
       </header>
 
-      <button type="button" className="hub-hero" onClick={goOn} aria-label={next ? `Continue the journey: ${next.name}` : 'Training Camp'}>
+      <button type="button" className="hub-hero" onClick={() => go('journey')} aria-label={next ? `Open the world map – next: ${next.name}` : 'Open the world map'}>
         <span className="hub-map" style={{ backgroundImage: `url(${IMG}worldmap.jpg)`, backgroundPosition: `${mx}% ${my}%` }} />
         <span className="hub-peek" aria-hidden="true"><Mascot mood="cheer" /></span>
         <span className="hub-in">
           {next ? (
             <span className="hub-kick">
               <img src={`${IMG}stamp-${next.id}.jpg`} alt="" />
-              Chapter {chapter} · {next.name}, {next.year}
+              Next: Chapter {chapter} · {next.name}, {next.year}
             </span>
           ) : (
             <span className="hub-kick">The whole world travelled</span>
@@ -122,25 +122,7 @@ export function HomeHub({ rep, progress, puzzles, player }: { rep: ReturnType<ty
             <span>Around the world.</span>
           </span>
           <span className="hub-cta">
-            <span className="hub-gold">{next ? 'Continue journey' : 'Training Camp'}</span>
-            <span
-              className="hub-ring"
-              role="button"
-              tabIndex={0}
-              aria-label="Open the map"
-              onClick={(e) => {
-                e.stopPropagation()
-                go('journey')
-              }}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter') {
-                  e.stopPropagation()
-                  go('journey')
-                }
-              }}
-            >
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" aria-hidden="true"><path d="M9 4 3 6v14l6-2 6 2 6-2V4l-6 2-6-2Z" /><path d="M9 4v14M15 6v14" /></svg>
-            </span>
+            <span className="hub-gold">Open the world map</span>
           </span>
         </span>
       </button>
