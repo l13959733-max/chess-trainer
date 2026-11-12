@@ -290,7 +290,8 @@ Vorbild: Lus Pinterest-Entwurf einer Geschichts-Lese-App. Prototyp (nicht in der
   scrollen → **Kapitel** (Kapitel-Nr. = Platz in `route()`, Überschrift = die Technik, 2 kurze Absätze, Skill-Pillen,
   „Table of content“ = die Schritte der Stadt bis zum Boss) → erster Eintrag öffnet die **dunkle Leseseite** mit der
   Geschichte, unten Leiste „Contents“ + „Play the first line ▶“. Ersetzt auf der Stadt-Seite den Game-Boy-Kasten.
-– **Schema für alle Städte gleich:** Papier creme, Schwarz, Rot; Garamond-Überschriften, Inter-Text; Bogen-/U-Rahmen der Bilder.
+– **Hausfarbe = Terrakotta `#7a3420`** (Lu 12.11. abends, statt Schwarz; Erdton passend zu den Holzbrettern; soll später durch die ganze App gehen).
+– **Schema für alle Städte gleich:** Papier creme, Terrakotta, Rot; Garamond-Überschriften, Inter-Text; Bogen-/U-Rahmen der Bilder.
 – **Drei Bilder je Stadt:** (1) zur Geschichte (was wo passiert ist), (2) zur Technik (Brett mit der Idee), (3) zum Namen
   des Bosses. **Bildsprache aus der Stadt selbst**, nicht überall dieselbe (Lu: Streifen + rote Sonne „sieht japanisch
   aus, passt nicht zu Barcelona“). Barcelona = Gaudí-Mosaik (Trencadís), Blumen-Gehwegplatte (Panot), Zementfliesen,
