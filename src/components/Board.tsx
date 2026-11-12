@@ -10,7 +10,7 @@ interface Props {
   onMove?: (from: string, to: string) => boolean
   arrows?: Arrow[]
   squareStyles?: Record<string, CSSProperties>
-  // King of Chess: in Liam's Indian army the rook is an elephant (Haathi)
+  // King of Chess: in the Indian army the rook is an elephant (Haathi)
   elephants?: boolean
 }
 

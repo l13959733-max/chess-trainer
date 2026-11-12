@@ -23,7 +23,7 @@ export function Mirror() {
         <img className="king-avatar mirror-lu" src={IMG + 'lu.jpg'} alt="Grandmaster Lu" />
         <p className="king-say">
           {mirrorOpen(k.beaten)
-            ? `In the mirror everything is reversed, Liam. The Shadow King moves first – you answer with Black. Beat his ${COUNT} shadows, one after another.`
+            ? `In the mirror everything is reversed, Hoppy. The Shadow King moves first – you answer with Black. Beat his ${COUNT} shadows, one after another.`
             : 'The mirror is still dark. Beat Count Giuoco in Rome first – then you know how to react with White.'}
         </p>
       </div>

@@ -1,4 +1,5 @@
-// King of Chess: Liam, a street kid, and his horse Hoppy follow the game through 1,500 years of history.
+// King of Chess: you ride with Hoppy, a little horse who tells the story of chess, through 1,500 years of history.
+// (Lu, 12.11.: Liam is gone – only Hoppy.)
 // The journey is guided: the cities open one after another (route()), Chennai is the finale.
 // Facts the masters tell are checked against sources before they go in (see CLAUDE.md).
 import { Chess } from 'chess.js'
@@ -14,7 +15,7 @@ export interface Master {
   beard?: boolean
   mustache?: boolean
   hat?: boolean
-  talk: { who: 'master' | 'liam' | 'hoppy'; text: string }[]
+  talk: { who: 'master' | 'hoppy'; text: string }[]
 }
 
 // A position where you play one move on the board (from your lines, or a tactic)
@@ -193,8 +194,8 @@ export const STATIONS: Station[] = [
     master: {
       img: 'bana.jpg', name: 'Bana, the court poet', from: "King Harsha's court, 600s", ...BROWN, coat: '#e8590c', beard: true,
       talk: [
-        { who: 'master', text: "Welcome, Liam. I write the story of King Harsha's court here in Kannauj." },
-        { who: 'liam', text: 'What is that board with all the little soldiers?' },
+        { who: 'master', text: "Welcome, Hoppy – and welcome, young player. I write the story of King Harsha's court here in Kannauj." },
+        { who: 'hoppy', text: 'Look at that board with all the little soldiers! What is it?' },
         { who: 'master', text: 'Our whole army: foot soldiers, horses, chariots and elephants. The four members of an army – chaturanga!' },
         { who: 'master', text: 'In my book I joke that our kingdom is so peaceful, armies are only drawn up on chessboards.' },
         { who: 'hoppy', text: 'And I am one of the horses? Neigh!' },
@@ -219,7 +220,7 @@ export const STATIONS: Station[] = [
       talk: [
         { who: 'master', text: 'An envoy from India brought this board to King Khosrau. No rules – only a riddle.' },
         { who: 'master', text: '"Work out the game," the letter says, "or Persia pays India tribute."' },
-        { who: 'liam', text: 'And did you work it out?' },
+        { who: 'hoppy', text: 'And did you work it out?' },
         { who: 'master', text: 'In one day and one night – at least that is how the Book of Kings tells it. Now it is your turn: watch the elephant and find its rule!' },
       ],
     },
@@ -234,8 +235,8 @@ export const STATIONS: Station[] = [
     master: {
       img: 'farrukh.jpg', name: 'Farrukh, a merchant', from: 'Silk Road market, 700s', ...BROWN, coat: '#1971c2', beard: true,
       talk: [
-        { who: 'master', text: 'Welcome to Samarkand, Liam! Caravans from India, Persia and China all meet in this market.' },
-        { who: 'liam', text: 'What are these tiny ivory figures?' },
+        { who: 'master', text: 'Welcome to Samarkand, travellers! Caravans from India, Persia and China all meet in this market.' },
+        { who: 'hoppy', text: 'What are these tiny ivory figures?' },
         { who: 'master', text: 'Seven chess pieces: a king, a counselor, a chariot, an elephant, two horsemen and a foot soldier. Not abstract shapes – a little army.' },
         { who: 'hoppy', text: 'In 1977 archaeologists found a set just like this in the ruins of Afrasiab, right here – some of the oldest chess pieces known!' },
         { who: 'master', text: 'Then learn the horse’s best trick, little horse: the fork. One jump, two targets.' },
@@ -260,7 +261,7 @@ export const STATIONS: Station[] = [
         { who: 'master', text: 'Welcome to Baghdad, the round city on the Tigris. The best players are famous here – even the caliphs watch our games.' },
         { who: 'master', text: 'Al-Adli wrote one of the first books about chess, full of puzzles: a position, and one question – how do you win from here?' },
         { who: 'master', text: 'I left a puzzle with only four pieces. People say nobody solved it for a thousand years.' },
-        { who: 'liam', text: 'And how can anyone play without looking at the board?' },
+        { who: 'hoppy', text: 'And how can anyone play without looking at the board?' },
         { who: 'master', text: 'You must know every square by its name. Try it!' },
       ],
     },
@@ -279,7 +280,7 @@ export const STATIONS: Station[] = [
     master: {
       img: 'astrid.jpg', name: 'Astrid, a carver', from: 'Workshop in Trondheim, 1100s', skin: '#f2c9a0', hair: '#d9b45a', coat: '#495057',
       talk: [
-        { who: 'master', text: 'Hej, Liam! I carve chessmen from walrus ivory.' },
+        { who: 'master', text: 'Hej, you two! I carve chessmen from walrus ivory.' },
         { who: 'master', text: 'Look at the rooks: warriors biting their shields. We call them berserkers.' },
         { who: 'master', text: 'Where you have an elephant, we have a bishop. Some say the two points of the old elephant piece looked like a bishop’s hat to us.' },
         { who: 'hoppy', text: 'Fun fact from the future: in 1831 a whole hoard of pieces like these was found on the Isle of Lewis in Scotland!' },
@@ -300,7 +301,7 @@ export const STATIONS: Station[] = [
         { who: 'master', text: '¡Bienvenido! Around 1475, poets here in Valencia wrote a poem about a game of chess – with a brand-new queen.' },
         { who: 'master', text: 'Suddenly she could move as far as she liked, in any direction. People called it the “mad queen’s chess”.' },
         { who: 'master', text: 'In 1561 I printed my own chess book. My name stuck to an opening: 1.e4 e5 2.Nf3 Nc6 3.Bb5.' },
-        { who: 'hoppy', text: 'The Ruy Lopez! Those lines are in your book, Liam.' },
+        { who: 'hoppy', text: 'The Ruy Lopez! Those lines are in your book.' },
         { who: 'master', text: 'Up the coast, in Catalonia, a tournament in Barcelona in 1929 gave another opening its name. Ride on and see!' },
       ],
     },
@@ -342,7 +343,7 @@ export const STATIONS: Station[] = [
         { who: 'master', text: 'Many call me the first professional chess player.' },
         { who: 'master', text: 'My favourite plan: bishop to c4, aim at f7 – the weakest point next to the king. The Italian Game!' },
         { who: 'master', text: 'After 1.e4 e5 2.Nf3 your opponent can answer in many ways. For each one you need a plan – and you must know the traps.' },
-        { who: 'liam', text: 'Count Giuoco is waiting at the end of the street…' },
+        { who: 'hoppy', text: 'Count Giuoco is waiting at the end of the street…' },
       ],
     },
     games: [
@@ -363,7 +364,7 @@ export const STATIONS: Station[] = [
       talk: [
         { who: 'master', text: 'Quiet, please – this is a library. Look at this manuscript, written in Göttingen around 1490.' },
         { who: 'master', text: 'It is one of the oldest places where this opening appears: 1.d4 d5 2.c4 – the Queen’s Gambit.' },
-        { who: 'liam', text: 'A gambit? I give away a pawn?' },
+        { who: 'hoppy', text: 'A gambit? I give away a pawn?' },
         { who: 'master', text: 'You offer it. If Black takes, you win it back with e3 and Bxc4 – and you have the center.' },
       ],
     },
@@ -380,7 +381,7 @@ export const STATIONS: Station[] = [
       img: 'kempelen.jpg', name: 'The court inventor', from: 'Builder of the Turk', skin: '#f2c9a0', hair: '#e9ecef', coat: '#a61e4d',
       talk: [
         { who: 'master', text: 'Willkommen in Wien! In 1770 Wolfgang von Kempelen showed Empress Maria Theresa a chess machine: the Turk.' },
-        { who: 'liam', text: 'A machine that plays chess? In 1770?' },
+        { who: 'hoppy', text: 'A machine that plays chess? In 1770?' },
         { who: 'master', text: 'Shhh… find out yourself what is inside the box.' },
         { who: 'hoppy', text: 'I can smell a person in there…' },
       ],
@@ -415,11 +416,11 @@ export const STATIONS: Station[] = [
     master: {
       img: 'edinburgh-club.jpg', name: 'An old club member', from: 'Edinburgh Chess Club', skin: '#f2c9a0', hair: '#cfcfcf', coat: '#2f6f4f', beard: true,
       talk: [
-        { who: 'master', text: 'Welcome to Edinburgh, Liam. Mind the stairs – and the horse, please, stays outside.' },
+        { who: 'master', text: 'Welcome to Edinburgh. Mind the stairs – and the horse, please, stays outside.' },
         { who: 'master', text: 'In 1824 our city played London at chess – by letter. Every move travelled for days.' },
         { who: 'master', text: 'From that match the opening 1.e4 e5 2.Nf3 Nc6 3.d4 got its name: the Scotch Game.' },
         { who: 'master', text: 'The idea: do not wait. Open the center on move 3, take back with the knight, and develop fast.' },
-        { who: 'liam', text: 'And who is that tower on the rock, looking at me?' },
+        { who: 'hoppy', text: 'And who is that tower on the rock, looking at me?' },
       ],
     },
     games: [],
@@ -434,8 +435,8 @@ export const STATIONS: Station[] = [
     master: {
       img: 'mason.jpg', name: 'James Mason', from: 'Master of the London System', skin: '#f2c9a0', hair: '#8a6a4a', coat: '#364fc7', mustache: true, hat: true,
       talk: [
-        { who: 'master', text: 'Good day, Liam – and good day, Hoppy. Welcome to London.' },
-        { who: 'liam', text: 'Why is this system called London?' },
+        { who: 'master', text: 'Good day to you – and good day, Hoppy. Welcome to London.' },
+        { who: 'hoppy', text: 'Why is this system called London?' },
         { who: 'master', text: 'At the big London tournament of 1922 it was played seven times. That gave it the name.' },
         { who: 'master', text: 'The secret: bring your bishop to f4 before you play e3. Then build a strong pawn chain. And beware of Lord Fog!' },
         { who: 'master', text: 'One more weapon carries the name of this country. Howard Staunton of London played 1.c4 in his match of 1843 against Saint-Amant – that is why it is called the English Opening.' },
@@ -489,7 +490,7 @@ export const STATIONS: Station[] = [
     master: {
       img: 'ada.jpg', name: 'Ada, an engineer', from: 'Builds chess machines', skin: '#c68e5f', hair: '#2b2140', coat: '#343a40',
       talk: [
-        { who: 'master', text: 'Hi, Liam! In 1886 the first official world championship match started here in New York.' },
+        { who: 'master', text: 'Hi, you two! In 1886 the first official world championship match started here in New York.' },
         { who: 'master', text: 'In 1912 the Spanish engineer Torres Quevedo built a machine that could mate a lone king with king and rook – every time.' },
         { who: 'master', text: 'And in 1997, here in New York, the computer Deep Blue beat the world champion Garry Kasparov.' },
         { who: 'hoppy', text: 'So the Machine knows how to mate. Do we?' },
@@ -550,14 +551,14 @@ export const STATIONS: Station[] = [
     master: {
       img: 'meera.jpg', name: 'Meera, a chess coach', from: 'Chennai, today', ...BROWN, coat: '#5b36c9',
       talk: [
-        { who: 'master', text: 'Welcome home, Liam. The game began in India – and now it has come back.' },
+        { who: 'master', text: 'Welcome home, Hoppy. The game began in India – and now it has come back.' },
         { who: 'master', text: 'In 1988 Viswanathan Anand became India’s first grandmaster. In 2024 Gukesh from Chennai became world champion at 18.' },
         { who: 'master', text: 'Now show everything you learned on your journey. Win the Grand Tour – and the crown is yours.' },
-        { who: 'hoppy', text: 'All the bosses at once? Let’s go, Liam!' },
+        { who: 'hoppy', text: 'All the bosses at once? Let’s go!' },
       ],
     },
     games: [],
-    boss: { name: 'The King of Chess', face: '♚', img: 'boss-king.jpg', kind: 'grand', taunt: 'Only a true king may sit on this throne.', win: 'The street kid from Kannauj is now the King of Chess!' },
+    boss: { name: 'The King of Chess', face: '♚', img: 'boss-king.jpg', kind: 'grand', taunt: 'Only a true king may sit on this throne.', win: 'You are the King of Chess now – and Hoppy carries the crown!' },
   },
 ]
 
@@ -585,11 +586,11 @@ export const MIRROR: Station[] = [
     master: {
       ...LU,
       talk: [
-        { who: 'master', text: 'Welcome to the Mirror World, Liam. Here the Shadow King moves first – you are Black now.' },
+        { who: 'master', text: 'Welcome to the Mirror World. Here the Shadow King moves first – you are Black now.' },
         { who: 'master', text: 'We start in the North: players from Scandinavia studied this defense in the 1800s, so it is called the Scandinavian.' },
         { who: 'master', text: 'When White plays 1.e4, you strike at once: 1...d5. After 2.exd5 Qxd5 3.Nc3 your queen goes to a5 or d6 – away from the knight, but still active.' },
         { who: 'master', text: 'Then develop fast: knight to f6, bishop out, castle. The queen came out early, so do not waste more time with her.' },
-        { who: 'liam', text: 'A shadow with an axe is waiting in the snow…' },
+        { who: 'hoppy', text: 'A shadow with an axe is waiting in the snow…' },
         { who: 'master', text: 'One more weapon from the North, against 1.d4: Aron Nimzowitsch lived in Copenhagen. His Nimzo-Indian pins White’s knight with ...Bb4.' },
       ],
     },
@@ -609,7 +610,7 @@ export const MIRROR: Station[] = [
         { who: 'master', text: 'If White offers a pawn with 2.c4, do not run after it. Hold d5 with 2...e6 – the Queen’s Gambit Declined.' },
         { who: 'master', text: 'Against calm systems like the London with Bf4, or 2.Nf3 and 2.e3, strike at once with ...c5.' },
         { who: 'master', text: 'Develop, castle, and only then open the position. A fortress first, then the attack.' },
-        { who: 'liam', text: 'The fog in this fortress has a face…' },
+        { who: 'hoppy', text: 'The fog in this fortress has a face…' },
         { who: 'master', text: 'Across the sea lies Holland. In 1789 Elias Stein, a player in the Netherlands, recommended 1...f5 – the Dutch Defense, for days when you want to attack.' },
       ],
     },
@@ -629,7 +630,7 @@ export const MIRROR: Station[] = [
         { who: 'master', text: 'It is named after two players who analysed it in 1886: Horatio Caro and Marcus Kann from Vienna.' },
         { who: 'master', text: 'First 1...c6, then 2...d5. The pawn on c6 supports d5, so you never have to take back with the queen.' },
         { who: 'master', text: 'The secret: bring your light bishop out to f5 or g4 before you play ...e6. Then it is not locked in.' },
-        { who: 'liam', text: 'The shadow of the Turk is clicking in the dark…' },
+        { who: 'hoppy', text: 'The shadow of the Turk is clicking in the dark…' },
         { who: 'master', text: 'Vienna gave us one more: Ernst Grünfeld from Vienna introduced his defense in 1922. Give White the center – then attack it.' },
       ],
     },
@@ -648,7 +649,7 @@ export const MIRROR: Station[] = [
         { who: 'master', text: 'Paris, through the mirror. In 1834 London played Paris by letter – and the Paris team answered 1.e4 with 1...e6.' },
         { who: 'master', text: 'Since then it is called the French Defense. First ...e6, then ...d5.' },
         { who: 'master', text: 'Often White pushes e5 and the center closes. Then you attack the base of White’s pawn chain: ...c5 against d4.' },
-        { who: 'liam', text: 'Rocco’s shadow is waiting in the café…' },
+        { who: 'hoppy', text: 'Rocco’s shadow is waiting in the café…' },
       ],
     },
     games: [],
@@ -666,7 +667,7 @@ export const MIRROR: Station[] = [
         { who: 'master', text: 'The snowy forests of the East, in the mirror. The Slav Defense got its name from the many Slavic players who made it popular.' },
         { who: 'master', text: 'Against 2.c4 you play 2...c6: the pawn protects d5, and your light bishop can still come out to f5.' },
         { who: 'master', text: 'That is the difference to the Queen’s Gambit Declined, where ...e6 locks the bishop in.' },
-        { who: 'liam', text: 'A bishop made of ice glides between the trees…' },
+        { who: 'hoppy', text: 'A bishop made of ice glides between the trees…' },
         { who: 'master', text: 'And from Slovenia, a Slavic country too: Vasja Pirc gave his name to the Pirc Defense against 1.e4.' },
       ],
     },
@@ -682,11 +683,11 @@ export const MIRROR: Station[] = [
     master: {
       ...LU,
       talk: [
-        { who: 'master', text: 'We are back in Kannauj, Liam – in the mirror. Here you learn the King’s Indian.' },
+        { who: 'master', text: 'We are back in Kannauj – in the mirror. Here you learn the King’s Indian.' },
         { who: 'master', text: 'The “Indian” defenses are named after Moheschunder Bannerjee, a player from India in the 1850s.' },
         { who: 'master', text: 'You answer 1.d4 with 1...Nf6 and put your bishop on g7. White builds a big center – and you strike it with ...e5 or ...c5.' },
         { who: 'master', text: 'When the center closes, your attack comes on the kingside with ...f5. A fighter’s opening.' },
-        { who: 'liam', text: 'The shadow of the captain who once guarded this city…' },
+        { who: 'hoppy', text: 'The shadow of the captain who once guarded this city…' },
       ],
     },
     games: [],
@@ -701,11 +702,11 @@ export const MIRROR: Station[] = [
     master: {
       ...LU,
       talk: [
-        { who: 'master', text: 'We crossed the sea, Liam. South America, in the mirror.' },
+        { who: 'master', text: 'We crossed the sea. South America, in the mirror.' },
         { who: 'master', text: 'Miguel Najdorf came to Buenos Aires for the Chess Olympiad of 1939 – and stayed in Argentina. His Sicilian carries his name.' },
         { who: 'master', text: 'After 5.Nc3 you play 5...a6. It keeps White’s knights off b5 and gets ready for ...e5 or ...b5.' },
         { who: 'master', text: 'Then fight for d5 – the most important square in the Najdorf.' },
-        { who: 'liam', text: 'Something with spots is moving in the jungle of the mirror…' },
+        { who: 'hoppy', text: 'Something with spots is moving in the jungle of the mirror…' },
       ],
     },
     games: [],
@@ -720,12 +721,12 @@ export const MIRROR: Station[] = [
     master: {
       ...LU,
       talk: [
-        { who: 'master', text: 'Feel the heat, Liam? We are under Etna, the volcano of Sicily. Down here lives a dragon – your friend.' },
+        { who: 'master', text: 'Feel the heat, Hoppy? We are under Etna, the volcano of Sicily. Down here lives a dragon – your friend.' },
         { who: 'master', text: 'After 1.e4 c5 2.Nf3 d6 3.d4 cxd4 4.Nxd4 Nf6 5.Nc3 you play 5...g6. The bishop goes to g7: that is the dragon. Its fire is the long diagonal from h8 to a1.' },
         { who: 'master', text: 'The name? By his own account, Fyodor Dus-Chotimirsky gave it. He watched the stars, and Black\'s pawns reminded him of the constellation Draco – the dragon.' },
         { who: 'master', text: 'Keep the dragon alive. White often plays Be3, Qd2 and Bh6 to trade it. Without your g7 bishop, the dark squares around your king are weak.' },
         { who: 'master', text: 'Your attack comes on the c-file. Rook to c8 – and sometimes you even give it for the knight on c3, to break the pawns in front of White\'s king.' },
-        { who: 'liam', text: 'Someone in armour is waiting at the mouth of the cave. A dragon hunter…' },
+        { who: 'hoppy', text: 'Someone in armour is waiting at the mouth of the cave. A dragon hunter…' },
       ],
     },
     games: [
@@ -759,7 +760,7 @@ export const DRAGON_CFILE: QuizQuestion[] = [
   { fen: fenAfter(`${YUGO} 9.O-O-O`), q: 'White castled long at once (9.O-O-O). What is your best answer?', icon: '⚡', options: ['9...d5', '9...Bd7', '9...a6'], answer: '9...d5', why: '9...d5! – strike in the center at once. That is the best way to fight White\'s attack here.' },
 ]
 
-// The War Tent on the map (it travels with Liam, but the map shows it near Kannauj)
+// The War Tent on the map (it travels with you, but the map shows it near Kannauj)
 export const TENT_AT = { x: 1600, y: 485 }
 
 export const stationById = (id: string | undefined) => STATIONS.find((s) => s.id === id) ?? MIRROR.find((s) => s.id === id)
@@ -832,7 +833,7 @@ export interface KingProgress {
   beaten: string[]
   coins: number
   got: string[] // steps already rewarded, e.g. "rome/react"
-  travel?: string // after a boss: Liam rides on to this station when the map opens
+  travel?: string // after a boss: Hoppy rides on to this station when the map opens
   baseline?: Baseline // the chess check: your real games before the training
   quests?: Record<string, number> // real-world quests: when each one started
   reports?: number // reports already shown (one per 20 games after the start)
@@ -877,25 +878,13 @@ export const TITLES: { bosses: number; name: string }[] = [
   { bosses: 8, name: 'Bishop of the Board' },
   { bosses: 12, name: "Queen's Champion" },
 ]
-// Liam's portrait grows with his rank: from rags to the crown (painted in public/king)
-export function liamPortrait(beaten: string[]): string {
-  if (beaten.includes('chennai')) return 'liam-5.jpg'
-  const n = beaten.length
-  if (n >= 12) return 'liam-4.jpg' // Queen's Champion: violet and gold
-  if (n >= 5) return 'liam-3.jpg' // Knight Owl, Bishop of the Board: a fine blue coat
-  if (n >= 3) return 'liam-2.jpg' // Rook-ie: clean travel clothes
-  return 'liam.jpg' // Pawn, Pawn Star: the street kid
-}
-
-// How the world sees Liam: at first a barefoot boy nobody takes seriously, at the end a legend.
-// Masters greet him by his fame, bosses open with it. Grows with every boss beaten (like the titles).
 export function reputation(beaten: string[]): { greet: string; boss: string } {
   const n = beaten.filter((id) => id !== 'chennai').length
-  if (n >= 12) return { greet: 'Liam! The whole world of chess talks about you. It is an honour that you visit me.', boss: 'The famous Liam… I hoped you would never come here.' }
-  if (n >= 8) return { greet: 'The street kid who beat the bosses – you are welcome at my table, Liam.', boss: 'So you are the one everyone talks about.' }
-  if (n >= 3) return { greet: 'I have heard of you, Liam. A boy from the bazaar who beats bosses? Show me.', boss: 'The traders tell stories about you. Stories are not moves.' }
-  if (n >= 1) return { greet: 'You beat a boss already? Not bad for a boy without shoes.', boss: 'One lucky win, street kid. That is all.' }
-  return { greet: 'A barefoot boy with a horse? Hm. Sit down – let us see what you know.', boss: 'Go home, street kid. Oh wait – you have no home.' }
+  if (n >= 12) return { greet: 'Hoppy! The whole world of chess talks about you two. It is an honour that you visit me.', boss: 'The famous Hoppy and friend… I hoped you would never come here.' }
+  if (n >= 8) return { greet: 'The little horse and the player who beat the bosses – you are welcome at my table.', boss: 'So you are the ones everyone talks about.' }
+  if (n >= 3) return { greet: 'I have heard of you two. A purple horse and a young player who beat bosses? Show me.', boss: 'The traders tell stories about you. Stories are not moves.' }
+  if (n >= 1) return { greet: 'You beat a boss already? Not bad for a beginner.', boss: 'One lucky win, beginner. That is all.' }
+  return { greet: 'A little purple horse and a young player? Hm. Sit down – let us see what you know.', boss: 'Go home, little horse. This is no place for beginners.' }
 }
 
 export function titleOf(beaten: string[]): string {

@@ -1,4 +1,4 @@
-import { liamPortrait, loadKing, type Master } from '../lib/king'
+import { type Master } from '../lib/king'
 
 // Pictures for King of Chess: the ship for sea travel and the painted portraits.
 export const SHIP_INNER =
@@ -7,8 +7,8 @@ export const SHIP_INNER =
 const IMG = import.meta.env.BASE_URL + 'king/'
 
 // Painted portraits for the dialogues
-export function Avatar({ who, className = '' }: { who: 'liam' | 'hoppy'; className?: string }) {
-  return <img className={`king-pimg ${className}`} src={IMG + (who === 'liam' ? liamPortrait(loadKing().beaten) : who + '.jpg')} alt="" />
+export function Avatar({ who, className = '' }: { who: 'hoppy'; className?: string }) {
+  return <img className={`king-pimg ${className}`} src={IMG + who + '.jpg'} alt="" />
 }
 
 // Painted portrait (or a drawn one as fallback) – no likeness of the real person intended

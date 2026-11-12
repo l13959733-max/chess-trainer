@@ -7,7 +7,7 @@
 > Schreibt jemand „alles“, arbeitest du die Punkte nacheinander ab, jeden einzeln in die Vorschau.
 > Live (Branch `main`) geht etwas erst, wenn Lu oder Johanna „übernehmen“ sagt.
 
-Stand: 9. November 2026. Live: https://l13959733-max.github.io/chess-trainer/ ·
+Stand: 12. November 2026. Live: https://l13959733-max.github.io/chess-trainer/ ·
 Vorschau: https://l13959733-max.github.io/chess-trainer/preview/
 
 ## Für Johanna: so geht's
@@ -284,7 +284,12 @@ die App keinen. Spitznamen statt echter Namen (Kinder, DSGVO). Gegen Schummeln: 
 „Can you spot the threat in 5 seconds?“ mit Countdown, aus dem Tagesrätsel; ein Clip für TikTok, Shorts und Reels.
 Englisch. Bilder über Higgsfield nur nach Absprache (kostet Geld).
 
-### [ ] 24. Weltkarte mit klarem Weg (Entwurf A) – aufgeräumte Karte 09.11. in der Vorschau, Lu prüft
+### [ ] 24. Weltkarte mit klarem Weg (Entwurf A)
+
+**12.11. (Lu: „Drumherum weg, Städte sauber verbunden, Zwischending mit Duolingo“):** Drei Entwürfe als Link (nur Entwurf,
+nicht in der App): https://claude.ai/artifact/FEGPu2fDYBwNY1xQjm3BPB – A Goldene Straße, B Städte-Münzen, C Karte oben + Pfad
+unten; Schalter „Reihenfolge jetzt / nach Geografie“. **Lu wählt** eine Variante und ob die Reihenfolge geografisch wird.
+ – aufgeräumte Karte 09.11. in der Vorschau, Lu prüft
 
 **Stand 09.11. abends (Lu: „die geile Illustration nehmen, Hintergrund-Klatter aussäubern, besser verbinden“; der
 Listen-Weg „kann man gut als Schnellreise-Map benutzen“):** Startseite `#/` ist wieder die gemalte Karte, aufgeräumt:

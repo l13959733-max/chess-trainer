@@ -21,13 +21,13 @@ import { feedback as fx, resetCareful, takeCareful } from '../lib/feedback'
 import { dayNumber, loadResults, squares } from '../lib/threatcheck'
 import {
   ARMY, CROSSROADS, DRAGON_ALIVE, DRAGON_CFILE, DRAGON_FIRE, MIRROR, mirrorOpen, FORKS, GRAIN, GUARD, GUARD_BOSS, LEWIS, MATES, QUEEN_TACTICS, RIDDLES, ROME_REACT, ROME_THREATS, ROME_TRAPS, ROOK_MATES, SAFE, STATIONS, TENT_AT, TURK,
-  bareSan, bookCrossroads, earn, isOpen, openingName, liamPortrait, opensAfter, lineRounds, loadKing, nextStation, reputation, route, saveKing, stationById, stationLines, titleOf, type BoardRound, type Crossroad, type QuizQuestion, type Station,
+  bareSan, bookCrossroads, earn, isOpen, openingName, opensAfter, lineRounds, loadKing, nextStation, reputation, route, saveKing, stationById, stationLines, titleOf, type BoardRound, type Crossroad, type QuizQuestion, type Station,
 } from '../lib/king'
 import '../king.css'
 
 const IMG = import.meta.env.BASE_URL + 'king/'
 const HINT_PIECE: CSSProperties = { boxShadow: 'inset 0 0 0 4px rgba(201, 162, 39, 0.95)' }
-// Liam's medallion floats this far above the city
+// Hoppy's medallion floats this far above the city
 const TOKEN_LIFT = 72
 const BOSSES = STATIONS.filter((s) => !s.finale).length
 // a city's number on the road (1 = Kannauj … Chennai last)
@@ -131,9 +131,9 @@ function KingRoad() {
       </div>
       <p className="king-bubble road-bubble">
         {crowned ? (
-          <>All hail <b>King Liam</b>! You conquered the whole world of chess.</>
+          <>All hail the <b>King of Chess</b>! You conquered the whole world of chess.</>
         ) : beatenCount === 0 ? (
-          <>Liam, our road starts in <b>Kannauj</b>. One city after another!</>
+          <>Our road starts in <b>Kannauj</b>. One city after another!</>
         ) : (
           <>{beatenCount} of {BOSSES} bosses beaten.{next ? <> Next: <b>{next.name}</b>.</> : null}</>
         )}
@@ -176,7 +176,7 @@ function KingRoad() {
                 <img src={IMG + s.scene} alt="" />
                 {done && <span className="road-badge" aria-hidden="true">✓</span>}
                 {locked && <span className="road-badge lock" aria-hidden="true">?</span>}
-                {s.id === here.id && <img className="road-liam" src={IMG + liamPortrait(state.beaten)} alt="" />}
+                {s.id === here.id && <img className="road-liam" src={IMG + 'hoppy.jpg'} alt="" />}
               </button>
               <div className={`road-label${right ? '' : ' left'}${locked ? ' locked' : ''}`} style={right ? { left: x + 50, top: y - 30 } : { right: ROAD_W - x + 50, top: y - 30 }}>
                 <b>{i + 1}. {s.name}</b>
@@ -230,7 +230,7 @@ function KingMap() {
   }, [state.baseline])
   const glow = shine(real?.clean ?? 0)
 
-  // After a boss Liam rides on by himself to the next station
+  // After a boss Hoppy rides on by himself to the next station
   const travelNow = useRef<(to: Station, ambushAllowed?: boolean) => void>(() => {})
   useEffect(() => {
     travelNow.current = travel
@@ -245,7 +245,7 @@ function KingMap() {
     return () => window.clearTimeout(t)
   }, [])
 
-  // Open on the station where Liam stands
+  // Open on the station where Hoppy stands
   useEffect(() => {
     const sc = scroller.current
     if (!sc) return
@@ -313,7 +313,7 @@ function KingMap() {
   return (
     <div className="king-map">
       <div className="king-scroll" ref={scroller}>
-        <svg ref={svg} className="king-world" viewBox="0 0 1800 764" role="img" aria-label="World map of Liam's journey">
+        <svg ref={svg} className="king-world" viewBox="0 0 1800 764" role="img" aria-label="World map of your journey with Hoppy">
           <defs>
             <radialGradient id="king-glow"><stop offset="0" stopColor="#ffe08a" stopOpacity=".75" /><stop offset="1" stopColor="#ffe08a" stopOpacity="0" /></radialGradient>
             <clipPath id="king-clip-big"><circle r="23" /></clipPath>
@@ -376,15 +376,11 @@ function KingMap() {
               <text className="king-label" y="62" textAnchor="middle">World</text>
             </g>
           )}
-          <g ref={token} transform={`translate(${here.x},${here.y - TOKEN_LIFT})`} aria-label="Liam and Hoppy are here">
+          <g ref={token} transform={`translate(${here.x},${here.y - TOKEN_LIFT})`} aria-label="You and Hoppy are here">
             <g className="king-bob">
               <path d="M-8,24 L0,40 L8,24 Z" fill="#8b6b3d" />
-              <Medallion img={liamPortrait(state.beaten)} />
+              <Medallion img="hoppy.jpg" />
               {crowned && <text y="-26" textAnchor="middle" fontSize="22" aria-hidden="true">👑</text>}
-              <g transform="translate(20,18)">
-                <circle r="11.5" fill="#c9a227" stroke="#5c3d12" strokeWidth="1.5" />
-                <image href={IMG + 'hoppy.jpg'} x="-9" y="-9" width="18" height="18" clipPath="url(#king-clip-small)" preserveAspectRatio="xMidYMid slice" />
-              </g>
               <g ref={ship} style={{ display: 'none' }} transform="translate(-24,22) scale(.7)" dangerouslySetInnerHTML={{ __html: SHIP_INNER }} />
             </g>
           </g>
@@ -398,9 +394,9 @@ function KingMap() {
         <div className="king-hud-side">
         <div className="king-bubble">
           {crowned ? (
-            <>All hail <b>King Liam</b>! You conquered the whole world of chess.</>
+            <>All hail the <b>King of Chess</b>! You conquered the whole world of chess.</>
           ) : beatenCount === 0 ? (
-            <>Liam, our journey starts in <b>Kannauj</b>. Tap a city to travel!</>
+            <>Our journey starts in <b>Kannauj</b>. Tap a city to travel!</>
           ) : beatenCount === BOSSES ? (
             <>Every boss is beaten. <b>Chennai</b> awaits – the crown is near!</>
           ) : (
@@ -453,7 +449,7 @@ function DailyCard() {
 }
 
 // The road on the map: the cities whose boss is beaten (in travel order), the last leg in gold, dotted to the next one.
-// Curved like Liam's own travel line, wider over the sea.
+// Curved like Hoppy's own travel line, wider over the sea.
 function RoadLines({ beaten }: { beaten: string[] }) {
   const cities = ROUTE.map((id) => STATIONS.find((s) => s.id === id)!)
   const done = cities.filter((s) => beaten.includes(s.id))
@@ -480,7 +476,7 @@ function RoadLines({ beaten }: { beaten: string[] }) {
   )
 }
 
-// A round painted picture in a gold frame (Liam on the map, the War Tent, places not on the painting)
+// A round painted picture in a gold frame (Hoppy on the map, the War Tent, places not on the painting)
 function Medallion({ img }: { img: string }) {
   return (
     <g>
@@ -493,7 +489,7 @@ function Medallion({ img }: { img: string }) {
 
 // ---------- the board of the game: the Hoppy board ----------
 
-// In Asia Liam plays with his Indian army: there the rook is an elephant (Haathi)
+// In Asia you play with the Indian army: there the rook is an elephant (Haathi)
 const ASIA = ['kannauj', 'persia', 'samarkand', 'baghdad']
 // Every land has its board colours, always in the Hoppy design (styles in king.css, .pal-*)
 type Palette = 'forest' | 'walnut' | 'lapis' | 'fog' | 'ice' | 'night'
@@ -516,10 +512,11 @@ export function KBoard(props: ComponentProps<typeof Board>) {
 
 // ---------- intro ----------
 
-const SCENES = [
-  { img: 'street-bazaar.jpg', alt: 'Liam, a barefoot street kid, plays a trader on a board scratched into the dust of the bazaar, with pebbles as pieces and a chestnut as the stake', kicker: 'Kannauj, India · the bazaar', title: 'No home, no shoes – but a board in the dust', text: 'Liam plays the traders with pebbles for pieces. One chestnut a game.' },
-  { img: 'street-lu.jpg', alt: 'The old Grandmaster Lu kneels at the dust board and smiles while Liam points at a hidden trap', kicker: 'The old Grandmaster Lu', title: '“A king is not born. He is made – move by move.”', text: 'Liam sees the trap that every trader missed. “The Shadow King feeds on blunders,” says Lu. “Will you stop him?”' },
-  { img: 'street-ride.jpg', alt: 'At sunrise Liam rides out of the city gate on Hoppy, an old brown cart horse, while Grandmaster Lu waves goodbye', kicker: 'Sunrise · the road west', title: 'A pawn who wants to become king', text: 'Lu gives him Hoppy, an old cart horse that nobody wanted. Two outsiders ride out to learn from the masters.' },
+// Lu, 12.11.: no Liam any more – Hoppy tells the story of chess while you travel together
+const SCENES: { img: string; cls?: string; alt: string; kicker: string; title: string; text: string }[] = [
+  { img: 'hoppy.jpg', alt: 'Hoppy, a little purple horse, smiles in a meadow', kicker: 'Hi, I am Hoppy!', title: 'A little horse who jumps like the knight', text: 'I know where chess was born – and how it travelled around the world. Come with me, I will tell you the story.' },
+  { img: 'worldmap.jpg', cls: 'map-crop', alt: 'The painted world map with the cities of the journey', kicker: `1,500 years · ${STATIONS.length} cities`, title: 'From India around the whole world', text: 'In every city a master teaches you an opening and a trick. Then a boss tests you – beat him, and we ride on.' },
+  { img: 'lu.jpg', alt: 'The old Grandmaster Lu smiles', kicker: 'The old Grandmaster Lu', title: '“A king is not born. He is made – move by move.”', text: '“The Shadow King feeds on blunders,” says Lu. “Before every move, ask: what does my opponent threaten?” Then off we go!' },
 ]
 
 function KingIntro({ onDone }: { onDone: () => void }) {
@@ -528,7 +525,7 @@ function KingIntro({ onDone }: { onDone: () => void }) {
   return (
     <div className="king-intro">
       <div className="king-intro-art street">
-        <img src={IMG + s.img} alt={s.alt} />
+        <img src={IMG + s.img} alt={s.alt} className={s.cls} />
       </div>
       <div className="king-intro-text">
         <span className="king-kicker">{s.kicker}</span>
@@ -758,7 +755,7 @@ function StationPage({ s, rep }: { s: Station; rep: Repertoire }) {
 
 function KingTalk({ s }: { s: Station }) {
   const m = s.master
-  // masters out in the world greet Liam by his fame; Grandmaster Lu in the mirror is his teacher
+  // masters out in the world greet you and Hoppy by your fame; Grandmaster Lu in the mirror is your teacher
   const [talk] = useState(() => (MIRROR.includes(s) ? m.talk : [{ who: 'master' as const, text: reputation(loadKing().beaten).greet }, ...m.talk]))
   const [n, setN] = useState(1)
   const end = useRef<HTMLDivElement>(null)
@@ -841,7 +838,7 @@ function Victory({ s }: { s: Station }) {
     <div className="screen king-screen">
       <div className={`done king-victory ${crown ? 'crown' : ''}`}>
         <div className="king-defeated" aria-hidden="true">
-          <img src={IMG + (crown ? 'liam-5.jpg' : s.boss.img)} alt="" />
+          <img src={IMG + (crown ? 'hoppy.jpg' : s.boss.img)} alt="" />
           <span>{crown ? '👑' : '🏅'}</span>
         </div>
         <div className="done-title">{crown ? 'King of Chess!' : `${s.boss.name} is beaten!`}</div>

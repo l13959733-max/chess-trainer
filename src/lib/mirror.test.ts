@@ -30,13 +30,19 @@ describe('Mirror World (Act 2)', () => {
   })
 })
 
-describe('reputation: the world sees Liam rise', () => {
-  it('starts as a barefoot boy and ends as a legend', async () => {
+describe('reputation: the world sees you and Hoppy rise (no Liam since 12.11.)', () => {
+  it('starts as beginners and ends as a legend', async () => {
     const { reputation } = await import('./king')
-    expect(reputation([]).greet).toMatch(/barefoot/)
-    expect(reputation(['kannauj']).boss).toMatch(/street kid/)
+    expect(reputation([]).greet).toMatch(/purple horse/)
+    expect(reputation(['kannauj']).boss).toMatch(/beginner/)
     expect(reputation(['a', 'b', 'c']).greet).toMatch(/heard of you/)
     expect(reputation(Array.from({ length: 12 }, (_, i) => 's' + i)).greet).toMatch(/honour/)
+  })
+  it('nobody in the story talks to or about Liam any more', async () => {
+    const { STATIONS, MIRROR, reputation } = await import('./king')
+    const texts = [...STATIONS, ...MIRROR].flatMap((s) => [s.intro, s.boss.win, s.boss.taunt, ...s.master.talk.map((t) => t.who + ' ' + t.text)])
+    for (let n = 0; n < 17; n++) texts.push(reputation(Array.from({ length: n }, (_, i) => 's' + i)).greet, reputation(Array.from({ length: n }, (_, i) => 's' + i)).boss)
+    expect(texts.filter((t) => /liam/i.test(t))).toEqual([])
   })
 })
 
