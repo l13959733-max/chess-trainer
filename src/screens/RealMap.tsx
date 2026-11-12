@@ -143,13 +143,6 @@ export default function RealMap() {
     }
     go('king/' + s.id)
   }
-  function travelOn() {
-    if (!next || !map.current) return
-    const from = state.here && LNGLAT[state.here]
-    if (from) map.current.jumpTo({ center: from, zoom: 4 })
-    pick(next)
-  }
-
   const pickedOpen = picked ? isOpen(picked, state.beaten) : false
   return (
     <div className="rm">
@@ -179,24 +172,19 @@ export default function RealMap() {
           </svg>,
           hoppyNode,
         )}
-      <div className="rm-sheet">
-        {picked ? (
-          <>
-            <p className="rm-kicker">{picked.year}</p>
-            <h2>{picked.name}</h2>
-            <p className="rm-intro">{picked.intro}</p>
-            {pickedOpen ? (
-              <button type="button" className="rm-go" onClick={() => open(picked)}>Open {picked.name}</button>
-            ) : (
-              <p className="rm-locked">Still ahead. First beat the boss in {opensAfter(picked, state.beaten)?.name ?? 'the city before'}.</p>
-            )}
-          </>
-        ) : (
-          <button type="button" className="rm-go" onClick={travelOn} disabled={!next}>
-            ▶ Travel to {next?.name ?? '…'}
-          </button>
-        )}
-      </div>
+      {picked && (
+        <div className="rm-sheet">
+          <button type="button" className="rm-close" onClick={() => setPicked(null)} aria-label="Close">×</button>
+          <p className="rm-kicker">{picked.year}</p>
+          <h2>{picked.name}</h2>
+          <p className="rm-intro">{picked.intro}</p>
+          {pickedOpen ? (
+            <button type="button" className="rm-go" onClick={() => open(picked)}>Open {picked.name}</button>
+          ) : (
+            <p className="rm-locked">Still ahead. First beat the boss in {opensAfter(picked, state.beaten)?.name ?? 'the city before'}.</p>
+          )}
+        </div>
+      )}
     </div>
   )
 }
