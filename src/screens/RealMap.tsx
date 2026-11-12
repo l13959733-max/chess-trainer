@@ -83,6 +83,8 @@ export default function RealMap() {
   const box = useRef<HTMLDivElement>(null)
   const map = useRef<maplibregl.Map | null>(null)
   const [failed, setFailed] = useState(false)
+  // far out, only the next city keeps its name – Europe is too crowded for every label (Lu: „gut aufs Handy“)
+  const [far, setFar] = useState(true)
   const [picked, setPicked] = useState<Station | null>(null)
   const cities = useMemo(() => route().map((id) => stationById(id)!).filter((s) => s && LNGLAT[s.id]), [])
   const next = cities.find((s) => isOpen(s, state.beaten) && !state.beaten.includes(s.id))
@@ -117,6 +119,9 @@ export default function RealMap() {
         m.addControl(new maplibregl.AttributionControl({ compact: true }), 'top-right')
         map.current = m
         m.on('moveend', () => writeView(m))
+        const zoomed = () => setFar(m.getZoom() < 4.6)
+        m.on('zoomend', zoomed)
+        m.on('load', zoomed)
         m.on('load', () => {
           m.addSource('road-all', { type: 'geojson', data: line(cities.slice(0, nextIdx + 1 + AHEAD)) })
           m.addSource('road-done', { type: 'geojson', data: line(cities.slice(0, nextIdx + 1)) })
@@ -144,7 +149,7 @@ export default function RealMap() {
 
   const pickedOpen = picked ? isOpen(picked, state.beaten) : false
   return (
-    <div className="rm">
+    <div className={`rm${far ? ' rm-far' : ''}`}>
       <div className="rm-map" ref={box} />
       {failed && <p className="rm-fail">The map needs internet. Try again when you are online.</p>}
       {cities.map((s, i) => {

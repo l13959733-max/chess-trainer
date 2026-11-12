@@ -343,7 +343,7 @@ export function SquareRush() {
   return (
     <div className="screen rush">
       <div className="rush-head">
-        <button type="button" className="back" onClick={() => go('tent')} aria-label="Back to the Training Camp">←</button>
+        <button type="button" className="back" onClick={() => go('')} aria-label="Back to the start page">←</button>
         <h1>Square Rush</h1>
       </div>
       <div className="rush-hud">
