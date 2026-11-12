@@ -972,6 +972,26 @@ function numbered(moves: { san: string; color: 'w' | 'b' }[], start = 0): string
     .join(' ')
 }
 
+// The name of a position from your book (Lu, 12.11.: "always know at the top what I played").
+// One line through it: its title ("Two Knights: Fried Liver Attack"). Several: what they share – the part
+// before the colon, else the chapter. Not in the book, or still open between openings: null.
+export function openingName(fen: string, lines: Line[]): string | null {
+  const place = (f: string) => f.split(' ').slice(0, 4).join(' ')
+  const k = place(fen)
+  const hits = lines.filter((l) => l.moves.some((m) => place(m.fenAfter) === k))
+  if (!hits.length) return null
+  const clean = (t: string) => t.replace(/\s*\((White|Black)\)/, '')
+  if (hits.length === 1) return clean(hits[0].title)
+  const heads = new Set(hits.map((l) => clean(l.title).split(':')[0].trim()))
+  if (heads.size === 1) return [...heads][0]
+  const chapters = new Set(hits.map((l) => l.opening ?? ''))
+  // different openings still share this position (1.e4 e5 2.Nf3 Nc6): no single name, better none than a wrong one
+  return chapters.size === 1 && hits[0].opening ? hits[0].opening : null
+}
+
+// "3.Bb5" or "5...Nf6" -> "Bb5"
+export const bareSan = (san: string) => san.replace(/^\d+\.(\.\.)?\s*/, '')
+
 export function bookCrossroads(lines: Line[], count: number): Crossroad[] {
   if (!lines.length) return []
   const side = lines[0].side

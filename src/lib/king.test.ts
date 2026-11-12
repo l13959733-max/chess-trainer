@@ -2,6 +2,8 @@ import { Chess } from 'chess.js'
 import { describe, expect, it } from 'vitest'
 import { builtinLines } from './repertoire'
 import {
+  bareSan,
+  openingName,
   CROSSROADS, FORKS, GRAIN, GUARD, GUARD_BOSS, LEWIS, LORD_FOG, MATES, QUEEN_TACTICS, RIDDLES, ROME_REACT, ROME_THREATS, ROME_TRAPS, ROOK_MATES, SAFE, STATIONS, TURK,
   isOpen, lineRounds, nextStation, stationLines, titleOf, type BoardRound,
 } from './king'
@@ -176,6 +178,21 @@ describe('King of Chess', () => {
     expect(titleOf(['kannauj', 'rome', 'persia'])).toBe('Rook-ie')
     expect(titleOf(STATIONS.filter((s) => !s.finale).map((s) => s.id))).toBe("Queen's Champion")
     expect(titleOf(['chennai'])).toBe('King of Chess')
+  })
+})
+
+describe('The name of the position (How do you react?)', () => {
+  const fenAfter = (sans: string) => { const g = new Chess(); for (const m of sans.split(' ')) g.move(m); return g.fen() }
+  it('names one opening, stays silent while several openings share the position', () => {
+    expect(openingName(fenAfter('e4 e5 Nf3 Nc6 Bb5'), builtinLines)).toBe('Ruy Lopez')
+    expect(openingName(fenAfter('e4 e5 Nf3 Nc6'), builtinLines)).toBeNull()
+    expect(openingName(fenAfter('e4 e5 Nf3 Nc6 Bc4 Nf6 Ng5 d5 exd5 Nxd5 Nxf7'), builtinLines)).toMatch(/Fried Liver/)
+    expect(openingName(fenAfter('a4 h5'), builtinLines)).toBeNull()
+  })
+  it('strips the move number', () => {
+    expect(bareSan('3.Bb5')).toBe('Bb5')
+    expect(bareSan('5...Nf6')).toBe('Nf6')
+    expect(bareSan('O-O')).toBe('O-O')
   })
 })
 

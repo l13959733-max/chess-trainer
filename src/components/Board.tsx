@@ -136,9 +136,18 @@ export function Board({ fen, orientation, onMove, arrows = [], squareStyles = {}
         squareStyles: styles,
         allowDragging: !!onMove,
         allowDrawingArrows: false,
+        // Lu, 12.11.: a real finger always wobbles a few pixels. With the default (1 px) every wobbly tap became
+        // a tiny drag, so the tap was lost or the piece landed on the next square. Below 10 px it is a tap.
+        dragActivationDistance: 10,
         ...(elephants && { pieces: ELEPHANT_PIECES }),
         onSquareClick,
         onPieceDrop: ({ sourceSquare, targetSquare }) => {
+          // a drag that ends where it started is a tap: select the piece like a tap would
+          if (targetSquare === sourceSquare) {
+            const own = new Chess(fen).get(sourceSquare as Square)?.color === turn
+            setSelected(own && sel !== sourceSquare ? { square: sourceSquare, fen } : null)
+            return false
+          }
           setSelected(null)
           return !!(targetSquare && tryMove(sourceSquare, targetSquare))
         },

@@ -21,7 +21,7 @@ import { feedback as fx, resetCareful, takeCareful } from '../lib/feedback'
 import { dayNumber, loadResults, squares } from '../lib/threatcheck'
 import {
   ARMY, CROSSROADS, DRAGON_ALIVE, DRAGON_CFILE, DRAGON_FIRE, MIRROR, mirrorOpen, FORKS, GRAIN, GUARD, GUARD_BOSS, LEWIS, MATES, QUEEN_TACTICS, RIDDLES, ROME_REACT, ROME_THREATS, ROME_TRAPS, ROOK_MATES, SAFE, STATIONS, TENT_AT, TURK,
-  bookCrossroads, earn, isOpen, liamPortrait, opensAfter, lineRounds, loadKing, nextStation, reputation, route, saveKing, stationById, stationLines, titleOf, type BoardRound, type Crossroad, type QuizQuestion, type Station,
+  bareSan, bookCrossroads, earn, isOpen, openingName, liamPortrait, opensAfter, lineRounds, loadKing, nextStation, reputation, route, saveKing, stationById, stationLines, titleOf, type BoardRound, type Crossroad, type QuizQuestion, type Station,
 } from '../lib/king'
 import '../king.css'
 
@@ -591,9 +591,9 @@ function StationStep({ s, sub, rep }: { s: Station; sub?: string; rep: Repertoir
     case 'keepdragon': return <QuizRounds key="quest" s={s} quiz={DRAGON_ALIVE} title="Keep the dragon alive" lesson="White wants to trade your dragon. Know the plan – and keep it." />
     case 'cfile': return <QuizRounds key="quest" s={s} quiz={DRAGON_CFILE} title="The c-file" lesson="White attacks on the king side. You attack on the c-file. Who is faster?" />
     case 'safe': return <QuizRounds key="quest" s={s} quiz={SAFE} title="Is it safe?" lesson="Before you move a piece, check its new square: can the enemy take it there?" />
-    case 'react': return <CrossRounds key="quest" s={s} rounds={ROME_REACT} title="How do you react?" lesson="1.e4 e5 2.Nf3 – and now your opponent has many answers. Which move does your book play?" />
+    case 'react': return <CrossRounds key="quest" s={s} rounds={ROME_REACT} lines={rep.lines} title="How do you react?" lesson="1.e4 e5 2.Nf3 – and now your opponent has many answers. Which move does your book play?" />
     case 'traps': return <TrapRounds key="quest" s={s} rep={rep} />
-    case 'choose': return <CrossRounds key="quest" s={s} rounds={bookCrossroads(stationLines(s, rep.lines), CHOOSE)} title="How do you react?" fromBook lesson="Your opponent can answer in different ways. For each answer your book has a plan – which move is it?" />
+    case 'choose': return <CrossRounds key="quest" s={s} rounds={bookCrossroads(stationLines(s, rep.lines), CHOOSE)} lines={rep.lines} title="How do you react?" fromBook lesson="Your opponent can answer in different ways. For each answer your book has a plan – which move is it?" />
     case 'forkhunt': return <PuzzleRounds key="quest" s={s} puzzles={pick(['fork'], 0, 6)} title="Fork hunt" lesson="Your opponent just made a mistake. Find the fork: one move that attacks two things at once." />
     case 'forkthreat': return <PuzzleRounds key="quest" s={s} puzzles={pick(['fork'], 6, 4)} threat title="Don't get forked" lesson="Now it is your opponent's turn – and he has a fork against you. Show it! Seeing it in time is how you stop it." />
     case 'mate1': return <PuzzleRounds key="quest" s={s} puzzles={[...pick(['mate1'], 0, 3), ...pick(['backrank'], 0, 3)]} title="Mate in one" lesson="One move, and the king has nowhere to go. Look at every check first." />
@@ -606,7 +606,7 @@ function StationStep({ s, sub, rep }: { s: Station; sub?: string; rep: Repertoir
     case 'lewis': return <QuizRounds key="quest" s={s} quiz={LEWIS} title="The Lewis chessmen" lesson="Astrid shows you the most famous chessmen of the North." />
     case 'queen': return <KingQueen s={s} />
     case 'turk': return <QuizRounds key="quest" s={s} quiz={TURK} title="Who is inside the box?" lesson="Look behind the trick of the famous chess machine." />
-    case 'cross': return <CrossRounds key="quest" s={s} rounds={CROSSROADS.slice(0, 3)} />
+    case 'cross': return <CrossRounds key="quest" s={s} rounds={CROSSROADS.slice(0, 3)} lines={rep.lines} />
     case 'krk': return <KingRook key="quest" s={s} boss={false} />
     case 'shuffle': return <Shuffle s={s} />
     case 'boss': return <BossFight key="boss" s={s} rep={rep} />
@@ -625,7 +625,7 @@ function BossFight({ s, rep }: { s: Station; rep: Repertoire }) {
   if (b.kind === 'board') return <BoardRounds s={s} rounds={b.rounds!} boss />
   if (b.kind === 'lines') return <LineBoss s={s} rep={rep} />
   if (b.kind === 'quiz') return <QuizRounds s={s} quiz={b.quiz!} boss />
-  if (b.kind === 'cross') return <CrossRounds s={s} rounds={CROSSROADS} boss />
+  if (b.kind === 'cross') return <CrossRounds s={s} rounds={CROSSROADS} boss lines={rep.lines} />
   if (b.kind === 'krk') return <KingRook s={s} boss />
   if (b.kind === 'mixed') return <MixedBoss s={s} rep={rep} />
   if (b.kind === 'puzzles') return <PuzzleRounds s={s} puzzles={puzzles} boss />
@@ -1436,21 +1436,76 @@ function KingQueen({ s }: { s: Station }) {
 
 // ---------- Paris: which road against which answer ----------
 
-function CrossRounds({ s, rounds, boss, title = 'Which road?', lesson, fromBook }: { s: Station; rounds: Crossroad[]; boss?: boolean; title?: string; lesson?: string; fromBook?: boolean }) {
+function CrossRounds({ s, rounds, boss, title = 'Which road?', lesson, fromBook, lines = [] }: { s: Station; rounds: Crossroad[]; boss?: boolean; title?: string; lesson?: string; fromBook?: boolean; lines?: Line[] }) {
   const [i, setI] = useState(0)
   const [hearts, setHearts] = useState(3)
   const [picked, setPicked] = useState<string | null>(null)
+  // Lu, 12.11.: answer by moving a piece too, not only with the buttons; a move outside the options is wrong
+  const [offBook, setOffBook] = useState<string | null>(null)
   if (i >= rounds.length) return boss ? <Victory s={s} /> : <QuestDone s={s} icon="🧭" title="You know how to react" text="For every answer of your opponent you know the move from your book – and why." />
   const c = rounds[i]
   const choice = c.options.find((o) => o.san === picked)
+  const orientation = c.fen.split(' ')[1] === 'b' ? 'black' : 'white'
+  // after the right move the board shows it, and the top says what you played
+  const after = (() => {
+    if (!choice?.ok) return null
+    try {
+      const g = new Chess(c.fen)
+      const m = g.move(bareSan(choice.san))
+      return { fen: g.fen(), from: m.from, to: m.to }
+    } catch {
+      return null
+    }
+  })()
+  const nameNow = openingName(c.fen, lines)
+  const nameAfter = after ? openingName(after.fen, lines) ?? (fromBook ? null : choice!.note.replace(/^to [^–]+– /, '')) : null
+  function pick(san: string) {
+    const o = c.options.find((x) => x.san === san)
+    if (!o) return
+    setOffBook(null)
+    setPicked(o.san)
+    if (o.ok) fx.move(bareSan(o.san))
+    else {
+      fx.wrong()
+      if (boss) setHearts(hearts - 1)
+    }
+  }
+  function onMove(from: string, to: string): boolean {
+    if (choice?.ok || (boss && hearts <= 0)) return false
+    let san: string
+    try {
+      san = new Chess(c.fen).move({ from, to, promotion: 'q' }).san
+    } catch {
+      return false
+    }
+    const o = c.options.find((x) => bareSan(x.san) === san)
+    if (o) {
+      pick(o.san)
+      return !!o.ok
+    }
+    setPicked(null)
+    setOffBook(san)
+    fx.wrong()
+    if (boss) setHearts(hearts - 1)
+    return false
+  }
   return (
     <div className="screen king-screen">
       <StationHead s={s} back={() => go('king/' + s.id)} title={boss ? s.boss.name : title} />
       {!boss && lesson && i === 0 && <p className="king-lesson">{lesson}</p>}
       {boss && <BossCard s={s} line={i === 0 ? s.boss.taunt : 'Next crossroads!'} progress={(100 * (rounds.length - i)) / rounds.length} hearts={hearts} />}
       {boss && i === 0 && <p className="note small">57% 1...e5 · 20% 1...d5: your 1,155 games of 3 months (analysis of Oct 31).</p>}
-      <KBoard fen={c.fen} orientation={c.fen.split(' ')[1] === 'b' ? 'black' : 'white'} />
-      <div className="king-question"><span className="king-big" aria-hidden="true">🪧</span><span>{c.q}</span></div>
+      {/* always there, so the board does not jump when the name appears */}
+      <div className={`king-opening${after ? ' played' : ''}`} aria-live="polite">
+        {after ? <>You played <b>{bareSan(choice!.san)}</b>{nameAfter && <> · {nameAfter}</>}</> : nameNow ? <>On the board: <b>{nameNow}</b></> : <>Your move decides the opening</>}
+      </div>
+      <KBoard
+        fen={after?.fen ?? c.fen}
+        orientation={orientation}
+        onMove={onMove}
+        squareStyles={after ? { [after.from]: LAST_MOVE, [after.to]: LAST_MOVE } : undefined}
+      />
+      <div className="king-question"><span className="king-big" aria-hidden="true">🪧</span><span>{c.q} <small className="king-hint">Tap a move – or play it on the board.</small></span></div>
       <div className="king-options">
         {c.options.map((o) => (
           <button
@@ -1458,28 +1513,25 @@ function CrossRounds({ s, rounds, boss, title = 'Which road?', lesson, fromBook 
             key={o.san}
             disabled={!!choice?.ok}
             className={picked === o.san ? (o.ok ? 'right' : 'wrong') : ''}
-            onClick={() => {
-              setPicked(o.san)
-              if (o.ok) fx.move(o.san)
-              else {
-                fx.wrong()
-                if (boss) setHearts(hearts - 1)
-              }
-            }}
+            onClick={() => pick(o.san)}
           >
             <b>{o.san}</b> {(!fromBook || picked === o.san) && <small>{o.note}</small>}
           </button>
         ))}
       </div>
       {boss && hearts <= 0 ? (
-        <OutOfHearts s={s} why={c.why} retry={() => { setI(0); setHearts(3); setPicked(null) }} />
+        <OutOfHearts s={s} why={c.why} retry={() => { setI(0); setHearts(3); setPicked(null); setOffBook(null) }} />
       ) : choice?.ok ? (
         <div className="king-fb ok">
           <p>
             Right road! {fromBook ? choice.note : c.why}
             {fromBook && c.options.filter((o) => o.ok).length > 1 && ` ${c.options.filter((o) => o.ok && o !== choice).map((o) => o.san).join(', ')} is in your book too.`}
           </p>
-          <button type="button" className="primary wide" onClick={() => { setI(i + 1); setPicked(null) }}>Next</button>
+          <button type="button" className="primary wide" onClick={() => { setI(i + 1); setPicked(null); setOffBook(null) }}>Next</button>
+        </div>
+      ) : offBook ? (
+        <div className="king-fb no" role="alert">
+          <p>{offBook} is not one of the roads here. Try one of the moves below – on the board or with a tap.</p>
         </div>
       ) : picked ? (
         <div className="king-fb no" role="alert">
@@ -1764,7 +1816,7 @@ export function Habits({ rep }: { rep: Repertoire }) {
   if (error) return wait(error)
   if (!rounds) return wait('Hoppy reads your last rapid games…')
   if (!rounds.length) return wait(`In your last ${games} rapid games you never left your book twice at the same place. Well done!`)
-  return <CrossRounds s={camp} rounds={rounds} title="Your habits" fromBook lesson={`From your last ${games} rapid games: here you left your book most often. Which move does your book play?`} />
+  return <CrossRounds s={camp} rounds={rounds} lines={rep.lines} title="Your habits" fromBook lesson={`From your last ${games} rapid games: here you left your book most often. Which move does your book play?`} />
 }
 
 // ---------- warm-up before a real game: the guard, a threat, your lines ----------
