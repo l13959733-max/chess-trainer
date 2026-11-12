@@ -284,6 +284,14 @@ die App keinen. Spitznamen statt echter Namen (Kinder, DSGVO). Gegen Schummeln: 
 „Can you spot the threat in 5 seconds?“ mit Countdown, aus dem Tagesrätsel; ein Clip für TikTok, Shorts und Reels.
 Englisch. Bilder über Higgsfield nur nach Absprache (kostet Geld).
 
+### [ ] 29. Startseite als Übersicht (Entwurf 12.11. abends, Lu prüft – soll mit dem nächsten Live-Gang rein)
+Vorbild: Lus Pinterest-Bild (dunkle Schach-Startseite mit Kacheln). In unserem Buch-Stil umgesetzt:
+https://claude.ai/artifact/4xnj2VNHiBgM7NritfVw2n – oben Gruß + Serie + Kastanien; große Reise-Kachel (gemalte Karte,
+„Chapter 8 · Barcelona“, „Continue journey“); Kacheln: Zitat (Grandmaster Lu aus der App), Reise-Fortschritt, Daily Threat
+Check mit echtem Brett, Square Rush, Training (fällige Linien, verlorene Partien, Hoppy-Bot), „New in your book“; unten
+Leiste Home · Map · Hoppy (weiter spielen) · Training · More. Seitenleiste des Vorbilds weggelassen (zu eng am Handy).
+Fremde Zitate des Vorbilds bewusst NICHT übernommen (Herkunft oft falsch) – nur eigene Sätze aus der App.
+
 ### [x] 28. Square Rush – Felder lernen mit Candy-Crush-Gefühl – gebaut 12.11. abends (Vorschau `#/rush`, Training + More; Lu: „richtig geil“, Knöpfe später anpassen)
 Lu: „Bischof g2 – dann muss ich ewig suchen … ein Spiel mit leerem Brett, wechselnde Figuren, aufs Feld ziehen, Bumm …
 Belohnung wie Candy Crush: dreimal, dann explodiert es, mit Geräuschen, Vibration, Feeling.“
