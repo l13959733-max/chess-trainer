@@ -1892,6 +1892,7 @@ export function WarTent({ puzzles }: { puzzles: Puzzles }) {
         <button type="button" disabled={!winning.length} onClick={() => go('play/puzzle/' + encodeURIComponent(winning[Math.floor(Math.random() * winning.length)].id))}><span aria-hidden="true">💰</span><b>Treasure Chest</b><small>Win your winning positions</small></button>
         <button type="button" onClick={() => go('play')}><span aria-hidden="true">🛡</span><b>Sparring Ground</b><small>A game vs Hoppy-Bot</small></button>
         <button type="button" onClick={() => go('daily')}><span aria-hidden="true">🃏</span><b>Today's cards</b><small>Everything due, mixed</small></button>
+        <button type="button" onClick={() => go('rush')}><span aria-hidden="true">💥</span><b>Square Rush</b><small>Learn the squares – 60 seconds</small></button>
       </div>
       <div className="king-links">
         <button type="button" onClick={() => go('path')}>All openings</button>

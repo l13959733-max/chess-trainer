@@ -28,6 +28,7 @@ import { Mirror } from './screens/Mirror'
 import { Atlas } from './screens/Atlas'
 import { ThreatCheck } from './screens/ThreatCheck'
 const RealMap = lazy(() => import('./screens/RealMap'))
+import { SquareRush } from './screens/SquareRush'
 import { Encounter, Habits, KingFastTravel, KingHome, KingStation, KingWorld, WarmUp, WarTent } from './screens/King'
 import { OpeningMap } from './screens/OpeningMap'
 import { Import } from './screens/Import'
@@ -142,6 +143,7 @@ function App() {
   else if (page === 'atlas') body = <Atlas rep={rep} />
   else if (page === 'threat-check') body = <ThreatCheck />
   else if (page === 'world') body = <KingWorld />
+  else if (page === 'rush') body = <SquareRush />
   else if (page === 'realmap') body = <Suspense fallback={null}><RealMap /></Suspense>
   else if (page === 'road') body = <KingFastTravel />
   else if (page === 'check') body = <ChessCheck rep={rep} />
