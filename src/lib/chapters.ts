@@ -74,6 +74,7 @@ const LAYOUT: { group: string; side: Side; chapters: { opening: string; title?: 
       { opening: 'Italian Game', moves: '1.e4 e5 2.Nf3 Nc6 3.Bc4 Bc5' },
       { opening: 'Two Knights Defense', moves: '1.e4 e5 2.Nf3 Nc6 3.Bc4 Nf6' },
       { opening: 'Philidor Defense', moves: '1.e4 e5 2.Nf3 d6' },
+      { opening: 'Petrov Defense', title: 'Petrov (Russian Game)', moves: '1.e4 e5 2.Nf3 Nf6' },
       { opening: 'Ruy Lopez', title: 'Ruy Lopez (Spanish)', moves: '1.e4 e5 2.Nf3 Nc6 3.Bb5' },
       { opening: "1.e4 e5: White's other tries", title: '1.e4 e5 · other White moves', moves: '2.Qh5, Vienna 2.Nc3, Center Game 2.d4, Scotch 3.d4' },
     ],

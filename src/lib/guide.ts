@@ -150,6 +150,12 @@ export const GUIDE: Record<string, Guide> = {
     style: 'Solid',
     fact: 'The oldest recorded game of modern chess, Castellví–Vinyoles from Valencia 1475, started 1.e4 d5.',
   },
+  'Petrov Defense|b': {
+    about: 'You do not defend e5 – you attack e4 back with 2...Nf6. Very solid: White finds it hard to get an advantage.',
+    ideas: ['After 3.Nxe5 play ...d6 first, then take on e4', 'Your knight on e4 is strong – back it up with ...d5', 'Against a gambit, take the material and develop fast'],
+    style: 'Solid',
+    fact: 'Also called the Russian Game, after the 19th-century Russian master Alexander Petrov.',
+  },
   'Caro-Kann|b': {
     about: 'You prepare ...d5 with ...c6, so your center is protected. Very solid and hard to beat.',
     ideas: ['Bishop out to f5 before ...e6', 'Hit White\'s pawn chain with ...c5', 'Beware Nd6# when your knights block your king'],
