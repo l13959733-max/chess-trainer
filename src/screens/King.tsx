@@ -706,9 +706,16 @@ function StationPage({ s, rep }: { s: Station; rep: Repertoire }) {
         <img src={IMG + s.scene} alt="" />
         <div>
           <span className="king-kicker">{MIRROR.includes(s) ? s.year : `Year ${s.year}`} · 🌰 {loadKing().coins}</span>
-          <p>{s.intro}</p>
         </div>
       </div>
+      {/* Lu, 12.11.: Hoppy tells the story of the city once you have opened it (Game Boy style) */}
+      <StoryBox
+        key={s.id}
+        lines={[
+          { who: 'Hoppy', text: `${s.name}, ${s.year}. ${s.intro}`, face: <Avatar who="hoppy" className="gb-hoppy" /> },
+          { who: 'Hoppy', text: `Here we meet ${s.master.name} – ${s.master.from.charAt(0).toLowerCase() + s.master.from.slice(1)}. Then the boss waits: ${s.boss.name}.`, face: <Avatar who="hoppy" className="gb-hoppy" /> },
+        ]}
+      />
       {next ? (
         <button type="button" className="primary wide king-continue" onClick={() => go(next.route)}>
           <small>Step {done + 1} of {steps.length}</small>

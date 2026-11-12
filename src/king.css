@@ -553,3 +553,20 @@
 .talk-big { width: 128px; height: 128px; }
 .talk-figure .king-avatar, .talk-figure .talk-big { width: 128px; height: 128px; }
 @media (prefers-reduced-motion: reduce) { .talk-figure { transition: none; } }
+/* Explore map, round coins (Lu, 12.11. evening: coins like the steps in a city, whole map, zoom) */
+.explore-scroll { touch-action: pan-x pan-y; }
+.ex-coin { cursor: pointer; }
+.ex-rim-under { fill: #b3a07a; }
+.ex-rim { fill: #e2d4b0; }
+.ex-coin.done .ex-rim-under { fill: #8f7116; }
+.ex-coin.done .ex-rim { fill: #e3b53a; }
+.ex-coin.next .ex-rim-under { fill: #46a302; }
+.ex-coin.next .ex-rim { fill: #58cc02; }
+.ex-label { fill: #fff7e2; stroke: #d8c8a4; stroke-width: 2; }
+.ex-coin.done .ex-label { stroke: #c9a227; }
+.ex-coin.next .ex-label { stroke: #58cc02; }
+.ex-coin.locked .ex-label { fill: rgba(251, 243, 220, .88); }
+.ex-pulse { fill: #58cc02; opacity: .5; transform-box: fill-box; transform-origin: center; animation: ex-pulse 1.6s ease-out infinite; }
+.explore-zoom { position: absolute; right: 8px; top: 8px; z-index: 4; display: grid; gap: 6px; }
+.explore-zoom button { width: 40px; height: 40px; min-height: 0; padding: 0; border-radius: 12px; background: #fff7e2; border: 2px solid #8b6b3d; color: #3b2a14; font-size: 1.4rem; font-weight: 900; line-height: 1; box-shadow: 0 3px 0 rgba(0, 0, 0, .15); }
+.explore-zoom button:disabled { opacity: .45; }
