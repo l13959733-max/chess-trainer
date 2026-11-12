@@ -306,7 +306,12 @@ alle 5 Züge (Springer, Läufer, Turm, Dame, König, Bauer). Schalter: Buchstabe
 Töne im Browser erzeugt (keine Dateien). Vibration nur Android (iPhone-Safari kann es nicht). Gibt es schon klein in
 Bagdad („Blindfold: find the square“) – das hier wäre ein eigenes Spiel, z. B. im Training oder als Tagesspiel.
 
-### [ ] 27. Echte Karte statt gemalter (Entwurf 12.11. abends in der Vorschau, Lu prüft)
+### [x] 27. Echte Karte statt gemalter – seit 12.11. spät DIE Weltkarte (`#/journey`, Vorschau)
+Lu: „eigentlich hatten wir eine echte Karte, Russland dazu“. Moskau steht als „soon“-Münze drauf (`SOON` in RealMap.tsx),
+Winter Forest dafür nach Nordwest-Russland (33.3/59.2) gerückt. Gemalte Karte jetzt `#/painted` (More). Eine Leiste unten
+überall: `src/components/BottomBar.tsx`; Reisen über `src/lib/travel.ts` (travelTo, nextCity).
+Aufbau-Plan (Lu: „erstmal so“): https://claude.ai/artifact/PLtFjDDoYVraKM3TZr5NSG – Start → Weltkarte → Stadt = Buchkapitel
+(Titelblatt → Kapitel/Inhaltsverzeichnis → Geschichte) → Üben; zurück = eine Stufe hoch. NÄCHSTER SCHRITT: Buchkapitel einbauen.
 Lu: „Map so wie in meiner Neuhaus-Software, quasi Google Maps … darauf spielen und reisen“. Gebaut: `src/screens/RealMap.tsx`,
 Seite `#/realmap`, Knopf unter More → „Real map (draft)“. MapLibre GL **5.6.0** (wie Neuhaus; 6.x startet seinen Worker
 unter Vite nicht) + OpenFreeMap „positron“ (OSM, gratis, kein Schlüssel), umgefärbt in Buchfarben (`bookStyle`). Nur bei
