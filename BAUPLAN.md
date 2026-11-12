@@ -284,6 +284,28 @@ die App keinen. Spitznamen statt echter Namen (Kinder, DSGVO). Gegen Schummeln: 
 „Can you spot the threat in 5 seconds?“ mit Countdown, aus dem Tagesrätsel; ein Clip für TikTok, Shorts und Reels.
 Englisch. Bilder über Higgsfield nur nach Absprache (kostet Geld).
 
+### [ ] 26. Jede Stadt als Buchkapitel (Prototyp Barcelona 12.11. abends, Lu: „ziemlich cool … später für alle Städte“)
+Vorbild: Lus Pinterest-Entwurf einer Geschichts-Lese-App. Prototyp (nicht in der App): https://claude.ai/artifact/9xBztKQ3qBXHuELJ7L88LV
+– **Ablauf:** Stadt auf der Karte antippen → **Titelblatt** (Stadt, Jahr, Untertitel, großes Bild im Bogen) → nach unten
+  scrollen → **Kapitel** (Kapitel-Nr. = Platz in `route()`, Überschrift = die Technik, 2 kurze Absätze, Skill-Pillen,
+  „Table of content“ = die Schritte der Stadt bis zum Boss) → erster Eintrag öffnet die **dunkle Leseseite** mit der
+  Geschichte, unten Leiste „Contents“ + „Play the first line ▶“. Ersetzt auf der Stadt-Seite den Game-Boy-Kasten.
+– **Schema für alle Städte gleich:** Papier creme, Schwarz, Rot; Garamond-Überschriften, Inter-Text; Bogen-/U-Rahmen der Bilder.
+– **Drei Bilder je Stadt:** (1) zur Geschichte (was wo passiert ist), (2) zur Technik (Brett mit der Idee), (3) zum Namen
+  des Bosses. **Bildsprache aus der Stadt selbst**, nicht überall dieselbe (Lu: Streifen + rote Sonne „sieht japanisch
+  aus, passt nicht zu Barcelona“). Barcelona = Gaudí-Mosaik (Trencadís), Blumen-Gehwegplatte (Panot), Zementfliesen,
+  Sagrada-Família-Türme. Für jede Stadt vorher ihre typische Ornamentik festlegen. Prototyp-Bilder sind von Claude in SVG
+  gezeichnet; schönere mit Higgsfield nur nach Lus OK (kostet).
+– **Erzählton:** keine Kinder-Dialoge („¡Hola Hoppy!“), sondern spannend erzählte Geschichte für Erwachsene, Jugendliche
+  und Kinder – wie ein gutes Geschichtsbuch. Danach 1–2 Kästen „On the board“ mit der Schachidee. **Nur belegte Fakten**,
+  jede Stadt vorher recherchieren, Quellen notieren.
+– **Barcelona belegt:** Turnier 24.9.–11.10.1929 parallel zur Weltausstellung; Capablanca +13 =1 −0; Feld überwiegend
+  lokal, Tartakower zweiter großer Name; Veranstalter baten ihn um eine Eröffnung zu Ehren Kataloniens → „Catalan“
+  (Zug an sich schon bekannt). Quellen: en.wikipedia Catalan Opening, enciclopedia.cat, chess.com „A Century of Chess:
+  Capablanca Tournaments 1929“, belgianchesshistory.be.
+– **Fehler in der App (offen):** Montse sagt „strong players from many countries came“ – laut Quelle Feld überwiegend lokal.
+– **Offen (Lu):** Montse (erfundene Figur) fällt auf der Leseseite weg – ganz weg oder woanders (z. B. beim Üben)?
+
 ### [ ] 25. Stadt von innen + Trainings-Modus (Entwurf 12.11. abends, Lu prüft)
 
 Lu: „Map = Karte + Geschichte, daneben ein Trainings-Modus“; die Schritte in der Stadt „wie Duolingo, nice – noch ausarbeiten?“.
