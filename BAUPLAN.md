@@ -284,6 +284,16 @@ die App keinen. Spitznamen statt echter Namen (Kinder, DSGVO). Gegen Schummeln: 
 „Can you spot the threat in 5 seconds?“ mit Countdown, aus dem Tagesrätsel; ein Clip für TikTok, Shorts und Reels.
 Englisch. Bilder über Higgsfield nur nach Absprache (kostet Geld).
 
+### [ ] 28. Square Rush – Felder lernen mit Candy-Crush-Gefühl (Entwurf 12.11. abends, Lu prüft)
+Lu: „Bischof g2 – dann muss ich ewig suchen … ein Spiel mit leerem Brett, wechselnde Figuren, aufs Feld ziehen, Bumm …
+Belohnung wie Candy Crush: dreimal, dann explodiert es, mit Geräuschen, Vibration, Feeling.“
+Entwurf (nicht in der App): https://claude.ai/artifact/KfcDN3316iuxHj9GRf3Mgq – Hoppy nennt „Knight to f3“, mögliche Züge
+als Punkte, Tipp aufs Feld → Figur springt, Funken, Ton steigt mit jeder Serie; 3 richtige = Explosion, Wackeln, Akkord,
+Vibration, +50, +2 s; falsch = Feld rot, richtiges grün, Name des getippten Felds. 60 s, Sterne, Bestwert. Figur wechselt
+alle 5 Züge (Springer, Läufer, Turm, Dame, König, Bauer). Schalter: Buchstaben am Rand, Züge zeigen, als Schwarz.
+Töne im Browser erzeugt (keine Dateien). Vibration nur Android (iPhone-Safari kann es nicht). Gibt es schon klein in
+Bagdad („Blindfold: find the square“) – das hier wäre ein eigenes Spiel, z. B. im Training oder als Tagesspiel.
+
 ### [ ] 27. Echte Karte statt gemalter (Entwurf 12.11. abends in der Vorschau, Lu prüft)
 Lu: „Map so wie in meiner Neuhaus-Software, quasi Google Maps … darauf spielen und reisen“. Gebaut: `src/screens/RealMap.tsx`,
 Seite `#/realmap`, Knopf unter More → „Real map (draft)“. MapLibre GL **5.6.0** (wie Neuhaus; 6.x startet seinen Worker
