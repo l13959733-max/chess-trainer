@@ -155,7 +155,7 @@ export default function RealMap() {
       {cities.map((s, i) => {
         const st = state.beaten.includes(s.id) ? 'done' : s === next ? 'next' : 'locked'
         return createPortal(
-          <button type="button" className={`rm-coin rm-${st}`} onClick={() => pick(s)} aria-label={`${i + 1}. ${s.name}`}>
+          <button type="button" className={`rm-coin rm-${st}`} onClick={() => (isOpen(s, state.beaten) ? open(s) : pick(s))} aria-label={`${i + 1}. ${s.name}${isOpen(s, state.beaten) ? '' : ', still ahead'}`}>
             <img src={IMG + 'stamp-' + s.id + '.jpg'} alt="" />
             {st === 'done' && <i className="rm-badge">✓</i>}
             {st === 'locked' && <i className="rm-badge">{i + 1}</i>}

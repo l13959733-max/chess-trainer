@@ -108,10 +108,10 @@ async function station(id) {
   const s = await p.evaluate((id) => { const s = K.stationById(id); return { name: s.name, games: s.games.map(g => g.id), boss: s.boss.kind, bossName: s.boss.name } }, id)
   await shot(id + '-0-page')
   if (await p.locator('.book-cover').count()) {
-    // book chapter (12.11. late): read the story, then back to the table of contents
-    await p.click('.book-toc button:has-text("The story")'); await p.waitForSelector('.book-night')
+    // book chapter (12.11. night): the story runs after the cover – read it to the end, then on to the techniques
+    await p.locator('.book-on').scrollIntoViewIfNeeded(); await p.waitForTimeout(400)
     await shot(id + '-1-story')
-    await p.click('.book-night .book-back'); await p.waitForTimeout(400)
+    await p.click('.book-on'); await p.waitForTimeout(500)
   } else {
     // the master talks
     await p.click('.king-master button:has-text("Talk")')

@@ -806,3 +806,9 @@
 .rm-far .rm-coin:not(.rm-next) .rm-name { display: none; }
 .rm-far .rm-coin:not(.rm-next) .rm-badge { min-width: 16px; height: 16px; font-size: 9px; line-height: 16px; right: -5px; bottom: -4px; }
 .rm .rm-coin { min-height: 0; min-width: 0; padding: 0; box-sizing: border-box; aspect-ratio: 1; }
+/* the story runs right after the cover (12.11. night) */
+.book-tale { background: var(--house); color: #f3ece0; }
+.book-tale-img { display: block; width: 100%; aspect-ratio: 400 / 300; object-fit: cover; }
+.book-tale-in { padding: 26px 22px 30px; }
+.book-tale .book-from { margin: 0 0 14px; font-size: 11px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--accent); opacity: 1; }
+.book .book-on { display: block; margin: 26px auto 0; border: 1.5px solid rgba(243, 236, 224, .6); border-radius: 99px; background: none; color: #f3ece0; font-weight: 700; font-size: 14px; padding: 12px 20px; text-align: center; cursor: pointer; }

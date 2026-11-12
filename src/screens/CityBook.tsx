@@ -1,4 +1,4 @@
-import { useEffect, useState, type CSSProperties } from 'react'
+import { useEffect, useRef, type CSSProperties } from 'react'
 import { BottomBar } from '../components/BottomBar'
 import { go } from '../hooks/useHashRoute'
 import type { Chapter } from '../lib/cityBook'
@@ -6,7 +6,8 @@ import type { Station } from '../lib/king'
 import type { Line } from '../lib/pgn'
 
 // A city as a book chapter (Lu, 12.11.: "Stadt öffnen → erst die Geschichte im Buch-Design → von da ins Üben").
-// Cover → chapter with its table of contents → the story on a dark reading page in the region's colour.
+// Lu, 12.11. night: cover → the story runs first → then the introduction to the techniques with the table of contents.
+// Coming back from an exercise, the chapter opens at the techniques (the story is already read).
 // Every entry opens one exercise; when it is done you come back here (one level up, never across).
 
 const IMG = import.meta.env.BASE_URL + 'king/'
@@ -66,36 +67,50 @@ export function CityBook({
   extras: { id: string; title: string; done: boolean }[]
   onStoryRead: () => void
 }) {
-  const [reading, setReading] = useState(false)
+  const scroller = useRef<HTMLDivElement>(null)
+  const storyRef = useRef<HTMLElement>(null)
+  const chapRef = useRef<HTMLElement>(null)
+  const endRef = useRef<HTMLDivElement>(null)
   const storyDone = steps.find((x) => x.key === 'talk')?.done ?? false
-  const next = steps.find((x) => !x.done)
+  const next = steps.find((x) => !x.done && x.key !== 'talk')
   const games = steps.filter((x) => x.key !== 'talk' && x.key !== 'boss' && x.key !== 'choose' && !x.key.startsWith('line:'))
   const choose = steps.find((x) => x.key === 'choose')
   const boss = steps.find((x) => x.key === 'boss')!
   const lineRoute = (l: Line) => (known(l.id) ? 'drill/' : 'learn/') + l.id
   let n = 0
   const no = () => roman(++n)
-
-  // reading the story counts as the first step (it was "Meet the master" before)
-  const openStory = () => {
-    setReading(true)
-    onStoryRead()
+  const scrollTo = (el: HTMLElement | null, smooth = true) => {
+    const sc = scroller.current
+    if (sc && el) sc.scrollTo({ top: el.offsetTop, behavior: smooth ? 'smooth' : 'auto' })
   }
-  // the reading page always opens at its top
+
+  // back from an exercise: open at the techniques, the story is already read
+  const first = useRef(storyDone)
   useEffect(() => {
-    if (!reading) return
-    const el = document.querySelector('.book-night')
-    if (el) el.scrollTop = 0
-  }, [reading])
+    if (first.current) scrollTo(chapRef.current, false)
+  }, [])
+  // reaching the end of the story counts as the first step (it was "Meet the master" before)
+  useEffect(() => {
+    const el = endRef.current
+    if (!el || typeof IntersectionObserver === 'undefined') return
+    const io = new IntersectionObserver((e) => {
+      if (e.some((x) => x.isIntersecting)) {
+        onStoryRead()
+        io.disconnect()
+      }
+    })
+    io.observe(el)
+    return () => io.disconnect()
+  }, [onStoryRead])
 
   const cover = IMG + 'book/' + (ch.cover ?? `${s.id}.jpg`)
   const vars = { '--house': ch.region.color, '--accent': ch.region.accent } as CSSProperties
-  const nextLabel = !storyDone ? 'Read the story' : next ? `Continue: ${next.title}` : 'Back to the world map'
-  const goNext = () => (!storyDone ? openStory() : next ? go(next.route) : go('journey'))
+  const nextLabel = next ? `${steps.some((x) => x.done && x.key !== 'talk') ? 'Continue' : 'Start'}: ${next.title}` : 'Back to the world map'
+  const goNext = () => (next ? go(next.route) : go('journey'))
 
   return (
     <div className="book" style={vars}>
-      <div className="book-scroll">
+      <div className="book-scroll" ref={scroller}>
         <section className="book-cover" aria-label="Cover">
           <div className="book-top">
             <button type="button" className="book-back" onClick={() => go('journey')} aria-label="Back to the world map">
@@ -108,7 +123,22 @@ export function CityBook({
           <div className="book-art"><img src={cover} alt="" /></div>
         </section>
 
-        <section className="book-chap" aria-label="Chapter">
+        <section className="book-tale" ref={storyRef} aria-label={`The story of ${s.name}`}>
+          {ch.storyImg && <img className="book-tale-img" src={IMG + 'book/' + ch.storyImg} alt="" />}
+          <div className="book-tale-in">
+            <p className="book-from">The story</p>
+            <div className="book-story">
+              {ch.story.map((p, i) => <p key={i}>{p}</p>)}
+              {ch.board?.map((p, i) => (
+                <p key={'b' + i} className="aside"><b>On the board</b>{p}</p>
+              ))}
+            </div>
+            <div ref={endRef} />
+            <button type="button" className="book-on" onClick={() => scrollTo(chapRef.current)}>To the techniques ↓</button>
+          </div>
+        </section>
+
+        <section className="book-chap" ref={chapRef} aria-label="Chapter">
           <p className="book-eyebrow">Chapter {chapterNo} · {ch.region.name}</p>
           <h2>{ch.headline}</h2>
           <p className="book-body">{s.intro}</p>
@@ -120,7 +150,7 @@ export function CityBook({
           <h3>Table of content</h3>
           <ol className="book-toc">
             <li className={storyDone ? 'is-done' : ''}>
-              <button type="button" onClick={openStory}>
+              <button type="button" onClick={() => scrollTo(storyRef.current)}>
                 <span className="n">{no()}</span>
                 <span className="t">The story<small>{ch.subtitle}</small></span>
                 <span className="s">{storyDone ? '✓' : 'Read'}</span>
@@ -217,37 +247,6 @@ export function CityBook({
         </section>
       </div>
 
-      {reading && (
-        <section className="book-night" aria-label={`The story of ${s.name}`}>
-          <div className="book-night-head">
-            <img src={ch.storyImg ? IMG + 'book/' + ch.storyImg : cover} alt="" />
-            <div className="book-top">
-              <button type="button" className="book-back" onClick={() => setReading(false)} aria-label="Back to the chapter">
-                <svg width="24" height="16" viewBox="0 0 26 16" aria-hidden="true"><path d="M24 8H3M9 2L3 8l6 6" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" /></svg>
-              </button>
-            </div>
-          </div>
-          <div className="book-night-in">
-            <h2>{s.name}, {s.year}</h2>
-            <p className="book-from">{ch.subtitle}</p>
-            <div className="book-story">
-              {ch.story.map((p, i) => <p key={i}>{p}</p>)}
-              {ch.board?.map((p, i) => (
-                <p key={'b' + i} className="aside"><b>On the board</b>{p}</p>
-              ))}
-            </div>
-            <div className="book-night-bar">
-              <button type="button" onClick={() => setReading(false)}>☰ Contents</button>
-              {(() => {
-                const first = steps.find((x) => x.key !== 'talk' && !x.done)
-                return first ? (
-                  <button type="button" className="play" onClick={() => go(first.route)}>{first.title} ▶</button>
-                ) : null
-              })()}
-            </div>
-          </div>
-        </section>
-      )}
       <BottomBar active="map" />
     </div>
   )
