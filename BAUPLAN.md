@@ -321,6 +321,12 @@ Vorbild: Lus Pinterest-Entwurf einer Geschichts-Lese-App. Prototyp (nicht in der
   Variante ein eigener Eintrag, den man einzeln öffnet. Übersicht aller Städte aus den echten Linien:
   https://claude.ai/artifact/AA8nnb58jzbvuWmp5BNM8P (Kannauj, Samarkand, Bagdad, Persien, Norden, Orbit, Chennai haben keine
   Eröffnungen, nur Grundlagen/Taktik).
+– **Keine Spiegelwelt mehr (Lu 12.11. abends, „realistischer, sortierter“):** jede Stadt hat beide Seiten, „As White – you
+  attack“ und „As Black – you defend“ (Schwarz-Eröffnungen heißen Verteidigungen). Schwarz-Teil kommt in die Stadt, auf
+  die der alte Spiegel-Name zeigte: Mirror Kannauj (Königsindisch) → Kannauj, Mirror North (Skandinavisch, Nimzo-Indisch)
+  → The North, Mirror Vienna (Caro-Kann, Grünfeld) → Vienna, Mirror Paris (Französisch) → Paris, Mirror Forest (Slawisch,
+  Pirc) → Winter Forest, Mirror Rio (Najdorf) → Rio, Shadow Fortress (Damengambit abgelehnt, gegen London, Holländisch)
+  → London. **Drachenhöhle bleibt eigener Ort** (Sizilien/Ätna, nur Schwarz; Lu: „ziemlich geil“). Entwurf: gleicher Link.
 – **Neue Station Moskau (Lu: „finde ich gut“):** „Die Sowjet-Schule – von Botvinnik bis Kasparov“. Offen: A) Petrov
   („Russische Partie“) zieht von Rom nach Moskau, oder B) etwas Neues (z. B. gegen die Königsindische). Fakten vorher prüfen.
 – **Offen (Lu):** Montse (erfundene Figur) fällt auf der Leseseite weg – ganz weg oder woanders (z. B. beim Üben)?
