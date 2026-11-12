@@ -42,7 +42,7 @@ export interface QuizQuestion {
   why: string
 }
 
-export type GameId = 'army' | 'riddle' | 'grain' | 'fork' | 'squares' | 'lewis' | 'queen' | 'turk' | 'cross' | 'krk' | 'shuffle' | 'guard' | 'safe' | 'react' | 'traps' | 'forkhunt' | 'forkthreat' | 'mate1' | 'mate2' | 'firebreath' | 'keepdragon' | 'cfile'
+export type GameId = 'army' | 'riddle' | 'grain' | 'fork' | 'squares' | 'lewis' | 'queen' | 'turk' | 'cross' | 'krk' | 'shuffle' | 'guard' | 'safe' | 'react' | 'traps' | 'forkhunt' | 'forkthreat' | 'mate1' | 'mate2' | 'firebreath' | 'keepdragon' | 'cfile' | 'diagonal' | 'aimf7'
 
 export interface Station {
   id: string
@@ -327,7 +327,8 @@ export const STATIONS: Station[] = [
         { who: 'hoppy', text: 'And if Black holds the pawn with ...b5 and ...c6, then c6 stands right on our diagonal!' },
       ],
     },
-    games: [],
+    // Lu, 13.11.: a short lesson first (one question per screen, Hoppy reacts) – lib/lessons.ts
+    games: [{ id: 'diagonal', title: 'The long diagonal' }],
     lines: { opening: 'Catalan', side: 'w' },
     boss: { name: 'The Diagonal Bishop', face: '♗', img: 'boss-diagonal.jpg', kind: 'lines', taunt: 'I take your c4 pawn and keep it. Show me the Catalan!', win: 'The Diagonal Bishop bows. The long diagonal is yours.' },
   },
@@ -347,6 +348,7 @@ export const STATIONS: Station[] = [
       ],
     },
     games: [
+      { id: 'aimf7', title: 'Why f7?' },
       { id: 'react', title: 'How do you react?' },
       { id: 'traps', title: 'Traps' },
     ],

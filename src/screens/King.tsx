@@ -28,6 +28,8 @@ import {
 import { StoryBox } from '../components/StoryBox'
 import { chapterOf } from '../lib/cityBook'
 import { CityBook } from './CityBook'
+import { Lesson } from './Lesson'
+import { LESSONS } from '../lib/lessons'
 import '../king.css'
 
 const IMG = import.meta.env.BASE_URL + 'king/'
@@ -609,6 +611,8 @@ function StationStep({ s, sub, rep }: { s: Station; sub?: string; rep: Repertoir
     case 'forkthreat': return <PuzzleRounds key="quest" s={s} puzzles={pick(['fork'], 6, 4)} threat title="Don't get forked" lesson="Now it is your opponent's turn – and he has a fork against you. Show it! Seeing it in time is how you stop it." />
     case 'mate1': return <PuzzleRounds key="quest" s={s} puzzles={[...pick(['mate1'], 0, 3), ...pick(['backrank'], 0, 3)]} title="Mate in one" lesson="One move, and the king has nowhere to go. Look at every check first." />
     case 'mate2': return <PuzzleRounds key="quest" s={s} puzzles={pick(['mate2'], 0, 4)} title="Mate in two" lesson="A check that forces the answer – then mate. Look at checks first, then captures." />
+    case 'diagonal': return <Lesson key="quest" s={s} lesson={LESSONS.diagonal} />
+    case 'aimf7': return <Lesson key="quest" s={s} lesson={LESSONS.aimf7} />
     case 'army': return <KingArmy s={s} />
     case 'riddle': return <KingRiddle key="quest" s={s} boss={false} />
     case 'fork': return <BoardRounds key="quest" s={s} rounds={FORKS.slice(0, 2)} title="Hoppy's fork" lesson="Find the jump that attacks two things at once." />

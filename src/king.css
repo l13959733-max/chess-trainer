@@ -877,3 +877,35 @@
 .sr-only { position: absolute !important; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
 .book-paged { touch-action: pan-y; }
 @media (prefers-reduced-motion: reduce) { .bp-swipe span { animation: none; } }
+
+/* 13.11. (Lu: prototype "Hoppy Mix" live in the preview) – start page: big Hoppy who talks, "Practice now", Hoppy's diary */
+.hub-hero { flex-grow: 1.45; }
+.hub .hub-peek { width: 92px; right: 8px; top: 6px; }
+.hub .mascot .eyes, .lsn .mascot .eyes { transform-box: fill-box; transform-origin: center; animation: hub-blink 4.5s infinite; }
+@keyframes hub-blink { 0%, 93%, 100% { transform: scaleY(1); } 95% { transform: scaleY(.1); } }
+.hub-say { position: absolute; right: 106px; top: 14px; z-index: 2; max-width: min(210px, calc(100% - 124px)); background: #fbf6ec; color: var(--ink);
+  border-radius: 14px 14px 4px 14px; padding: 8px 11px; font-size: 13px; font-weight: 600; line-height: 1.3; box-shadow: 0 4px 12px rgba(40, 15, 5, .3); }
+.hub-cta { flex-wrap: wrap; column-gap: 12px; row-gap: 6px; }
+.hub .hub-gold { border: 0; cursor: pointer; }
+.hub-gold small { font-weight: 600; font-size: 12.5px; opacity: .8; }
+.hub-alt { font-size: 11.5px; color: #e3cbb2; text-decoration: underline; text-underline-offset: 3px; }
+.hub-diary { justify-content: flex-start; }
+.hub-diary h3 { color: var(--gold); }
+.hub-diary ol { list-style: none; margin: 2px 0 0; padding: 0; display: grid; gap: 7px; min-height: 0; overflow: hidden; }
+.hub-diary li { font-family: 'EB Garamond', Georgia, serif; font-size: clamp(13.5px, 3.8vw, 15px); line-height: 1.15; }
+.hub-diary li small { display: block; font-family: Inter, sans-serif; font-size: 9.5px; letter-spacing: .05em; text-transform: uppercase; color: #e3cbb2; margin-bottom: 1px; }
+.hub-diary li:first-child small { color: var(--gold); }
+/* Square Rush in the house colours (the green was Duolingo's own) */
+.hub .hub-go { background: var(--gold); box-shadow: none; color: var(--terra-d); font-family: Inter, sans-serif; font-weight: 800; text-transform: none; font-size: 11.5px; }
+/* city chapter: every tile says what is inside; the next one is marked */
+.bp-tile { position: relative; justify-content: flex-start; gap: 4px; }
+.bp-tile small { margin-top: auto; }
+.bp-what { font-size: 11.5px; color: var(--soft); line-height: 1.3; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+.bp-tile.boss .bp-what { color: #ecdccb; font-style: italic; -webkit-line-clamp: 2; }
+.bp-meter { display: block; height: 5px; border-radius: 99px; background: var(--line); overflow: hidden; margin-top: 4px; }
+.bp-meter i { display: block; height: 100%; background: var(--accent); border-radius: 99px; }
+.bp-tile.up { border: 2px solid var(--house); padding: 9px 11px; }
+.bp-tile.boss.up { box-shadow: 0 0 0 3px var(--accent); }
+.bp-next { align-self: flex-start; font-style: normal; font-size: 9.5px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; background: var(--house); color: #fff; border-radius: 99px; padding: 2px 8px; }
+.bp-tile.boss .bp-next { background: var(--accent); color: var(--house); }
+@media (prefers-reduced-motion: reduce) { .hub .mascot .eyes, .lsn .mascot .eyes { animation: none; } }

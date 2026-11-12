@@ -28,13 +28,15 @@ export function MascotDrawing({ mood = 'happy' }: { mood?: Mood }) {
       <ellipse cx="60" cy="80" rx="22" ry="16" fill="#c9b3ff" />
       <ellipse cx="52" cy="79" rx="3" ry="4" fill="#5b36c9" />
       <ellipse cx="68" cy="79" rx="3" ry="4" fill="#5b36c9" />
-      {/* eyes */}
+      {/* eyes (a group, so they can blink) */}
+      <g className="eyes">
       <circle cx="47" cy="52" r="10" fill="#fff" />
       <circle cx="73" cy="52" r="10" fill="#fff" />
       <circle cx={mood === 'oops' ? 46 : 49} cy={mood === 'oops' ? 55 : 53} r="5.5" fill="#2b2140" />
       <circle cx={mood === 'oops' ? 72 : 75} cy={mood === 'oops' ? 55 : 53} r="5.5" fill="#2b2140" />
       <circle cx={mood === 'oops' ? 48 : 51} cy={mood === 'oops' ? 53 : 51} r="2" fill="#fff" />
       <circle cx={mood === 'oops' ? 74 : 77} cy={mood === 'oops' ? 53 : 51} r="2" fill="#fff" />
+      </g>
       {mood === 'oops' && (
         <>
           <path d="M37 40 Q45 36 53 41" stroke="#5b36c9" strokeWidth="3" fill="none" strokeLinecap="round" />

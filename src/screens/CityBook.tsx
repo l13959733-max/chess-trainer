@@ -89,6 +89,11 @@ export function CityBook({
   const storyImg = ch.storyImg ? IMG + 'book/' + ch.storyImg : cover
   const vars = { '--house': ch.region.color, '--accent': ch.region.accent } as CSSProperties
   const count = (ls: Line[]) => `${ls.filter((l) => known(l.id)).length}/${ls.length}`
+  const share = (ls: Line[]) => (ls.length ? (100 * ls.filter((l) => known(l.id)).length) / ls.length : 0)
+  // Lu, 13.11. (prototype "Hoppy Mix"): every tile says what is inside, and the tile the big button opens is marked
+  const lineSide = (key: string) => (black.some((l) => 'line:' + l.id === key) ? 'black' : 'white')
+  const upNext = !storyDone ? 'story' : !next ? '' : next.key === 'boss' ? 'boss' : next.key.startsWith('line:') ? lineSide(next.key) : 'practice'
+  const tag = (k: string) => (upNext === k ? <i className="bp-next">Up next</i> : null)
 
   function back() {
     if (page.kind === 'cover' || page.kind === 'tech') return go('journey')
@@ -181,30 +186,42 @@ export function CityBook({
           {next ? `${steps.some((x) => x.done && x.key !== 'talk') ? 'Continue' : 'Start'}: ${next.title}` : 'Back to the world map'}
         </button>
         <div className="bp-tiles">
-          <button type="button" className={`bp-tile${storyDone ? ' is-done' : ''}`} onClick={() => setPage({ kind: 'story', i: 0 })}>
+          <button type="button" className={`bp-tile${storyDone ? ' is-done' : ''}${upNext === 'story' ? ' up' : ''}`} onClick={() => setPage({ kind: 'story', i: 0 })}>
+            {tag('story')}
             <b>The story</b>
-            <small>{storyDone ? '✓ read' : `${parts.length} pages`}</small>
+            <span className="bp-what">{parts.length} pages · {s.name}, {s.year}</span>
+            <small>{storyDone ? '✓ read' : 'not read yet'}</small>
           </button>
           {practice.length > 0 && (
-            <button type="button" className="bp-tile" onClick={() => setPage({ kind: 'list', group: 'steps' })}>
+            <button type="button" className={`bp-tile${practice.every((x) => x.done) ? ' is-done' : ''}${upNext === 'practice' ? ' up' : ''}`} onClick={() => setPage({ kind: 'list', group: 'steps' })}>
+              {tag('practice')}
               <b>Practice</b>
-              <small>{practice.filter((x) => x.done).length}/{practice.length} done</small>
+              <span className="bp-what">{practice.map((x) => x.title).join(' · ')}</span>
+              <small>{practice.every((x) => x.done) ? '✓ ' : ''}{practice.filter((x) => x.done).length}/{practice.length} done</small>
             </button>
           )}
           {white.length > 0 && (
-            <button type="button" className="bp-tile" onClick={() => setPage({ kind: 'list', group: 'white' })}>
+            <button type="button" className={`bp-tile${upNext === 'white' ? ' up' : ''}`} onClick={() => setPage({ kind: 'list', group: 'white' })}>
+              {tag('white')}
               <b><span aria-hidden="true">♔ </span>As White</b>
-              <small>{group(white).map(([op]) => op).join(' · ')} · {count(white)}</small>
+              <span className="bp-what">{group(white).map(([op]) => op).join(' · ')} · {white.length} lines</span>
+              <span className="bp-meter" aria-hidden="true"><i style={{ width: `${share(white)}%` }} /></span>
+              <small>{count(white)} learned</small>
             </button>
           )}
           {black.length > 0 && (
-            <button type="button" className="bp-tile" onClick={() => setPage({ kind: 'list', group: 'black' })}>
+            <button type="button" className={`bp-tile${upNext === 'black' ? ' up' : ''}`} onClick={() => setPage({ kind: 'list', group: 'black' })}>
+              {tag('black')}
               <b><span aria-hidden="true">♚ </span>As Black</b>
-              <small>{group(black).map(([op]) => op).join(' · ')} · {count(black)}</small>
+              <span className="bp-what">{group(black).map(([op]) => op).join(' · ')} · {black.length} lines</span>
+              <span className="bp-meter" aria-hidden="true"><i style={{ width: `${share(black)}%` }} /></span>
+              <small>{count(black)} learned</small>
             </button>
           )}
-          <button type="button" className={`bp-tile boss${boss.done ? ' is-done' : ''}`} onClick={() => go(boss.route)}>
+          <button type="button" className={`bp-tile boss${boss.done ? ' is-done' : ''}${upNext === 'boss' ? ' up' : ''}`} onClick={() => go(boss.route)}>
+            {tag('boss')}
             <b>{s.boss.name}</b>
+            <span className="bp-what">“{s.boss.taunt}”</span>
             <small>{boss.done ? '✓ Beaten' : 'Boss'}</small>
           </button>
         </div>

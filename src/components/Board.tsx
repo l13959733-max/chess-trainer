@@ -12,6 +12,8 @@ interface Props {
   squareStyles?: Record<string, CSSProperties>
   // King of Chess: in the Indian army the rook is an elephant (Haathi)
   elephants?: boolean
+  // Lessons: "tap the piece that …" – a tap only reports the square, nothing moves
+  onTap?: (square: string) => void
 }
 
 // The Haathi: a war elephant with a small tower, drawn like the other pieces (same line, same base as the rook)
@@ -55,7 +57,7 @@ const GLOW_STILL: Record<Glow, CSSProperties> = {
 const GLOW_MS: Record<Glow, number> = { good: 1700, gold: 2400 }
 
 // Board with dragging AND tapping (tap a piece, then the target square) – often easier on a phone.
-export function Board({ fen, orientation, onMove, arrows = [], squareStyles = {}, elephants }: Props) {
+export function Board({ fen, orientation, onMove, arrows = [], squareStyles = {}, elephants, onTap }: Props) {
   // A board always opens at the top of the screen, ready to play – also when it appears on the same page
   // (e.g. after "Start game"), where the browser would otherwise stay scrolled down at the button.
   // Braces matter: new Chrome returns a promise from scrollTo, and React would call it as a cleanup (white screen)
@@ -108,6 +110,7 @@ export function Board({ fen, orientation, onMove, arrows = [], squareStyles = {}
   }
 
   function onSquareClick({ piece, square }: { piece: { pieceType: string } | null; square: string }) {
+    if (onTap) return onTap(square)
     if (!onMove) return
     const own = piece && piece.pieceType[0] === turn
     if (sel && sel !== square && !own) {

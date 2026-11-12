@@ -20,7 +20,7 @@ await p.addInitScript(() => { localStorage.setItem('chess-trainer-name', 'Lu'); 
 await p.goto(U + '#/world'); await p.waitForSelector('.king-world', { timeout: 20000 })
 const base = new URL(U).pathname
 // the real data, straight from the source the app uses
-await p.evaluate(async (base) => { window.K = await import(base + 'src/lib/king.ts'); window.R = await import(base + 'src/lib/repertoire.ts') }, base)
+await p.evaluate(async (base) => { window.K = await import(base + 'src/lib/king.ts'); window.R = await import(base + 'src/lib/repertoire.ts'); window.L = await import(base + 'src/lib/lessons.ts') }, base)
 const shot = async (n) => { if (SHOTS) { await p.waitForTimeout(350); await p.screenshot({ path: `${S}/${n}.png` }) } }
 const log = (...a) => console.log(...a)
 
@@ -122,7 +122,20 @@ async function station(id) {
     await p.click('button.primary:has-text("Back to")'); await p.waitForTimeout(600)
   }
   for (const g of s.games) {
-    await p.goto(U + `#/king/${id}/${g}`); await p.waitForSelector('.king-screen')
+    await p.goto(U + `#/king/${id}/${g}`); await p.waitForSelector('.king-screen, .lsn')
+    if (await p.locator('.lsn').count()) {
+      // a short lesson (13.11.): move with today's piece, tap a piece or pick an answer; Continue after each
+      const steps = await p.evaluate((g) => L.LESSONS[g].steps.map((s) => ({ kind: s.kind, piece: s.piece, answer: s.answer, ok: s.kind === 'choice' ? s.options.findIndex((o) => o.ok) : -1 })), g)
+      for (const [k, st] of steps.entries()) {
+        if (st.kind === 'move') { await sq(st.piece); await sq(st.answer.slice(-2)) }
+        else if (st.kind === 'tap') await sq(st.answer)
+        else { await p.locator('.lsn-options button').nth(st.ok).click(); await p.click('.lsn-check') }
+        await p.waitForSelector('.lsn-sheet.open.good'); if (k === 0) await shot(`${id}-2-${g}`)
+        await p.click('.lsn-sheet .lsn-btn'); await p.waitForTimeout(150)
+      }
+      await p.waitForSelector('.lsn-done'); log('  lesson', g, 'done'); await shot(`${id}-3-${g}-done`)
+      continue
+    }
     if (['grain', 'lewis', 'turk'].includes(g)) await answerQuiz(`${id}-2-${g}`)
     else if (['fork', 'guard', 'traps'].includes(g)) await playRounds(`${id}-2-${g}`, id)
     else if (['forkhunt', 'forkthreat', 'mate1', 'mate2'].includes(g)) await solvePuzzles(`${id}-2-${g}`)
@@ -204,7 +217,7 @@ for (const id of ids) {
   try { await station(id) } catch (e) { log('FAIL', id, e.message.split('\n')[0]); await p.screenshot({ path: `${S}/FAIL-${id}.png` }) }
 }
 // the map with everything beaten → Chennai opens
-await p.goto(U + '#/world'); await p.waitForSelector('.king-world'); await p.evaluate(async (base) => { window.K = await import(base + 'src/lib/king.ts'); window.R = await import(base + 'src/lib/repertoire.ts') }, base); await shot('map-all')
+await p.goto(U + '#/world'); await p.waitForSelector('.king-world'); await p.evaluate(async (base) => { window.K = await import(base + 'src/lib/king.ts'); window.R = await import(base + 'src/lib/repertoire.ts'); window.L = await import(base + 'src/lib/lessons.ts') }, base); await shot('map-all')
 log('HUD:', await p.locator('.king-bubble').innerText())
 if (!only) {
   try { await station('chennai') } catch (e) { log('FAIL chennai', e.message.split('\n')[0]); await p.screenshot({ path: `${S}/FAIL-chennai.png` }) }

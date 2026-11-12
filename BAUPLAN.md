@@ -306,6 +306,19 @@ alle 5 Züge (Springer, Läufer, Turm, Dame, König, Bauer). Schalter: Buchstabe
 Töne im Browser erzeugt (keine Dateien). Vibration nur Android (iPhone-Safari kann es nicht). Gibt es schon klein in
 Bagdad („Blindfold: find the square“) – das hier wäre ein eigenes Spiel, z. B. im Training oder als Tagesspiel.
 
+### [~] 30. „Hoppy Mix“: Lektionen, Tagebuch, Hoppy spricht – EINGEBAUT 13.11. nachts (Vorschau, ohne untere Leiste)
+Lu: das Beste aus seinem Buch-Look und dem Entwurf im Stil von Brilliant/Duolingo/Finch, „macht das erstmal live, das Design,
+und lass den Balken unten noch raus, weil die machen wir jetzt neu“. Prototyp: https://claude.ai/artifact/5XDMxvSx5HH625QN1GEqKM
+**Gebaut:** Lektion = eine Frage pro Bildschirm, Antwort AUF dem Brett, Erklärung danach in einer Leiste mit Hoppys Gesicht
+(grün-oliv/terrakotta; gold = „guter Zug, aber heute nicht dran“, zählt NICHT als Fehler), oben X + 3 Striche, keine untere
+Leiste. Ende: first try / Zeit / Fehler aus der Runde, Kastanien, Satz in Hoppys Tagebuch. Daten `src/lib/lessons.ts`
+(Stellungen aus echten Zügen, Test `lessons.test.ts`), Seite `src/screens/Lesson.tsx`, Stil `src/lesson.css`, Brett kann
+jetzt Antippen melden (`onTap` in Board.tsx). Lektionen: Barcelona `diagonal` (Catalan, Läufer g2), Rom `aimf7` (warum f7).
+Startseite: großer Hoppy mit Sprechblase, Gold-Knopf „Practice now“ (sonst „Continue · Stadt“), Tagebuch statt Zitat sobald
+ein Eintrag da ist (`hoppy-diary` in localStorage), Square Rush in Gold statt Duolingo-Grün. Kapitelseite: Kacheln sagen,
+was drin ist, „Up next“ markiert. **Offen:** untere Leiste neu (Lu); Lektionen für die anderen Städte; alte Übungen
+(BoardRounds, QuizRounds …) noch im alten Look.
+
 ### [x] 27. Echte Karte statt gemalter – seit 12.11. spät DIE Weltkarte (`#/journey`, Vorschau)
 Lu: „eigentlich hatten wir eine echte Karte, Russland dazu“. Moskau steht als „soon“-Münze drauf (`SOON` in RealMap.tsx),
 Winter Forest dafür nach Nordwest-Russland (33.3/59.2) gerückt. Gemalte Karte jetzt `#/painted` (More). Eine Leiste unten
