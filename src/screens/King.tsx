@@ -1455,7 +1455,7 @@ function CrossRounds({ s, rounds, boss, title = 'Which road?', lesson, fromBook,
     }
   })()
   const nameNow = openingName(c.fen, lines)
-  const nameAfter = after ? openingName(after.fen, lines) ?? (fromBook ? null : choice!.note.replace(/^to [^–]+– /, '')) : null
+  const nameAfter = after ? openingName(after.fen, lines) ?? (fromBook ? null : choice!.note.includes('–') ? choice!.note.split('–').pop()!.trim() : choice!.note.replace(/^to (the )?/, '')) : null
   function pick(san: string) {
     const o = c.options.find((x) => x.san === san)
     if (!o) return
@@ -1499,7 +1499,7 @@ function CrossRounds({ s, rounds, boss, title = 'Which road?', lesson, fromBook,
       <KBoard
         fen={after?.fen ?? c.fen}
         orientation={orientation}
-        onMove={onMove}
+        onMove={choice?.ok ? undefined : onMove}
         squareStyles={after ? { [after.from]: LAST_MOVE, [after.to]: LAST_MOVE } : undefined}
       />
       <div className="king-question"><span className="king-big" aria-hidden="true">🪧</span><span>{c.q} <small className="king-hint">Tap a move – or play it on the board.</small></span></div>
