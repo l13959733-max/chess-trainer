@@ -1,0 +1,49 @@
+[Event "Petrov: Main Line 5.d4"]
+[Opening "Petrov Defense"]
+[Side "Black"]
+[Result "*"]
+
+1. e4 e5 2. Nf3 Nf6 {The Petrov: you do not defend e5 – you attack e4 back.} 3. Nxe5 d6 {First kick the knight away! Taking on e4 at once is a famous mistake.} 4. Nf3 Nxe4 {Now the pawn is yours back, and nothing is hanging.} 5. d4 d5 {Your knight on e4 stands strong – the pawn on d5 holds it.} 6. Bd3 Nc6 {Develop and keep an eye on d4.} 7. O-O Be7 8. c4 Nb4 {Jump at the bishop on d3 – White must give it a new square.} 9. Be2 O-O 10. Nc3 Bf5 {Your bishop backs up the knight on e4.} 11. a3 Nxc3 12. bxc3 Nc6 {The knight goes home safe. Equal game, every piece has a job.} *
+
+[Event "Petrov: 5.Nc3 – White castles long"]
+[Opening "Petrov Defense"]
+[Side "Black"]
+[Result "*"]
+
+1. e4 e5 2. Nf3 Nf6 3. Nxe5 d6 4. Nf3 Nxe4 5. Nc3 {White offers the knight swap at once.} Nxc3 6. dxc3 {White gets open lines and wants to castle long and attack.} Be7 7. Be3 O-O 8. Qd2 Nd7 {The knight heads for f6, where it guards your king.} 9. O-O-O Nf6 {Kings on opposite sides – both race to attack. You are well protected.} *
+
+[Event "Petrov: 5.Qe2 – the queen trade"]
+[Opening "Petrov Defense"]
+[Side "Black"]
+[Result "*"]
+
+1. e4 e5 2. Nf3 Nf6 3. Nxe5 d6 4. Nf3 Nxe4 5. Qe2 {The queen pins your knight on e4 to your king – d3 would win it.} Qe7 {Unpin: now your queen protects the knight.} 6. d3 Nf6 7. Bg5 Qxe2+ {Trade queens – the game becomes calm and equal.} 8. Bxe2 Be7 *
+
+[Event "Petrov: 3.d4"]
+[Opening "Petrov Defense"]
+[Side "Black"]
+[Result "*"]
+
+1. e4 e5 2. Nf3 Nf6 3. d4 {White opens the centre instead of taking on e5.} Nxe4 {Take the e4 pawn – your knight stands well in the centre.} 4. Bd3 d5 5. Nxe5 Nd7 {Challenge the strong knight on e5.} 6. Nxd7 Bxd7 7. O-O Bd6 {Your pieces aim at White's king.} 8. c4 c6 {Hold d5 with a pawn.} 9. Nc3 Nxc3 10. bxc3 O-O *
+
+[Event "Petrov: 3.Nc3 – the Four Knights"]
+[Opening "Petrov Defense"]
+[Side "Black"]
+[Result "*"]
+
+1. e4 e5 2. Nf3 Nf6 3. Nc3 {White simply develops.} Nc6 {You develop too – this is now the Four Knights Game.} 4. Bb5 Bb4 {Copy the bishop move – a solid, symmetrical answer.} 5. O-O O-O 6. d3 d6 *
+
+[Event "Petrov: the Cochrane Gambit 4.Nxf7"]
+[Opening "Petrov Defense"]
+[Side "Black"]
+[Check "gambit"]
+[Result "*"]
+
+1. e4 e5 2. Nf3 Nf6 3. Nxe5 d6 4. Nxf7 {White gives a whole knight to drag your king out.} Kxf7 {Take it! A knight is a lot of material.} 5. d4 {White wants a big centre and an attack.} c5 {Hit the centre right away.} 6. dxc5 Nc6 {Develop fast and bring your king to safety – you are a piece up.} *
+
+[Event "Petrov trap: don't copy – 3...Nxe4?"]
+[Opening "Petrov Defense"]
+[Side "Black"]
+[Result "*"]
+
+1. e4 e5 2. Nf3 Nf6 3. Nxe5 d6 {Remember: first ...d6! If you play 3...Nxe4? at once, 4.Qe2 hits your knight, and after 4...Nf6?? 5.Nc6+ you lose the queen.} 4. Nf3 Nxe4 {Only now take the pawn – the knight on f3 no longer gives a discovered check.} 5. d4 d5 *
