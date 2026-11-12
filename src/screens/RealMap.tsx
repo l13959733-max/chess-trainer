@@ -149,7 +149,7 @@ export default function RealMap() {
       <div className="rm-map" ref={box} />
       {failed && <p className="rm-fail">The map needs internet. Try again when you are online.</p>}
       <div className="rm-top">
-        <button type="button" onClick={() => go('')}>← Painted map</button>
+        <button type="button" onClick={() => go('journey')}>← Painted map</button>
         <span>Draft · real map</span>
       </div>
       {cities.map((s, i) => {

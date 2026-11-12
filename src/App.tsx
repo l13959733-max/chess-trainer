@@ -29,6 +29,8 @@ import { Atlas } from './screens/Atlas'
 import { ThreatCheck } from './screens/ThreatCheck'
 const RealMap = lazy(() => import('./screens/RealMap'))
 import { SquareRush } from './screens/SquareRush'
+import { HomeHub } from './screens/HomeHub'
+import { KingStamps } from './screens/KingStamps'
 import { Encounter, Habits, KingFastTravel, KingHome, KingStation, KingWorld, WarmUp, WarTent } from './screens/King'
 import { OpeningMap } from './screens/OpeningMap'
 import { Import } from './screens/Import'
@@ -144,12 +146,17 @@ function App() {
   else if (page === 'threat-check') body = <ThreatCheck />
   else if (page === 'world') body = <KingWorld />
   else if (page === 'rush') body = <SquareRush />
+  else if (page === 'journey') body = <KingStamps />
   else if (page === 'realmap') body = <Suspense fallback={null}><RealMap /></Suspense>
   else if (page === 'road') body = <KingFastTravel />
   else if (page === 'check') body = <ChessCheck rep={rep} />
   else if (page === 'portal') body = <Portal rep={rep} />
   else if (page === 'encounter') body = <Encounter key={id ?? ''} to={id} rep={rep} />
-  else body = redirect ? null : <KingHome />
+  else body = redirect ? null : (
+      <KingHome>
+        <HomeHub rep={rep} progress={progress} puzzles={puzzles} player={player} />
+      </KingHome>
+    )
 
   return (
     <main className="app">

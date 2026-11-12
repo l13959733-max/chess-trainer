@@ -284,7 +284,11 @@ die App keinen. Spitznamen statt echter Namen (Kinder, DSGVO). Gegen Schummeln: 
 „Can you spot the threat in 5 seconds?“ mit Countdown, aus dem Tagesrätsel; ein Clip für TikTok, Shorts und Reels.
 Englisch. Bilder über Higgsfield nur nach Absprache (kostet Geld).
 
-### [ ] 29. Startseite als Übersicht (Entwurf 12.11. abends, Lu prüft – soll mit dem nächsten Live-Gang rein)
+### [x] 29. Startseite als Übersicht – gebaut 12.11. spät (Vorschau; Lu: „sieht top aus“, alles auf EINE Handy-Seite)
+`src/screens/HomeHub.tsx` = Startseite `#/` (echte Daten: Name, Serie, Kastanien, nächste Stadt + Kapitel-Nr., Karte um die
+nächste Stadt, Daily mit echtem Brett/Ergebnis, Rush-Bestwert, fällige Linien, eigene Fehler, chess.com-Rapid, Level).
+Gemalte Karte jetzt `#/journey` (Stations-Zurück, Sieg „Map – next“ führen dorthin; Karte hat „Home“-Knopf).
+Feste Vollbild-Ebene (deckt die alte Kopfzeile ab), Einstellungen unter More. Geprüft 390×844 und 375×667: passt ohne Scrollen.
 Vorbild: Lus Pinterest-Bild (dunkle Schach-Startseite mit Kacheln). In unserem Buch-Stil umgesetzt:
 https://claude.ai/artifact/4xnj2VNHiBgM7NritfVw2n – oben Gruß + Serie + Kastanien; große Reise-Kachel (gemalte Karte,
 „Chapter 8 · Barcelona“, „Continue journey“); Kacheln: Zitat (Grandmaster Lu aus der App), Reise-Fortschritt, Daily Threat

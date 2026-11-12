@@ -1,5 +1,5 @@
 import { Chess } from 'chess.js'
-import { createContext, useContext, useEffect, useMemo, useRef, useState, type ComponentProps, type CSSProperties } from 'react'
+import { createContext, useContext, useEffect, useMemo, useRef, useState, type ComponentProps, type CSSProperties, type ReactNode } from 'react'
 import type { Arrow } from 'react-chessboard'
 import { ARROW, Board, LAST_MOVE } from '../components/Board'
 import { Avatar, Portrait, SHIP_INNER } from '../components/KingArt'
@@ -25,7 +25,6 @@ import {
   ARMY, CROSSROADS, DRAGON_ALIVE, DRAGON_CFILE, DRAGON_FIRE, MIRROR, mirrorOpen, FORKS, GRAIN, GUARD, GUARD_BOSS, LEWIS, MATES, QUEEN_TACTICS, RIDDLES, ROME_REACT, ROME_THREATS, ROME_TRAPS, ROOK_MATES, SAFE, STATIONS, TENT_AT, TURK,
   bareSan, bookCrossroads, earn, isOpen, openingName, opensAfter, lineRounds, loadKing, nextStation, reputation, route, saveKing, stationById, stationLines, titleOf, type BoardRound, type Crossroad, type QuizQuestion, type Station,
 } from '../lib/king'
-import { KingStamps } from './KingStamps'
 import { StoryBox } from '../components/StoryBox'
 import '../king.css'
 
@@ -53,7 +52,7 @@ function useToast(): [string | null, (t: string) => void] {
 
 // ---------- the start page: the world map ----------
 
-export function KingHome() {
+export function KingHome({ children }: { children: ReactNode }) {
   const [intro, setIntro] = useState(() => loadKing().intro)
   if (!intro)
     return (
@@ -64,8 +63,8 @@ export function KingHome() {
         }}
       />
     )
-  // Lu, 12.11.: the start page is Explore mode – the painted map with city cards (draft E)
-  return <KingStamps />
+  // Lu, 12.11. late: the start page is the overview (HomeHub); the painted map moved to #/journey
+  return <>{children}</>
 }
 
 // The painted world map as before (#/world)
@@ -566,7 +565,7 @@ export function KingStation({ id, sub, rep }: { id?: string; sub?: string; rep: 
     return (
       <div className="screen king-screen">
         <p className="note">This station is still in the fog.</p>
-        <button type="button" className="primary" onClick={() => go('')}>World map</button>
+        <button type="button" className="primary" onClick={() => go('journey')}>World map</button>
       </div>
     )
   }
@@ -701,7 +700,7 @@ function StationPage({ s, rep }: { s: Station; rep: Repertoire }) {
   const beaten = got('boss')
   return (
     <div className="screen king-screen">
-      <StationHead s={s} back={() => go('')} />
+      <StationHead s={s} back={() => go('journey')} />
       <div className="king-banner">
         <img src={IMG + s.scene} alt="" />
         <div>
@@ -722,7 +721,7 @@ function StationPage({ s, rep }: { s: Station; rep: Repertoire }) {
           {done ? 'Continue' : 'Start'}: {next.title}
         </button>
       ) : (
-        <button type="button" className="primary wide king-continue" onClick={() => go('')}>
+        <button type="button" className="primary wide king-continue" onClick={() => go('journey')}>
           <small>All {steps.length} steps done</small>Back to the world map
         </button>
       )}
@@ -879,7 +878,7 @@ function Victory({ s }: { s: Station }) {
           {mirror ? (
             <button type="button" className="primary" onClick={() => go('mirror')}>{mirrorNext ? `Mirror map – next: ${mirrorNext.name}` : 'Mirror World'}</button>
           ) : (
-            <button type="button" className="primary" onClick={() => go('')}>{next ? `Map – next: ${next.name}` : 'World map'}</button>
+            <button type="button" className="primary" onClick={() => go('journey')}>{next ? `Map – next: ${next.name}` : 'World map'}</button>
           )}
         </div>
       </div>
@@ -1729,7 +1728,7 @@ export function Encounter({ to, rep }: { to?: string; rep: Repertoire }) {
   const road = { ...stationById('kannauj')!, id: 'road', name: 'On the road', year: target ? `to ${target.name}` : '' }
   // the scout is beaten: you arrive where you wanted to go
   const rideOn = () => {
-    if (!target) return go('')
+    if (!target) return go('journey')
     saveKing({ ...loadKing(), here: target.id })
     go('king/' + target.id)
   }
@@ -1848,7 +1847,7 @@ export function WarTent({ puzzles }: { puzzles: Puzzles }) {
   return (
     <div className="screen king-screen">
       <div className="screen-head">
-        <button type="button" className="back" onClick={() => go('')} aria-label="Back to the world map">←</button>
+        <button type="button" className="back" onClick={() => go('')} aria-label="Back to the start page">←</button>
         <div>
           <div className="eyebrow">Your camp · it travels with you</div>
           <h2>The Training Camp</h2>

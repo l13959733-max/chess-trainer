@@ -295,6 +295,7 @@ export function KingStamps() {
           ▶ START <small>{next ? next.name : 'Training Camp'}</small>
         </button>
         <nav className="explore-modes" aria-label="Modes">
+          <button type="button" onClick={() => go('')}><span aria-hidden="true">🏠</span>Home</button>
           <button type="button" className="on" aria-current="page"><span aria-hidden="true">🗺️</span>Map</button>
           <button type="button" onClick={() => go('tent')}><span aria-hidden="true">⛺</span>Training</button>
           <button type="button" className={dailyOpen ? 'dot' : ''} onClick={() => go('threat-check')}><span aria-hidden="true">🎯</span>Daily</button>
