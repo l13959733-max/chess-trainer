@@ -38,9 +38,10 @@ const ELEPHANT_PIECES = { ...defaultPieces, wR: () => <Elephant />, bR: () => <E
 
 const SELECTED: CSSProperties = { backgroundColor: 'rgba(255, 214, 102, 0.6)' }
 // The king in check glows red, so a check is never missed
-const CHECK: CSSProperties = { background: 'radial-gradient(circle, rgba(255, 40, 40, 0.85) 0%, rgba(231, 0, 0, 0.5) 45%, transparent 75%)' }
-const DOT: CSSProperties = { background: 'radial-gradient(circle, rgba(20,23,28,0.35) 22%, transparent 24%)', animation: 'dot-pop 0.16s ease-out' }
-const RING: CSSProperties = { background: 'radial-gradient(circle, transparent 58%, rgba(20,23,28,0.35) 60%)', animation: 'dot-pop 0.16s ease-out' }
+const CHECK: CSSProperties = { backgroundImage: 'radial-gradient(circle, rgba(255, 40, 40, 0.85) 0%, rgba(231, 0, 0, 0.5) 45%, transparent 75%)' }
+// backgroundImage, not the background shorthand: it sits on top of the last-move colour instead of fighting it
+const DOT: CSSProperties = { backgroundImage: 'radial-gradient(circle, rgba(20,23,28,0.35) 22%, transparent 24%)', animation: 'dot-pop 0.16s ease-out' }
+const RING: CSSProperties = { backgroundImage: 'radial-gradient(circle, transparent 58%, rgba(20,23,28,0.35) 60%)', animation: 'dot-pop 0.16s ease-out' }
 // The right move pulses green, careful play gold (keyframes in theme-kids.css). Only box-shadow, so it never
 // fights the background of the last-move colour. Without motion: the colour simply stays for a moment.
 const GLOW: Record<Glow, CSSProperties> = {
