@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { Suspense, lazy, useEffect, useState } from 'react'
 import { go, useHashRoute } from './hooks/useHashRoute'
 import { useAchievements } from './hooks/useAchievements'
 import { useAnalyzer } from './hooks/useAnalyzer'
@@ -27,6 +27,7 @@ import { QuestBook } from './screens/QuestBook'
 import { Mirror } from './screens/Mirror'
 import { Atlas } from './screens/Atlas'
 import { ThreatCheck } from './screens/ThreatCheck'
+const RealMap = lazy(() => import('./screens/RealMap'))
 import { Encounter, Habits, KingFastTravel, KingHome, KingStation, KingWorld, WarmUp, WarTent } from './screens/King'
 import { OpeningMap } from './screens/OpeningMap'
 import { Import } from './screens/Import'
@@ -141,6 +142,7 @@ function App() {
   else if (page === 'atlas') body = <Atlas rep={rep} />
   else if (page === 'threat-check') body = <ThreatCheck />
   else if (page === 'world') body = <KingWorld />
+  else if (page === 'realmap') body = <Suspense fallback={null}><RealMap /></Suspense>
   else if (page === 'road') body = <KingFastTravel />
   else if (page === 'check') body = <ChessCheck rep={rep} />
   else if (page === 'portal') body = <Portal rep={rep} />

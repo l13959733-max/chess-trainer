@@ -310,6 +310,7 @@ export function KingStamps() {
           {mirrorOpen(state.beaten) && <button type="button" onClick={() => go('mirror')}>🪞 Mirror World</button>}
           <button type="button" onClick={() => go('path')}>📚 All openings</button>
           <button type="button" onClick={() => go('world')}>🗺️ The old map</button>
+          <button type="button" onClick={() => go('realmap')}>🌍 Real map (draft)</button>
           <button type="button" className="close" onClick={() => setMore(false)}>Close</button>
         </div>
       )}
