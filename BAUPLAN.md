@@ -323,7 +323,19 @@ braucht Internet. Farben je Region: Entwurf https://claude.ai/artifact/5SycDXEQ3
 Orient, Spanien/Italien = Lus Wahl; Rest Vorschlag: Bordeaux Paris/Wien, Grün Britannien, Fjordblau Norden,
 Art-déco-Blau New York, Grün-Gelb Rio, Indigo Orbit).
 
-### [ ] 26. Jede Stadt als Buchkapitel (Prototyp Barcelona 12.11. abends, Lu: „ziemlich cool … später für alle Städte“)
+### [~] 26. Jede Stadt als Buchkapitel – EINGEBAUT 12.11. nachts (Vorschau)
+**Stand:** `src/screens/CityBook.tsx` + `src/lib/cityBook.ts` (BOOK: Region/Farbe, Untertitel, Überschrift, Geschichte, „On the
+board“, Schwarz-Station). Jede Stadt (nicht Spiegelwelt) öffnet als Kapitel: Titelblatt → Kapitel + Inhaltsverzeichnis
+(Geschichte · Schritte · As White · As Black · How do you react? · Boss · Extras) → Leseseite in Regionsfarbe. Geschichte
+lesen zählt als Schritt „talk“. Titelbilder `public/king/book/<id>.jpg` = obere Ausschnitte der Stadt-Gemälde OHNE Liam
+(Übergang), Barcelona = Gaudí-Mosaik. Geschichten NUR aus Fakten, die schon in king.ts stehen (+ Barcelona/Moskau recherchiert).
+**Moskau ist Station** (nach Winter Forest): Petrov als Schwarz (7 Linien), Boss „The Iron Wall“, Bild = Ausschnitt aus forest.jpg
+(Kuppeln) – teilt sich das Gemälde mit Winter Forest, bis es eigene Bilder gibt. Fakten: Petrov 1794–1867, mit Jaenisch analysiert;
+Moskau 1925 erstes staatlich gefördertes Turnier, Bogoljubow vor Lasker/Capablanca; 1948–1972 nur sowjetische Weltmeister;
+Kasparov schlägt Karpov 1985 in Moskau, Weltmeister bis 2000.
+**Offen:** eigene Bilder je Stadt im Stil der Stadt (selbst zeichnen oder Higgsfield = Lus OK); Spiegelwelt-Fortschritt in die Städte
+umziehen (Schwarz-Linien stehen schon im Kapitel, die Spiegelwelt gibt es aber noch); Drachenhöhle als eigener Ort auf der Karte.
+Ursprünglicher Prototyp:
 Vorbild: Lus Pinterest-Entwurf einer Geschichts-Lese-App. Prototyp (nicht in der App): https://claude.ai/artifact/9xBztKQ3qBXHuELJ7L88LV
 – **Ablauf:** Stadt auf der Karte antippen → **Titelblatt** (Stadt, Jahr, Untertitel, großes Bild im Bogen) → nach unten
   scrollen → **Kapitel** (Kapitel-Nr. = Platz in `route()`, Überschrift = die Technik, 2 kurze Absätze, Skill-Pillen,

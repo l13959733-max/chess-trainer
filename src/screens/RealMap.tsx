@@ -25,12 +25,11 @@ const LNGLAT: Record<string, [number, number]> = {
   north: [10.39, 63.43], valencia: [-0.38, 39.47], barcelona: [2.17, 41.39], rome: [12.5, 41.9],
   palace: [9.93, 51.54], vienna: [16.37, 48.21], paris: [2.35, 48.86], edinburgh: [-3.19, 55.95],
   london: [-0.13, 51.51], forest: [33.3, 59.2], reykjavik: [-21.94, 64.15], newyork: [-74.01, 40.71],
-  rio: [-43.17, -22.91], orbit: [63.31, 45.96], chennai: [80.27, 13.08],
+  rio: [-43.17, -22.91], moscow: [37.62, 55.76], orbit: [63.31, 45.96], chennai: [80.27, 13.08],
 }
 const IMG = import.meta.env.BASE_URL + 'king/'
 // planned cities, shown on the map but not playable yet (Lu, 12.11.: "Russland dazunehmen")
 const SOON: { id: string; name: string; at: [number, number]; note: string }[] = [
-  { id: 'moscow', name: 'Moscow', at: [37.62, 55.76], note: 'The Petrov as Black – the Russian Game. Coming soon.' },
 ]
 
 // recolour the plain OpenFreeMap style: paper land, calm sea, roads only when you come close, few labels

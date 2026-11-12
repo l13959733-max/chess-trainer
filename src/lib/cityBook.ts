@@ -17,6 +17,7 @@ const R = {
   ny: { name: 'New York', color: '#1b2a45', accent: '#d4a843' },
   br: { name: 'Brazil', color: '#0f5536', accent: '#f2c230' },
   sp: { name: 'Orbit', color: '#221d45', accent: '#b9c4d6' },
+  ru: { name: 'Russia', color: '#6b1d1d', accent: '#d8b25a' },
 } satisfies Record<string, Region>
 
 export interface Chapter {
@@ -186,6 +187,19 @@ export const BOOK: Record<string, Chapter> = {
     story: ['Around 1910, the Russian master Stepan Levitsky liked to answer 1.d4 d5 with an early jump: 2.Bg5. The opening carries his name.'],
     board: ['It is the same bishop jump as the Trompowsky – one idea for two answers.'],
     black: 'mirror-slav',
+  },
+  moscow: {
+    region: R.ru,
+    subtitle: 'The Russian school',
+    headline: 'Attack back: 2...Nf6',
+    story: [
+      'Alexander Petrov, born in 1794, was for more than half a century the strongest chess player in Russia.',
+      'Together with Carl Jaenisch he analysed a calm answer to 1.e4 e5 2.Nf3: do not defend your pawn – attack White’s with 2...Nf6. It carries his name, the Petrov Defense, also called the Russian Game.',
+      'In late 1925 Moscow held the world’s first state-sponsored chess tournament. The world champion Capablanca and his predecessor Lasker came to win it – but Efim Bogoljubov finished ahead of both.',
+      'From 1948 to 1972 every world champion came from the Soviet Union: Botvinnik, Smyslov, Tal, Petrosian, Spassky – until Fischer won in Reykjavík.',
+      'And in 1985, here in Moscow, Garry Kasparov beat Anatoly Karpov and became world champion at 22. He kept the title until 2000.',
+    ],
+    board: ['After 3.Nxe5 play ...d6 first – only then take on e4. Take at once, and 4.Qe2 can cost you the queen.', 'Your knight on e4 is strong. Back it up with ...d5.'],
   },
   reykjavik: {
     region: R.no,

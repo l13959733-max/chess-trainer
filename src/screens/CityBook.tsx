@@ -38,9 +38,9 @@ function group(lines: Line[]): [string, Line[]][] {
 }
 const short = (title: string, opening: string) => {
   const p = opening + ': '
-  if (title.startsWith(p)) return title.slice(p.length)
   const first = opening.split(' ')[0] + ': '
-  return title.startsWith(first) ? title.slice(first.length) : title
+  const t = title.startsWith(p) ? title.slice(p.length) : title.startsWith(first) ? title.slice(first.length) : title
+  return t.charAt(0).toUpperCase() + t.slice(1)
 }
 
 export function CityBook({
@@ -156,17 +156,6 @@ export function CityBook({
                   </ol>
                 </div>
               ))}
-              {choose && (
-                <ol className="book-toc">
-                  <li className={choose.done ? 'is-done' : ''}>
-                    <button type="button" onClick={() => go(choose.route)}>
-                      <span className="n">{no()}</span>
-                      <span className="t">How do you react?<small>which move against which answer</small></span>
-                      <span className="s">{choose.done ? '✓' : 'Play'}</span>
-                    </button>
-                  </li>
-                </ol>
-              )}
             </>
           )}
 
@@ -193,6 +182,17 @@ export function CityBook({
             </>
           )}
 
+          {choose && (
+            <ol className="book-toc">
+              <li className={choose.done ? 'is-done' : ''}>
+                <button type="button" onClick={() => go(choose.route)}>
+                  <span className="n">{no()}</span>
+                  <span className="t">How do you react?<small>which move against which answer</small></span>
+                  <span className="s">{choose.done ? '✓' : 'Play'}</span>
+                </button>
+              </li>
+            </ol>
+          )}
           <ol className="book-toc">
             <li className={`book-boss${boss.done ? ' is-done' : ''}`}>
               <button type="button" onClick={() => go(boss.route)}>

@@ -465,6 +465,24 @@ export const STATIONS: Station[] = [
     boss: { name: 'The Snow Bishop', face: '❄️', img: 'boss-snowbishop.jpg', kind: 'lines', taunt: 'My diagonals are frozen solid!', win: 'The Snow Bishop melts into a smile. Spring comes to the forest.' },
   },
   {
+    // Lu, 12.11.: Russia on the map – the Petrov as Black, properly. Facts checked: Wikipedia (Petrov, Moscow 1925), chess.com.
+    id: 'moscow', name: 'Moscow', year: '1925', x: 1150, y: 235, medallion: true, color: '#6b1d1d',
+    intro: 'The Russian school of chess – and a calm answer to 1.e4 e5 2.Nf3 that carries a Russian name.',
+    skills: ['The Petrov', 'First …d6, then …Nxe4', 'Against a gambit'],
+    scene: 'forest.jpg',
+    master: {
+      name: 'Alexander Petrov', from: 'Russia’s strongest player for half a century', skin: '#f2c9a0', hair: '#4a3420', coat: '#6b1d1d', beard: true,
+      talk: [
+        { who: 'master', text: 'I am Alexander Petrov. For more than fifty years I was the strongest chess player in Russia.' },
+        { who: 'master', text: 'Against 1.e4 e5 2.Nf3 I do not defend my pawn – I attack White’s: 2...Nf6.' },
+        { who: 'master', text: 'The opening carries my name: the Petrov Defense. Some call it the Russian Game.' },
+      ],
+    },
+    games: [],
+    lines: { opening: 'Petrov Defense', side: 'b' },
+    boss: { name: 'The Iron Wall', face: '🧱', img: 'boss-moscow.jpg', kind: 'lines', taunt: 'Nxe5 – your pawn is mine. Do you know what comes next?', win: 'The Iron Wall steps aside. You play the Russian Game like a Muscovite.' },
+  },
+  {
     id: 'reykjavik', name: 'Reykjavík', year: '1972', x: 745, y: 120, sea: true, color: '#a61e4d',
     intro: 'The match the whole world watched – and a first move nobody expected.',
     skills: ['Black against 1.c4'],

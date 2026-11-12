@@ -708,8 +708,8 @@ function StationPage({ s, rep }: { s: Station; rep: Repertoire }) {
         ch={ch}
         chapterNo={route().indexOf(s.id) + 1}
         steps={steps}
-        white={lines}
-        black={black}
+        white={s.lines?.side === 'b' ? [] : lines}
+        black={s.lines?.side === 'b' ? [...lines, ...black] : black}
         blackFrom={blackSt?.intro}
         known={(id) => rep.srs.has(id)}
         extras={s.games.filter((g) => g.extra).map((g) => ({ id: g.id, title: g.title, done: loadKing().got.includes(`${s.id}/${g.id}`) }))}

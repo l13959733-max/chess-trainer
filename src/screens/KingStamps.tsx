@@ -17,7 +17,7 @@ const H = 764
 const AT: Record<string, [number, number]> = {
   kannauj: [1470, 470], persia: [1320, 450], samarkand: [1370, 330], baghdad: [1205, 455], orbit: [1440, 235], chennai: [1515, 590],
   valencia: [800, 405], barcelona: [890, 385], rome: [995, 380], paris: [880, 295], london: [845, 210], edinburgh: [760, 160],
-  reykjavik: [670, 95], north: [935, 105], palace: [955, 205], vienna: [1040, 285], forest: [1120, 165], newyork: [440, 322], rio: [600, 600],
+  reykjavik: [670, 95], north: [935, 105], palace: [955, 205], vienna: [1040, 285], forest: [1120, 165], moscow: [1190, 225], newyork: [440, 322], rio: [600, 600],
 }
 const at = (s: Station) => {
   const p = AT[s.id] ?? [s.x, s.y]
