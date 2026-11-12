@@ -724,3 +724,13 @@
 @media (prefers-reduced-motion: reduce) { .hub-peek { animation: none; } }
 .hub .hub-hero { color: #f7efe2; }
 .hub .hub-rush { color: #f1ece0; }
+/* one bottom bar everywhere: the bar carries its own colours */
+.hub-bar, .hub-more { --paper: #eee8dc; --card: #f8f3ea; --soft: #6a5f55; --line: #ddd2c0; --terra: #7a3420; z-index: 40; font-family: Inter, system-ui, -apple-system, sans-serif; color: #1b1612; }
+.rm .hub-bar { position: absolute; }
+.rm .hub-bar button, .rm .hub-more button { font: inherit; color: inherit; min-height: 0; text-transform: none; letter-spacing: 0; box-shadow: none; }
+.rm .hub-bar button { color: #6a5f55; font-size: 10px; font-weight: 600; } .rm .hub-bar button.on { color: #7a3420; }
+.rm .rm-sheet { bottom: calc(86px + env(safe-area-inset-bottom, 0px)); }
+.rm .maplibregl-ctrl-top-right { top: calc(8px + env(safe-area-inset-top, 0px)); }
+.rm-coin.rm-soon { display: grid; place-items: center; background: #f8f3ea; box-shadow: 0 0 0 2px #7a3420, 0 3px 8px rgba(60, 30, 10, .3); border-style: dashed; border-color: #7a3420; }
+.rm-soon-in { font-size: 22px; color: #7a3420; }
+.rm-coin.rm-soon .rm-name { background: #7a3420; color: #fff; opacity: .9; }

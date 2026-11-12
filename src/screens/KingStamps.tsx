@@ -296,7 +296,7 @@ export function KingStamps() {
         </button>
         <nav className="explore-modes" aria-label="Modes">
           <button type="button" onClick={() => go('')}><span aria-hidden="true">🏠</span>Home</button>
-          <button type="button" className="on" aria-current="page"><span aria-hidden="true">🗺️</span>Map</button>
+          <button type="button" onClick={() => go('journey')}><span aria-hidden="true">🗺️</span>Map</button>
           <button type="button" onClick={() => go('tent')}><span aria-hidden="true">⛺</span>Training</button>
           <button type="button" className={dailyOpen ? 'dot' : ''} onClick={() => go('threat-check')}><span aria-hidden="true">🎯</span>Daily</button>
           <button type="button" onClick={() => setMore(!more)} aria-expanded={more}><span aria-hidden="true">☰</span>More</button>
@@ -312,7 +312,7 @@ export function KingStamps() {
           <button type="button" onClick={() => go('path')}>📚 All openings</button>
           <button type="button" onClick={() => go('world')}>🗺️ The old map</button>
           <button type="button" onClick={() => go('rush')}>💥 Square Rush</button>
-          <button type="button" onClick={() => go('realmap')}>🌍 Real map (draft)</button>
+          <button type="button" onClick={() => go('journey')}>🌍 The real map</button>
           <button type="button" className="close" onClick={() => setMore(false)}>Close</button>
         </div>
       )}

@@ -146,7 +146,8 @@ function App() {
   else if (page === 'threat-check') body = <ThreatCheck />
   else if (page === 'world') body = <KingWorld />
   else if (page === 'rush') body = <SquareRush />
-  else if (page === 'journey') body = <KingStamps />
+  else if (page === 'journey') body = <Suspense fallback={null}><RealMap /></Suspense>
+  else if (page === 'painted') body = <KingStamps />
   else if (page === 'realmap') body = <Suspense fallback={null}><RealMap /></Suspense>
   else if (page === 'road') body = <KingFastTravel />
   else if (page === 'check') body = <ChessCheck rep={rep} />

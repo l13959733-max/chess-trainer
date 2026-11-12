@@ -3,10 +3,10 @@ import { createPortal } from 'react-dom'
 import maplibregl from 'maplibre-gl'
 import type { StyleSpecification } from 'maplibre-gl'
 import 'maplibre-gl/dist/maplibre-gl.css'
+import { BottomBar } from '../components/BottomBar'
 import { MascotDrawing } from '../components/Mascot'
-import { go } from '../hooks/useHashRoute'
-import { roadAmbush } from '../lib/ambush'
-import { isOpen, loadKing, opensAfter, route, saveKing, stationById, type Station } from '../lib/king'
+import { isOpen, loadKing, opensAfter, route, stationById, type Station } from '../lib/king'
+import { travelTo } from '../lib/travel'
 
 // Draft (Lu, 12.11. evening): a real map like in the Neuhaus software – free OpenStreetMap tiles from OpenFreeMap
 // (no key, no cost), drawn in the book colours (cream, terracotta). Cities sit where they really are; you zoom
@@ -24,10 +24,14 @@ const LNGLAT: Record<string, [number, number]> = {
   kannauj: [79.92, 27.05], persia: [51.67, 32.65], samarkand: [66.96, 39.65], baghdad: [44.36, 33.31],
   north: [10.39, 63.43], valencia: [-0.38, 39.47], barcelona: [2.17, 41.39], rome: [12.5, 41.9],
   palace: [9.93, 51.54], vienna: [16.37, 48.21], paris: [2.35, 48.86], edinburgh: [-3.19, 55.95],
-  london: [-0.13, 51.51], forest: [37.5, 57.5], reykjavik: [-21.94, 64.15], newyork: [-74.01, 40.71],
+  london: [-0.13, 51.51], forest: [33.3, 59.2], reykjavik: [-21.94, 64.15], newyork: [-74.01, 40.71],
   rio: [-43.17, -22.91], orbit: [63.31, 45.96], chennai: [80.27, 13.08],
 }
 const IMG = import.meta.env.BASE_URL + 'king/'
+// planned cities, shown on the map but not playable yet (Lu, 12.11.: "Russland dazunehmen")
+const SOON: { id: string; name: string; at: [number, number]; note: string }[] = [
+  { id: 'moscow', name: 'Moscow', at: [37.62, 55.76], note: 'The Petrov as Black – the Russian Game. Coming soon.' },
+]
 
 // recolour the plain OpenFreeMap style: paper land, calm sea, roads only when you come close, few labels
 function bookStyle(s: StyleSpecification): StyleSpecification {
@@ -87,6 +91,8 @@ export default function RealMap() {
   // one DOM node per coin; React draws into them, MapLibre moves them with the map
   const nodes = useMemo(() => Object.fromEntries(cities.map((s) => [s.id, document.createElement('div')])), [cities])
   const hoppyNode = useMemo(() => document.createElement('div'), [])
+  const soonNodes = useMemo(() => Object.fromEntries(SOON.map((c) => [c.id, document.createElement('div')])), [])
+  const [soon, setSoon] = useState<(typeof SOON)[number] | null>(null)
 
   useEffect(() => {
     if (!box.current) return
@@ -119,6 +125,7 @@ export default function RealMap() {
           m.addLayer({ id: 'road-done', type: 'line', source: 'road-done', paint: { 'line-color': TERRA, 'line-width': 4 }, layout: { 'line-cap': 'round', 'line-join': 'round' } })
         })
         cities.forEach((s) => new maplibregl.Marker({ element: nodes[s.id], anchor: 'center' }).setLngLat(LNGLAT[s.id]).addTo(m))
+        SOON.forEach((c) => new maplibregl.Marker({ element: soonNodes[c.id], anchor: 'center' }).setLngLat(c.at).addTo(m))
         if (next) new maplibregl.Marker({ element: hoppyNode, anchor: 'bottom-left', offset: [22, -6] }).setLngLat(LNGLAT[next.id]).addTo(m)
       })
       .catch(() => !gone && setFailed(true))
@@ -127,31 +134,20 @@ export default function RealMap() {
       map.current?.remove()
       map.current = null
     }
-  }, [cities, nodes, hoppyNode, next, nextIdx])
+  }, [cities, nodes, hoppyNode, soonNodes, next, nextIdx])
 
   function pick(s: Station) {
+    setSoon(null)
     setPicked(s)
     map.current?.flyTo({ center: LNGLAT[s.id], zoom: Math.max(map.current.getZoom(), 5.5), duration: 1400, essential: true })
   }
-  function open(s: Station) {
-    if (s.id !== state.here) {
-      if (roadAmbush(state.beaten)) {
-        go('encounter/' + s.id)
-        return
-      }
-      saveKing({ ...loadKing(), here: s.id })
-    }
-    go('king/' + s.id)
-  }
+  const open = (s: Station) => travelTo(s)
+
   const pickedOpen = picked ? isOpen(picked, state.beaten) : false
   return (
     <div className="rm">
       <div className="rm-map" ref={box} />
       {failed && <p className="rm-fail">The map needs internet. Try again when you are online.</p>}
-      <div className="rm-top">
-        <button type="button" onClick={() => go('journey')}>← Painted map</button>
-        <span>Draft · real map</span>
-      </div>
       {cities.map((s, i) => {
         const st = state.beaten.includes(s.id) ? 'done' : s === next ? 'next' : 'locked'
         return createPortal(
@@ -165,6 +161,25 @@ export default function RealMap() {
           s.id,
         )
       })}
+      {SOON.map((c) =>
+        createPortal(
+          <button
+            type="button"
+            className="rm-coin rm-soon"
+            onClick={() => {
+              setPicked(null)
+              setSoon(c)
+              map.current?.flyTo({ center: c.at, zoom: Math.max(map.current.getZoom(), 5.5), duration: 1400, essential: true })
+            }}
+            aria-label={`${c.name}, coming soon`}
+          >
+            <span className="rm-soon-in" aria-hidden="true">♜</span>
+            <span className="rm-name">{c.name} · soon</span>
+          </button>,
+          soonNodes[c.id],
+          c.id,
+        ),
+      )}
       {next &&
         createPortal(
           <svg className="rm-hoppy king-bob" viewBox="0 0 120 120" width="54" height="54" aria-hidden="true">
@@ -172,6 +187,14 @@ export default function RealMap() {
           </svg>,
           hoppyNode,
         )}
+      {soon && (
+        <div className="rm-sheet">
+          <button type="button" className="rm-close" onClick={() => setSoon(null)} aria-label="Close">×</button>
+          <p className="rm-kicker">Coming soon</p>
+          <h2>{soon.name}</h2>
+          <p className="rm-intro">{soon.note}</p>
+        </div>
+      )}
       {picked && (
         <div className="rm-sheet">
           <button type="button" className="rm-close" onClick={() => setPicked(null)} aria-label="Close">×</button>
@@ -185,6 +208,7 @@ export default function RealMap() {
           )}
         </div>
       )}
+      <BottomBar active="map" />
     </div>
   )
 }

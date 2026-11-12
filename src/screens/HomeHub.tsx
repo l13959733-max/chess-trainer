@@ -1,13 +1,14 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Chess } from 'chess.js'
+import { BottomBar } from '../components/BottomBar'
 import { Mascot } from '../components/Mascot'
 import { go } from '../hooks/useHashRoute'
 import type { useProgress } from '../hooks/useProgress'
 import type { usePuzzles } from '../hooks/usePuzzles'
 import type { useRepertoire } from '../hooks/useRepertoire'
-import { roadAmbush } from '../lib/ambush'
 import { fetchRapidRating } from '../lib/chesscom'
-import { STATIONS, isOpen, loadKing, mirrorOpen, route, saveKing, stationById, type Station } from '../lib/king'
+import { STATIONS, loadKing, route, stationById } from '../lib/king'
+import { nextCity } from '../lib/travel'
 import { getName } from '../lib/profile'
 import { isDue } from '../lib/srs'
 import { dailyPuzzle, dayNumber, loadResults } from '../lib/threatcheck'
@@ -51,12 +52,11 @@ function dailyBoard(day: number) {
 export function HomeHub({ rep, progress, puzzles, player }: { rep: ReturnType<typeof useRepertoire>; progress: ReturnType<typeof useProgress>; puzzles: ReturnType<typeof usePuzzles>; player: string }) {
   const [king] = useState(loadKing)
   const [now] = useState(() => Date.now())
-  const [more, setMore] = useState(false)
   const [rating, setRating] = useState<number | null>(null)
   const [best] = useState(rushBest)
   const name = getName() ?? 'Traveller'
   const cities = route().map((id) => stationById(id)!).filter(Boolean)
-  const next = cities.find((s) => isOpen(s, king.beaten) && !king.beaten.includes(s.id))
+  const next = nextCity(king.beaten)
   const bosses = STATIONS.filter((s) => !s.finale).length
   const beaten = king.beaten.filter((id) => STATIONS.some((s) => s.id === id && !s.finale)).length
   const day = dayNumber()
@@ -77,14 +77,6 @@ export function HomeHub({ rep, progress, puzzles, player }: { rep: ReturnType<ty
     }
   }, [player])
 
-  function open(s: Station) {
-    if (s.id !== king.here) {
-      if (roadAmbush(king.beaten)) return go('encounter/' + s.id)
-      saveKing({ ...loadKing(), here: s.id })
-    }
-    go('king/' + s.id)
-  }
-  const goOn = () => (next ? open(next) : go('tent'))
   const chapter = next ? cities.indexOf(next) + 1 : cities.length
   // the hero shows the painted map around the next city
   const mx = next ? (next.x / MAP_W) * 100 : 50
@@ -178,37 +170,7 @@ export function HomeHub({ rep, progress, puzzles, player }: { rep: ReturnType<ty
         <button type="button" onClick={() => go('play')}>Bot ▶</button>
       </nav>
 
-      <nav className="hub-bar" aria-label="Main">
-        <button type="button" className="on" aria-current="page">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" aria-hidden="true"><path d="M3 11 12 4l9 7v9h-6v-6H9v6H3z" /></svg>Home
-        </button>
-        <button type="button" onClick={() => go('journey')}>
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" aria-hidden="true"><path d="M9 4 3 6v14l6-2 6 2 6-2V4l-6 2-6-2Z" /><path d="M9 4v14M15 6v14" /></svg>Map
-        </button>
-        <button type="button" className="hub-mid" onClick={goOn} aria-label={next ? `Play – ${next.name}` : 'Play'}>
-          <Mascot mood="happy" />
-        </button>
-        <button type="button" onClick={() => go('tent')}>
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" aria-hidden="true"><path d="M12 3 3 20h18L12 3Z" /><path d="M12 3v17M9 20l3-6 3 6" /></svg>Training
-        </button>
-        <button type="button" onClick={() => setMore(!more)} aria-expanded={more}>
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16" /></svg>More
-        </button>
-      </nav>
-
-      {more && (
-        <div className="hub-more" role="dialog" aria-label="More">
-          <button type="button" onClick={() => go('path')}>📚 All openings</button>
-          <button type="button" onClick={() => go('quests')}>📖 Quest book</button>
-          <button type="button" onClick={() => go('road')}>🧭 Fast travel (list)</button>
-          <button type="button" onClick={() => go('realmap')}>🌍 Real map (draft)</button>
-          <button type="button" onClick={() => go(king.beaten.includes('kannauj') ? 'portal' : 'check')}>🌀 Real world</button>
-          <button type="button" onClick={() => go('watch')}>👫 Together</button>
-          {mirrorOpen(king.beaten) && <button type="button" onClick={() => go('mirror')}>🪞 Mirror World</button>}
-          <button type="button" onClick={() => go('settings')}>⚙️ Settings</button>
-          <button type="button" className="close" onClick={() => setMore(false)}>Close</button>
-        </div>
-      )}
+      <BottomBar active="home" />
     </div>
   )
 }
