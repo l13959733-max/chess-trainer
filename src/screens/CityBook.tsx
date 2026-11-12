@@ -3,6 +3,7 @@ import { BottomBar } from '../components/BottomBar'
 import { go } from '../hooks/useHashRoute'
 import type { Chapter } from '../lib/cityBook'
 import type { Station } from '../lib/king'
+import NAMES from '../lib/line-names.json'
 import type { Line } from '../lib/pgn'
 
 // A city as a book chapter, in PAGES like an app – no scrolling (Lu, 12.11. night: „auf Apps ist es geiler, wenn alles
@@ -33,6 +34,13 @@ const short = (title: string, opening: string) => {
   const first = opening.split(' ')[0] + ': '
   const t = title.startsWith(p) ? title.slice(p.length) : title.startsWith(first) ? title.slice(first.length) : title
   return t.charAt(0).toUpperCase() + t.slice(1)
+}
+// the real name of a line (Lichess opening table, scripts/name-lines.mjs), without the family when the group already says it
+function realName(l: Line, opening: string): string | null {
+  const full = (NAMES as Record<string, string>)[l.side + '|' + l.title]
+  if (!full) return null
+  const [fam, rest] = full.split(': ')
+  return rest && fam.startsWith(opening.split(' ')[0]) ? rest : full
 }
 const pageKey = (id: string) => 'hoppy-book-page-' + id
 function savedPage(id: string): Page | null {
@@ -98,17 +106,36 @@ export function CityBook({
     if (page.kind === 'cover') setPage({ kind: 'story', i: 0 })
     else if (page.kind === 'story') setPage(page.i + 1 < parts.length ? { kind: 'story', i: page.i + 1 } : { kind: 'tech' })
   }
-  // swipe left = next page, swipe right = one page back (cover and story)
-  const touch = useRef<number | null>(null)
+  // Lu, 13.11.: no Next button – swipe. The page follows the finger and snaps to the next one (cover and story).
+  const touch = useRef<{ x: number; y: number } | null>(null)
+  const pageEl = useRef<HTMLDivElement>(null)
+  const swipeable = page.kind === 'story' || page.kind === 'cover'
+  const slide = (dx: number, animate: boolean) => {
+    const el = pageEl.current?.querySelector<HTMLElement>('.bp')
+    if (!el) return
+    el.style.transition = animate ? 'transform .22s ease, opacity .22s ease' : 'none'
+    el.style.transform = dx ? `translateX(${dx}px)` : ''
+    el.style.opacity = dx ? String(Math.max(0.35, 1 - Math.abs(dx) / 500)) : ''
+  }
   const onTouchStart = (e: TouchEvent) => {
-    touch.current = e.touches[0].clientX
+    if (swipeable) touch.current = { x: e.touches[0].clientX, y: e.touches[0].clientY }
+  }
+  const onTouchMove = (e: TouchEvent) => {
+    if (!touch.current) return
+    const dx = e.touches[0].clientX - touch.current.x
+    if (Math.abs(dx) > Math.abs(e.touches[0].clientY - touch.current.y)) slide(page.kind === 'cover' ? Math.min(dx, 0) : dx, false)
   }
   const onTouchEnd = (e: TouchEvent) => {
-    if (touch.current === null || (page.kind !== 'story' && page.kind !== 'cover')) return
-    const dx = e.changedTouches[0].clientX - touch.current
+    if (!touch.current) return
+    const dx = e.changedTouches[0].clientX - touch.current.x
     touch.current = null
-    if (dx < -50) forward()
-    else if (dx > 50 && page.kind === 'story') back()
+    if (dx < -60) {
+      slide(-window.innerWidth, true)
+      window.setTimeout(forward, 180)
+    } else if (dx > 60 && page.kind === 'story') {
+      slide(window.innerWidth, true)
+      window.setTimeout(back, 180)
+    } else slide(0, true)
   }
 
   const top = (label: string, light = false) => (
@@ -147,6 +174,7 @@ export function CityBook({
         <div className="bp-dots" aria-hidden="true">
           {parts.map((_, k) => <i key={k} className={k === page.i ? 'on' : k < page.i ? 'seen' : ''} />)}
         </div>
+        {/* Lu, 13.11.: the Next button stays for now – swiping works too */}
         <button type="button" className="book-go light" onClick={forward}>{last ? 'To the techniques →' : 'Next →'}</button>
       </section>
     )
@@ -223,12 +251,15 @@ export function CityBook({
                   {op} <span>{count(lines)}</span>
                 </h5>
                 <div className="bp-grid">
-                  {lines.map((l) => (
-                    <button type="button" key={l.id} className={known(l.id) ? 'is-done' : ''} onClick={() => go(lineRoute(l))}>
-                      {short(l.title, op)}
-                      <small>{known(l.id) ? '✓' : 'Learn'}</small>
-                    </button>
-                  ))}
+                  {lines.map((l) => {
+                    const name = realName(l, op)
+                    return (
+                      <button type="button" key={l.id} className={`bp-line${known(l.id) ? ' is-done' : ''}`} onClick={() => go(lineRoute(l))}>
+                        <span className="bp-name">{name ?? short(l.title, op)}</span>
+                        <span className="bp-moves">{name ? short(l.title, op) : ''}<em>{known(l.id) ? '✓' : 'Learn'}</em></span>
+                      </button>
+                    )
+                  })}
                 </div>
               </div>
             ))
@@ -239,7 +270,7 @@ export function CityBook({
   }
 
   return (
-    <div className={`book book-paged page-${page.kind}`} style={vars} onTouchStart={onTouchStart} onTouchEnd={onTouchEnd}>
+    <div ref={pageEl} className={`book book-paged page-${page.kind}`} style={vars} onTouchStart={onTouchStart} onTouchMove={onTouchMove} onTouchEnd={onTouchEnd}>
       {body}
       <BottomBar active="map" />
     </div>

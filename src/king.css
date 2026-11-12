@@ -864,3 +864,16 @@
 @media (prefers-reduced-motion: reduce) { .book-paged .bp, .bp-para { animation: none; } }
 .bp-cover h1 { font-family: 'EB Garamond', Georgia, serif; font-weight: 500; font-size: clamp(36px, 11vw, 46px); line-height: 1.02; text-wrap: balance; }
 .book-paged .book-top.light .book-back { color: #1b1612; }
+/* each variation with its real name (Lichess opening table) and our moves below */
+.bp-grid button.bp-line { flex-direction: column; align-items: stretch; justify-content: space-between; gap: 4px; text-align: left; }
+.bp-line .bp-name { font-family: 'EB Garamond', Georgia, serif; font-size: 15.5px; line-height: 1.12; }
+.bp-line .bp-moves { display: flex; justify-content: space-between; gap: 6px; font-family: Inter, sans-serif; font-size: 10.5px; color: var(--soft); line-height: 1.25; }
+.bp-line .bp-moves em { font-style: normal; flex: none; }
+.bp-line.is-done .bp-moves em { color: var(--house); font-weight: 700; }
+/* swipe instead of a Next button (13.11.) */
+.bp-swipe { flex: none; display: flex; justify-content: center; align-items: center; gap: 8px; margin: 6px 0 14px; min-height: 22px; font-size: 12px; font-weight: 600; letter-spacing: .04em; color: rgba(243, 236, 224, .75); }
+.bp-swipe span { display: inline-block; font-size: 16px; color: var(--accent); animation: bp-nudge 1.6s ease-in-out infinite; }
+@keyframes bp-nudge { 50% { transform: translateX(-7px); } }
+.sr-only { position: absolute !important; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
+.book-paged { touch-action: pan-y; }
+@media (prefers-reduced-motion: reduce) { .bp-swipe span { animation: none; } }
