@@ -10,6 +10,7 @@ import type { Reward } from '../hooks/useProgress'
 import { checkMove } from '../lib/drill'
 import { feedback } from '../lib/feedback'
 import type { Line, LineArrow } from '../lib/pgn'
+import { lineName, nameAt } from '../lib/lineNames'
 import { explanationText } from '../lib/speech'
 
 const CAL: Record<LineArrow['color'], string> = {
@@ -107,6 +108,8 @@ export function Learn({ line, onComplete }: { line: Line; onComplete: () => Prom
       </div>
 
       <Board fen={fen} orientation={line.side === 'w' ? 'white' : 'black'} onMove={myTurn ? onMove : undefined} arrows={arrows} squareStyles={styles} />
+      {/* Lu, 13.11.: the real name of the position, live under the board */}
+      <p className="opening-now" aria-live="polite">{nameAt(line, ply) ?? lineName(line) ?? ''}</p>
 
       <div className="drill-status">
         <span>{!next ? 'Line complete' : myTurn ? 'Your move: follow the blue arrow' : waiting ? 'Opponent is moving …' : 'Opponent’s move – tap Next'}</span>

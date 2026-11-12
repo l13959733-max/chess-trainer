@@ -3,7 +3,7 @@ import { BottomBar } from '../components/BottomBar'
 import { go } from '../hooks/useHashRoute'
 import type { Chapter } from '../lib/cityBook'
 import type { Station } from '../lib/king'
-import NAMES from '../lib/line-names.json'
+import { shortName } from '../lib/lineNames'
 import type { Line } from '../lib/pgn'
 
 // A city as a book chapter, in PAGES like an app – no scrolling (Lu, 12.11. night: „auf Apps ist es geiler, wenn alles
@@ -34,13 +34,6 @@ const short = (title: string, opening: string) => {
   const first = opening.split(' ')[0] + ': '
   const t = title.startsWith(p) ? title.slice(p.length) : title.startsWith(first) ? title.slice(first.length) : title
   return t.charAt(0).toUpperCase() + t.slice(1)
-}
-// the real name of a line (Lichess opening table, scripts/name-lines.mjs), without the family when the group already says it
-function realName(l: Line, opening: string): string | null {
-  const full = (NAMES as Record<string, string>)[l.side + '|' + l.title]
-  if (!full) return null
-  const [fam, rest] = full.split(': ')
-  return rest && fam.startsWith(opening.split(' ')[0]) ? rest : full
 }
 const pageKey = (id: string) => 'hoppy-book-page-' + id
 function savedPage(id: string): Page | null {
@@ -252,7 +245,7 @@ export function CityBook({
                 </h5>
                 <div className="bp-grid">
                   {lines.map((l) => {
-                    const name = realName(l, op)
+                    const name = shortName(l, op)
                     return (
                       <button type="button" key={l.id} className={`bp-line${known(l.id) ? ' is-done' : ''}`} onClick={() => go(lineRoute(l))}>
                         <span className="bp-name">{name ?? short(l.title, op)}</span>

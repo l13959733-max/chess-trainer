@@ -1,6 +1,7 @@
 // Gives every built-in line its real opening name from the open Lichess opening table (CC0):
 // https://github.com/lichess-org/chess-openings – the deepest named position the line reaches (also by transposition).
 // Usage: node scripts/name-lines.mjs   → writes src/lib/line-names.json  { "w|<line title>": "Catalan Opening: Open Defense, Classical Line" }
+//                                         and src/lib/position-names.json { "<position>": name } for every named position on our lines (live name under the board)
 import { readdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { Chess } from 'chess.js'
 
@@ -19,6 +20,7 @@ for (const f of ['a', 'b', 'c', 'd', 'e']) {
   }
 }
 const out = {}
+const seen = {}
 for (const file of readdirSync('data').filter((f) => f.endsWith('.pgn'))) {
   const games = readFileSync('data/' + file, 'utf8').split(/\n(?=\[Event )/)
   for (const g of games) {
@@ -36,10 +38,13 @@ for (const file of readdirSync('data').filter((f) => f.endsWith('.pgn'))) {
     let best = names.get(epd(w.fen()))
     for (const m of moves) {
       w.move(m)
-      best = names.get(epd(w.fen())) ?? best
+      const here = names.get(epd(w.fen()))
+      if (here) seen[epd(w.fen())] = here
+      best = here ?? best
     }
     if (best) out[side + '|' + title] = best
   }
 }
 writeFileSync('src/lib/line-names.json', JSON.stringify(out, null, 1) + '\n')
-console.log(Object.keys(out).length, 'lines named')
+writeFileSync('src/lib/position-names.json', JSON.stringify(seen) + '\n')
+console.log(Object.keys(out).length, 'lines named,', Object.keys(seen).length, 'named positions')

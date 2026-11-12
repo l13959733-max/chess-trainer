@@ -1,6 +1,7 @@
 import { go } from '../hooks/useHashRoute'
 import type { Repertoire } from '../hooks/useRepertoire'
 import type { Line } from '../lib/pgn'
+import { shortName } from '../lib/lineNames'
 import { daysUntil, lineResult } from '../lib/srs'
 
 // One line on the learning path: a round button (new ★, perfect ✓ or the mistakes), tap it for Learn and Play
@@ -21,7 +22,7 @@ export function PathStep({ line, i, rep, now, branch, open, onToggle }: { line: 
       >
         {r.kind === 'new' ? '★' : r.kind === 'perfect' ? '✓' : r.mistakes}
       </button>
-      <div className="path-label">{line.title}</div>
+      <div className="path-label">{shortName(line, line.opening) ?? line.title}{shortName(line, line.opening) && <small className="path-moves">{line.title}</small>}</div>
       {branch && <div className="path-branch">differs at {branch}</div>}
       {r.kind !== 'new' && (
         <div className={`path-result ${cls}`}>{r.kind === 'perfect' ? 'Perfect' : `${r.mistakes} ${r.mistakes === 1 ? 'mistake' : 'mistakes'}`}{r.due ? ' · practice again' : ''}</div>

@@ -14,6 +14,7 @@ import { daysUntil, type SrsState } from '../lib/srs'
 import { go } from '../hooks/useHashRoute'
 import type { Reward } from '../hooks/useProgress'
 import { moveLabel } from './Learn'
+import { lineName, nameAt } from '../lib/lineNames'
 
 type Feedback =
   | { kind: 'wrong'; tried: { from: string; to: string }; expected: LineMove; ply: number; by?: Mover }
@@ -166,6 +167,8 @@ export function Drill({ line, onDone, after, progress }: Props) {
       </div>
 
       <Board fen={boardFen} orientation={line.side === 'w' ? 'white' : 'black'} onMove={finished ? undefined : onMove} arrows={finished ? [] : arrows} squareStyles={boardStyles} />
+      {/* Lu, 13.11.: the real name of the position, live under the board */}
+      <p className="opening-now" aria-live="polite">{nameAt(line, finished && review !== null ? review : ply) ?? lineName(line) ?? ''}</p>
 
       <div className="drill-status">
         <span>{finished ? 'Line complete' : myTurn ? 'Your move' : 'Opponent is moving …'}</span>
