@@ -1,0 +1,48 @@
+[Event "Catalan: Open 5...c5"]
+[Opening "Catalan"]
+[Side "White"]
+[Result "*"]
+
+1. d4 Nf6 2. c4 e6 3. g3 {The Catalan: Queen's Gambit with the bishop on g2.} d5 4. Bg2 {The bishop looks down the long diagonal at d5, c6, b7 and a8.} dxc4 {Black takes the pawn – the Open Catalan.} 5. Nf3 c5 {Black hits your center at once.} 6. O-O {King safe first. The pawn on c4 can wait.} Nc6 7. dxc5 {Open the d-file: now the queens look at each other.} Qxd1 8. Rxd1 {Your rook takes the open d-file.} Bxc5 9. Nbd2 {The knight goes for c4 – and your bishop on g2 hits the c6 knight.} c3 {Black gives the pawn back so the knight cannot take it.} 10. bxc3 O-O {Queens are gone, but your bishop on g2 still presses on c6 and b7.} *
+
+[Event "Catalan: Open 5...Nc6 6.Qa4"]
+[Opening "Catalan"]
+[Side "White"]
+[Result "*"]
+
+1. d4 Nf6 2. c4 e6 3. g3 d5 4. Bg2 dxc4 5. Nf3 Nc6 {Black guards with the knight and wants ...Rb8 and ...b5.} 6. Qa4 {Pin the knight on c6 – and look at the pawn on c4.} Bb4+ 7. Bd2 Nd5 {The knight blocks the check and eyes b4.} 8. Bxb4 Nxb4 9. O-O {Castle, then win c4 back.} Rb8 {Black wants ...b5 to keep the pawn.} 10. Nc3 {Bring the last piece out; Black's c4 pawn is weak.} *
+
+[Event "Catalan: Open 5...b5 – Black holds the pawn"]
+[Opening "Catalan"]
+[Side "White"]
+[Result "*"]
+
+1. d4 Nf6 2. c4 e6 3. g3 d5 4. Bg2 dxc4 5. Nf3 b5 {Greedy: Black wants to keep the extra pawn.} 6. a4 {Hit the pawn chain from the side.} c6 {Black guards b5 – but now c6 stands on your long diagonal.} 7. Ne5 {The knight and the bishop on g2 both aim at c6 and a8.} Bb4+ 8. Nc3 {Block the check and develop at the same time.} Nd5 9. O-O O-O {Black has the pawn, you have the better pieces – White is better.} *
+
+[Event "Catalan: Closed 4...c6"]
+[Opening "Catalan"]
+[Side "White"]
+[Result "*"]
+
+1. d4 Nf6 2. c4 e6 3. g3 d5 4. Bg2 c6 {Black closes the long diagonal with a pawn wall: c6, d5, e6.} 5. Nf3 Nbd7 6. O-O Be7 7. Nbd2 {The knight goes to d2 so the c4 pawn stays guarded.} Ne4 8. Nxe4 dxe4 9. Nd2 {Hit the pawn on e4 at once.} f5 {Black guards e4 but weakens e6.} 10. c5 {Grab space on the queen side; your bishop waits for the center to open.} *
+
+[Event "Catalan: 3...Bb4+"]
+[Opening "Catalan"]
+[Side "White"]
+[Result "*"]
+
+1. d4 Nf6 2. c4 e6 3. g3 Bb4+ {A check before you play Bg2.} 4. Bd2 {Block with the bishop and offer a trade.} Be7 {Black pulls back: the d2 bishop now stands a little passive.} 5. Bg2 d5 6. Nf3 O-O 7. O-O {Both kings are safe. Now the plan: Qc2 and the rook to d1.} c6 8. Qc2 {The queen guards c4 and looks at e4.} *
+
+[Event "Catalan: 4...Bb4+"]
+[Opening "Catalan"]
+[Side "White"]
+[Result "*"]
+
+1. d4 Nf6 2. c4 e6 3. g3 d5 4. Bg2 Bb4+ 5. Bd2 Be7 {The same trick one move later.} 6. Nf3 c6 7. O-O Nbd7 8. Qc2 {Guard c4, prepare e4.} O-O 9. Rd1 {The rook behind the d-pawn: d4 and later e4 or c5.} *
+
+[Event "Catalan: 3...c5 4.d5"]
+[Opening "Catalan"]
+[Side "White"]
+[Result "*"]
+
+1. d4 Nf6 2. c4 e6 3. g3 c5 {Black hits d4 with the c-pawn.} 4. d5 {Push past it and take space.} exd5 5. cxd5 {Now you have a pawn on d5 and Black has a pawn more in the middle – a Benoni with your bishop on g2.} d6 6. Nc3 g6 7. Bg2 {The bishop guards d5 from far away.} Bg7 8. Nf3 O-O 9. O-O {Plan: Nd2, Nc4 and e4 to push in the center.} *

@@ -122,7 +122,7 @@ export interface Crossroad {
 }
 export const CROSSROADS: Crossroad[] = [
   { fen: 'r1bqkbnr/pppp1ppp/2n5/4p3/4P3/5N2/PPPP1PPP/RNBQKB1R w KQkq - 2 3', q: 'After 1.e4 e5 2.Nf3, Black plays 2...Nc6. Which road?', options: [{ san: '3.Bc4', note: 'to Rome – Italian Game', ok: true }, { san: '3.Bb5', note: 'to Valencia – Ruy Lopez', ok: true }, { san: '3.Nc3', note: 'another knight out?' }], why: 'Rome (3.Bc4) or the Ruy Lopez (3.Bb5) – both are in your book.' },
-  { fen: 'rnbqkb1r/pppppppp/5n2/8/3P4/8/PPP1PPPP/RNBQKBNR w KQkq - 1 2', q: 'Black answers 1.d4 with 1...Nf6. Which road?', options: [{ san: '2.Bg5', note: 'to Rio – Trompowsky', ok: true }, { san: '2.c4', note: 'to Valencia – the Catalan', ok: true }, { san: '2.Nf3', note: 'calm development?' }], why: 'Two roads: 2.Bg5, the Trompowsky – or 2.c4 and later g3, the Catalan.' },
+  { fen: 'rnbqkb1r/pppppppp/5n2/8/3P4/8/PPP1PPPP/RNBQKBNR w KQkq - 1 2', q: 'Black answers 1.d4 with 1...Nf6. Which road?', options: [{ san: '2.Bg5', note: 'to Rio – Trompowsky', ok: true }, { san: '2.c4', note: 'to Barcelona – the Catalan', ok: true }, { san: '2.Nf3', note: 'calm development?' }], why: 'Two roads: 2.Bg5, the Trompowsky – or 2.c4 and later g3, the Catalan.' },
   { fen: 'rnbqkbnr/ppp1pppp/8/3p4/3P4/8/PPP1PPPP/RNBQKBNR w KQkq - 0 2', q: 'Black answers 1.d4 with 1...d5. Which road?', options: [{ san: '2.Bf4', note: 'to London', ok: true }, { san: '2.c4', note: "to the Queen's Palace", ok: true }, { san: '2.Bg5', note: 'to the Winter Forest – Levitsky', ok: true }], why: 'All three roads work against 1...d5. Pick the one you like best!' },
   { fen: 'rnbqkbnr/pppp1ppp/4p3/8/3P4/8/PPP1PPPP/RNBQKBNR w KQkq - 0 2', q: 'Black answers 1.d4 with 1...e6. Which road?', options: [{ san: '2.Bg5', note: 'to Rio?' }, { san: '2.e4', note: 'take the whole center – the French', ok: true }, { san: '2.Bf4', note: 'to London?' }], why: '2.e4 takes the whole center – you are in your 1.e4 lines against the French.' },
 ]
@@ -301,12 +301,34 @@ export const STATIONS: Station[] = [
         { who: 'master', text: 'Suddenly she could move as far as she liked, in any direction. People called it the “mad queen’s chess”.' },
         { who: 'master', text: 'In 1561 I printed my own chess book. My name stuck to an opening: 1.e4 e5 2.Nf3 Nc6 3.Bb5.' },
         { who: 'hoppy', text: 'The Ruy Lopez! Those lines are in your book, Liam.' },
-        { who: 'master', text: 'Up the coast, in Catalonia, a tournament in Barcelona in 1929 gave another opening its name: the Catalan.' },
+        { who: 'master', text: 'Up the coast, in Catalonia, a tournament in Barcelona in 1929 gave another opening its name. Ride on and see!' },
       ],
     },
     games: [{ id: 'queen', title: 'The queen awakens', extra: true }],
-    lines: { opening: ['Ruy Lopez', 'Catalan'], side: 'w' },
+    // Lu, 12.11.: the Ruy Lopez here, the Catalan gets its own city (Barcelona)
+    lines: { opening: 'Ruy Lopez', side: 'w' },
     boss: { name: 'The Mad Queen', face: '👑', img: 'boss-madqueen.jpg', kind: 'board', rounds: QUEEN_TACTICS, taunt: 'Now I can go anywhere – and so can you?', win: 'The Mad Queen bows to you. You command the strongest piece on the board.' },
+  },
+  {
+    // Lu, 12.11.: the Catalan apart from the Ruy Lopez, with more lines. Pictures are placeholders (PIL), see BAUPLAN 12.
+    id: 'barcelona', name: 'Barcelona', year: '1929', x: 884, y: 350, medallion: true, color: '#d9480f',
+    intro: 'A big tournament by the sea gives an opening the name of this land: the Catalan.',
+    skills: ['The Catalan', 'The long diagonal', 'Win the pawn back'],
+    scene: 'barcelona.jpg',
+    master: {
+      name: 'Montse', from: 'Café player in Barcelona, 1929', skin: '#e0b48a', hair: '#3b2a14', coat: '#d9480f',
+      talk: [
+        { who: 'master', text: '¡Hola, Hoppy! In 1929 strong players from many countries came here to Barcelona for a big tournament.' },
+        { who: 'master', text: 'Savielly Tartakower played 1.d4, then c4 and g3 here. The opening was named after our land, Catalonia: the Catalan.' },
+        { who: 'hoppy', text: 'So it starts like the Queen’s Gambit – 1.d4 Nf6 2.c4 e6 – and then 3.g3?' },
+        { who: 'master', text: 'Exactly. The bishop goes to g2. From there it looks down the long diagonal: d5, c6, b7, a8.' },
+        { who: 'master', text: 'If Black takes your pawn on c4, do not panic. Castle first – the queen or a knight wins it back later.' },
+        { who: 'hoppy', text: 'And if Black holds the pawn with ...b5 and ...c6, then c6 stands right on our diagonal!' },
+      ],
+    },
+    games: [],
+    lines: { opening: 'Catalan', side: 'w' },
+    boss: { name: 'The Diagonal Bishop', face: '♗', img: 'boss-diagonal.jpg', kind: 'lines', taunt: 'I take your c4 pawn and keep it. Show me the Catalan!', win: 'The Diagonal Bishop bows. The long diagonal is yours.' },
   },
   {
     id: 'rome', name: 'Rome', year: 'around 1600', x: 972, y: 352, color: '#e8590c',

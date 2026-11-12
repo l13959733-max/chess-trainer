@@ -499,7 +499,7 @@ const ASIA = ['kannauj', 'persia', 'samarkand', 'baghdad']
 type Palette = 'forest' | 'walnut' | 'lapis' | 'fog' | 'ice' | 'night'
 const PALETTES: Record<string, Palette> = {
   kannauj: 'lapis', persia: 'lapis', samarkand: 'lapis', baghdad: 'lapis',
-  north: 'walnut', valencia: 'walnut', rome: 'walnut', palace: 'walnut', vienna: 'walnut', paris: 'walnut',
+  north: 'walnut', valencia: 'walnut', barcelona: 'walnut', rome: 'walnut', palace: 'walnut', vienna: 'walnut', paris: 'walnut',
   london: 'fog', newyork: 'fog', reykjavik: 'ice', orbit: 'night',
 }
 const BoardContext = createContext<{ elephants: boolean; palette: Palette }>({ elephants: false, palette: 'forest' })
