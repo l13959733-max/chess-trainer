@@ -472,3 +472,84 @@
 .king-crown-hoppy { width: 100%; height: 100%; border-width: 3px; }
 .king-intro-hoppy { width: 100%; height: 100%; display: grid; place-items: center; background: radial-gradient(circle at 50% 45%, #fff3c4 0 30%, #f4e4c1 31% 55%, #2c1f12 56%); }
 .king-intro-hoppy .mascot { width: min(62%, 260px); height: auto; aspect-ratio: 1; }
+
+/* ---------- Game Boy story box (Lu, 12.11.): the text types itself, tap for the next line ---------- */
+.gb-box { position: relative; display: flex; gap: 10px; align-items: flex-start; width: 100%; min-height: 0; text-align: left; padding: 10px 12px 12px; border-radius: 10px; background: #fffdf5; color: #2b2140; border: 4px solid #2b2140; box-shadow: inset 0 0 0 3px #fffdf5, inset 0 0 0 5px #b9a6e8, 0 3px 0 rgba(0, 0, 0, .18); font-family: 'Nunito', sans-serif; font-size: 1.02rem; font-weight: 800; line-height: 1.4; text-transform: none; letter-spacing: 0; cursor: pointer; }
+.gb-box:active { transform: none; }
+.gb-face { flex: none; width: 52px; height: 52px; }
+.gb-face > * { width: 100%; height: 100%; }
+.gb-body { display: grid; gap: 2px; flex: 1; min-width: 0; }
+.gb-who { font-family: 'Cinzel', Georgia, serif; font-size: .78rem; font-weight: 900; color: #5b36c9; text-transform: uppercase; letter-spacing: .06em; }
+.gb-text { display: grid; }
+.gb-text > span { grid-area: 1 / 1; }
+.gb-ghost { visibility: hidden; }
+.gb-next { position: absolute; right: 10px; bottom: 4px; font-size: .8rem; color: #2b2140; animation: gb-blink .8s steps(2) infinite; }
+.gb-next.done { animation: none; font-family: 'Nunito', sans-serif; font-weight: 900; font-size: .8rem; color: #58a700; }
+.gb-count { position: absolute; right: 10px; top: 4px; font-size: .68rem; color: #9b8fb8; font-weight: 800; }
+@keyframes gb-blink { 50% { opacity: 0; } }
+.gb-box.compact { font-size: .92rem; padding: 8px 10px 10px; }
+.gb-box.compact .gb-face { width: 42px; height: 42px; }
+.gb-hoppy { width: 100%; height: 100%; }
+@media (prefers-reduced-motion: reduce) { .gb-next { animation: none; } }
+
+/* ---------- Explore mode: the painted map with city cards (Lu, 12.11., draft E) ---------- */
+.explore { display: flex; flex-direction: column; gap: 8px; height: calc(100dvh - 88px); min-height: 560px; margin-inline: 8px; position: relative; }
+.explore-top { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.explore-count { font-weight: 900; background: #fff7e2; border: 2px solid #e6d4a8; border-radius: 999px; padding: 4px 12px; color: #3b2a14; }
+.explore-back { min-height: 0; padding: 6px 12px; border-radius: 12px; background: #f4e4c1; border: 2px solid #8b6b3d; color: #3b2a14; font-size: .85rem; font-weight: 700; text-transform: none; letter-spacing: 0; }
+.explore-stage { position: relative; flex: 1; min-height: 0; border-radius: 18px; overflow: hidden; border: 2px solid #e6d4a8; background: #e9d9b3; }
+.explore-scroll { position: absolute; inset: 0; overflow: auto; overscroll-behavior: contain; scrollbar-width: none; }
+.explore-scroll::-webkit-scrollbar { display: none; }
+.explore-scroll svg { display: block; }
+.ex-road-edge { fill: none; stroke: #8b6b3d; stroke-width: 14; stroke-linecap: round; stroke-linejoin: round; opacity: .35; }
+.ex-road { fill: none; stroke: #fbf3dc; stroke-width: 10; stroke-linecap: round; stroke-linejoin: round; }
+.ex-road-dots { fill: none; stroke: #b59a6a; stroke-width: 2.8; stroke-dasharray: 1 9; stroke-linecap: round; }
+.ex-gold-edge { fill: none; stroke: #8f7116; stroke-width: 14; stroke-linecap: round; stroke-linejoin: round; }
+.ex-gold { fill: none; stroke: #e3b53a; stroke-width: 10; stroke-linecap: round; stroke-linejoin: round; }
+.ex-stamp { cursor: pointer; }
+.ex-shadow { fill: #3b2a14; opacity: .25; }
+.ex-card { fill: #fffaf0; stroke: #d8c8a4; stroke-width: 2; stroke-dasharray: 4 3; }
+.ex-stamp.done .ex-card { stroke: #c9a227; stroke-width: 3.5; stroke-dasharray: none; }
+.ex-stamp.next .ex-card, .ex-stamp.open .ex-card { stroke: #58cc02; stroke-width: 3.5; stroke-dasharray: none; }
+.ex-pulse { fill: #58cc02; opacity: .45; transform-box: fill-box; transform-origin: center; animation: ex-pulse 1.6s ease-out infinite; }
+@keyframes ex-pulse { 0% { transform: scale(.92); opacity: .7; } 100% { transform: scale(1.3); opacity: 0; } }
+.ex-gray { filter: grayscale(1) sepia(.3) brightness(1.08); opacity: .8; }
+.ex-name { font-family: 'Nunito', sans-serif; font-weight: 900; text-anchor: middle; fill: #3b2a14; }
+.ex-stamp.locked .ex-name { fill: #9b8a6d; }
+.ex-tick { fill: #e3b53a; stroke: #5c3d12; stroke-width: 2; }
+.ex-num { fill: #fbf3dc; stroke: #8b6b3d; stroke-width: 2; }
+.ex-badge-text { font-family: 'Nunito', sans-serif; font-weight: 900; font-size: 12px; text-anchor: middle; fill: #3b2a14; }
+.ex-start { fill: #fff; stroke: #e5e5e5; stroke-width: 2.5; }
+.ex-start-text { font-family: 'Nunito', sans-serif; font-weight: 900; font-size: 16px; letter-spacing: 1.5px; text-anchor: middle; fill: #58a700; }
+.explore-bottom { display: grid; gap: 6px; }
+.explore-go { min-height: 0; padding: 12px; border-radius: 16px; border: 0; background: #58cc02; color: #fff; box-shadow: 0 5px 0 #46a302; font-family: 'Nunito', sans-serif; font-weight: 900; font-size: 1.05rem; letter-spacing: .02em; display: flex; align-items: center; justify-content: center; gap: 8px; }
+.explore-go small { font-weight: 800; opacity: .92; text-transform: none; }
+.explore-modes { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; }
+.explore-modes button { min-height: 0; padding: 4px 0; border: 0; background: none; box-shadow: none; color: #6b5a3f; font-family: 'Nunito', sans-serif; font-weight: 800; font-size: .72rem; text-transform: none; letter-spacing: 0; display: flex; flex-direction: column; align-items: center; gap: 1px; position: relative; border-radius: 10px; }
+.explore-modes button span { font-size: 1.25rem; line-height: 1.1; }
+.explore-modes button.on { background: #f4e4c1; color: #3b2a14; }
+.explore-modes button.dot::after { content: ''; position: absolute; top: 3px; right: 28%; width: 9px; height: 9px; border-radius: 50%; background: #ff4b4b; border: 2px solid #fffaf0; }
+.explore-more { position: absolute; left: 8px; right: 8px; bottom: 64px; z-index: 5; display: grid; gap: 6px; padding: 10px; border-radius: 16px; background: #fffaf0; border: 2px solid #8b6b3d; box-shadow: 0 10px 30px rgba(40, 25, 10, .3); }
+.explore-more button { min-height: 44px; text-align: left; padding: 8px 12px; font-size: .95rem; text-transform: none; letter-spacing: 0; }
+.explore-more .close { text-align: center; }
+/* Map | Regions (Lu, 12.11.: test both on the phone) */
+.explore-views { display: flex; gap: 6px; align-items: center; overflow-x: auto; scrollbar-width: none; }
+.explore-views::-webkit-scrollbar { display: none; }
+.explore-seg { flex: none; display: inline-flex; border: 2px solid #e6d4a8; border-radius: 999px; overflow: hidden; }
+.explore-seg button, .explore-regions button { min-height: 0; padding: 5px 12px; border: 0; border-radius: 0; box-shadow: none; background: #fff7e2; color: #6b5a3f; font-family: 'Nunito', sans-serif; font-weight: 900; font-size: .8rem; text-transform: none; letter-spacing: 0; white-space: nowrap; }
+.explore-seg button[aria-pressed="true"] { background: #3b2a14; color: #fff7e2; }
+.explore-regions { display: flex; gap: 4px; }
+.explore-regions button { border: 2px solid #e6d4a8; border-radius: 999px; }
+.explore-regions button[aria-pressed="true"] { background: #58cc02; border-color: #46a302; color: #fff; }
+.explore-regions small { opacity: .8; font-weight: 800; }
+.explore-where { position: absolute; left: 50%; bottom: 12px; transform: translateX(-50%); z-index: 4; min-height: 0; padding: 8px 16px; border: 0; border-radius: 999px; background: #58cc02; color: #fff; box-shadow: 0 4px 0 #46a302; font-family: 'Nunito', sans-serif; font-weight: 900; font-size: .9rem; text-transform: none; letter-spacing: 0; white-space: nowrap; }
+.ex-road-edge, .ex-gold-edge { stroke-width: calc(14px * var(--u, 1)); }
+.ex-road, .ex-gold { stroke-width: calc(10px * var(--u, 1)); }
+.ex-road-dots { stroke-width: calc(2.8px * var(--u, 1)); stroke-dasharray: calc(1px * var(--u, 1)) calc(9px * var(--u, 1)); }
+/* the talk: speaker big above the Game Boy box */
+.king-stage-talk { display: flex; justify-content: space-between; align-items: flex-end; gap: 12px; padding: 4px 8px; min-height: 150px; }
+.talk-figure { transition: transform .25s ease, opacity .25s ease, filter .25s ease; opacity: .55; filter: grayscale(.4); transform: scale(.88); }
+.talk-figure.speaking { opacity: 1; filter: none; transform: scale(1); }
+.talk-big { width: 128px; height: 128px; }
+.talk-figure .king-avatar, .talk-figure .talk-big { width: 128px; height: 128px; }
+@media (prefers-reduced-motion: reduce) { .talk-figure { transition: none; } }

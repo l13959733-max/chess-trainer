@@ -101,7 +101,7 @@ function App() {
             <button type="button" onClick={restart}>Again</button>
             <button type="button" onClick={() => go('play/line/' + line.id)}>Play on</button>
             {stationOrigin() ? (
-              <button type="button" className="primary" onClick={() => go(stationOrigin() + '/next')}>Continue</button>
+              <button type="button" className="primary" onClick={() => go(stationOrigin()!)}>Back to the city</button>
             ) : (
               <button type="button" className="primary" onClick={() => go('')}>Overview</button>
             )}
@@ -225,7 +225,7 @@ function Review({ rep, progress }: { rep: ReturnType<typeof useRepertoire>; prog
           <div className="done-title">{queue.length ? 'All due lines reviewed' : 'Nothing due'}</div>
           <div className="done-actions">
             {stationOrigin() ? (
-              <button type="button" className="primary" onClick={() => go(stationOrigin() + '/next')}>Continue</button>
+              <button type="button" className="primary" onClick={() => go(stationOrigin()!)}>Back to the city</button>
             ) : (
               <button type="button" className="primary" onClick={() => go('')}>Overview</button>
             )}
@@ -285,7 +285,7 @@ function PuzzleSession({ puzzles, progress, category }: { puzzles: ReturnType<ty
           {!queue.length && <p>Analyse your chess.com games on the overview first.</p>}
           <div className="done-actions">
             {stationOrigin() ? (
-              <button type="button" className="primary" onClick={() => go(stationOrigin() + '/next')}>Continue</button>
+              <button type="button" className="primary" onClick={() => go(stationOrigin()!)}>Back to the city</button>
             ) : (
               <button type="button" className="primary" onClick={() => go('')}>Overview</button>
             )}
@@ -364,7 +364,7 @@ function DailySession({ rep, puzzles, progress }: { rep: ReturnType<typeof useRe
           <div className="done-actions">
             <button type="button" onClick={() => go('play')}>Play a game</button>
             {stationOrigin() ? (
-              <button type="button" className="primary" onClick={() => go(stationOrigin() + '/next')}>Continue</button>
+              <button type="button" className="primary" onClick={() => go(stationOrigin()!)}>Back to the city</button>
             ) : (
               <button type="button" className="primary" onClick={() => go('')}>Overview</button>
             )}

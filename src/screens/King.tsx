@@ -20,10 +20,13 @@ import { clampScore } from '../lib/blunders'
 import { ChestnutReward } from '../components/Chestnut'
 import { feedback as fx, resetCareful, takeCareful } from '../lib/feedback'
 import { dayNumber, loadResults, squares } from '../lib/threatcheck'
+import { canBeAmbushed, lastAmbush, markAmbush, roadAmbush } from '../lib/ambush'
 import {
   ARMY, CROSSROADS, DRAGON_ALIVE, DRAGON_CFILE, DRAGON_FIRE, MIRROR, mirrorOpen, FORKS, GRAIN, GUARD, GUARD_BOSS, LEWIS, MATES, QUEEN_TACTICS, RIDDLES, ROME_REACT, ROME_THREATS, ROME_TRAPS, ROOK_MATES, SAFE, STATIONS, TENT_AT, TURK,
   bareSan, bookCrossroads, earn, isOpen, openingName, opensAfter, lineRounds, loadKing, nextStation, reputation, route, saveKing, stationById, stationLines, titleOf, type BoardRound, type Crossroad, type QuizQuestion, type Station,
 } from '../lib/king'
+import { KingStamps } from './KingStamps'
+import { StoryBox } from '../components/StoryBox'
 import '../king.css'
 
 const IMG = import.meta.env.BASE_URL + 'king/'
@@ -61,10 +64,11 @@ export function KingHome() {
         }}
       />
     )
-  return <KingMap />
+  // Lu, 12.11.: the start page is Explore mode – the painted map with city cards (draft E)
+  return <KingStamps />
 }
 
-// The painted world map (#/world, also the start page)
+// The painted world map as before (#/world)
 export function KingWorld() {
   return <KingMap />
 }
@@ -77,12 +81,6 @@ export function KingFastTravel() {
 // ---------- fast travel: the cities one after another, top to bottom (Lu, 09.11.) ----------
 
 // On the way to a new city a scout of the Shadow Realm may block the road, like on the map
-function roadAmbush(beaten: string[]): boolean {
-  const reduce = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches
-  if (reduce || !canBeAmbushed(beaten) || Math.random() >= 0.35 || Date.now() - lastAmbush() <= 15 * 60 * 1000) return false
-  markAmbush()
-  return true
-}
 
 const ROW = 112 // height of one city on the road
 const SWAY = [0, 1, 0, -1] // the road winds: middle, right, middle, left
@@ -544,7 +542,8 @@ function KingIntro({ onDone }: { onDone: () => void }) {
       <div className="king-intro-text">
         <span className="king-kicker">{s.kicker}</span>
         <h2>{s.title}</h2>
-        <p>{s.text}</p>
+        {/* Lu, 12.11.: the story types itself like on the Game Boy */}
+        <StoryBox key={i} lines={[{ who: i === 2 ? 'Grandmaster Lu' : 'Hoppy', text: s.text }]} />
         <div className="king-intro-row">
           <div className="king-dots" aria-hidden="true">
             {SCENES.map((_, k) => <span key={k} className={k === i ? 'on' : ''} />)}
@@ -767,39 +766,36 @@ function StationPage({ s, rep }: { s: Station; rep: Repertoire }) {
   )
 }
 
+// Lu, 12.11.: the talk runs like on the Game Boy – one line at a time, typing itself; tap for the next.
+// The speaker stands big above the box. At the end: back to the city's road.
 function KingTalk({ s }: { s: Station }) {
   const m = s.master
   // masters out in the world greet you and Hoppy by your fame; Grandmaster Lu in the mirror is your teacher
   const [talk] = useState(() => (MIRROR.includes(s) ? m.talk : [{ who: 'master' as const, text: reputation(loadKing().beaten).greet }, ...m.talk]))
-  const [n, setN] = useState(1)
-  const end = useRef<HTMLDivElement>(null)
-  useEffect(() => {
-    end.current?.scrollIntoView({ block: 'end', behavior: 'smooth' })
-  }, [n])
+  const [done, setDone] = useState(false)
+  const [speaker, setSpeaker] = useState(0)
+  const lines = talk.map((l) => ({
+    who: l.who === 'master' ? m.name : 'Hoppy',
+    text: l.text,
+  }))
+  const finish = () => {
+    if (done) return
+    setDone(true)
+    earn(`${s.id}/talk`, 5)
+  }
   return (
     <div className="screen king-screen">
       <StationHead s={s} back={() => go('king/' + s.id)} title={m.name} />
-      <div className="king-talk">
-        {talk.slice(0, n).map((l, i) => (
-          <div key={i} className={`king-line ${l.who === 'master' ? '' : 'me'}`}>
-            {l.who === 'master' ? <Portrait m={m} className="king-avatar" /> : <Avatar who={l.who} className="king-avatar" />}
-            <div className="king-say">{l.text}</div>
-          </div>
-        ))}
+      <div className="king-stage-talk" aria-hidden="true">
+        <div className={`talk-figure master${talk[speaker]?.who === 'master' ? ' speaking' : ''}`}><Portrait m={m} className="talk-big" /></div>
+        <div className={`talk-figure hoppy${talk[speaker]?.who !== 'master' ? ' speaking' : ''}`}><Avatar who="hoppy" className="talk-big" /></div>
       </div>
-      <div ref={end}>
-        <button
-          type="button"
-          className="primary wide"
-          onClick={() => {
-            if (n < talk.length) return setN(n + 1)
-            earn(`${s.id}/talk`, 5)
-            go(`king/${s.id}/next`)
-          }}
-        >
-          {n < talk.length ? 'Next' : 'Continue'}
+      <StoryBox lines={lines} onLine={setSpeaker} onDone={finish} doneLabel="✓" />
+      {done && (
+        <button type="button" className="primary wide" onClick={() => go('king/' + s.id)}>
+          Back to {s.name}
         </button>
-      </div>
+      )}
     </div>
   )
 }
@@ -872,25 +868,11 @@ function Victory({ s }: { s: Station }) {
         )}
         <div className="done-actions">
           <button type="button" onClick={() => go('king/' + s.id)}>{s.name}</button>
+          {/* Lu, 12.11.: back out to the map – you decide yourself when to ride on */}
           {mirror ? (
-            mirrorNext ? (
-              <button type="button" className="primary" onClick={() => go(`king/${mirrorNext.id}/next`)}>On to {mirrorNext.name}</button>
-            ) : (
-              <button type="button" className="primary" onClick={() => go('mirror')}>Mirror World</button>
-            )
-          ) : next ? (
-            <button
-              type="button"
-              className="primary"
-              onClick={() => {
-                saveKing({ ...loadKing(), travel: next.id })
-                go('')
-              }}
-            >
-              Ride on to {next.name}
-            </button>
+            <button type="button" className="primary" onClick={() => go('mirror')}>{mirrorNext ? `Mirror map – next: ${mirrorNext.name}` : 'Mirror World'}</button>
           ) : (
-            <button type="button" className="primary" onClick={() => go('')}>World map</button>
+            <button type="button" className="primary" onClick={() => go('')}>{next ? `Map – next: ${next.name}` : 'World map'}</button>
           )}
         </div>
       </div>
@@ -913,8 +895,8 @@ function QuestDone({ s, icon, title, text }: { s: Station; icon: string; title: 
         <p>{text}</p>
         {coins > 0 && <ChestnutReward amount={coins} gold={gold} />}
         <div className="done-actions">
-          <button type="button" onClick={() => go('king/' + s.id)}>{s.name}</button>
-          <button type="button" className="primary" onClick={() => go(`king/${s.id}/next`)}>Continue</button>
+          {/* Lu, 12.11.: back to the city's road first – you tap the next step yourself */}
+          <button type="button" className="primary" onClick={() => go('king/' + s.id)}>Back to {s.name}</button>
         </div>
       </div>
     </div>
@@ -1033,7 +1015,7 @@ function KingArmy({ s }: { s: Station }) {
         ))}
       </div>
       <p className="note">These are the Hindi names many Indian players still use. In the oldest game, the elephants stood where the bishops are today.</p>
-      <button type="button" className="primary wide" onClick={() => { earn(`${s.id}/army`, 5); go(`king/${s.id}/next`) }}>Continue</button>
+      <button type="button" className="primary wide" onClick={() => { earn(`${s.id}/army`, 5); go('king/' + s.id) }}>Back to {s.name}</button>
     </div>
   )
 }
@@ -1718,23 +1700,6 @@ function GrandTour({ s, rep }: { s: Station; rep: Repertoire }) {
 
 // ---------- on the road: a scout of the Shadow Realm with mixed tasks from everything you learned ----------
 
-const AMBUSH_KEY = 'chess-trainer-ambush'
-function lastAmbush(): number {
-  try {
-    return Number(localStorage.getItem(AMBUSH_KEY) ?? 0)
-  } catch {
-    return 0
-  }
-}
-function markAmbush() {
-  try {
-    localStorage.setItem(AMBUSH_KEY, String(Date.now()))
-  } catch {
-    // not remembered: the next ride can be ambushed again
-  }
-}
-
-// What you can be asked: only what the stations you beat have taught
 function roadPool(beaten: string[], lines: Line[]): LPuzzle[] {
   const pool: LPuzzle[] = []
   if (beaten.includes('kannauj')) pool.push(...GUARD.map((r, k) => asPuzzle(r, 'guard' + k)))
@@ -1747,9 +1712,6 @@ function roadPool(beaten: string[], lines: Line[]): LPuzzle[] {
   return pool
 }
 
-function canBeAmbushed(beaten: string[]): boolean {
-  return beaten.filter((id) => ['kannauj', 'samarkand', 'rome', 'baghdad'].includes(id)).length >= 2
-}
 
 export function Encounter({ to, rep }: { to?: string; rep: Repertoire }) {
   const target = stationById(to)
@@ -1758,9 +1720,11 @@ export function Encounter({ to, rep }: { to?: string; rep: Repertoire }) {
     return shuffle(roadPool(loadKing().beaten, rep.lines)).slice(0, 3)
   })
   const road = { ...stationById('kannauj')!, id: 'road', name: 'On the road', year: target ? `to ${target.name}` : '' }
+  // the scout is beaten: you arrive where you wanted to go
   const rideOn = () => {
-    if (target) saveKing({ ...loadKing(), travel: target.id })
-    go('')
+    if (!target) return go('')
+    saveKing({ ...loadKing(), here: target.id })
+    go('king/' + target.id)
   }
   return (
     <BoardContext.Provider value={{ elephants: false, palette: 'fog' }}>

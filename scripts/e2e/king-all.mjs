@@ -110,9 +110,10 @@ async function station(id) {
   // the master talks
   await p.click('.king-master button:has-text("Talk")')
   await shot(id + '-1-talk-start')
-  for (let k = 0; k < 12 && !(await p.locator('.king-talk ~ div button:has-text("Continue")').count()); k++) await p.click('.king-talk ~ div button')
+  // Game Boy talk (12.11.): tap the box until the line is done and the last line is reached, then back to the city
+  for (let k = 0; k < 40 && !(await p.locator('button.primary:has-text("Back to")').count()); k++) await p.click('.gb-box')
   await shot(id + '-1-talk')
-  await p.click('.king-talk ~ div button:has-text("Continue")'); await p.waitForTimeout(600)
+  await p.click('button.primary:has-text("Back to")'); await p.waitForTimeout(600)
   for (const g of s.games) {
     await p.goto(U + `#/king/${id}/${g}`); await p.waitForSelector('.king-screen')
     if (['grain', 'lewis', 'turk'].includes(g)) await answerQuiz(`${id}-2-${g}`)
