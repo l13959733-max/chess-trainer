@@ -289,6 +289,9 @@ Englisch. Bilder über Higgsfield nur nach Absprache (kostet Geld).
 **12.11. (Lu: „Drumherum weg, Städte sauber verbunden, Zwischending mit Duolingo“):** Drei Entwürfe als Link (nur Entwurf,
 nicht in der App): https://claude.ai/artifact/FEGPu2fDYBwNY1xQjm3BPB – A Goldene Straße, B Städte-Münzen, C Karte oben + Pfad
 unten; Schalter „Reihenfolge jetzt / nach Geografie“. **Lu wählt** eine Variante und ob die Reihenfolge geografisch wird.
+**Runde 2 (12.11. abends, Lu: „Hintergrund schlichter, ruhiger, klarer; Duolingo, aber Städte detaillierter“):** gleicher Link,
+Version 3: ruhige Karte (`map-calm.jpg`, aus worldmap.jpg gerechnet: Land/Meer-Flächen + Hauch Malerei), Städte groß und in Europa
+auseinandergezogen, Straße nur bis 3 Städte voraus, Duolingo-Hoppy. D Münzen, E Kärtchen, F Regionen (ein Erdteil, seitlich scrollen).
  – aufgeräumte Karte 09.11. in der Vorschau, Lu prüft
 
 **Stand 09.11. abends (Lu: „die geile Illustration nehmen, Hintergrund-Klatter aussäubern, besser verbinden“; der
