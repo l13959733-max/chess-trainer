@@ -284,6 +284,18 @@ die App keinen. Spitznamen statt echter Namen (Kinder, DSGVO). Gegen Schummeln: 
 „Can you spot the threat in 5 seconds?“ mit Countdown, aus dem Tagesrätsel; ein Clip für TikTok, Shorts und Reels.
 Englisch. Bilder über Higgsfield nur nach Absprache (kostet Geld).
 
+### [ ] 27. Echte Karte statt gemalter (Entwurf 12.11. abends in der Vorschau, Lu prüft)
+Lu: „Map so wie in meiner Neuhaus-Software, quasi Google Maps … darauf spielen und reisen“. Gebaut: `src/screens/RealMap.tsx`,
+Seite `#/realmap`, Knopf unter More → „Real map (draft)“. MapLibre GL **5.6.0** (wie Neuhaus; 6.x startet seinen Worker
+unter Vite nicht) + OpenFreeMap „positron“ (OSM, gratis, kein Schlüssel), umgefärbt in Buchfarben (`bookStyle`). Nur bei
+Bedarf geladen (eigenes Paket ~1 MB). Städte = Münzen an echten Koordinaten (`LNGLAT`), Straße terrakotta (gespielt fest,
+3 voraus gestrichelt), Hoppy an der nächsten Stadt, Antippen = hinfliegen + Karte unten „Open …“. Ansicht wird gemerkt.
+**Offen (Lu):** Orte für erfundene Stationen (jetzt: Persia = Isfahan, North = Trondheim, Queen's Palace = Göttingen,
+Winter Forest = russischer Wald, Orbit = Baikonur); Spiegelwelt fehlt; Route springt quer (geografische Reihenfolge?);
+braucht Internet. Farben je Region: Entwurf https://claude.ai/artifact/5SycDXEQ3FUC1worZopP9x (Terrakotta für Indien,
+Orient, Spanien/Italien = Lus Wahl; Rest Vorschlag: Bordeaux Paris/Wien, Grün Britannien, Fjordblau Norden,
+Art-déco-Blau New York, Grün-Gelb Rio, Indigo Orbit).
+
 ### [ ] 26. Jede Stadt als Buchkapitel (Prototyp Barcelona 12.11. abends, Lu: „ziemlich cool … später für alle Städte“)
 Vorbild: Lus Pinterest-Entwurf einer Geschichts-Lese-App. Prototyp (nicht in der App): https://claude.ai/artifact/9xBztKQ3qBXHuELJ7L88LV
 – **Ablauf:** Stadt auf der Karte antippen → **Titelblatt** (Stadt, Jahr, Untertitel, großes Bild im Bogen) → nach unten
