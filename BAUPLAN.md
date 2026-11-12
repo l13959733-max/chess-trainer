@@ -284,6 +284,14 @@ die App keinen. Spitznamen statt echter Namen (Kinder, DSGVO). Gegen Schummeln: 
 „Can you spot the threat in 5 seconds?“ mit Countdown, aus dem Tagesrätsel; ein Clip für TikTok, Shorts und Reels.
 Englisch. Bilder über Higgsfield nur nach Absprache (kostet Geld).
 
+### [ ] 25. Stadt von innen + Trainings-Modus (Entwurf 12.11. abends, Lu prüft)
+
+Lu: „Map = Karte + Geschichte, daneben ein Trainings-Modus“; die Schritte in der Stadt „wie Duolingo, nice – noch ausarbeiten?“.
+Entwurf (nicht in der App): https://claude.ai/artifact/NvJQKAiRbVmwDJJDyNYoaJ – **Stadt Rom** als Duolingo-Weg in Abschnitten
+(Meister → je Eröffnung ein Abschnitt mit „Guide“ → Prüfung + Boss), Hoppys Game-Boy-Kasten oben, Weiter-Knopf darunter;
+**Training A** („Today’s training“ + 3 aufklappbare Bereiche statt 17 Knöpfen) und **Training B** (täglicher 5-Schritte-Pfad + Regal
+„More to practise“). **Lu wählt.**
+
 ### [ ] 24. Weltkarte mit klarem Weg (Entwurf A)
 
 **12.11. (Lu: „Drumherum weg, Städte sauber verbunden, Zwischending mit Duolingo“):** Drei Entwürfe als Link (nur Entwurf,
