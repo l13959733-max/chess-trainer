@@ -97,7 +97,7 @@ export function HomeHub({ rep, progress, puzzles, player }: { rep: ReturnType<ty
       : `I’m in ${next.name}!${headline ? ` Today’s chapter: “${headline}”.` : ''}`
   function cta() {
     if (lessonOpen) go(`king/${next!.id}/${lesson!.id}`)
-    else if (next) go(`king/${next.id}/next`)
+    else if (next) go(`king/${next.id}`) // the city's book chapter: cover, or its techniques page with the next step
     else go('journey')
   }
 
