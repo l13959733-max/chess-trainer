@@ -317,6 +317,12 @@ Vorbild: Lus Pinterest-Entwurf einer Geschichts-Lese-App. Prototyp (nicht in der
   (Zug an sich schon bekannt). Quellen: en.wikipedia Catalan Opening, enciclopedia.cat, chess.com „A Century of Chess:
   Capablanca Tournaments 1929“, belgianchesshistory.be.
 – **Fehler in der App (offen):** Montse sagt „strong players from many countries came“ – laut Quelle Feld überwiegend lokal.
+– **Varianten getrennt (Lu 12.11. abends: „super“):** In jeder Stadt das Inhaltsverzeichnis nach Eröffnung gruppiert, jede
+  Variante ein eigener Eintrag, den man einzeln öffnet. Übersicht aller Städte aus den echten Linien:
+  https://claude.ai/artifact/AA8nnb58jzbvuWmp5BNM8P (Kannauj, Samarkand, Bagdad, Persien, Norden, Orbit, Chennai haben keine
+  Eröffnungen, nur Grundlagen/Taktik).
+– **Neue Station Moskau (Lu: „finde ich gut“):** „Die Sowjet-Schule – von Botvinnik bis Kasparov“. Offen: A) Petrov
+  („Russische Partie“) zieht von Rom nach Moskau, oder B) etwas Neues (z. B. gegen die Königsindische). Fakten vorher prüfen.
 – **Offen (Lu):** Montse (erfundene Figur) fällt auf der Leseseite weg – ganz weg oder woanders (z. B. beim Üben)?
 
 ### [ ] 25. Stadt von innen + Trainings-Modus (Entwurf 12.11. abends, Lu prüft)
