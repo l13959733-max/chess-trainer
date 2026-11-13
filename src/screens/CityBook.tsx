@@ -167,10 +167,17 @@ export function CityBook({
         {top(`Chapter ${chapterNo}`)}
         <h1>{s.name}, {s.year}</h1>
         <p className="book-sub">{ch.subtitle}</p>
-        <div className="book-art"><img src={cover} alt="" /></div>
-        <button type="button" className="book-go" onClick={forward}>{storyDone ? 'Read the story again' : 'Begin the story'} →</button>
-        {/* story already read: one tap on to the techniques, so the cover is no detour */}
-        {storyDone && <button type="button" className="book-skip" onClick={() => setPage({ kind: 'tech' })}>To the techniques →</button>}
+        <div className="book-art" onClick={forward}><img src={cover} alt="" /></div>
+        {/* Lu, 13.11.: story not read yet – no buttons, you swipe (or tap the picture) into the story.
+            Story read – one button straight to practice; swiping reads the story again. */}
+        {storyDone ? (
+          <>
+            <button type="button" className="book-go" onClick={() => (next ? go(next.route) : setPage({ kind: 'tech' }))}>Direct practice →</button>
+            <button type="button" className="book-skip" onClick={() => setPage({ kind: 'tech' })}>To the techniques →</button>
+          </>
+        ) : (
+          <p className="book-hint" aria-hidden="true">Swipe to read ←</p>
+        )}
       </section>
     )
   } else if (page.kind === 'story') {
@@ -190,7 +197,8 @@ export function CityBook({
           {parts.map((_, k) => <i key={k} className={k === page.i ? 'on' : k < page.i ? 'seen' : ''} />)}
         </div>
         {/* Lu, 13.11. evening: no Next button – swipe (or tap the text). Only the last page has a button out of the story. */}
-        {last && <button type="button" className="book-go light" onClick={forward}>{firstRead && next ? 'Let’s play →' : 'To the techniques →'}</button>}
+        {/* first reading: no button, the last swipe leads into the first step */}
+        {last && !firstRead && <button type="button" className="book-go light" onClick={forward}>To the techniques →</button>}
       </section>
     )
   } else if (page.kind === 'tech') {
