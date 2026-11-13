@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type CSSProperties, type TouchEvent } from 'react'
+import { Fragment, useEffect, useRef, useState, type CSSProperties, type TouchEvent } from 'react'
 import { BottomBar } from '../components/BottomBar'
 import { go } from '../hooks/useHashRoute'
 import type { Chapter } from '../lib/cityBook'
@@ -308,7 +308,8 @@ export function CityBook({
 
   return (
     <div ref={pageEl} className={`book book-paged page-${page.kind}`} style={vars} onTouchStart={onTouchStart} onTouchMove={onTouchMove} onTouchEnd={onTouchEnd}>
-      {body}
+      {/* a fresh page each time (14.11.: the swipe left the next page pushed out of view – the story looked empty) */}
+      <Fragment key={JSON.stringify(page)}>{body}</Fragment>
       <BottomBar active={null} />
     </div>
   )
