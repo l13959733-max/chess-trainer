@@ -839,6 +839,7 @@
 .bp-dots i { width: 7px; height: 7px; border-radius: 50%; background: rgba(243, 236, 224, .3); }
 .bp-dots i.seen { background: rgba(243, 236, 224, .6); }
 .bp-dots i.on { background: var(--accent); width: 20px; border-radius: 4px; }
+.bp-dots:last-child { padding-bottom: 22px; } /* no button under the dots (swipe) */
 /* techniques */
 .bp-tech h2, .bp-list h2 { font-family: 'EB Garamond', Georgia, serif; font-weight: 500; font-size: clamp(28px, 8vw, 34px); line-height: 1.05; margin: 14px 22px 6px; text-wrap: balance; flex: none; }
 .bp-tech .book-body { margin: 0 22px 2px; font-size: 14px; flex: none; }

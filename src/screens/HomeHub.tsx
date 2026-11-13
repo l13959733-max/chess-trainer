@@ -10,7 +10,7 @@ import { fetchRapidRating } from '../lib/chesscom'
 import { STATIONS, loadKing, route, stationById } from '../lib/king'
 import { chapterOf } from '../lib/cityBook'
 import { lessonOf, loadDiary, when } from '../lib/lessons'
-import { nextCity } from '../lib/travel'
+import { nextCity, openCity } from '../lib/travel'
 import { getName } from '../lib/profile'
 import { isDue } from '../lib/srs'
 import { dailyPuzzle, dayNumber, loadResults } from '../lib/threatcheck'
@@ -106,7 +106,7 @@ export function HomeHub({ rep, progress, puzzles, player }: { rep: ReturnType<ty
       }
     }
     if (lessonOpen) go(`king/${next!.id}/${lesson!.id}`)
-    else if (next) go(`king/${next.id}`) // the city's book chapter: cover, or its techniques page with the next step
+    else if (next) openCity(next.id) // the city's book chapter, always from its cover (Lu, 13.11.)
     else go('journey')
   }
 

@@ -1,6 +1,7 @@
 import { useEffect, useLayoutEffect, useRef, useState, type CSSProperties } from 'react'
 import { MascotDrawing } from '../components/Mascot'
 import { go } from '../hooks/useHashRoute'
+import { openCity } from '../lib/travel'
 import { roadAmbush } from '../lib/ambush'
 import { STATIONS, isOpen, loadKing, mirrorOpen, opensAfter, route, saveKing, stationById, titleOf, type Station } from '../lib/king'
 import { dayNumber, loadResults } from '../lib/threatcheck'
@@ -183,7 +184,7 @@ export function KingStamps() {
       }
       saveKing({ ...loadKing(), here: s.id })
     }
-    go('king/' + s.id)
+    openCity(s.id)
   }
 
   const scaleAt = (p: { x: number; y: number }) => `translate(${p.x},${p.y}) scale(${u}) translate(${-p.x},${-p.y})`

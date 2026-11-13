@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { go } from '../hooks/useHashRoute'
+import { openCity } from '../lib/travel'
 import type { Repertoire } from '../hooks/useRepertoire'
 import { ATLAS, type AtlasEntry } from '../lib/atlas'
 import { MIRROR, STATIONS, isOpen, loadKing } from '../lib/king'
@@ -56,7 +57,7 @@ export function Atlas({ rep }: { rep: Repertoire }) {
                       const at = place(e)
                       if (!at) return null
                       return isOpen(at, beaten) ? (
-                        <button type="button" className="primary wide" onClick={() => go('king/' + at.id)}>Learn it on your journey: {at.name}</button>
+                        <button type="button" className="primary wide" onClick={() => openCity(at.id)}>Learn it on your journey: {at.name}</button>
                       ) : (
                         <p className="note">On your journey: {at.name} – it opens later. You can learn the lines here already.</p>
                       )

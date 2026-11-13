@@ -186,8 +186,8 @@ export function CityBook({
         <div className="bp-dots" aria-hidden="true">
           {parts.map((_, k) => <i key={k} className={k === page.i ? 'on' : k < page.i ? 'seen' : ''} />)}
         </div>
-        {/* Lu, 13.11.: the Next button stays for now – swiping works too */}
-        <button type="button" className="book-go light" onClick={forward}>{!last ? 'Next →' : firstRead && next ? 'Let’s play →' : 'To the techniques →'}</button>
+        {/* Lu, 13.11. evening: no Next button – swipe (or tap the text). Only the last page has a button out of the story. */}
+        {last && <button type="button" className="book-go light" onClick={forward}>{firstRead && next ? 'Let’s play →' : 'To the techniques →'}</button>}
       </section>
     )
   } else if (page.kind === 'tech') {

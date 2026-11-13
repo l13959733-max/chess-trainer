@@ -9,7 +9,18 @@ export function travelTo(s: Station) {
     if (roadAmbush(king.beaten)) return go('encounter/' + s.id)
     saveKing({ ...king, here: s.id })
   }
-  go('king/' + s.id)
+  openCity(s.id)
+}
+
+// Lu, 13.11.: opening a city always starts at the cover of its book chapter. Coming back from a game or a line
+// (go('king/<id>') directly) keeps the page you were on.
+export function openCity(id: string, sub = '') {
+  try {
+    sessionStorage.removeItem('hoppy-book-page-' + id)
+  } catch {
+    // nothing remembered
+  }
+  go('king/' + id + sub)
 }
 
 // the next city on the journey (open, boss not yet beaten)

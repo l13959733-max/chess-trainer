@@ -6,6 +6,7 @@ import { Avatar, Portrait, SHIP_INNER } from '../components/KingArt'
 import { Mascot, MascotDrawing } from '../components/Mascot'
 import { PathStep } from '../components/PathStep'
 import { go } from '../hooks/useHashRoute'
+import { openCity } from '../lib/travel'
 import type { Puzzles } from '../hooks/usePuzzles'
 import type { Repertoire } from '../hooks/useRepertoire'
 import type { Line } from '../lib/pgn'
@@ -119,7 +120,7 @@ function KingRoad() {
       }
       saveKing({ ...loadKing(), here: s.id })
     }
-    go('king/' + s.id)
+    openCity(s.id)
   }
 
   return (
@@ -262,7 +263,7 @@ function KingMap() {
       return
     }
     if (target.id === here.id) {
-      go('king/' + target.id)
+      openCity(target.id)
       return
     }
     const el = token.current
@@ -306,7 +307,7 @@ function KingMap() {
         const next = { ...loadKing(), here: target.id }
         saveKing(next)
         setState(next)
-        go('king/' + target.id)
+        openCity(target.id)
       }
     }
     requestAnimationFrame(frame)
@@ -1760,7 +1761,7 @@ export function Encounter({ to, rep }: { to?: string; rep: Repertoire }) {
   const rideOn = () => {
     if (!target) return go('journey')
     saveKing({ ...loadKing(), here: target.id })
-    go('king/' + target.id)
+    openCity(target.id)
   }
   return (
     <BoardContext.Provider value={{ elephants: false, palette: 'fog' }}>

@@ -111,7 +111,7 @@ async function station(id) {
     // book chapter in pages (12.11. night): cover → tap through the story → the techniques page
     await p.click('.bp-cover .book-go')
     // 13.11.: read for the first time, the last page says "Let's play" and opens the first step; back in the chapter it waits on the techniques page
-    for (let k = 0; k < 20 && !(await p.locator('.bp-tech').count()) && p.url().endsWith('#/king/' + id); k++) { if (k === 1) await shot(id + '-1-story'); await p.click('.bp-story .book-go'); await p.waitForTimeout(80) }
+    for (let k = 0; k < 20 && !(await p.locator('.bp-tech').count()) && p.url().endsWith('#/king/' + id); k++) { if (k === 1) await shot(id + '-1-story'); await p.click('.bp-story .bp-text'); await p.waitForTimeout(80) }
     if (!p.url().endsWith('#/king/' + id)) { await p.goto(U + '#/king/' + id) }
     await p.waitForSelector('.bp-tech')
   } else {
