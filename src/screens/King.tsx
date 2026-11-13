@@ -31,6 +31,7 @@ import { chapterOf } from '../lib/cityBook'
 import { CityBook } from './CityBook'
 import { Lesson } from './Lesson'
 import { LESSONS } from '../lib/lessons'
+import { JourneyProgress } from '../components/JourneyProgress'
 import '../king.css'
 
 const IMG = import.meta.env.BASE_URL + 'king/'
@@ -141,6 +142,7 @@ function KingRoad() {
           <>{beatenCount} of {BOSSES} bosses beaten.{next ? <> Next: <b>{next.name}</b>.</> : null}</>
         )}
       </p>
+      <JourneyProgress beaten={beatenCount} bosses={BOSSES} chapter={next ? cities.indexOf(next) + 1 : null} city={next?.name ?? null} coins={state.coins} title={titleOf(state.beaten)} />
       <div className="road-cards">
         <DailyCard />
         {state.warmupAt && (
@@ -198,7 +200,7 @@ function KingRoad() {
 
       {toast && <div className="king-toast road-toast" role="status">{toast}</div>}
       <nav className="king-dock road-dock" aria-label="Places">
-        <button type="button" onClick={() => go('tent')}><span aria-hidden="true">⛺</span>Training Camp</button>
+        <button type="button" onClick={() => go('tent')}><span aria-hidden="true">⛺</span>Training</button>
         {state.beaten.includes('kannauj') ? (
           <button type="button" className="dock-portal" onClick={() => go('portal')}><span aria-hidden="true">🌀</span>Real world</button>
         ) : (
@@ -425,7 +427,7 @@ function KingMap() {
       )}
       {toast && <div className="king-toast" role="status">{toast}</div>}
       <nav className="king-dock dock5" aria-label="Places">
-        <button type="button" onClick={() => go('tent')}><span aria-hidden="true">⛺</span>Training Camp</button>
+        <button type="button" onClick={() => go('tent')}><span aria-hidden="true">⛺</span>Training</button>
         <button type="button" onClick={() => go('road')}><span aria-hidden="true">🧭</span>Fast travel</button>
         {state.beaten.includes('kannauj') ? (
           <button type="button" className="dock-portal" onClick={() => go('portal')}><span aria-hidden="true">🌀</span>Real world</button>

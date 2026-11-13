@@ -914,3 +914,17 @@
 .bp-next { align-self: flex-start; font-style: normal; font-size: 9.5px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; background: var(--house); color: #fff; border-radius: 99px; padding: 2px 8px; }
 .bp-tile.boss .bp-next { background: var(--accent); color: var(--house); }
 @media (prefers-reduced-motion: reduce) { .hub .mascot .eyes, .lsn .mascot .eyes { animation: none; } }
+
+/* Journey: story and training progress side by side (Lu, 13.11.) */
+.jp { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 8px; }
+.jp-card { display: grid; gap: 3px; align-content: start; min-height: 0; padding: 10px 12px; border-radius: 14px; background: #f4e4c1; border: 2px solid #8b6b3d; color: #3b2a14; font-family: 'Nunito', sans-serif; text-align: left; text-transform: none; letter-spacing: 0; box-shadow: 0 3px 0 #8b6b3d; min-width: 0; }
+.king-screen .jp-card.jp-train { background: #eef7e3; border-color: #3a9a0c; box-shadow: 0 3px 0 #3a9a0c; color: #2a3a1c; }
+.jp-card small { font-family: 'Cinzel', Georgia, serif; font-weight: 900; font-size: .78rem; letter-spacing: .08em; text-transform: uppercase; }
+.jp-top { display: flex; align-items: center; gap: 8px; min-height: 52px; }
+.jp-top b { font-family: 'Nunito', sans-serif; font-size: 1.7rem; font-weight: 900; line-height: 1; font-variant-numeric: tabular-nums; }
+.jp-top b i { font-style: normal; font-size: .95rem; opacity: .65; }
+.jp-sub { font-weight: 800; font-size: .8rem; opacity: .7; }
+.jp-line { font-size: .78rem; font-weight: 800; line-height: 1.25; overflow-wrap: anywhere; }
+.jp-bar { display: block; height: 9px; border-radius: 99px; background: #d6e9c4; overflow: hidden; }
+.jp-bar span { display: block; height: 100%; border-radius: 99px; background: #4fc414; }
+.jp-go { margin-top: 2px; font-weight: 900; font-size: .8rem; color: #3a9a0c; }

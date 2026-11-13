@@ -317,6 +317,7 @@ Nach einem Level vom Pfad führt „zurück/Overview“ wieder ins Training (ses
 chess.com: `#/connect` (Name → „Is this you?“ mit Bild + Rapid → Hoppy liest die letzten 20 Rapid-Partien → Ergebnis + „Add to my path“),
 `#/games` (Partien mit Safe moves/Fehlern, Tipp → `#/mistake/<id>`). Safe moves = 1 − Fehler/eigene Züge aus den gespeicherten Partien.
 Altes Training Camp unter `#/camp` (im Regal „Old Training Camp“), alle 19 Knöpfe stehen im Regal. Startseite: „⛺ Training 1/3“ führt hin.
+**Journey (13.11., Lu: „beide Fortschritte sehen“):** oben zwei Karten – Story (Bosse-Ring, Kapitel, Kastanien) und Training (heute x/y Level, Sterne, Serie, Safe moves, Tipp → Training), `src/components/JourneyProgress.tsx`; Dock-Knopf heißt „Training“.
 **Offen:** Lus Blick am Handy; Leiste unten (A/B) unverändert; rote Zahl am Training-Knopf; „Practice this in Training“ nach dem Kapitel;
 grün/gold-Züge im Sieg-Fenster (die Übungen melden das noch nicht); Wochenkurve braucht ≥2 geprüfte Partien.
 `continue.mjs` scheitert schon vor diesem Punkt (wartet auf „Continue“), nicht durch Training.

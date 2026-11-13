@@ -95,11 +95,17 @@ export function doneMap(plan: DayPlan): Record<string, number> {
 }
 
 // For the start page: "2/5" of today, or null before the first visit today
-export function pathProgress(): { done: number; total: number } | null {
+export function pathProgress(): { done: number; total: number; stars: number; maxStars: number } | null {
   const plan = loadPlan()
   if (!plan) return null
   const done = doneMap(plan)
-  return { done: plan.levels.filter((l) => l.key in done).length, total: plan.levels.length }
+  const starred = plan.levels.filter((l) => !l.icon)
+  return {
+    done: plan.levels.filter((l) => l.key in done).length,
+    total: plan.levels.length,
+    stars: starred.reduce((s, l) => s + (done[l.key] ?? 0), 0),
+    maxStars: starred.length * 3,
+  }
 }
 
 
