@@ -306,6 +306,14 @@ alle 5 Züge (Springer, Läufer, Turm, Dame, König, Bauer). Schalter: Buchstabe
 Töne im Browser erzeugt (keine Dateien). Vibration nur Android (iPhone-Safari kann es nicht). Gibt es schon klein in
 Bagdad („Blindfold: find the square“) – das hier wäre ein eigenes Spiel, z. B. im Training oder als Tagesspiel.
 
+### [x] 32. Schneller laden (Lu, 13.11.: „die ganze App schneller, am liebsten die Map sofort da“) – gebaut + live 13.11.
+Gemessen (Playwright, Handy 4× gedrosselt, 1,6 Mbit/s, 150 ms): Startseite erstes Mal 3,9 → 3,6 s, gemalte Karte sichtbar 9,0 → 3,7 s,
+echte Karte 1,4 → 0,9 s; ab dem 2. Mal Startseite 1,7 → 1,1 s, echte Karte 0,56 → 0,41 s. Gemacht: 27 Bilder neu komprimiert
+(q80 progressiv, gleiche Größe/Namen, 8,5 → 7,1 MB; worldmap 891 → 520 KB), `worldmap-small.jpg` (40 KB) liegt unter der scharfen Karte
+und wird vorgeladen; Service Worker speichert alle `king/*.jpg`, Google-Schriften und OpenFreeMap-Kacheln; selten genutzte Seiten
+und die Spiel-Datei `King.tsx` laden bei Bedarf (Hauptcode 329 → 245 KB gepackt); echte Karte lädt 2,5 s nach dem Start vor.
+Neue Bilder: vor dem Einbau mit PIL q80 progressiv speichern. Neue Seiten in `App.tsx` gern auch per `lazy(...)`.
+
 ### [x] 31. Training neu: Tagespfad mit Sternen + chess.com als rote Level – gebaut 13.11. (Vorschau `#/tent`, Lu: „übernimm das erstmal so“)
 Entwurf: https://claude.ai/artifact/HWhR59MBvsBsqwobpMAcrA (Lus Vorlage-Screenshot einer Lern-App + Duolingo-Pfad + Candy-Level + Aquarell).
 **Gebaut:** `src/screens/Training.tsx` (+ `src/training.css`, alles unter `.trn`), Logik `src/lib/trainingPath.ts` (Plan, Sterne, Safe moves,

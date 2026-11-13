@@ -15,39 +15,49 @@ import { isDue } from './lib/srs'
 import { isUnlocked, stop as stopVoice, unlockAudio } from './lib/voice'
 import { InstallBanner } from './components/InstallBanner'
 import { Mascot } from './components/Mascot'
-import { Attacks } from './screens/Attacks'
 import { Drill } from './screens/Drill'
 import { Home } from './screens/Home'
 import { backFromLine, rememberLine, rememberOrigin, stationOrigin } from './lib/returnTo'
-import { ChessCheck } from './screens/Check'
-import { Portal } from './screens/Portal'
-import { Afterwards } from './screens/Afterwards'
-import { ArmouryScreen } from './screens/Armoury'
-import { QuestBook } from './screens/QuestBook'
-import { Mirror } from './screens/Mirror'
-import { Atlas } from './screens/Atlas'
-import { ThreatCheck } from './screens/ThreatCheck'
 const RealMap = lazy(() => import('./screens/RealMap'))
-import { SquareRush } from './screens/SquareRush'
+const ThreatCheck = lazy(() => import('./screens/ThreatCheck').then((m) => ({ default: m.ThreatCheck })))
+// the game (cities, bosses, intro) is one big file: it loads when you go into the journey, not for the start page
+const Encounter = lazy(() => import('./screens/King').then((m) => ({ default: m.Encounter })))
+const Habits = lazy(() => import('./screens/King').then((m) => ({ default: m.Habits })))
+const KingFastTravel = lazy(() => import('./screens/King').then((m) => ({ default: m.KingFastTravel })))
+const KingHome = lazy(() => import('./screens/King').then((m) => ({ default: m.KingHome })))
+const KingStation = lazy(() => import('./screens/King').then((m) => ({ default: m.KingStation })))
+const KingWorld = lazy(() => import('./screens/King').then((m) => ({ default: m.KingWorld })))
+const WarmUp = lazy(() => import('./screens/King').then((m) => ({ default: m.WarmUp })))
+const WarTent = lazy(() => import('./screens/King').then((m) => ({ default: m.WarTent })))
+// Speed (Lu, 13.11.): pages that are not on the way from the start load when they are opened (the phone keeps them after the first time)
+const ChessCheck = lazy(() => import('./screens/Check').then((m) => ({ default: m.ChessCheck })))
+const Portal = lazy(() => import('./screens/Portal').then((m) => ({ default: m.Portal })))
+const Afterwards = lazy(() => import('./screens/Afterwards').then((m) => ({ default: m.Afterwards })))
+const ArmouryScreen = lazy(() => import('./screens/Armoury').then((m) => ({ default: m.ArmouryScreen })))
+const QuestBook = lazy(() => import('./screens/QuestBook').then((m) => ({ default: m.QuestBook })))
+const Mirror = lazy(() => import('./screens/Mirror').then((m) => ({ default: m.Mirror })))
+const Atlas = lazy(() => import('./screens/Atlas').then((m) => ({ default: m.Atlas })))
+const SquareRush = lazy(() => import('./screens/SquareRush').then((m) => ({ default: m.SquareRush })))
+const KingStamps = lazy(() => import('./screens/KingStamps').then((m) => ({ default: m.KingStamps })))
+const OpeningMap = lazy(() => import('./screens/OpeningMap').then((m) => ({ default: m.OpeningMap })))
+const Import = lazy(() => import('./screens/Import').then((m) => ({ default: m.Import })))
+const Settings = lazy(() => import('./screens/Settings').then((m) => ({ default: m.Settings })))
+const Trophies = lazy(() => import('./screens/Trophies').then((m) => ({ default: m.Trophies })))
+const Accuracy = lazy(() => import('./screens/Accuracy').then((m) => ({ default: m.Accuracy })))
+const Watch = lazy(() => import('./screens/Watch').then((m) => ({ default: m.Watch })))
+const Weaknesses = lazy(() => import('./screens/Weaknesses').then((m) => ({ default: m.Weaknesses })))
+const Attacks = lazy(() => import('./screens/Attacks').then((m) => ({ default: m.Attacks })))
 import { Connect, MistakeOne, Training, YourGames } from './screens/Training'
 import { backToTraining, forgetBackToTraining } from './lib/trainingToday'
 import { report } from './lib/trainingPath'
 import { HomeHub } from './screens/HomeHub'
-import { KingStamps } from './screens/KingStamps'
-import { Encounter, Habits, KingFastTravel, KingHome, KingStation, KingWorld, WarmUp, WarTent } from './screens/King'
-import { OpeningMap } from './screens/OpeningMap'
-import { Import } from './screens/Import'
+import { loadKing } from './lib/king'
 import { Learn } from './screens/Learn'
 import { Play } from './screens/Play'
 import { PuzzleView } from './screens/PuzzleScreen'
-import { Settings } from './screens/Settings'
 import { MuteButton } from './components/MuteButton'
 import { ThreatView } from './screens/Threat'
-import { Trophies } from './screens/Trophies'
-import { Accuracy } from './screens/Accuracy'
-import { Watch } from './screens/Watch'
 import { Welcome } from './screens/Welcome'
-import { Weaknesses } from './screens/Weaknesses'
 import type { Category } from './lib/weakness'
 import { CATEGORY } from './lib/weakness'
 import './App.css'
@@ -93,6 +103,11 @@ function App() {
     return () => events.forEach((e) => window.removeEventListener(e, tryUnlock))
   }, [])
   useEffect(() => void startLive(), [])
+  // the real world map is ready before you tap it: its code loads quietly a moment after the start
+  useEffect(() => {
+    const t = window.setTimeout(() => void import('./screens/RealMap').catch(() => {}), 2500)
+    return () => window.clearTimeout(t)
+  }, [])
   const line = id ? rep.lines.find((l) => l.id === id) : undefined
 
   let body: React.ReactNode
@@ -168,9 +183,13 @@ function App() {
   else if (page === 'portal') body = <Portal rep={rep} />
   else if (page === 'encounter') body = <Encounter key={id ?? ''} to={id} rep={rep} />
   else body = redirect ? null : (
-      <KingHome>
+      loadKing().intro ? (
         <HomeHub rep={rep} progress={progress} puzzles={puzzles} player={player} />
-      </KingHome>
+      ) : (
+        <KingHome>
+          <HomeHub rep={rep} progress={progress} puzzles={puzzles} player={player} />
+        </KingHome>
+      )
     )
 
   return (
@@ -183,7 +202,7 @@ function App() {
         </div>
       </header>
       {page === 'path' && named && <InstallBanner />}
-      {body}
+      <Suspense fallback={<Loading />}>{body}</Suspense>
     </main>
   )
 }

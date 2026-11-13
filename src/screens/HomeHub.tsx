@@ -133,7 +133,8 @@ export function HomeHub({ rep, progress, puzzles, player }: { rep: ReturnType<ty
         onKeyDown={(e) => e.key === 'Enter' && go('journey')}
         aria-label={next ? `Open the world map – next: ${next.name}` : 'Open the world map'}
       >
-        <span className="hub-map" style={{ backgroundImage: `url(${IMG}worldmap.jpg)`, backgroundPosition: `${mx}% ${my}%` }} />
+        {/* a small copy (40 KB) shows at once, the sharp map covers it when it has loaded (Lu: "die Map sofort da") */}
+        <span className="hub-map" style={{ backgroundImage: `url(${IMG}worldmap.jpg), url(${IMG}worldmap-small.jpg)`, backgroundPosition: `${mx}% ${my}%` }} />
         <span className="hub-say">{say}</span>
         <span className="hub-peek" aria-hidden="true"><Mascot mood="cheer" /></span>
         <span className="hub-in">
