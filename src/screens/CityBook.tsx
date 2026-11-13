@@ -71,7 +71,8 @@ export function CityBook({
   const storyDone = steps.find((x) => x.key === 'talk')?.done ?? false
   // the story pages: every part of the story, then the "On the board" hints
   const parts = [...ch.story.map((text) => ({ text, board: false })), ...(ch.board ?? []).map((text) => ({ text, board: true }))]
-  const [page, setPage] = useState<Page>(() => savedPage(s.id) ?? (storyDone ? { kind: 'tech' } : { kind: 'cover' }))
+  // Lu, 13.11.: a city always opens on its cover (openCity forgets the page); only coming back from a game keeps the page
+  const [page, setPage] = useState<Page>(() => savedPage(s.id) ?? { kind: 'cover' })
   // Lu, 13.11.: in every city the story comes first and then you go straight to playing. Read for the first time,
   // the last story page opens the next step (the lesson, a game, a line); the chapter waits on its techniques page.
   const [firstRead] = useState(!storyDone)
@@ -168,6 +169,8 @@ export function CityBook({
         <p className="book-sub">{ch.subtitle}</p>
         <div className="book-art"><img src={cover} alt="" /></div>
         <button type="button" className="book-go" onClick={forward}>{storyDone ? 'Read the story again' : 'Begin the story'} →</button>
+        {/* story already read: one tap on to the techniques, so the cover is no detour */}
+        {storyDone && <button type="button" className="book-skip" onClick={() => setPage({ kind: 'tech' })}>To the techniques →</button>}
       </section>
     )
   } else if (page.kind === 'story') {

@@ -825,6 +825,7 @@
 /* cover */
 .bp-cover h1 { margin: 22px 22px 2px; }
 .bp-cover .book-art { flex: 1 1 0; min-height: 0; aspect-ratio: auto; margin-top: 18px; }
+.bp-cover .book-skip { flex: none; align-self: center; margin: 0 0 8px; padding: 6px 14px; background: none; border: 0; box-shadow: none; font: 600 14px Inter, sans-serif; color: var(--house); text-decoration: underline; text-underline-offset: 3px; min-height: 0; }
 /* story */
 .bp-story { background: var(--house); color: #f3ece0; }
 .bp-img { position: relative; flex: 0 1 38%; min-height: 120px; overflow: hidden; background: var(--paper); }
