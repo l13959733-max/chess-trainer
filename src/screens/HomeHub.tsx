@@ -167,7 +167,6 @@ export function HomeHub({ rep, progress, puzzles, player }: { rep: ReturnType<ty
                 'Open the world map'
               )}
             </button>
-            {next && <span className="hub-alt">or open the world map</span>}
           </span>
         </span>
       </div>

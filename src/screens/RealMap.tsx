@@ -212,7 +212,7 @@ export default function RealMap() {
           )}
         </div>
       )}
-      <BottomBar active="map" />
+      <BottomBar active={null} />
     </div>
   )
 }

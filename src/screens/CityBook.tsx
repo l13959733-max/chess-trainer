@@ -296,7 +296,7 @@ export function CityBook({
   return (
     <div ref={pageEl} className={`book book-paged page-${page.kind}`} style={vars} onTouchStart={onTouchStart} onTouchMove={onTouchMove} onTouchEnd={onTouchEnd}>
       {body}
-      <BottomBar active="map" />
+      <BottomBar active={null} />
     </div>
   )
 }

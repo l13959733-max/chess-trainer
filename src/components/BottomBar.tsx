@@ -4,9 +4,10 @@ import { go } from '../hooks/useHashRoute'
 import { loadKing, mirrorOpen } from '../lib/king'
 import { nextCity, travelTo } from '../lib/travel'
 
-// One bottom bar everywhere (Lu, 12.11.: "nicht quer durch die Seiten springen"): Home · Map · Hoppy · Training · More.
+// One bottom bar everywhere (Lu, 12.11.: "nicht quer durch die Seiten springen"): Home · Journey · Hoppy · Training · More.
+// Lu, 13.11.: the world map only once – through the big picture on the start page, not in the bar. Journey = Fast travel.
 // Hoppy in the middle continues the journey in the next city.
-export function BottomBar({ active }: { active: 'home' | 'map' | 'training' | null }) {
+export function BottomBar({ active }: { active: 'home' | 'journey' | 'training' | null }) {
   const [more, setMore] = useState(false)
   const king = loadKing()
   const next = nextCity(king.beaten)
@@ -16,8 +17,8 @@ export function BottomBar({ active }: { active: 'home' | 'map' | 'training' | nu
         <button type="button" className={active === 'home' ? 'on' : ''} aria-current={active === 'home' ? 'page' : undefined} onClick={() => go('')}>
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" aria-hidden="true"><path d="M3 11 12 4l9 7v9h-6v-6H9v6H3z" /></svg>Home
         </button>
-        <button type="button" className={active === 'map' ? 'on' : ''} aria-current={active === 'map' ? 'page' : undefined} onClick={() => go('journey')}>
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" aria-hidden="true"><path d="M9 4 3 6v14l6-2 6 2 6-2V4l-6 2-6-2Z" /><path d="M9 4v14M15 6v14" /></svg>Map
+        <button type="button" className={active === 'journey' ? 'on' : ''} aria-current={active === 'journey' ? 'page' : undefined} onClick={() => go('road')}>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9" /><path d="m15.5 8.5-2.2 4.8-4.8 2.2 2.2-4.8z" /></svg>Journey
         </button>
         <button type="button" className="hub-mid" onClick={() => (next ? travelTo(next) : go('tent'))} aria-label={next ? `Play – ${next.name}` : 'Play'}>
           <Mascot mood="happy" />
