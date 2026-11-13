@@ -4,18 +4,18 @@ import { addRed, buildPlan, longestStreak, safeShare, starsFromMistakes, viewPla
 const base: PlanInput = { date: '2026-11-13', linesDue: 0, mistakes: [], lostDue: 0 }
 
 describe('today’s path', () => {
-  it('always has the Threat Check and Square Rush', () => {
+  it('starts with the Daily Threat Check and always has Square Rush', () => {
     expect(buildPlan(base).levels.map((l) => l.kind)).toEqual(['threat', 'rush'])
   })
 
   it('puts at most two own mistakes on the path, around the Threat Check', () => {
     const p = buildPlan({ ...base, linesDue: 3, mistakes: [1, 2, 3].map((i) => ({ id: 'g' + i, title: 'Fork' })), lostDue: 5 })
-    expect(p.levels.map((l) => l.key)).toEqual(['lines', 'mistake:g1', 'threat', 'mistake:g2', 'rush'])
+    expect(p.levels.map((l) => l.key)).toEqual(['threat', 'lines', 'mistake:g1', 'mistake:g2', 'rush'])
     expect(p.levels.filter((l) => l.red)).toHaveLength(2)
   })
 
   it('uses a Lost battle when there is no own chess.com mistake', () => {
-    expect(buildPlan({ ...base, lostDue: 2 }).levels[0].kind).toBe('lost')
+    expect(buildPlan({ ...base, lostDue: 2 }).levels[1].kind).toBe('lost')
   })
 
   it('ends with treasure and boss', () => {
@@ -26,14 +26,14 @@ describe('today’s path', () => {
   it('adds red levels after the chess.com check, once', () => {
     const p = buildPlan({ ...base, linesDue: 1, lostDue: 2 })
     const q = addRed(p, [{ id: 'a', title: 'Pin' }, { id: 'b', title: 'Fork' }])
-    expect(q.levels.map((l) => l.key)).toEqual(['lines', 'mistake:a', 'threat', 'mistake:b', 'rush'])
+    expect(q.levels.map((l) => l.key)).toEqual(['threat', 'lines', 'mistake:a', 'mistake:b', 'rush'])
     expect(addRed(q, [{ id: 'c', title: 'Pin' }])).toBe(q)
   })
 
   it('marks the first open level as now and locks the rest', () => {
     const p = buildPlan({ ...base, linesDue: 1 })
-    const v = viewPlan(p, { lines: 2 })
-    expect(v.map((l) => [l.stars, l.now, l.lock])).toEqual([[2, false, false], [null, true, false], [null, false, true]])
+    const v = viewPlan(p, { threat: 3 })
+    expect(v.map((l) => [l.stars, l.now, l.lock])).toEqual([[3, false, false], [null, true, false], [null, false, true]])
   })
 })
 

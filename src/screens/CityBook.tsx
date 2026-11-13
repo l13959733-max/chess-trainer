@@ -250,6 +250,8 @@ export function CityBook({
             <small>{boss.done ? '✓ Beaten' : 'Boss'}</small>
           </button>
         </div>
+        {/* the chapter and today's training belong together (Lu, 13.11.) */}
+        <button type="button" className="bp-train" onClick={() => go('tent')}>⛺ Practice in today’s training →</button>
         {extras.length > 0 && (
           <div className="bp-extras">
             {extras.map((g) => (

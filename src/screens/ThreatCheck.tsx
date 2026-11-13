@@ -63,7 +63,9 @@ export function ThreatCheck() {
           <b>{result.ok ? `Spotted in ${result.secs} s` : 'The Shadow got you this time'}</b>
           <p className="threat-squares" aria-label={result.ok ? 'spotted' : 'missed'}>{squares(result)}</p>
           <p>{result.ok ? 'That is the habit: look at what your opponent can do before you move.' : earlier ? 'Tomorrow is a new chance.' : 'The green arrow shows his move. Play it and see why it hurts.'}</p>
-          <button type="button" className="primary wide" onClick={share}>Share result</button>
+          {/* the Daily opens the day's training (Lu, 13.11.): straight on to level 2 of today's path */}
+          <button type="button" className="primary wide" onClick={() => go('tent')}>Continue training →</button>
+          <button type="button" className="wide" onClick={share}>Share result</button>
           {shared === 'copied' && <p className="note small">Copied – paste it anywhere.</p>}
           {shared === 'failed' && <pre className="threat-share">{shareText(day, result, location.origin + location.pathname + '#/threat-check')}</pre>}
         </div>

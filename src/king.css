@@ -928,3 +928,10 @@
 .jp-bar { display: block; height: 9px; border-radius: 99px; background: #d6e9c4; overflow: hidden; }
 .jp-bar span { display: block; height: 100%; border-radius: 99px; background: #4fc414; }
 .jp-go { margin-top: 2px; font-weight: 900; font-size: .8rem; color: #3a9a0c; }
+
+/* bottom bar: on the start page only Hoppy and More (Lu, 13.11.); red number of open levels on Training */
+.hub-bar.hub-bar-home { grid-template-columns: 1fr 80px 1fr; }
+.hub-bar .hub-train { position: relative; }
+.hub-bar .hub-dot { position: absolute; top: -4px; left: calc(50% + 4px); min-width: 10px; height: 10px; border-radius: 99px; background: #ef4a5a; border: 2px solid var(--card, #fff); font-style: normal; }
+.hub-bar .hub-dot:not(:empty) { min-width: 18px; height: 18px; padding: 0 4px; color: #fff; font-size: 10.5px; font-weight: 900; line-height: 14px; text-align: center; }
+.bp-tech .bp-train { display: block; box-sizing: border-box; width: 100%; margin: 10px 0 0; padding: 10px 14px; min-height: 0; border-radius: 14px; border: 2px solid #3a9a0c; border-bottom-width: 4px; background: #eef7e3; color: #2a5a0c; font: 800 15px 'Nunito', sans-serif; text-align: center; text-transform: none; letter-spacing: 0; box-shadow: none; }

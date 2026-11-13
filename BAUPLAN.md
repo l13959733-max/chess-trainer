@@ -306,7 +306,7 @@ alle 5 Züge (Springer, Läufer, Turm, Dame, König, Bauer). Schalter: Buchstabe
 Töne im Browser erzeugt (keine Dateien). Vibration nur Android (iPhone-Safari kann es nicht). Gibt es schon klein in
 Bagdad („Blindfold: find the square“) – das hier wäre ein eigenes Spiel, z. B. im Training oder als Tagesspiel.
 
-### [~] 31. Training neu: Tagespfad mit Sternen + chess.com als rote Level – gebaut 13.11. (Vorschau `#/tent`, Lu: „übernimm das erstmal so“)
+### [x] 31. Training neu: Tagespfad mit Sternen + chess.com als rote Level – gebaut 13.11. (Vorschau `#/tent`, Lu: „übernimm das erstmal so“)
 Entwurf: https://claude.ai/artifact/HWhR59MBvsBsqwobpMAcrA (Lus Vorlage-Screenshot einer Lern-App + Duolingo-Pfad + Candy-Level + Aquarell).
 **Gebaut:** `src/screens/Training.tsx` (+ `src/training.css`, alles unter `.trn`), Logik `src/lib/trainingPath.ts` (Plan, Sterne, Safe moves,
 längste Serie; Tests) und `src/lib/trainingToday.ts` (Plan aus echten Daten, erledigt-Liste). Ein Plan pro Tag (localStorage `hoppy-path`),
@@ -318,8 +318,11 @@ chess.com: `#/connect` (Name → „Is this you?“ mit Bild + Rapid → Hoppy l
 `#/games` (Partien mit Safe moves/Fehlern, Tipp → `#/mistake/<id>`). Safe moves = 1 − Fehler/eigene Züge aus den gespeicherten Partien.
 Altes Training Camp unter `#/camp` (im Regal „Old Training Camp“), alle 19 Knöpfe stehen im Regal. Startseite: „⛺ Training 1/3“ führt hin.
 **Journey (13.11., Lu: „beide Fortschritte sehen“):** oben zwei Karten – Story (Bosse-Ring, Kapitel, Kastanien) und Training (heute x/y Level, Sterne, Serie, Safe moves, Tipp → Training), `src/components/JourneyProgress.tsx`; Dock-Knopf heißt „Training“.
-**Offen:** Lus Blick am Handy; Leiste unten (A/B) unverändert; rote Zahl am Training-Knopf; „Practice this in Training“ nach dem Kapitel;
-grün/gold-Züge im Sieg-Fenster (die Übungen melden das noch nicht); Wochenkurve braucht ≥2 geprüfte Partien.
+**Dazu 13.11. (Lu: „bau das alles zu Ende und stell das live“):** Daily Threat Check ist immer **Level 1** (Plan-Version 2,
+ältere Tagespläne werden neu gebaut), am Ende vom Daily „Continue training →“ (Share darunter). Untere Leiste: auf der Startseite
+nur Hoppy + More (Lu: Home/Journey/Training „verdoppelt“ die Startseite), sonst rote Zahl = offene Level heute (Punkt = Pfad heute
+noch nicht geöffnet). Kapitelseite: „⛺ Practice in today’s training →“.
+**Offen:** grün/gold-Züge im Sieg-Fenster (die Übungen melden das noch nicht); Wochenkurve braucht ≥2 geprüfte Partien.
 `continue.mjs` scheitert schon vor diesem Punkt (wartet auf „Continue“), nicht durch Training.
 
 ### [~] 30. „Hoppy Mix“: Lektionen, Tagebuch, Hoppy spricht – EINGEBAUT 13.11. nachts (Vorschau, ohne untere Leiste)

@@ -18,9 +18,12 @@ export interface Level {
 }
 
 export interface DayPlan {
+  v?: number // plan layout; an older plan of today is rebuilt
   date: string
   levels: Level[]
 }
+// 2: the Daily Threat Check is always level 1 (Lu, 13.11.: "das kann vom Daily ausgehen")
+export const PLAN_VERSION = 2
 
 export interface PlanInput {
   date: string
@@ -36,28 +39,26 @@ export const RED_PER_DAY = 2
 
 export function buildPlan(p: PlanInput): DayPlan {
   const red = p.mistakes.slice(0, RED_PER_DAY).map<Level>((m) => ({ key: 'mistake:' + m.id, kind: 'mistake', title: 'Your game', route: 'mistake/' + encodeURIComponent(m.id), red: true }))
-  const levels: Level[] = []
+  // the day starts with the Daily Threat Check: short, the same habit every day (check the threat first)
+  const levels: Level[] = [{ key: 'threat', kind: 'threat', title: 'Daily Threat Check', route: 'threat-check' }]
   if (p.linesDue > 0) levels.push({ key: 'lines', kind: 'lines', title: 'Due lines', route: 'review' })
   if (p.lesson) levels.push({ key: 'lesson:' + p.lesson.id, kind: 'lesson', title: 'Lesson', route: p.lesson.route })
-  if (red[0]) levels.push(red[0])
+  if (red[0]) levels.push(...red)
   else if (p.lostDue > 0) levels.push({ key: 'lost', kind: 'lost', title: 'Lost battle', route: 'puzzles' })
-  levels.push({ key: 'threat', kind: 'threat', title: 'Threat Check', route: 'threat-check' })
-  if (red[1]) levels.push(red[1])
   levels.push({ key: 'rush', kind: 'rush', title: 'Square Rush', route: 'rush' })
   if (p.treasure) levels.push({ key: 'treasure', kind: 'treasure', title: 'Treasure', route: 'play/puzzle/' + encodeURIComponent(p.treasure), icon: '🎁' })
   if (p.boss) levels.push({ key: 'boss:' + p.boss.city, kind: 'boss', title: 'Boss', route: `king/${p.boss.city}/boss`, icon: '👑' })
-  return { date: p.date, levels }
+  return { v: PLAN_VERSION, date: p.date, levels }
 }
 
 // After the chess.com check: put today's red levels into a plan that has none yet
 export function addRed(plan: DayPlan, mistakes: { id: string; title: string }[]): DayPlan {
   if (plan.levels.some((l) => l.red) || !mistakes.length) return plan
   const red = mistakes.slice(0, RED_PER_DAY).map<Level>((m) => ({ key: 'mistake:' + m.id, kind: 'mistake', title: 'Your game', route: 'mistake/' + encodeURIComponent(m.id), red: true }))
+  // after the lines and the lesson, before Square Rush (where a Lost battle stood)
   const levels = plan.levels.filter((l) => l.kind !== 'lost')
-  const threat = levels.findIndex((l) => l.kind === 'threat')
-  const at = threat < 0 ? levels.length : threat
-  levels.splice(at, 0, red[0])
-  if (red[1]) levels.splice(at + 2, 0, red[1])
+  const rush = levels.findIndex((l) => l.kind === 'rush')
+  levels.splice(rush < 0 ? levels.length : rush, 0, ...red)
   return { ...plan, levels }
 }
 
@@ -107,7 +108,7 @@ export const today = () => dateKey(new Date())
 
 export function loadPlan(date = today()): DayPlan | null {
   const p = read<DayPlan | null>(PLAN_KEY, null)
-  return p && p.date === date ? p : null
+  return p && p.date === date && p.v === PLAN_VERSION ? p : null
 }
 export const savePlan = (p: DayPlan) => write(PLAN_KEY, p)
 
