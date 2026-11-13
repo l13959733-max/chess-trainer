@@ -7,6 +7,7 @@ import { Mascot, type Mood } from '../components/Mascot'
 import { go } from '../hooks/useHashRoute'
 import { feedback as fx, resetCareful, takeCareful } from '../lib/feedback'
 import { earn, type Station } from '../lib/king'
+import { report } from '../lib/trainingPath'
 import { fenAfter, writeDiary, type Lesson as LessonData, type Say } from '../lib/lessons'
 import '../lesson.css'
 
@@ -36,7 +37,10 @@ export function Lesson({ s, lesson }: { s: Station; lesson: LessonData }) {
   function finish() {
     const coins = earn(`${s.id}/${lesson.id}`, 10)
     writeDiary({ id: lesson.id, city: s.name, text: lesson.diary, at: Date.now() })
-    setDone({ secs: Math.max(1, Math.round((Date.now() - started) / 1000)), coins, gold: takeCareful() })
+    const gold = takeCareful()
+    // today's path: ★ done · ★★ every answer first try · ★★★ first try and careful play
+    report('lesson:' + lesson.id, mistakes ? 1 : gold ? 3 : 2)
+    setDone({ secs: Math.max(1, Math.round((Date.now() - started) / 1000)), coins, gold })
   }
 
   if (done) {

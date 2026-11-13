@@ -14,6 +14,7 @@ import { nextCity, openCity } from '../lib/travel'
 import { getName } from '../lib/profile'
 import { isDue } from '../lib/srs'
 import { dailyPuzzle, dayNumber, loadResults } from '../lib/threatcheck'
+import { pathProgress } from '../lib/trainingToday'
 
 // The start page (Lu, 12.11.: Pinterest model in our book look, "alles auf eine Handy-Seite"): the journey as the hero,
 // then four cards (quote, journey, daily, Square Rush), a training strip and the bottom bar with Hoppy in the middle.
@@ -91,6 +92,7 @@ export function HomeHub({ rep, progress, puzzles, player }: { rep: ReturnType<ty
   const storyOpen = !!next && !king.got.includes(`${next.id}/talk`)
   const lessonOpen = !storyOpen && !!next && !!lesson && !king.got.includes(`${next.id}/${lesson.id}`)
   const [diary] = useState(loadDiary)
+  const [path] = useState(pathProgress)
   const headline = next ? chapterOf(next.id)?.headline : undefined
   const say = !next
     ? 'We travelled the whole world!'
@@ -230,7 +232,7 @@ export function HomeHub({ rep, progress, puzzles, player }: { rep: ReturnType<ty
       </div>
 
       <nav className="hub-strip" aria-label="Training">
-        <span>⛺ Training</span>
+        <button type="button" className="hub-strip-go" onClick={() => go('tent')}>⛺ Training{path ? ` ${path.done}/${path.total}` : ''}</button>
         <button type="button" onClick={() => go('review')}>Lines {linesDue > 0 && <b>{linesDue}</b>}</button>
         <button type="button" onClick={() => go('puzzles')}>Mistakes {mistakes > 0 && <b>{mistakes}</b>}</button>
         <button type="button" onClick={() => go('play')}>Bot ▶</button>

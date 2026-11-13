@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import * as store from '../lib/db'
 import { addToDay, dateKey, DEFAULT_GOAL, goalReached, levelInfo, streak, XP, xpForDrill, xpForGame, xpForPuzzle, type DayActivity, type Goal } from '../lib/progress'
+import { report, starsFromMistakes } from '../lib/trainingPath'
 
 export interface Reward {
   xp: number
@@ -44,9 +45,16 @@ export function useProgress() {
     [days, totalXp, goal],
   )
 
-  const recordDrill = useCallback((mistakes: number) => add({ lines: 1, xp: xpForDrill(mistakes) }), [add])
+  // each finished line / puzzle also counts for today's path in Training (best try wins)
+  const recordDrill = useCallback((mistakes: number) => {
+    report('lines', starsFromMistakes(mistakes))
+    return add({ lines: 1, xp: xpForDrill(mistakes) })
+  }, [add])
   const recordLearn = useCallback(() => add({ xp: XP.learnLine }), [add])
-  const recordPuzzle = useCallback((mistakes: number) => add({ puzzles: 1, xp: xpForPuzzle(mistakes) }), [add])
+  const recordPuzzle = useCallback((mistakes: number) => {
+    report('lost', starsFromMistakes(mistakes))
+    return add({ puzzles: 1, xp: xpForPuzzle(mistakes) })
+  }, [add])
   const recordGame = useCallback((score: number) => add({ games: 1, xp: xpForGame(score) }), [add])
 
   const setGoal = useCallback(async (g: Goal) => {

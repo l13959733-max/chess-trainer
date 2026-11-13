@@ -306,6 +306,21 @@ alle 5 Züge (Springer, Läufer, Turm, Dame, König, Bauer). Schalter: Buchstabe
 Töne im Browser erzeugt (keine Dateien). Vibration nur Android (iPhone-Safari kann es nicht). Gibt es schon klein in
 Bagdad („Blindfold: find the square“) – das hier wäre ein eigenes Spiel, z. B. im Training oder als Tagesspiel.
 
+### [~] 31. Training neu: Tagespfad mit Sternen + chess.com als rote Level – gebaut 13.11. (Vorschau `#/tent`, Lu: „übernimm das erstmal so“)
+Entwurf: https://claude.ai/artifact/HWhR59MBvsBsqwobpMAcrA (Lus Vorlage-Screenshot einer Lern-App + Duolingo-Pfad + Candy-Level + Aquarell).
+**Gebaut:** `src/screens/Training.tsx` (+ `src/training.css`, alles unter `.trn`), Logik `src/lib/trainingPath.ts` (Plan, Sterne, Safe moves,
+längste Serie; Tests) und `src/lib/trainingToday.ts` (Plan aus echten Daten, erledigt-Liste). Ein Plan pro Tag (localStorage `hoppy-path`),
+Ergebnisse `hoppy-path-results`, gefeiert `hoppy-path-seen`. Level: fällige Linien → Lektion der nächsten Stadt → eigener chess.com-Fehler (rot)
+→ Threat Check → 2. roter Fehler → Square Rush → Schatztruhe → Boss der Stadt. Höchstens 2 rote Level/Tag (`RED_PER_DAY`), sonst „Lost battle“.
+Sterne melden: `useProgress` (Linien, Puzzles), `Lesson.tsx`, `SquareRush.tsx`, App (Schatztruhe), Threat Check/Boss werden gelesen.
+Nach einem Level vom Pfad führt „zurück/Overview“ wieder ins Training (sessionStorage `hoppy-back-to-training`).
+chess.com: `#/connect` (Name → „Is this you?“ mit Bild + Rapid → Hoppy liest die letzten 20 Rapid-Partien → Ergebnis + „Add to my path“),
+`#/games` (Partien mit Safe moves/Fehlern, Tipp → `#/mistake/<id>`). Safe moves = 1 − Fehler/eigene Züge aus den gespeicherten Partien.
+Altes Training Camp unter `#/camp` (im Regal „Old Training Camp“), alle 19 Knöpfe stehen im Regal. Startseite: „⛺ Training 1/3“ führt hin.
+**Offen:** Lus Blick am Handy; Leiste unten (A/B) unverändert; rote Zahl am Training-Knopf; „Practice this in Training“ nach dem Kapitel;
+grün/gold-Züge im Sieg-Fenster (die Übungen melden das noch nicht); Wochenkurve braucht ≥2 geprüfte Partien.
+`continue.mjs` scheitert schon vor diesem Punkt (wartet auf „Continue“), nicht durch Training.
+
 ### [~] 30. „Hoppy Mix“: Lektionen, Tagebuch, Hoppy spricht – EINGEBAUT 13.11. nachts (Vorschau, ohne untere Leiste)
 Lu: das Beste aus seinem Buch-Look und dem Entwurf im Stil von Brilliant/Duolingo/Finch, „macht das erstmal live, das Design,
 und lass den Balken unten noch raus, weil die machen wir jetzt neu“. Prototyp: https://claude.ai/artifact/5XDMxvSx5HH625QN1GEqKM

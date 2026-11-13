@@ -29,6 +29,9 @@ import { Atlas } from './screens/Atlas'
 import { ThreatCheck } from './screens/ThreatCheck'
 const RealMap = lazy(() => import('./screens/RealMap'))
 import { SquareRush } from './screens/SquareRush'
+import { Connect, MistakeOne, Training, YourGames } from './screens/Training'
+import { backToTraining, forgetBackToTraining } from './lib/trainingToday'
+import { report } from './lib/trainingPath'
 import { HomeHub } from './screens/HomeHub'
 import { KingStamps } from './screens/KingStamps'
 import { Encounter, Habits, KingFastTravel, KingHome, KingStation, KingWorld, WarmUp, WarTent } from './screens/King'
@@ -73,8 +76,10 @@ function App() {
     else if (page === 'king' && id && !arg) rememberOrigin('king/' + id)
   }, [page, id, arg])
   // The start page is the world map; back from a line you land where you opened it
-  const redirect = !page ? backFromLine() : null
+  // after a level from Training's path, the level's "home" button leads back to Training
+  const redirect = !page ? backFromLine() ?? backToTraining() : null
   useEffect(() => {
+    if (redirect === 'tent') forgetBackToTraining()
     if (redirect) go(redirect)
   }, [redirect])
   useEffect(() => {
@@ -122,7 +127,12 @@ function App() {
     const playLine = id === 'line' ? rep.lines.find((l) => l.id === arg) : undefined
     const playPuzzle = id === 'puzzle' ? puzzles.puzzles.find((p) => p.id === decodeURIComponent(arg ?? '')) : undefined
     const mode = playLine ? { kind: 'line' as const, line: playLine } : playPuzzle ? { kind: 'puzzle' as const, puzzle: playPuzzle } : { kind: 'new' as const }
-    body = <Play key={`${id ?? ''}/${arg ?? ''}`} mode={mode} lines={rep.lines} player={player} onGame={progress.recordGame} onPuzzlesFound={() => setBotFound((n) => n + 1)} />
+    // a winning position from the treasure chest: a win is three stars on today's path
+    const onGame = (score: number) => {
+      if (mode.kind === 'puzzle') report('treasure', score === 1 ? 3 : score === 0.5 ? 2 : 1)
+      return progress.recordGame(score)
+    }
+    body = <Play key={`${id ?? ''}/${arg ?? ''}`} mode={mode} lines={rep.lines} player={player} onGame={onGame} onPuzzlesFound={() => setBotFound((n) => n + 1)} />
   } else if (page === 'puzzles') body = <PuzzleSession key={id ?? 'all'} puzzles={puzzles} progress={progress} category={id && id in CATEGORY ? (id as Category) : undefined} />
   else if (page === 'threats') body = <ThreatSession key={(id ?? 'all') + (arg ?? '')} puzzles={puzzles} progress={progress} category={id && id in CATEGORY ? (id as Category) : undefined} games={id === 'games' ? arg?.split(',') : undefined} />
   else if (page === 'afterwards') body = <Afterwards />
@@ -137,7 +147,11 @@ function App() {
   else if (page === 'daily') body = <DailySession rep={rep} puzzles={puzzles} progress={progress} />
   else if (page === 'path') body = <Home rep={rep} progress={progress} puzzles={puzzles} analyzer={analyzer} player={player} trophies={trophies} />
   else if (page === 'king') body = <KingStation id={id} sub={arg} rep={rep} />
-  else if (page === 'tent') body = <WarTent puzzles={puzzles} />
+  else if (page === 'tent') body = <Training rep={rep} progress={progress} puzzles={puzzles} player={player} analyzer={analyzer} />
+  else if (page === 'camp') body = <WarTent puzzles={puzzles} />
+  else if (page === 'connect') body = <Connect key={id ?? ''} step={id} player={player} onPlayer={setPlayerState} analyzer={analyzer} puzzles={puzzles} />
+  else if (page === 'games') body = <YourGames player={player} puzzles={puzzles} />
+  else if (page === 'mistake') body = <MistakeOne id={decodeURIComponent(id ?? '')} puzzles={puzzles} progress={progress} />
   else if (page === 'warmup') body = <WarmUp rep={rep} />
   else if (page === 'habits') body = <Habits rep={rep} />
   else if (page === 'quests') body = <QuestBook />

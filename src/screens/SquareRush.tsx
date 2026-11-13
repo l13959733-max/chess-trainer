@@ -1,3 +1,4 @@
+import { report } from '../lib/trainingPath'
 import { useEffect, useRef, useState } from 'react'
 import { go } from '../hooks/useHashRoute'
 import {
@@ -200,6 +201,7 @@ export function SquareRush() {
       setBest(cur.score)
       store(BEST_KEY, cur.score)
     }
+    report('rush', starsFor(cur.score)) // today's path in Training (0 stars = not done)
     if (starsFor(cur.score))
       window.setTimeout(() => {
         boom()

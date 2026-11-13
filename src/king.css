@@ -711,6 +711,7 @@
 .hub-strip > span { font-size: 9.5px; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; color: var(--soft); white-space: nowrap; }
 .hub-strip button { display: flex; align-items: center; gap: 5px; border: 1px solid var(--line); background: var(--paper); border-radius: 99px; padding: 5px 10px; font-weight: 600; font-size: 12px; white-space: nowrap; }
 .hub-strip button b { background: var(--terra); color: #fff; border-radius: 99px; padding: 0 6px; font-size: 10.5px; }
+.hub-strip .hub-strip-go { font-size: 9.5px; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; color: var(--terra); background: none; border: 0; padding: 5px 4px; }
 .hub-bar { position: absolute; left: 10px; right: 10px; bottom: calc(10px + env(safe-area-inset-bottom, 0px)); height: 62px; background: var(--card); border: 1px solid var(--line); border-radius: 22px; display: grid; grid-template-columns: 1fr 1fr 80px 1fr 1fr; align-items: center; box-shadow: 0 6px 20px rgba(40, 25, 10, .15); }
 .hub-bar button { border: 0; background: none; display: flex; flex-direction: column; align-items: center; gap: 2px; font-size: 10px; font-weight: 600; color: var(--soft); padding: 0; }
 .hub-bar button svg { width: 21px; height: 21px; }

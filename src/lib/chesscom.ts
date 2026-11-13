@@ -20,6 +20,25 @@ export function setPlayer(name: string) {
   }
 }
 
+// Has this phone chosen its chess.com player? (getPlayer falls back to Lu's account otherwise)
+export function hasOwnPlayer(): boolean {
+  try {
+    return !!localStorage.getItem(PLAYER_KEY)
+  } catch {
+    return false
+  }
+}
+
+// For "Is this you?": the name as chess.com spells it, the picture (if any) and the rapid rating
+export async function fetchProfile(name: string): Promise<{ username: string; avatar?: string; rapid: number | null } | null> {
+  const res = await fetch(API + encodeURIComponent(name.trim().toLowerCase()))
+  if (res.status === 404) return null
+  if (!res.ok) throw new Error(`chess.com answered ${res.status}`)
+  const j = await res.json()
+  const username = (j.username as string).toLowerCase()
+  return { username, avatar: typeof j.avatar === 'string' ? j.avatar : undefined, rapid: await fetchRapidRating(username).catch(() => null) }
+}
+
 // The chess.com username as chess.com spells it, or null when there is no such player
 export async function findPlayer(name: string): Promise<string | null> {
   const res = await fetch(API + encodeURIComponent(name.trim().toLowerCase()))
