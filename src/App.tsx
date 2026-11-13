@@ -1,4 +1,8 @@
 import { Suspense, lazy, useEffect, useState } from 'react'
+// The book look and the lessons are needed from the start page on: load them with the app, not with a lazy page
+// (13.11.: after the pages became lazy, the start page lost its look until a game page was opened)
+import './king.css'
+import './lesson.css'
 import { go, useHashRoute } from './hooks/useHashRoute'
 import { useAchievements } from './hooks/useAchievements'
 import { useAnalyzer } from './hooks/useAnalyzer'
