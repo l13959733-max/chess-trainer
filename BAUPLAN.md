@@ -319,6 +319,8 @@ ein Eintrag da ist (`hoppy-diary` in localStorage), Square Rush in Gold statt Du
 was drin ist, „Up next“ markiert. **Offen:** untere Leiste neu (Lu); Lektionen für die anderen Städte; alte Übungen
 (BoardRounds, QuizRounds …) noch im alten Look.
 
+- 13.11. abends (Lu): **erst die Geschichte, dann spielen** – Startseiten-Knopf heißt „Begin the chapter · Stadt“, bis die Geschichte gelesen ist; beim ersten Lesen führt die letzte Seite („Let’s play →“) direkt in den ersten Schritt (Lektion/Spiel/Linie), das Kapitel wartet danach auf der Technik-Seite. **Journey-Kachel → Fast Travel** (`#/road`, Münzpfad der Städte) statt Karte. Offen: untere Leiste (Lu: „wie in der ersten Version“ – was genau, ungeklärt).
+
 ### [x] 27. Echte Karte statt gemalter – seit 12.11. spät DIE Weltkarte (`#/journey`, Vorschau)
 Lu: „eigentlich hatten wir eine echte Karte, Russland dazu“. Moskau steht als „soon“-Münze drauf (`SOON` in RealMap.tsx),
 Winter Forest dafür nach Nordwest-Russland (33.3/59.2) gerückt. Gemalte Karte jetzt `#/painted` (More). Eine Leiste unten

@@ -72,6 +72,9 @@ export function CityBook({
   // the story pages: every part of the story, then the "On the board" hints
   const parts = [...ch.story.map((text) => ({ text, board: false })), ...(ch.board ?? []).map((text) => ({ text, board: true }))]
   const [page, setPage] = useState<Page>(() => savedPage(s.id) ?? (storyDone ? { kind: 'tech' } : { kind: 'cover' }))
+  // Lu, 13.11.: in every city the story comes first and then you go straight to playing. Read for the first time,
+  // the last story page opens the next step (the lesson, a game, a line); the chapter waits on its techniques page.
+  const [firstRead] = useState(!storyDone)
   useEffect(() => {
     try {
       sessionStorage.setItem(pageKey(s.id), JSON.stringify(page))
@@ -102,7 +105,18 @@ export function CityBook({
   }
   function forward() {
     if (page.kind === 'cover') setPage({ kind: 'story', i: 0 })
-    else if (page.kind === 'story') setPage(page.i + 1 < parts.length ? { kind: 'story', i: page.i + 1 } : { kind: 'tech' })
+    else if (page.kind === 'story') {
+      if (page.i + 1 < parts.length) return setPage({ kind: 'story', i: page.i + 1 })
+      if (firstRead && next) {
+        try {
+          sessionStorage.setItem(pageKey(s.id), JSON.stringify({ kind: 'tech' }))
+        } catch {
+          // not remembered
+        }
+        return go(next.route)
+      }
+      setPage({ kind: 'tech' })
+    }
   }
   // Lu, 13.11.: no Next button – swipe. The page follows the finger and snaps to the next one (cover and story).
   const touch = useRef<{ x: number; y: number } | null>(null)
@@ -173,7 +187,7 @@ export function CityBook({
           {parts.map((_, k) => <i key={k} className={k === page.i ? 'on' : k < page.i ? 'seen' : ''} />)}
         </div>
         {/* Lu, 13.11.: the Next button stays for now – swiping works too */}
-        <button type="button" className="book-go light" onClick={forward}>{last ? 'To the techniques →' : 'Next →'}</button>
+        <button type="button" className="book-go light" onClick={forward}>{!last ? 'Next →' : firstRead && next ? 'Let’s play →' : 'To the techniques →'}</button>
       </section>
     )
   } else if (page.kind === 'tech') {

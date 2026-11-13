@@ -87,7 +87,9 @@ export function HomeHub({ rep, progress, puzzles, player }: { rep: ReturnType<ty
   const my = next ? (next.y / MAP_H) * 100 : 50
   const ring = 163.4 * (1 - beaten / Math.max(bosses, 1))
   const lesson = next ? lessonOf(next.id) : undefined
-  const lessonOpen = !!next && !!lesson && !king.got.includes(`${next.id}/${lesson.id}`)
+  // Lu, 13.11.: the story always comes first – until it is read, the button opens the chapter's cover
+  const storyOpen = !!next && !king.got.includes(`${next.id}/talk`)
+  const lessonOpen = !storyOpen && !!next && !!lesson && !king.got.includes(`${next.id}/${lesson.id}`)
   const [diary] = useState(loadDiary)
   const headline = next ? chapterOf(next.id)?.headline : undefined
   const say = !next
@@ -96,6 +98,13 @@ export function HomeHub({ rep, progress, puzzles, player }: { rep: ReturnType<ty
       ? `I wrote it in my diary! On we go in ${next.name}.`
       : `I’m in ${next.name}!${headline ? ` Today’s chapter: “${headline}”.` : ''}`
   function cta() {
+    if (storyOpen) {
+      try {
+        sessionStorage.removeItem('hoppy-book-page-' + next!.id) // open on the cover, not on a page left earlier
+      } catch {
+        // nothing remembered
+      }
+    }
     if (lessonOpen) go(`king/${next!.id}/${lesson!.id}`)
     else if (next) go(`king/${next.id}`) // the city's book chapter: cover, or its techniques page with the next step
     else go('journey')
@@ -148,7 +157,9 @@ export function HomeHub({ rep, progress, puzzles, player }: { rep: ReturnType<ty
                 cta()
               }}
             >
-              {lessonOpen ? (
+              {storyOpen ? (
+                <>Begin the chapter <small>· {next!.name}</small></>
+              ) : lessonOpen ? (
                 <>Practice now <small>· {lesson!.steps.length} tasks · {lesson!.minutes} min</small></>
               ) : next ? (
                 <>Continue <small>· {next.name}</small></>
@@ -180,7 +191,7 @@ export function HomeHub({ rep, progress, puzzles, player }: { rep: ReturnType<ty
             <small>– Grandmaster Lu</small>
           </article>
         )}
-        <button type="button" className="hub-card hub-prog" onClick={() => go('journey')} aria-label={`Journey: ${beaten} of ${bosses} cities`}>
+        <button type="button" className="hub-card hub-prog" onClick={() => go('road')} aria-label={`Journey: ${beaten} of ${bosses} cities`}>
           <h3>Journey</h3>
           <svg className="hub-ringsvg" viewBox="0 0 64 64" width="46" height="46" aria-hidden="true"><circle cx="32" cy="32" r="26" fill="none" stroke="#ddd2c0" strokeWidth="8" /><circle cx="32" cy="32" r="26" fill="none" stroke="#d9ad55" strokeWidth="8" strokeLinecap="round" strokeDasharray="163.4" strokeDashoffset={ring} /></svg>
           <span className="hub-big">{beaten}<small> / {bosses}</small></span>
