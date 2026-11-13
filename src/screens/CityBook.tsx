@@ -124,7 +124,8 @@ export function CityBook({
   const pageEl = useRef<HTMLDivElement>(null)
   const swipeable = page.kind === 'story' || page.kind === 'cover'
   const slide = (dx: number, animate: boolean) => {
-    const el = pageEl.current?.querySelector<HTMLElement>('.bp')
+    // Lu, 14.11.: in the story the picture stays where it is, only the text below moves on
+    const el = pageEl.current?.querySelector<HTMLElement>(page.kind === 'story' ? '.bp-text' : '.bp')
     if (!el) return
     el.style.transition = animate ? 'transform .22s ease, opacity .22s ease' : 'none'
     el.style.transform = dx ? `translateX(${dx}px)` : ''
@@ -189,7 +190,7 @@ export function CityBook({
           <img src={storyImg} alt="" />
           {top(`${page.i + 1} / ${parts.length}`, true)}
         </div>
-        <div className="bp-text" onClick={forward}>
+        <div key={page.i} className="bp-text" onClick={forward}>
           <p className="bp-kick">{part.board ? 'On the board' : 'The story'}</p>
           <p key={page.i} className={`bp-para${part.board ? ' board' : ''}${page.i === 0 ? ' first' : ''}`}>{part.text}</p>
         </div>
@@ -308,8 +309,9 @@ export function CityBook({
 
   return (
     <div ref={pageEl} className={`book book-paged page-${page.kind}`} style={vars} onTouchStart={onTouchStart} onTouchMove={onTouchMove} onTouchEnd={onTouchEnd}>
-      {/* a fresh page each time (14.11.: the swipe left the next page pushed out of view – the story looked empty) */}
-      <Fragment key={JSON.stringify(page)}>{body}</Fragment>
+      {/* a fresh page each time (14.11.: the swipe left the next page pushed out of view – the story looked empty).
+          The story pages share one page: the picture stays, the text block (keyed by page) is fresh each time. */}
+      <Fragment key={page.kind === 'story' ? 'story' : JSON.stringify(page)}>{body}</Fragment>
       <BottomBar active={null} />
     </div>
   )
