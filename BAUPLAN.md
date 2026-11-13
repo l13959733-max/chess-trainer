@@ -306,6 +306,15 @@ alle 5 Züge (Springer, Läufer, Turm, Dame, König, Bauer). Schalter: Buchstabe
 Töne im Browser erzeugt (keine Dateien). Vibration nur Android (iPhone-Safari kann es nicht). Gibt es schon klein in
 Bagdad („Blindfold: find the square“) – das hier wäre ein eigenes Spiel, z. B. im Training oder als Tagesspiel.
 
+### [x] 33. Abenteuer-Karte sofort da (Lu, 14.11.: „wenn ich oben aufs Abenteuer klicke, die Map sofort da“)
+Vorher wurde die echte Karte (`#/journey`) bei jedem Öffnen neu gebaut (Stil laden → Karte bauen → Kacheln) und beim Verlassen weggeworfen.
+Jetzt: `src/lib/realMap.ts` hält EINE Karte für den ganzen Besuch. 1,5 s nach dem Start wird sie unsichtbar gebaut (`prewarm()`,
+Parkplatz `#rm-parking`: volle Größe, unsichtbar, nicht antippbar); die Seite `RealMap.tsx` schiebt die fertige Karte nur hinein
+(`attach`), beim Verlassen zurück auf den Parkplatz. Route/Hoppy werden nur neu gezeichnet, wenn die Reise weiterging. App zeigt die
+Seite ohne React-Ladepause, sobald der Code da ist (`RealMapReady`). Gemessen (Playwright, Handy-Format): Seite 11–20 ms nach dem
+Tippen, Foto nach 100 ms zeigt die fertige Karte mit Kacheln, Münzen, Route (vorher nach 200 ms noch weiß). Früh getippt (0,3 s):
+baut sich dann direkt auf. Testhilfe `window.__mapIdle()`.
+
 ### [x] 32. Schneller laden (Lu, 13.11.: „die ganze App schneller, am liebsten die Map sofort da“) – gebaut + live 13.11.
 Gemessen (Playwright, Handy 4× gedrosselt, 1,6 Mbit/s, 150 ms): Startseite erstes Mal 3,9 → 3,6 s, gemalte Karte sichtbar 9,0 → 3,7 s,
 echte Karte 1,4 → 0,9 s; ab dem 2. Mal Startseite 1,7 → 1,1 s, echte Karte 0,56 → 0,41 s. Gemacht: 27 Bilder neu komprimiert

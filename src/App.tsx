@@ -22,7 +22,14 @@ import { Mascot } from './components/Mascot'
 import { Drill } from './screens/Drill'
 import { Home } from './screens/Home'
 import { backFromLine, rememberLine, rememberOrigin, stationOrigin } from './lib/returnTo'
-const RealMap = lazy(() => import('./screens/RealMap'))
+// once its code is there (preloaded a moment after the start), the map page is shown without React's loading pause
+let RealMapReady: React.ComponentType | null = null
+const loadRealMap = () =>
+  import('./screens/RealMap').then((m) => {
+    RealMapReady = m.default
+    return m
+  })
+const RealMap = lazy(loadRealMap)
 const ThreatCheck = lazy(() => import('./screens/ThreatCheck').then((m) => ({ default: m.ThreatCheck })))
 // the game (cities, bosses, intro) is one big file: it loads when you go into the journey, not for the start page
 const Encounter = lazy(() => import('./screens/King').then((m) => ({ default: m.Encounter })))
@@ -107,9 +114,13 @@ function App() {
     return () => events.forEach((e) => window.removeEventListener(e, tryUnlock))
   }, [])
   useEffect(() => void startLive(), [])
-  // the real world map is ready before you tap it: its code loads quietly a moment after the start
+  // the real world map is ready before you tap it (Lu, 14.11.: "oben aufs Abenteuer – die Map sofort da"):
+  // a moment after the start its code loads and the map is built hidden, with style, tiles and coins
   useEffect(() => {
-    const t = window.setTimeout(() => void import('./screens/RealMap').catch(() => {}), 2500)
+    const t = window.setTimeout(() => {
+      void loadRealMap().catch(() => {})
+      void import('./lib/realMap').then((m) => m.prewarm()).catch(() => {})
+    }, 1500)
     return () => window.clearTimeout(t)
   }, [])
   const line = id ? rep.lines.find((l) => l.id === id) : undefined
@@ -179,9 +190,9 @@ function App() {
   else if (page === 'threat-check') body = <ThreatCheck />
   else if (page === 'world') body = <KingWorld />
   else if (page === 'rush') body = <SquareRush />
-  else if (page === 'journey') body = <Suspense fallback={null}><RealMap /></Suspense>
+  else if (page === 'journey') body = RealMapReady ? <RealMapReady /> : <Suspense fallback={null}><RealMap /></Suspense>
   else if (page === 'painted') body = <KingStamps />
-  else if (page === 'realmap') body = <Suspense fallback={null}><RealMap /></Suspense>
+  else if (page === 'realmap') body = RealMapReady ? <RealMapReady /> : <Suspense fallback={null}><RealMap /></Suspense>
   else if (page === 'road') body = <KingFastTravel />
   else if (page === 'check') body = <ChessCheck rep={rep} />
   else if (page === 'portal') body = <Portal rep={rep} />
