@@ -816,7 +816,8 @@
 
 /* The chapter in pages (12.11. night, Lu: no scrolling – one screen per page, tap on) */
 .book-paged .bp { position: absolute; inset: 0 0 calc(84px + env(safe-area-inset-bottom, 0px)); display: flex; flex-direction: column; overflow: hidden; animation: bp-in .25s ease; }
-@keyframes bp-in { from { opacity: 0; transform: translateX(14px); } }
+/* a new page comes in at once, never from an empty screen (Lu, 14.11.) */
+@keyframes bp-in { from { opacity: .55; transform: translateX(28px); } }
 .book-paged .book-top { flex: none; }
 .book-paged .book-top.light { position: absolute; inset: 0 0 auto; }
 .book-paged .book-top.light .book-back { background: rgba(238, 232, 220, .92); border-radius: 50%; width: 40px; height: 40px; margin: 0; padding: 0; display: grid; place-items: center; }
@@ -831,12 +832,14 @@
 .bp-cover .book-hint { flex: none; margin: 14px 0 18px; text-align: center; font: 600 13px Inter, sans-serif; letter-spacing: .08em; text-transform: uppercase; color: var(--house); opacity: .75; }
 /* story */
 .bp-story { background: var(--house); color: #f3ece0; }
-.bp-img { position: relative; flex: 0 1 38%; min-height: 120px; overflow: hidden; background: var(--paper); }
+.bp-img { position: relative; flex: 0 0 min(46%, 84vw); min-height: 120px; overflow: hidden; background: var(--paper); } /* bigger picture (Lu, 14.11.) */
 .bp-img img { width: 100%; height: 100%; object-fit: cover; display: block; }
-.bp-img::after { content: ""; position: absolute; inset: auto 0 0; height: 35%; background: linear-gradient(transparent, var(--house)); }
-.bp-text { flex: 1 1 0; min-height: 0; padding: 8px 24px 0; display: flex; flex-direction: column; justify-content: center; cursor: pointer; }
+.bp-img::after { content: ""; position: absolute; inset: auto 0 0; height: 20%; background: linear-gradient(transparent, var(--house)); }
+.bp-text-wrap { flex: 1 1 0; min-height: 0; overflow: hidden; cursor: pointer; }
+.bp-track { display: flex; height: 100%; transition: transform .42s cubic-bezier(.22, .8, .3, 1); will-change: transform; }
+.bp-text { flex: 0 0 100%; min-width: 0; box-sizing: border-box; padding: 8px 24px 0; display: flex; flex-direction: column; justify-content: center; }
 .bp-kick { margin: 0 0 10px; font-size: 11px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--accent); }
-.bp-para { margin: 0; font-family: 'EB Garamond', Georgia, serif; font-size: clamp(19px, 5.6vw, 23px); line-height: 1.42; animation: bp-in .3s ease; }
+.bp-para { margin: 0; font-family: 'EB Garamond', Georgia, serif; font-size: clamp(19px, 5.6vw, 23px); line-height: 1.42; }
 .bp-para.first::first-letter { float: left; font-size: 3.1em; line-height: .85; padding: 5px 8px 0 0; color: var(--accent); }
 .bp-para.board { font-family: Inter, sans-serif; font-size: clamp(16px, 4.6vw, 18px); line-height: 1.5; border-left: 3px solid var(--accent); padding-left: 14px; }
 .bp-dots { flex: none; display: flex; justify-content: center; gap: 6px; padding: 10px 0 2px; }
@@ -866,7 +869,7 @@
 .bp-grid button small { font-family: Inter, sans-serif; font-size: 10.5px; color: var(--soft); flex: none; }
 .bp-grid button.is-done { border-color: var(--house); }
 .bp-grid button.is-done small { color: var(--house); font-weight: 700; }
-@media (prefers-reduced-motion: reduce) { .book-paged .bp, .bp-para { animation: none; } }
+@media (prefers-reduced-motion: reduce) { .book-paged .bp, .bp-para { animation: none; } .bp-track { transition: none; } }
 .bp-cover h1 { font-family: 'EB Garamond', Georgia, serif; font-weight: 500; font-size: clamp(36px, 11vw, 46px); line-height: 1.02; text-wrap: balance; }
 .book-paged .book-top.light .book-back { color: #1b1612; }
 /* each variation with its real name (Lichess opening table) and our moves below */

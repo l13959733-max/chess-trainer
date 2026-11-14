@@ -1,4 +1,4 @@
-import { Fragment, useEffect, useRef, useState, type CSSProperties, type TouchEvent } from 'react'
+import { Fragment, useEffect, useLayoutEffect, useRef, useState, type CSSProperties, type TouchEvent } from 'react'
 import { BottomBar } from '../components/BottomBar'
 import { go } from '../hooks/useHashRoute'
 import type { Chapter } from '../lib/cityBook'
@@ -119,37 +119,62 @@ export function CityBook({
       setPage({ kind: 'tech' })
     }
   }
-  // Lu, 13.11.: no Next button – swipe. The page follows the finger and snaps to the next one (cover and story).
-  const touch = useRef<{ x: number; y: number } | null>(null)
+  // Lu, 14.11.: the story opens with its picture and stays one page. All text parts lie side by side like cards;
+  // the text follows the finger and the next part glides in with it – no reload, no empty moment.
+  // The cover follows the finger too; the story then comes in at once.
+  const touch = useRef<{ x: number; y: number; dir: 'x' | 'y' | null } | null>(null)
   const pageEl = useRef<HTMLDivElement>(null)
+  const track = useRef<HTMLDivElement>(null)
   const swipeable = page.kind === 'story' || page.kind === 'cover'
-  const slide = (dx: number, animate: boolean) => {
-    // Lu, 14.11.: in the story the picture stays where it is, only the text below moves on
-    const el = pageEl.current?.querySelector<HTMLElement>(page.kind === 'story' ? '.bp-text' : '.bp')
-    if (!el) return
-    el.style.transition = animate ? 'transform .22s ease, opacity .22s ease' : 'none'
-    el.style.transform = dx ? `translateX(${dx}px)` : ''
-    el.style.opacity = dx ? String(Math.max(0.35, 1 - Math.abs(dx) / 500)) : ''
+  const storyIdx = page.kind === 'story' ? page.i : 0
+  // the text track sits on the current part (CSS animates the change)
+  useLayoutEffect(() => {
+    if (track.current) track.current.style.transform = `translateX(${-storyIdx * 100}%)`
+  }, [storyIdx])
+  const drag = (dx: number) => {
+    if (page.kind === 'story' && track.current) {
+      // at the ends the text moves only half as far (it is still the way out of the story)
+      const edge = (storyIdx === 0 && dx > 0) || (storyIdx === parts.length - 1 && dx < 0)
+      track.current.style.transition = 'none'
+      track.current.style.transform = `translateX(calc(${-storyIdx * 100}% + ${edge ? dx / 2 : dx}px))`
+    } else if (page.kind === 'cover') {
+      const el = pageEl.current?.querySelector<HTMLElement>('.bp-cover')
+      if (!el) return
+      el.style.transition = 'none'
+      el.style.transform = `translateX(${Math.min(dx, 0)}px)`
+    }
+  }
+  const settle = () => {
+    if (track.current) {
+      track.current.style.transition = ''
+      track.current.style.transform = `translateX(${-storyIdx * 100}%)`
+    }
+    const el = pageEl.current?.querySelector<HTMLElement>('.bp-cover')
+    if (el) {
+      el.style.transition = 'transform .25s ease'
+      el.style.transform = ''
+    }
   }
   const onTouchStart = (e: TouchEvent) => {
-    if (swipeable) touch.current = { x: e.touches[0].clientX, y: e.touches[0].clientY }
+    if (swipeable) touch.current = { x: e.touches[0].clientX, y: e.touches[0].clientY, dir: null }
   }
   const onTouchMove = (e: TouchEvent) => {
-    if (!touch.current) return
-    const dx = e.touches[0].clientX - touch.current.x
-    if (Math.abs(dx) > Math.abs(e.touches[0].clientY - touch.current.y)) slide(page.kind === 'cover' ? Math.min(dx, 0) : dx, false)
+    const t = touch.current
+    if (!t) return
+    const dx = e.touches[0].clientX - t.x
+    const dy = e.touches[0].clientY - t.y
+    if (!t.dir && Math.abs(dx) + Math.abs(dy) > 8) t.dir = Math.abs(dx) > Math.abs(dy) ? 'x' : 'y'
+    if (t.dir === 'x') drag(dx)
   }
   const onTouchEnd = (e: TouchEvent) => {
-    if (!touch.current) return
-    const dx = e.changedTouches[0].clientX - touch.current.x
+    const t = touch.current
     touch.current = null
-    if (dx < -60) {
-      slide(-window.innerWidth, true)
-      window.setTimeout(forward, 180)
-    } else if (dx > 60 && page.kind === 'story') {
-      slide(window.innerWidth, true)
-      window.setTimeout(back, 180)
-    } else slide(0, true)
+    if (!t || t.dir !== 'x') return
+    const dx = e.changedTouches[0].clientX - t.x
+    if (track.current) track.current.style.transition = ''
+    if (dx < -50) forward()
+    else if (dx > 50 && page.kind === 'story') back()
+    else settle()
   }
 
   const top = (label: string, light = false) => (
@@ -182,7 +207,6 @@ export function CityBook({
       </section>
     )
   } else if (page.kind === 'story') {
-    const part = parts[page.i]
     const last = page.i === parts.length - 1
     body = (
       <section className="bp bp-story" aria-label={`The story of ${s.name}, page ${page.i + 1} of ${parts.length}`}>
@@ -190,9 +214,15 @@ export function CityBook({
           <img src={storyImg} alt="" />
           {top(`${page.i + 1} / ${parts.length}`, true)}
         </div>
-        <div key={page.i} className="bp-text" onClick={forward}>
-          <p className="bp-kick">{part.board ? 'On the board' : 'The story'}</p>
-          <p key={page.i} className={`bp-para${part.board ? ' board' : ''}${page.i === 0 ? ' first' : ''}`}>{part.text}</p>
+        <div className="bp-text-wrap" onClick={forward}>
+          <div className="bp-track" ref={track} style={{ transform: `translateX(${-page.i * 100}%)` }}>
+            {parts.map((part, k) => (
+              <div className="bp-text" key={k} aria-hidden={k !== page.i}>
+                <p className="bp-kick">{part.board ? 'On the board' : 'The story'}</p>
+                <p className={`bp-para${part.board ? ' board' : ''}${k === 0 ? ' first' : ''}`}>{part.text}</p>
+              </div>
+            ))}
+          </div>
         </div>
         <div className="bp-dots" aria-hidden="true">
           {parts.map((_, k) => <i key={k} className={k === page.i ? 'on' : k < page.i ? 'seen' : ''} />)}
@@ -310,7 +340,7 @@ export function CityBook({
   return (
     <div ref={pageEl} className={`book book-paged page-${page.kind}`} style={vars} onTouchStart={onTouchStart} onTouchMove={onTouchMove} onTouchEnd={onTouchEnd}>
       {/* a fresh page each time (14.11.: the swipe left the next page pushed out of view – the story looked empty).
-          The story pages share one page: the picture stays, the text block (keyed by page) is fresh each time. */}
+          The story stays one page: the picture stays, the text parts glide on a track. */}
       <Fragment key={page.kind === 'story' ? 'story' : JSON.stringify(page)}>{body}</Fragment>
       <BottomBar active={null} />
     </div>
