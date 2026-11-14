@@ -196,10 +196,23 @@ export function CityBook({
         <div className="book-art" onClick={forward}><img src={cover} alt="" /></div>
         {/* Lu, 13.11.: story not read yet – no buttons, you swipe (or tap the picture) into the story.
             Story read – one button straight to practice; swiping reads the story again. */}
+        {/* Lu, 14.11.: "Direct practice" + "To the techniques" were two buttons for the same thing. Now one button says
+            what comes next; under it the chapter's contents with progress – tap it for the overview. */}
         {storyDone ? (
           <>
-            <button type="button" className="book-go" onClick={() => (next ? go(next.route) : setPage({ kind: 'tech' }))}>Direct practice →</button>
-            <button type="button" className="book-skip" onClick={() => setPage({ kind: 'tech' })}>To the techniques →</button>
+            <button type="button" className="book-go" onClick={() => (next ? go(next.route) : setPage({ kind: 'tech' }))}>
+              {next ? <>Continue <span className="book-go-what">· {next.key === 'boss' ? s.boss.name : next.title}</span></> : 'Open the chapter'}
+            </button>
+            {next && (
+              <button type="button" className="book-toc" onClick={() => setPage({ kind: 'tech' })} aria-label="Chapter contents">
+                <span>Story ✓</span>
+                {practice.length > 0 && <span>Practice {practice.filter((x) => x.done).length}/{practice.length}</span>}
+                {white.length > 0 && <span>{black.length ? 'White' : 'Lines'} {count(white)}</span>}
+                {black.length > 0 && <span>{white.length ? 'Black' : 'Lines'} {count(black)}</span>}
+                <span>Boss{boss.done ? ' ✓' : ''}</span>
+                <i aria-hidden="true">›</i>
+              </button>
+            )}
           </>
         ) : (
           <p className="book-hint" aria-hidden="true">Swipe to read ←</p>
