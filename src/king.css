@@ -941,6 +941,6 @@
 
 /* cover after the story: one button (what comes next) + the chapter's contents as one quiet line (Lu, 14.11.) */
 .book-go-what { font-weight: 600; opacity: .85; }
-.bp-cover .book-toc { flex: none; align-self: center; display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 2px 7px; max-width: calc(100% - 44px); margin: 2px 22px 10px; padding: 7px 14px; min-height: 0; background: none; border: 1.5px solid color-mix(in srgb, var(--house) 35%, transparent); border-radius: 99px; box-shadow: none; font: 600 12.5px Inter, sans-serif; color: var(--house); text-transform: none; letter-spacing: 0; }
+.bp-cover .book-toc { flex: none; align-self: center; display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 2px 7px; max-width: calc(100% - 44px); margin: 0 22px 12px; padding: 0; font: 600 12.5px Inter, sans-serif; color: var(--house); opacity: .8; } /* only shows progress, not a button (Lu, 15.11.) */
 .bp-cover .book-toc span + span::before { content: '·'; margin-right: 7px; opacity: .45; }
 .bp-cover .book-toc i { font-style: normal; font-size: 16px; line-height: 1; margin-left: 2px; }

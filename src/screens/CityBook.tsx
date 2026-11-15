@@ -73,9 +73,8 @@ export function CityBook({
   const parts = [...ch.story.map((text) => ({ text, board: false })), ...(ch.board ?? []).map((text) => ({ text, board: true }))]
   // Lu, 13.11.: a city always opens on its cover (openCity forgets the page); only coming back from a game keeps the page
   const [page, setPage] = useState<Page>(() => savedPage(s.id) ?? { kind: 'cover' })
-  // Lu, 13.11.: in every city the story comes first and then you go straight to playing. Read for the first time,
-  // the last story page opens the next step (the lesson, a game, a line); the chapter waits on its techniques page.
-  const [firstRead] = useState(!storyDone)
+  // Lu, 13.11./15.11.: in every city the story comes first and then you go straight to playing: the last story page
+  // opens the next step (the lesson, a game, a line); the chapter waits on its techniques page.
   useEffect(() => {
     try {
       sessionStorage.setItem(pageKey(s.id), JSON.stringify(page))
@@ -108,7 +107,7 @@ export function CityBook({
     if (page.kind === 'cover') setPage({ kind: 'story', i: 0 })
     else if (page.kind === 'story') {
       if (page.i + 1 < parts.length) return setPage({ kind: 'story', i: page.i + 1 })
-      if (firstRead && next) {
+      if (next) {
         try {
           sessionStorage.setItem(pageKey(s.id), JSON.stringify({ kind: 'tech' }))
         } catch {
@@ -194,28 +193,17 @@ export function CityBook({
         <h1>{s.name}, {s.year}</h1>
         <p className="book-sub">{ch.subtitle}</p>
         <div className="book-art" onClick={forward}><img src={cover} alt="" /></div>
-        {/* Lu, 13.11.: story not read yet – no buttons, you swipe (or tap the picture) into the story.
-            Story read – one button straight to practice; swiping reads the story again. */}
-        {/* Lu, 14.11.: "Direct practice" + "To the techniques" were two buttons for the same thing. Now one button says
-            what comes next; under it the chapter's contents with progress – tap it for the overview. */}
-        {storyDone ? (
-          <>
-            <button type="button" className="book-go" onClick={() => (next ? go(next.route) : setPage({ kind: 'tech' }))}>
-              {next ? <>Continue <span className="book-go-what">· {next.key === 'boss' ? s.boss.name : next.title}</span></> : 'Open the chapter'}
-            </button>
-            {next && (
-              <button type="button" className="book-toc" onClick={() => setPage({ kind: 'tech' })} aria-label="Chapter contents">
-                <span>Story ✓</span>
-                {practice.length > 0 && <span>Practice {practice.filter((x) => x.done).length}/{practice.length}</span>}
-                {white.length > 0 && <span>{black.length ? 'White' : 'Lines'} {count(white)}</span>}
-                {black.length > 0 && <span>{white.length ? 'Black' : 'Lines'} {count(black)}</span>}
-                <span>Boss{boss.done ? ' ✓' : ''}</span>
-                <i aria-hidden="true">›</i>
-              </button>
-            )}
-          </>
-        ) : (
-          <p className="book-hint" aria-hidden="true">Swipe to read ←</p>
+        {/* Lu, 15.11.: one button, "Next", and it opens the story – so everyone sees the story instead of skipping it.
+            Under it only a line that shows how far you are (not a button: people did not see it was one). */}
+        <button type="button" className="book-go" onClick={forward}>Next →</button>
+        {storyDone && (
+          <p className="book-toc" aria-label="Your progress in this chapter">
+            <span>Story ✓</span>
+            {practice.length > 0 && <span>Practice {practice.filter((x) => x.done).length}/{practice.length}</span>}
+            {white.length > 0 && <span>{black.length ? 'White' : 'Lines'} {count(white)}</span>}
+            {black.length > 0 && <span>{white.length ? 'Black' : 'Lines'} {count(black)}</span>}
+            <span>Boss{boss.done ? ' ✓' : ''}</span>
+          </p>
         )}
       </section>
     )
@@ -240,9 +228,8 @@ export function CityBook({
         <div className="bp-dots" aria-hidden="true">
           {parts.map((_, k) => <i key={k} className={k === page.i ? 'on' : k < page.i ? 'seen' : ''} />)}
         </div>
-        {/* Lu, 13.11. evening: no Next button – swipe (or tap the text). Only the last page has a button out of the story. */}
-        {/* first reading: no button, the last swipe leads into the first step */}
-        {last && !firstRead && <button type="button" className="book-go light" onClick={forward}>To the techniques →</button>}
+        {/* Lu, 15.11.: click through the story too (swiping still works); after the last page comes the next step */}
+        <button type="button" className="book-go light" onClick={forward}>{last && next ? <>Next <span className="book-go-what">· {next.key === 'boss' ? s.boss.name : next.title}</span></> : 'Next →'}</button>
       </section>
     )
   } else if (page.kind === 'tech') {
