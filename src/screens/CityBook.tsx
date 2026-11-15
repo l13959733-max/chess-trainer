@@ -75,8 +75,8 @@ export function CityBook({
   const parts = [...ch.story.map((text) => ({ text, board: false })), ...(ch.board ?? []).map((text) => ({ text, board: true }))]
   // Lu, 13.11.: a city always opens on its cover (openCity forgets the page); only coming back from a game keeps the page
   const [page, setPage] = useState<Page>(() => savedPage(s.id) ?? { kind: 'cover' })
-  // Lu, 13.11./15.11.: in every city the story comes first and then you go straight to playing: the last story page
-  // opens the next step (the lesson, a game, a line); the chapter waits on its techniques page.
+  // Lu, 13.11./15.11.: in every city the story comes first; after its last page you arrive on the chapter path, which
+  // shows every task – you start the first one from there (no jump straight onto the board).
   useEffect(() => {
     try {
       sessionStorage.setItem(pageKey(s.id), JSON.stringify(page))
@@ -86,7 +86,6 @@ export function CityBook({
     if (page.kind === 'tech' || (page.kind === 'story' && page.i === parts.length - 1)) onStoryRead()
   }, [page, s.id, parts.length, onStoryRead])
 
-  const next = steps.find((x) => !x.done && x.key !== 'talk')
   const practice = steps.filter((x) => x.key !== 'talk' && x.key !== 'boss' && !x.key.startsWith('line:'))
   const boss = steps.find((x) => x.key === 'boss')!
   const lineRoute = (l: Line) => (known(l.id) ? 'drill/' : 'learn/') + l.id
@@ -104,14 +103,7 @@ export function CityBook({
     if (page.kind === 'cover') setPage({ kind: 'story', i: 0 })
     else if (page.kind === 'story') {
       if (page.i + 1 < parts.length) return setPage({ kind: 'story', i: page.i + 1 })
-      if (next) {
-        try {
-          sessionStorage.setItem(pageKey(s.id), JSON.stringify({ kind: 'tech' }))
-        } catch {
-          // not remembered
-        }
-        return go(next.route)
-      }
+      // Lu, 15.11.: after the story you arrive in the city – the chapter path shows how many tasks come; no jump onto the board
       setPage({ kind: 'tech' })
     }
   }
@@ -226,12 +218,12 @@ export function CityBook({
           {parts.map((_, k) => <i key={k} className={k === page.i ? 'on' : k < page.i ? 'seen' : ''} />)}
         </div>
         {/* Lu, 15.11.: click through the story too (swiping still works); after the last page comes the next step */}
-        <button type="button" className="book-go light" onClick={forward}>{last && next ? <>Next <span className="book-go-what">· {next.key === 'boss' ? s.boss.name : next.title}</span></> : 'Next →'}</button>
+        <button type="button" className="book-go light" onClick={forward}>{last ? 'To the chapter →' : 'Next →'}</button>
       </section>
     )
   } else if (page.kind === 'tech') {
-    // Lu, 15.11.: the chapter as a level path like today's path in Training – the story, every exercise and every line
-    // by its name, the boss at the end. The big picture card on top opens the first one not done yet.
+    // Lu, 15.11.: the chapter as a level path like today's path in Training – every exercise and every line by its
+    // name, the boss at the end. The picture card on top is the story.
     const names = openingNames(s, ch.black)
     const lineLevel = (l: Line, side: 'white' | 'black'): ChapterLevel => {
       const op = l.opening ?? 'Lines'
@@ -241,11 +233,9 @@ export function CityBook({
       const cut = name.indexOf(': ')
       if (cut > 0 && (name.slice(0, cut) === op || names.includes(name.slice(0, cut)))) name = name.slice(cut + 2)
       const glyph = side === 'white' ? '♔' : '♚'
-      return { key: 'line:' + l.id, title: name, sub: `${glyph} ${op}${moves !== name ? ' · ' + moves : ''}`, label: `${side === 'white' ? 'As White' : 'As Black'} · ${op}`, done: known(l.id), say: known(l.id) ? 'Play it again from memory.' : 'Learn this line move by move.', open: () => go(lineRoute(l)) }
+      return { key: 'line:' + l.id, title: name, sub: `${glyph} ${op}${moves !== name ? ' · ' + moves : ''}`, done: known(l.id), say: known(l.id) ? 'Play it again from memory.' : 'Learn this line move by move.', open: () => go(lineRoute(l)) }
     }
-    const levels: ChapterLevel[] = [
-      { key: 'story', title: 'The story', sub: `${s.name}, ${s.year}`, label: 'The story', icon: '📖', done: storyDone, say: `${parts.length} pages – how it all began.`, open: () => setPage({ kind: 'story', i: 0 }) },
-    ]
+    const levels: ChapterLevel[] = []
     let linesOut = false
     const allLines = () => {
       if (linesOut) return
@@ -261,13 +251,11 @@ export function CityBook({
       if (x.key === 'choose' || x.key === 'boss') allLines()
       levels.push(
         x.key === 'boss'
-          ? { key: 'boss', title: s.boss.name, sub: 'Boss', label: 'Boss', icon: '👑', boss: true, done: x.done, say: `“${s.boss.taunt}”`, open: () => go(x.route) }
-          : { key: x.key, title: x.title, label: 'Practice', done: x.done, say: 'A short practice for this chapter.', open: () => go(x.route) },
+          ? { key: 'boss', title: s.boss.name, sub: 'Boss', icon: '👑', boss: true, done: x.done, say: `“${s.boss.taunt}”`, open: () => go(x.route) }
+          : { key: x.key, title: x.title, done: x.done, say: 'A short practice for this chapter.', open: () => go(x.route) },
       )
     }
     allLines()
-    const now = levels.find((l) => !l.done)
-    const started = levels.some((l) => l.done && l.key !== 'story')
     body = (
       <section className="bp bp-tech" aria-label="Techniques">
         {top(`Chapter ${chapterNo} · ${ch.region.name}`)}
@@ -275,15 +263,15 @@ export function CityBook({
           <h2>{ch.headline}</h2>
           {names.length > 0 && <p className="bp-openings">{names.join(' · ')}</p>}
           <p className="book-body">{s.intro}</p>
-          {/* one big picture card says what comes next (like the Training page) */}
-          <button type="button" className="bp-hero" onClick={() => (now ? now.open() : go('journey'))}>
+          {/* Lu, 15.11.: the picture on top is the story – tap it to read it again; the tasks follow on the path below */}
+          <button type="button" className="bp-hero" onClick={() => setPage({ kind: 'story', i: 0 })}>
             <img src={cover} alt="" />
             <span className="bp-hero-in">
               <span className="bp-hero-txt">
-                <small>{now ? `Up next · ${now.label}` : 'Chapter done'}</small>
-                <span className="bp-hero-h">{now ? (now.key === 'story' ? `${s.name}, ${s.year}` : now.title) : 'Back to the world map'}</span>
+                <small>The story · {parts.length} pages</small>
+                <span className="bp-hero-h">{s.name}, {s.year}</span>
               </span>
-              <span className="bp-hero-go" aria-hidden="true">{!now ? 'Map' : now.key === 'story' ? 'Read' : started ? 'Continue' : 'Start'} ›</span>
+              <span className="bp-hero-go" aria-hidden="true">{storyDone ? 'Read again' : 'Read'} ›</span>
             </span>
           </button>
           <h3 className="bp-sec">

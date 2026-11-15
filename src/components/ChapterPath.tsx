@@ -9,9 +9,8 @@ export interface ChapterLevel {
   title: string
   sub?: string // e.g. "♔ Catalan" under a line's name
   done: boolean
-  icon?: string // story and boss show an icon instead of the number
+  icon?: string // the boss shows an icon instead of the number
   boss?: boolean
-  label: string // what the big card on the chapter page calls it ("Up next · …")
   say: string // what Hoppy says when this is the next one
   open: () => void
 }
@@ -31,7 +30,7 @@ export function ChapterPath({ levels, doneSay }: { levels: ChapterLevel[]; doneS
   }, [])
   // same road as in Training
   const STEP = 92
-  const TOP = 50
+  const TOP = 78 // room for Hoppy's bubble under the heading
   const pts = levels.map((_, i) => ({ x: w / 2 + Math.sin(i * 1.05 + 0.3) * Math.min(95, w * 0.26), y: TOP + i * STEP }))
   const h = pts.length ? pts[pts.length - 1].y + 60 : 0
   let d = pts.length ? `M ${pts[0].x} ${pts[0].y - 40}` : ''
