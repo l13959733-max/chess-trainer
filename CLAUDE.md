@@ -147,7 +147,12 @@ Nach jedem Schritt: committen, deployen, kurz zusammenfassen was ich testen soll
 - Schachlogik (Zuglegalität, PGN-Parsing) mit Tests absichern (Vitest).
 - README mit Setup, Deploy und Worker-Einrichtung (Secret setzen) pflegen.
 
-## Startseite = Journey + Daily (15.11.2026, Vorschau)
-- Startseite (`HomeHub.tsx`): Bild oben (Kapitel), darunter nur **Journey** (Städte, Mini-Kurve sichere Züge/Woche, Rapid) und **Daily** (Threat Check, Tagespfad, Lines/Mistakes/Rush/Bot). Zitat/Tagebuch → Journey-Seite.
-- **Journey-Seite `#/progress`** (`screens/Journey.tsx`, Leisten-Knopf „Journey“): Diagramme aus echten Daten – sichere Züge pro Woche (`lib/growth.ts` aus GameRecords), Rapid-Wertung (chess.com-Archive, 12 Monate, 6 h im Gerät gecacht: `lib/ratingHistory.ts`), große Fehler pro Partie pro Monat, Fehler nach Typ, XP; dazu eigene Partien, Check your chess, Schwächen, Trophäen, Fast travel, Tagebuch. Training (`#/tent`) = Daily, ohne Wochen-Diagramme.
+## Startseite: Karten öffnen Seiten (15.11.2026, Vorschau)
+- Lu: „diese Aufteilung beibehalten“ – Startseite (`HomeHub.tsx`) bleibt wie sie ist. Geändert ist nur, was die Karten öffnen:
+  **Journey** → `#/progress` (`screens/Journey.tsx`: Hoppy-Satz aus echten Daten, Städte als Münz-Straße, EIN Diagramm mit Umschalter
+  Rating | Safe moves | Mistakes, 4 Analyse-Kacheln), **Daily** → `#/today` (`screens/Today.tsx`: Woche als Flammen + XP, Threat Check,
+  Tagespfad-Ring, fällig Lines/Mistakes, Schnellspiele, „All training“ → `#/tent`), **Hoppy's diary** → `#/diary` (`screens/Diary.tsx`,
+  Buch-Look, Notizen je Stadt, „Practice again“). Leitlinie Lu: „ohne den Nutzer zu erschlagen, optisch Spaß“.
+- Daten: `lib/growth.ts` (sichere Züge/Woche, Fehler/Partie/Monat aus GameRecords, Rapid aus chess.com-Partien, then/now = Ø erstes/letztes Viertel),
+  `lib/ratingHistory.ts` (chess.com-Archive 12 Monate, 6 h gecacht). Nur echte Daten, sonst Leer-Hinweis.
 - **Übergänge** (`lib/pageMotion.ts`, aus `useHashRoute`): rein/raus aus der Startseite per View Transitions; Startbild (`.hub-hero`) gleitet ins Stadtbild bzw. die Weltkarte (Name `city-pic`), `vt-still`/`bp-still` gegen Nachrutschen.

@@ -1001,54 +1001,111 @@
 .bp-tech .bp-hero img { position: relative; inset: auto; display: block; width: 100%; height: auto; max-height: 340px; object-fit: cover; object-position: center 40%; }
 .bp-tech .bp-hero-in { position: absolute; left: 0; right: 0; bottom: 0; }
 
-/* 15.11. (Lu: "alles sinnvoll unterbringen in Journey und Daily", Journey mit Diagrammen) – start page:
-   under the picture two fields. Journey = cities + a little chart of your safe moves, Daily = today. */
-.hub-jr, .hub-dl { flex: 1 1 0; min-height: 0; border: 1px solid var(--line); cursor: pointer; }
-.hub-dl { cursor: default; flex-grow: 1.15; background: #fffaf1; }
-.hub .hub-jr { display: flex; flex-direction: column; gap: 4px; }
-.hub-jr-top { display: flex; justify-content: space-between; align-items: center; gap: 8px; flex: none; }
-.hub-jr-cities { display: inline-flex; align-items: center; gap: 5px; font-size: 11.5px; font-weight: 700; color: var(--ink); }
-.hub-ringsm { transform: rotate(-90deg); }
-.hub-jr-body { flex: 1; min-height: 0; display: flex; gap: 12px; align-items: stretch; }
-.hub-jr-chart { flex: 1; min-width: 0; min-height: 0; display: flex; align-items: center; }
-.hub-jr-empty { font-size: 12px; color: var(--soft); line-height: 1.3; }
-.hub-jr-nums { flex: none; display: flex; flex-direction: column; justify-content: center; gap: 6px; font-size: 10px; color: var(--soft); }
-.hub-jr-nums b { display: block; font-family: 'EB Garamond', Georgia, serif; font-weight: 500; font-size: 22px; line-height: 1; color: var(--ink); font-variant-numeric: tabular-nums; }
-.hub-jr-nums em { font-style: normal; font-weight: 800; margin-left: 4px; }
-.hub-jr-nums em.up { color: #3a8a12; } .hub-jr-nums em.down { color: #b23a2a; }
-.hub-jr-go { flex: none; font-size: 11.5px; font-weight: 700; color: var(--terra); }
-.hub-dl { display: flex; flex-direction: column; gap: 6px; }
-.hub-dl-body { flex: 1; min-height: 0; display: flex; gap: 10px; }
-.hub .hub-dl-board { flex: none; display: flex; flex-direction: column; gap: 4px; align-items: center; border: 0; background: none; padding: 0; cursor: pointer; container-type: size; width: 38%; min-height: 0; }
-.hub-dl-board .hub-mini { width: min(100cqw, calc(100cqh - 30px)); }
-.hub-dl-q { font-family: 'EB Garamond', Georgia, serif; font-size: 13.5px; line-height: 1.05; text-align: center; }
-.hub-dl-side { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 6px; }
-.hub .hub-dl-path { flex: 1; min-height: 0; display: flex; flex-direction: column; justify-content: center; gap: 6px; background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 8px 10px; cursor: pointer; }
-.hub-dl-path .row { display: flex; justify-content: space-between; align-items: baseline; font-size: 12px; }
-.hub-dl-path .row b { font-family: 'EB Garamond', Georgia, serif; font-weight: 500; font-size: 16px; }
-.hub-dl-track { display: block; height: 8px; border-radius: 99px; background: #e8dfcf; overflow: hidden; }
-.hub-dl-track i { display: block; height: 100%; background: #58cc02; border-radius: 99px; }
-.hub-dl-cta { align-self: flex-start; border-radius: 10px; background: #58cc02; box-shadow: 0 3px 0 #46a302; color: #fff; font-family: 'Nunito', sans-serif; font-weight: 900; font-size: 11px; padding: 5px 10px; text-transform: uppercase; }
-.hub-dl-chips { flex: none; display: grid; grid-template-columns: 1fr 1fr; gap: 5px; }
-.hub .hub-dl-chips button { display: flex; align-items: center; justify-content: center; gap: 4px; border: 1px solid var(--line); background: var(--paper); border-radius: 99px; padding: 5px 6px; font-weight: 600; font-size: 11.5px; white-space: nowrap; cursor: pointer; }
-.hub-dl-chips b { background: var(--terra); color: #fff; border-radius: 99px; padding: 0 5px; font-size: 10px; }
-.hub-dl-chips small { color: var(--soft); font-size: 10px; }
-
-/* Journey page (#/progress) – the Training look, plus "then → now" over every chart */
-.jrn-row { display: flex; gap: 8px; }
-.jrn-row .btn { flex: 1; }
-.jrn-tn { display: flex; align-items: baseline; gap: 6px; font-size: 12px; color: var(--muted); font-weight: 700; margin: 2px 0 4px; }
-.jrn-tn b { font-size: 17px; color: var(--text); font-weight: 900; }
-.jrn-tn .arr { color: var(--lock-d); }
-.jrn-delta { margin-left: auto; border-radius: 99px; padding: 2px 8px; font-weight: 900; font-size: 12px; }
-.jrn-delta.up { background: var(--green-t); color: var(--green-d); }
-.jrn-delta.down { background: var(--red-t); color: var(--red-d); }
-.jrn-note { margin: 2px 0 0; font-size: 12px; color: var(--muted); font-weight: 600; }
-.jrn-when { font-size: 11px; color: var(--muted); font-weight: 700; white-space: nowrap; }
-.jrn-quote { margin: 0; font-family: 'EB Garamond', Georgia, serif; font-size: 18px; line-height: 1.25; }
-.jrn-quote small { display: block; font-family: var(--body); font-size: 12px; color: var(--muted); margin-top: 4px; }
 
 /* 15.11. (Lu: "flüssige Übergänge wie im Stadtbuch" also on the start page) – src/lib/pageMotion.ts: in and out of
    the start page the big picture glides into the city's picture or the world map and back; the rest fades */
 .bp-vt .hub-hero, .bp-vt .rm > .rm-map { view-transition-name: city-pic; }
 .vt-still .screen { animation: none; }
+
+/* the start page's cards open pages (15.11.): the diary/quote card is a button now */
+.hub .hub-quote { cursor: pointer; text-align: left; }
+
+/* Journey page #/progress (15.11., Lu: "optisch Spaß, ohne zu erschlagen") – Training look: Hoppy's sentence, the road
+   of city coins, one chart with tabs, four analysis tiles */
+.jr-say { display: flex; align-items: center; gap: 10px; }
+.jr-say img { width: 52px; height: 52px; border-radius: 50%; object-fit: cover; flex: none; border: 3px solid var(--grape-t); }
+.jr-say span { position: relative; background: var(--card); border: 2px solid var(--line); border-bottom-width: 4px; border-radius: 16px; padding: 9px 12px; font-weight: 800; font-size: 15px; line-height: 1.3; }
+.jr-say span::before { content: ""; position: absolute; left: -8px; top: 50%; width: 12px; height: 12px; background: var(--card); border-left: 2px solid var(--line); border-bottom: 2px solid var(--line); transform: translateY(-50%) rotate(45deg); }
+.jr-road-card { background: var(--card); border: 2px solid var(--line); border-bottom-width: 4px; border-radius: 20px; padding: 12px 0 10px; display: grid; gap: 10px; }
+.jr-road { display: flex; gap: 6px; overflow-x: auto; padding: 4px 14px 2px; scrollbar-width: none; scroll-snap-type: x proximity; }
+.jr-road::-webkit-scrollbar { display: none; }
+.trn .jr-coin { flex: none; position: relative; width: 66px; display: grid; justify-items: center; gap: 4px; scroll-snap-align: center; }
+.jr-coin img { width: 54px; height: 54px; border-radius: 50%; object-fit: cover; border: 3px solid var(--lock); filter: grayscale(1) opacity(.5); }
+.jr-coin.jr-done img { border-color: var(--sun); filter: none; }
+.jr-coin.jr-next img { border-color: var(--green); filter: none; box-shadow: 0 0 0 4px var(--green-t); animation: trn-bob 1.6s ease-in-out infinite; }
+.jr-coin i { position: absolute; top: 36px; right: 6px; width: 20px; height: 20px; border-radius: 50%; background: var(--green); color: #fff; font-style: normal; font-weight: 900; font-size: 11px; display: grid; place-items: center; border: 2px solid #fff; }
+.jr-coin small { font-size: 10.5px; font-weight: 800; color: var(--muted); max-width: 66px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.jr-coin.jr-done small, .jr-coin.jr-next small { color: var(--text); }
+.jr-road-go { display: flex; gap: 8px; padding: 0 14px; }
+.jr-road-go .btn { flex: 1; }
+.jr-chart { display: grid; gap: 6px; }
+.jr-tabs { display: flex; background: var(--bg); border-radius: 99px; padding: 4px; gap: 4px; }
+.trn .jr-tabs button { flex: 1; text-align: center; border-radius: 99px; padding: 7px 4px; font-weight: 800; font-size: 13px; color: var(--muted); }
+.trn .jr-tabs button.on { background: var(--grape); color: #fff; box-shadow: 0 2px 0 var(--grape-d); }
+.jr-tn { display: flex; align-items: flex-end; gap: 8px; margin: 6px 0 0; }
+.jr-tn span:not(.arr):not(.jr-delta) { display: grid; }
+.jr-tn small { font-size: 11px; font-weight: 800; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; }
+.jr-tn b { font-size: 26px; font-weight: 900; line-height: 1; color: var(--text); }
+.jr-tn .arr { font-size: 20px; color: var(--lock-d); padding-bottom: 2px; }
+.jr-delta { margin-left: auto; align-self: center; border-radius: 99px; padding: 4px 10px; font-weight: 900; font-size: 13px; }
+.jr-delta.up { background: var(--green-t); color: var(--green-d); }
+.jr-delta.down { background: var(--red-t); color: var(--red-d); }
+.jrn-note { margin: 0; font-size: 12px; color: var(--muted); font-weight: 600; line-height: 1.35; }
+.jr-tiles, .dly-due { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.trn .jr-tile { display: grid; gap: 2px; padding: 12px 14px; border-radius: 18px; border: 2px solid transparent; border-bottom-width: 4px; text-align: left; }
+.jr-tile .e { font-size: 22px; line-height: 1; margin-bottom: 4px; }
+.jr-tile b { font-size: 24px; font-weight: 900; line-height: 1.05; }
+.jr-tile small { font-size: 12.5px; font-weight: 700; color: var(--muted); line-height: 1.25; }
+.jr-tile.t-blue { background: var(--blue-t); border-color: #cbe7fa; } .jr-tile.t-blue b { color: var(--blue-d); }
+.jr-tile.t-red { background: var(--red-t); border-color: #f8cfd4; } .jr-tile.t-red b { color: var(--red-d); }
+.jr-tile.t-green { background: var(--green-t); border-color: #d3f0bf; } .jr-tile.t-green b { color: var(--green-d); }
+.jr-tile.t-sun { background: var(--sun-t); border-color: #fbe6a6; } .jr-tile.t-sun b { color: var(--sun-d); }
+@media (prefers-reduced-motion: reduce) { .jr-coin.jr-next img { animation: none; } }
+
+/* Daily page #/today: the week as flames, the threat check, today's path, due today, a quick game */
+.dly-week { display: grid; gap: 10px; }
+.dly-days { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; }
+.dly-day { display: grid; justify-items: center; gap: 4px; }
+.dly-day i { width: 36px; height: 36px; border-radius: 50%; background: var(--bg); border: 2px solid var(--line); display: grid; place-items: center; font-style: normal; font-size: 18px; }
+.dly-day.on i { background: var(--sun-t); border-color: var(--sun); }
+.dly-day.today i { box-shadow: 0 0 0 3px var(--grape-t); border-color: var(--grape); }
+.dly-day.future i { opacity: .45; }
+.dly-day small { font-size: 11px; font-weight: 800; color: var(--muted); }
+.dly-day.today small { color: var(--grape-d); }
+.dly-weekxp { font-size: 13px; font-weight: 700; color: var(--muted); text-align: center; }
+.dly-weekxp b { color: var(--grape-d); font-size: 16px; font-weight: 900; }
+.trn .dly-threat, .trn .dly-path { display: flex; align-items: center; gap: 14px; background: var(--card); border: 2px solid var(--line); border-bottom-width: 4px; border-radius: 20px; padding: 12px; text-align: left; }
+.dly-mini { flex: none; width: 112px; aspect-ratio: 1; display: grid; grid-template-columns: repeat(8, 1fr); border-radius: 8px; overflow: hidden; box-shadow: 0 0 0 2px #3b2a14; }
+.dly-mini i { display: grid; place-items: center; font-style: normal; font-size: 11px; line-height: 1; }
+.dly-mini i.l { background: #f0e2c0; } .dly-mini i.d { background: #a87b51; }
+.dly-mini i.w { color: #fff; text-shadow: 0 0 1px #000, 0 0 1px #000, 0 0 1px #000; } .dly-mini i.b { color: #1b1612; }
+.dly-threat-tx, .dly-path-tx { display: grid; gap: 6px; min-width: 0; flex: 1; }
+.dly-threat-tx small, .dly-path-tx small { font-size: 11.5px; font-weight: 900; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
+.dly-threat-tx b, .dly-path-tx b { font-size: 17px; font-weight: 900; line-height: 1.2; }
+.dly-btn { justify-self: start; flex: none; background: var(--green); color: #fff; border-radius: 12px; padding: 8px 16px; font-weight: 900; font-size: 13px; text-transform: uppercase; box-shadow: 0 3px 0 var(--green-d); }
+.dly-btn.ghost { background: var(--bg); color: var(--text); box-shadow: 0 3px 0 var(--line); }
+.dly-stars { font-size: 13px; font-weight: 900; color: var(--sun-d); }
+.dly-quick { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.trn .dly-quick button { display: grid; justify-items: center; gap: 2px; background: var(--card); border: 2px solid var(--line); border-bottom-width: 4px; border-radius: 18px; padding: 12px 6px; text-align: center; }
+.dly-quick .e { font-size: 26px; line-height: 1.1; }
+.dly-quick b { font-size: 13px; font-weight: 900; }
+.dly-quick small { font-size: 11.5px; font-weight: 700; color: var(--muted); }
+.trn .dly-all { justify-self: center; font-weight: 900; color: var(--green-d); padding: 8px 14px; font-size: 15px; }
+
+/* Hoppy's diary #/diary – the book look of the start page: paper, city coins, notes */
+.dia { --paper: #eee8dc; --card: #fbf6ec; --ink: #1b1612; --soft: #6a5f55; --line: #ddd2c0; --terra: #7a3420; --gold: #d9ad55;
+  position: fixed; inset: 0; z-index: 30; background: var(--paper); color: var(--ink); font-family: Inter, system-ui, -apple-system, sans-serif; }
+@media (min-width: 520px) { .dia { left: 50%; right: auto; width: 440px; transform: translateX(-50%); } }
+.dia-scroll { position: absolute; inset: 0; overflow-y: auto; -webkit-overflow-scrolling: touch; }
+.dia-in { max-width: 430px; margin: 0 auto; display: grid; gap: 18px; padding: calc(18px + env(safe-area-inset-top, 0px)) 18px calc(110px + env(safe-area-inset-bottom, 0px)); }
+.dia-head { background: var(--terra); color: #f7efe2; border-radius: 22px; padding: 18px 18px 16px; }
+.dia-head small { font-size: 11px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--gold); }
+.dia-head h1 { margin: 2px 0 4px; font-family: 'EB Garamond', Georgia, serif; font-weight: 500; font-size: 36px; line-height: 1; }
+.dia-head p { margin: 0; font-family: 'EB Garamond', Georgia, serif; font-size: 17px; color: #e3cbb2; }
+.dia-city { display: grid; gap: 10px; }
+.dia-city h2 { display: flex; align-items: center; gap: 10px; margin: 0; font-family: 'EB Garamond', Georgia, serif; font-weight: 500; font-size: 24px; }
+.dia-city h2 img { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; border: 3px solid var(--gold); }
+.dia-note { background: var(--card); border: 1px solid var(--line); border-radius: 6px 18px 18px 18px; padding: 14px 16px 12px; box-shadow: 0 6px 14px rgba(60, 35, 15, .08); transform: rotate(-.6deg); position: relative; }
+.dia-note.r { transform: rotate(.5deg); }
+.dia-note::before { content: ""; position: absolute; top: -8px; left: 22px; width: 44px; height: 16px; background: rgba(217, 173, 85, .55); transform: rotate(-4deg); border-radius: 2px; }
+.dia-note small { font-size: 11px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--terra); }
+.dia-note p { margin: 4px 0 8px; font-family: 'EB Garamond', Georgia, serif; font-size: 19px; line-height: 1.3; }
+.dia .dia-note button { font: inherit; font-size: 13px; font-weight: 700; color: var(--terra); background: none; border: 0; padding: 0; min-height: 0; box-shadow: none; text-transform: none; letter-spacing: 0; cursor: pointer; }
+.dia-count { margin: 0; text-align: center; font-size: 12px; color: var(--soft); font-weight: 600; }
+.dia-empty { text-align: center; display: grid; justify-items: center; gap: 6px; padding: 10px 6px; }
+.dia-empty .mascot { width: 110px; height: 110px; }
+.dia-empty p { margin: 0; font-family: 'EB Garamond', Georgia, serif; font-size: 22px; line-height: 1.2; }
+.dia-empty p span { color: var(--terra); }
+.dia-empty small { color: var(--soft); }
+.dia-empty .dia-hint { font-family: Inter, system-ui, sans-serif; font-size: 13px; color: var(--soft); margin-top: 8px; }
+.dia .hub-bar button { color: #6a5f55; font-size: 10px; font-weight: 600; text-align: center; font-family: inherit; min-height: 0; box-shadow: none; text-transform: none; letter-spacing: 0; }

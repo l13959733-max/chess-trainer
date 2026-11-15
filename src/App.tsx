@@ -58,6 +58,8 @@ const Accuracy = lazy(() => import('./screens/Accuracy').then((m) => ({ default:
 const Watch = lazy(() => import('./screens/Watch').then((m) => ({ default: m.Watch })))
 const Weaknesses = lazy(() => import('./screens/Weaknesses').then((m) => ({ default: m.Weaknesses })))
 const Journey = lazy(() => import('./screens/Journey').then((m) => ({ default: m.Journey })))
+const Today = lazy(() => import('./screens/Today').then((m) => ({ default: m.Today })))
+const Diary = lazy(() => import('./screens/Diary').then((m) => ({ default: m.Diary })))
 const Attacks = lazy(() => import('./screens/Attacks').then((m) => ({ default: m.Attacks })))
 import { Connect, MistakeOne, Training, YourGames } from './screens/Training'
 import { backToTraining, forgetBackToTraining } from './lib/trainingToday'
@@ -194,7 +196,9 @@ function App() {
   else if (page === 'journey') body = RealMapReady ? <RealMapReady /> : <Suspense fallback={null}><RealMap /></Suspense>
   else if (page === 'painted') body = <KingStamps />
   else if (page === 'realmap') body = RealMapReady ? <RealMapReady /> : <Suspense fallback={null}><RealMap /></Suspense>
-  else if (page === 'progress') body = <Journey progress={progress} puzzles={puzzles} player={player} />
+  else if (page === 'progress') body = <Journey puzzles={puzzles} player={player} />
+  else if (page === 'today') body = <Today rep={rep} progress={progress} puzzles={puzzles} />
+  else if (page === 'diary') body = <Diary />
   else if (page === 'road') body = <KingFastTravel />
   else if (page === 'check') body = <ChessCheck rep={rep} />
   else if (page === 'portal') body = <Portal rep={rep} />

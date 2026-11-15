@@ -15,15 +15,14 @@ import { getName } from '../lib/profile'
 import { isDue } from '../lib/srs'
 import { dailyPuzzle, dayNumber, loadResults } from '../lib/threatcheck'
 import { pathProgress } from '../lib/trainingToday'
-import { getGameRecords } from '../lib/db'
-import { safeByWeek, thenNow, type Point } from '../lib/growth'
 
 // The start page (Lu, 12.11.: Pinterest model in our book look, "alles auf eine Handy-Seite"): the journey as the hero,
 // then four cards (quote, journey, daily, Square Rush), a training strip and the bottom bar with Hoppy in the middle.
 // 13.11. (prototype "Hoppy Mix"): a big Hoppy who says where he is, "Practice now" straight into the city's lesson,
 // and Hoppy's diary instead of the quote once there is a first entry.
 // One phone screen, no scrolling. The painted map lives at #/journey.
-// 15.11. (Lu): under the picture only Journey and Daily; quote/diary moved to the Journey page.
+// 15.11. (Lu: "diese Aufteilung beibehalten"): the cards stay; Journey opens #/progress (charts), Daily #/today,
+// the diary #/diary.
 
 const IMG = import.meta.env.BASE_URL + 'king/'
 const MAP_W = 1800
@@ -39,7 +38,7 @@ function rushBest(): number {
 }
 
 // the daily position after your move, seen from your side
-function dailyBoard(day: number) {
+export function dailyBoard(day: number) {
   const p = dailyPuzzle(day)
   const c = new Chess(p.fen)
   const me = c.turn()
@@ -96,16 +95,6 @@ export function HomeHub({ rep, progress, puzzles, player }: { rep: ReturnType<ty
   const lessonOpen = !storyOpen && !!next && !!lesson && !king.got.includes(`${next.id}/${lesson.id}`)
   const [diary] = useState(loadDiary)
   const [path] = useState(pathProgress)
-  // the Journey field's little chart: safe moves per week from the checked chess.com games
-  const [safeWeeks, setSafeWeeks] = useState<Point[]>([])
-  useEffect(() => {
-    let gone = false
-    getGameRecords(player).then((r) => !gone && setSafeWeeks(safeByWeek(r))).catch(() => {})
-    return () => {
-      gone = true
-    }
-  }, [player])
-  const trend = thenNow(safeWeeks)
   const headline = next ? chapterOf(next.id)?.headline : undefined
   const say = !next
     ? 'We travelled the whole world!'
@@ -187,77 +176,72 @@ export function HomeHub({ rep, progress, puzzles, player }: { rep: ReturnType<ty
         </span>
       </div>
 
-      {/* Lu, 15.11.: under the picture only two fields – Journey (how far you came + is your chess getting better,
-          opens #/progress with the charts) and Daily (today: the threat check, today's path, what is due) */}
-      <button type="button" className="hub-card hub-jr" onClick={() => go('progress')} aria-label={`Journey: ${beaten} of ${bosses} cities – your progress`}>
-        <span className="hub-jr-top">
+      <div className="hub-bento">
+        {diary.length > 0 ? (
+          <button type="button" className="hub-card hub-quote hub-diary" onClick={() => go('diary')} aria-label="Open Hoppy’s diary">
+            <h3>Hoppy’s diary</h3>
+            <ol>
+              {diary.slice(0, 2).map((d) => (
+                <li key={d.id}>
+                  <small>{d.city} · {when(d.at, now)}</small>
+                  {d.text}
+                </li>
+              ))}
+            </ol>
+          </button>
+        ) : (
+          <button type="button" className="hub-card hub-quote" onClick={() => go('diary')} aria-label="Open Hoppy’s diary">
+            <p>A king is not born. He is made – <span>move by move.</span></p>
+            <small>– Grandmaster Lu</small>
+          </button>
+        )}
+        <button type="button" className="hub-card hub-prog" onClick={() => go('progress')} aria-label={`Journey: ${beaten} of ${bosses} cities – your progress`}>
           <h3>Journey</h3>
-          <span className="hub-jr-cities">
-            <svg className="hub-ringsm" viewBox="0 0 64 64" width="22" height="22" aria-hidden="true"><circle cx="32" cy="32" r="26" fill="none" stroke="#ddd2c0" strokeWidth="10" /><circle cx="32" cy="32" r="26" fill="none" stroke="#d9ad55" strokeWidth="10" strokeLinecap="round" strokeDasharray="163.4" strokeDashoffset={ring} /></svg>
-            {beaten} / {bosses} cities
-          </span>
-        </span>
-        <span className="hub-jr-body">
-          <span className="hub-jr-chart">
-            {trend ? <Spark points={safeWeeks} /> : <span className="hub-jr-empty">Your chess charts appear here after Hoppy has checked your games.</span>}
-          </span>
-          <span className="hub-jr-nums">
-            <span><b>{trend ? `${Math.round(trend.now)}%` : '–'}</b>Safe moves{trend && Math.round(trend.now - trend.then) !== 0 && <em className={trend.now > trend.then ? 'up' : 'down'}>{trend.now > trend.then ? '▲' : '▼'} {Math.abs(Math.round(trend.now - trend.then))}</em>}</span>
+          <svg className="hub-ringsvg" viewBox="0 0 64 64" width="46" height="46" aria-hidden="true"><circle cx="32" cy="32" r="26" fill="none" stroke="#ddd2c0" strokeWidth="8" /><circle cx="32" cy="32" r="26" fill="none" stroke="#d9ad55" strokeWidth="8" strokeLinecap="round" strokeDasharray="163.4" strokeDashoffset={ring} /></svg>
+          <span className="hub-big">{beaten}<small> / {bosses}</small></span>
+          <span className="hub-stats">
             <span><b>{rating ?? '–'}</b>Rapid</span>
+            <span><b>{progress.level.level}</b>Level</span>
           </span>
-        </span>
-        <span className="hub-jr-go">Is my chess getting better? ›</span>
-      </button>
-
-      <div className="hub-card hub-dl">
-        <span className="hub-jr-top">
-          <h3>Daily · Day {day}</h3>
-          <span className="hub-jr-cities">🔥 {progress.streak} {progress.streak === 1 ? 'day' : 'days'}</span>
-        </span>
-        <span className="hub-dl-body">
-          <button type="button" className="hub-dl-board" onClick={() => go('threat-check')} aria-label={`Daily Threat Check, day ${day}`}>
+        </button>
+        <button type="button" className="hub-card hub-daily" onClick={() => go('today')} aria-label={`Daily, day ${day}`}>
+          <h3>🎯 Daily · Day {day}</h3>
+          <span className="hub-dbody">
             <span className="hub-mini" aria-hidden="true">
               {daily.cells.map((c) => <i key={c.key} className={`${c.dark ? 'd' : 'l'}${c.glyph ? (c.white ? ' w' : ' b') : ''}`}>{c.glyph}</i>)}
             </span>
-            <span className="hub-dl-q">{result ? (result.ok ? 'Solved ✓' : 'Missed') : `What does ${daily.them} threaten?`}</span>
-          </button>
-          <span className="hub-dl-side">
-            <button type="button" className="hub-dl-path" onClick={() => go('tent')}>
-              <span className="row"><b>Today’s path</b><span>{path ? `${path.done}/${path.total}` : 'new'}</span></span>
-              <span className="hub-dl-track"><i style={{ width: `${path && path.total ? (100 * path.done) / path.total : 0}%` }} /></span>
-              <span className="hub-dl-cta">{!path || path.done === 0 ? 'Start' : path.done >= path.total ? 'All done ✓' : 'Continue'}</span>
-            </button>
-            <span className="hub-dl-chips">
-              <button type="button" onClick={() => go('review')}>Lines{linesDue > 0 && <b>{linesDue}</b>}</button>
-              <button type="button" onClick={() => go('puzzles')}>Mistakes{mistakes > 0 && <b>{mistakes}</b>}</button>
-              <button type="button" onClick={() => go('rush')}>💥 Rush{best ? <small>{best}</small> : null}</button>
-              <button type="button" onClick={() => go('play')}>Bot ▶</button>
+            <span className="hub-dtxt">
+              {result ? (
+                <>
+                  <span className="hub-h4">{result.ok ? 'Solved today ✓' : 'Missed today'}</span>
+                  <span className="hub-pill">Share →</span>
+                </>
+              ) : (
+                <>
+                  <span className="hub-h4">What does {daily.them} threaten?</span>
+                  <span className="hub-pill">Solve →</span>
+                </>
+              )}
             </span>
           </span>
-        </span>
+        </button>
+        <button type="button" className="hub-card hub-rush" onClick={() => go('rush')} aria-label="Square Rush">
+          <svg className="hub-conf" viewBox="0 0 70 70" aria-hidden="true"><rect x="40" y="12" width="7" height="7" fill="#f5b82e" transform="rotate(20 43 15)" /><circle cx="58" cy="30" r="4" fill="#8a5cf6" /><rect x="24" y="30" width="6" height="6" fill="#d9ad55" transform="rotate(-15 27 33)" /><circle cx="50" cy="52" r="3" fill="#ff4b4b" /><circle cx="30" cy="12" r="3" fill="#4fc3f7" /></svg>
+          <h3>💥 Square Rush</h3>
+          <span className="hub-rt">Knight to <span>f3</span></span>
+          <span className="hub-best">{best ? `Best ${best}` : 'Learn the squares'} · 60 s</span>
+          <span className="hub-go">Play</span>
+        </button>
       </div>
+
+      <nav className="hub-strip" aria-label="Training">
+        <button type="button" className="hub-strip-go" onClick={() => go('tent')}>⛺ Training{path ? ` ${path.done}/${path.total}` : ''}</button>
+        <button type="button" onClick={() => go('review')}>Lines {linesDue > 0 && <b>{linesDue}</b>}</button>
+        <button type="button" onClick={() => go('puzzles')}>Mistakes {mistakes > 0 && <b>{mistakes}</b>}</button>
+        <button type="button" onClick={() => go('play')}>Bot ▶</button>
+      </nav>
 
       <BottomBar active="home" />
     </div>
-  )
-}
-
-// a small line of the last weeks (no axes – the Journey page has the full chart)
-function Spark({ points }: { points: Point[] }) {
-  const list = points.slice(-10)
-  const vals = list.map((p) => p.v)
-  const lo = Math.min(...vals) - 2
-  const hi = Math.max(...vals) + 2
-  const x = (i: number) => 4 + (i * 192) / Math.max(list.length - 1, 1)
-  const y = (v: number) => 52 - ((v - lo) / (hi - lo || 1)) * 44
-  const pts = vals.map((v, i) => `${x(i)},${y(v)}`).join(' ')
-  const last = vals.length - 1
-  return (
-    <svg viewBox="0 0 200 60" preserveAspectRatio="none" width="100%" height="100%" aria-hidden="true">
-      <polygon points={`${x(0)},60 ${pts} ${x(last)},60`} fill="rgba(217, 173, 85, .22)" />
-      <polyline points={pts} fill="none" stroke="#b8862c" strokeWidth="2.5" strokeLinejoin="round" vectorEffect="non-scaling-stroke" />
-      {/* a zero-length line with round ends = a dot that stays round although the chart stretches */}
-      <line x1={x(last)} y1={y(vals[last])} x2={x(last)} y2={y(vals[last])} stroke="#7a3420" strokeWidth="9" strokeLinecap="round" vectorEffect="non-scaling-stroke" />
-    </svg>
   )
 }

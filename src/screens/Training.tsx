@@ -348,6 +348,21 @@ export function Training({ rep, progress, puzzles, player, analyzer }: { rep: Re
             </div>
           )}
 
+          <div className="trn-sec"><h2>Your week</h2></div>
+          <div className="trn-card">
+            <h4>Safe moves <span className="trn-chip">per chess.com game</span></h4>
+            <SafeLine records={records} />
+          </div>
+          <div className="trn-two">
+            <div className="trn-card">
+              <h4>Mistakes by type</h4>
+              <Donut puzzles={mineOf(puzzles.puzzles, player)} />
+            </div>
+            <div className="trn-card">
+              <h4>XP this week</h4>
+              <XpBars days={progress.days} now={now} />
+            </div>
+          </div>
           <div className="trn-card">
             <h4>Done today</h4>
             {levels.some((l) => l.stars !== null) ? (
@@ -366,7 +381,7 @@ export function Training({ rep, progress, puzzles, player, analyzer }: { rep: Re
           </div>
 
           <div className="trn-sec" id="trn-shelf"><h2>All training</h2></div>
-          <Shelf puzzles={puzzles} />
+          <Shelf puzzles={puzzles} own={own} fresher={fresher} />
         </div>
       </div>
 
@@ -507,8 +522,41 @@ function Path({ levels, fresh, say, shake, onOpen, sayFor }: { levels: LevelView
 }
 
 // ---------- charts (real data only; empty states say where it comes from) ----------
+function SafeLine({ records }: { records: GameRecord[] }) {
+  const games = [...records].sort((a, b) => a.endTime - b.endTime).slice(-10)
+  if (games.length < 2) return <p className="trn-empty">Appears after Hoppy has checked two of your chess.com games.</p>
+  const vals = games.map((g) => Math.round((safeShare([g]) ?? 0) * 100))
+  const lo = Math.max(0, Math.min(50, Math.floor(Math.min(...vals) / 10) * 10))
+  const L = 34, R = 330, T = 14, B = 140
+  const y = (v: number) => B - ((v - lo) / (100 - lo)) * (B - T)
+  const x = (i: number) => L + (i * (R - L)) / (games.length - 1)
+  const pts = vals.map((v, i) => `${x(i)},${y(v)}`).join(' ')
+  const mid = Math.round((lo + 100) / 2)
+  const lastI = vals.length - 1
+  return (
+    <svg viewBox="0 0 340 170" width="100%" role="img" aria-label={`Safe moves in your last ${games.length} games, from ${vals[0]}% to ${vals[lastI]}%`}>
+      <defs><linearGradient id="trn-ga" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#8a5cf6" stopOpacity=".35" /><stop offset="1" stopColor="#8a5cf6" stopOpacity="0" /></linearGradient></defs>
+      {[lo, mid, 100].map((v) => (
+        <g key={v}>
+          <line x1={L} x2={R} y1={y(v)} y2={y(v)} stroke="var(--line)" strokeWidth="1.5" />
+          <text x={L - 6} y={y(v) + 4} textAnchor="end" fontSize="10" fontWeight="800" fill="var(--muted)">{v}%</text>
+        </g>
+      ))}
+      <polygon points={`${x(0)},${B} ${pts} ${x(lastI)},${B}`} fill="url(#trn-ga)" />
+      <polyline points={pts} fill="none" stroke="var(--grape)" strokeWidth="3" strokeLinejoin="round" />
+      {vals.map((v, i) => <circle key={i} cx={x(i)} cy={y(v)} r={i === lastI ? 5.5 : 4} fill={i === lastI ? 'var(--grape)' : '#fff'} stroke="var(--grape)" strokeWidth="2.5" />)}
+      {games.map((g, i) => (i === 0 || i === lastI || i === Math.floor(lastI / 2) ? <text key={i} x={x(i)} y={B + 20} textAnchor="middle" fontSize="10.5" fontWeight="800" fill="var(--muted)">{new Date(g.endTime * 1000).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })}</text> : null))}
+      <g transform={`translate(${Math.min(Math.max(x(lastI) - 30, 0), 280)},${Math.max(y(vals[lastI]) - 46, 0)})`}>
+        <rect width="60" height="34" rx="8" fill="#fff" stroke="var(--line)" strokeWidth="2" />
+        <text x="30" y="14" textAnchor="middle" fontSize="9.5" fontWeight="800" fill="var(--muted)">last game</text>
+        <text x="30" y="28" textAnchor="middle" fontSize="12" fontWeight="900" fill="var(--grape-d)">{vals[lastI]}%</text>
+      </g>
+    </svg>
+  )
+}
+
 const DONUT_COLORS = ['var(--red)', 'var(--grape)', 'var(--blue)', 'var(--sun)', 'var(--lock-d)']
-export function Donut({ puzzles }: { puzzles: Puzzle[] }) {
+function Donut({ puzzles }: { puzzles: Puzzle[] }) {
   const counts = new Map<string, number>()
   for (const p of puzzles) if (p.category) counts.set(p.category, (counts.get(p.category) ?? 0) + 1)
   const total = [...counts.values()].reduce((s, n) => s + n, 0)
@@ -537,7 +585,7 @@ export function Donut({ puzzles }: { puzzles: Puzzle[] }) {
   )
 }
 
-export function XpBars({ days, now }: { days: Prog['days']; now: number }) {
+function XpBars({ days, now }: { days: Prog['days']; now: number }) {
   const list = Array.from({ length: 7 }, (_, i) => {
     const d = new Date(now)
     d.setDate(d.getDate() - 6 + i)
@@ -604,14 +652,14 @@ function ChessComCard({ own, player, rating, checked, fresher, reading, analyzer
 }
 
 // ---------- the shelf: every trainer of the old Training Camp ----------
-export function T({ e, bg, title, sub, to, off }: { e: string; bg: string; title: string; sub: string; to?: string; off?: boolean }) {
+function T({ e, bg, title, sub, to, off }: { e: string; bg: string; title: string; sub: string; to?: string; off?: boolean }) {
   return (
     <button type="button" className="tool" disabled={off} onClick={() => to && go(to)}>
       <span className="e" style={{ background: bg }} aria-hidden="true">{e}</span><b>{title}</b><small>{sub}</small>
     </button>
   )
 }
-function Shelf({ puzzles }: { puzzles: Puzzles }) {
+function Shelf({ puzzles, own, fresher }: { puzzles: Puzzles; own: boolean; fresher: number | null }) {
   const winning = useMemo(() => puzzles.puzzles.filter((p) => clampScore(p.scoreBefore) >= 300), [puzzles.puzzles])
   const g = 'var(--green-t)', b = 'var(--blue-t)', r = 'var(--red-t)', p = 'var(--grape-t)', s = 'var(--sun-t)'
   return (
@@ -629,14 +677,26 @@ function Shelf({ puzzles }: { puzzles: Puzzles }) {
         <T e="💥" bg={b} title="Square Rush" sub="60 seconds" to="rush" />
         <T e="🛡" bg={b} title="Armoury" sub="Tactics to endgame" to="armoury" />
         <T e="🗼" bg={b} title="Watchtower" sub="Check the threat first" to="threats" />
-        <T e="🩹" bg={r} title="Lost battles" sub="Mistakes as puzzles" to="puzzles" />
       </div></div>
+      <div><h5>Your own games</h5>
+        <button type="button" className="trn-cc" style={{ marginBottom: 8 }} onClick={() => go(own ? 'games' : 'connect')}>
+          <span className="row"><span className="trn-av">♟</span><span className="tx"><b>Your chess.com games</b><small>Every finished game, checked by Hoppy</small></span>{!!fresher && <span className="trn-new">{fresher} new</span>}</span>
+        </button>
+        <div className="trn-tools">
+          <T e="🩹" bg={r} title="Lost battles" sub="Mistakes as puzzles" to="puzzles" />
+          <T e="🔍" bg={r} title="Check your chess" sub="What costs you points?" to="check" />
+          <T e="🧩" bg={r} title="My weaknesses" sub="By type" to="weaknesses" />
+          <T e="📊" bg={r} title="How well did I play?" sub="Test" to="accuracy" />
+        </div>
+      </div>
       <div><h5>Play Hoppy</h5><div className="trn-tools">
         <T e="🐴" bg={p} title="Sparring" sub="A game vs Hoppy-Bot" to="play" />
         <T e="💰" bg={p} title="Treasure chest" sub="Win your winning positions" to={winning.length ? 'play/puzzle/' + encodeURIComponent(pickOfDay(winning)!.id) : undefined} off={!winning.length} />
         <T e="🔥" bg={p} title="Warm-up" sub="2 min before chess.com" to="warmup" />
       </div></div>
       <div><h5>More</h5><div className="trn-tools">
+        <T e="🚀" bg={s} title="Fast travel" sub="Every city in a list" to="road" />
+        <T e="🏆" bg={s} title="Trophies" sub="What you have won" to="trophies" />
         <T e="👫" bg={s} title="Together" sub="Watch and help" to="watch" />
         <T e="⛺" bg={s} title="Old Training Camp" sub="As before" to="camp" />
       </div></div>
