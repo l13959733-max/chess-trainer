@@ -1,4 +1,5 @@
 import { Fragment, useEffect, useLayoutEffect, useRef, useState, type CSSProperties, type TouchEvent } from 'react'
+import { flushSync } from 'react-dom'
 import { BottomBar } from '../components/BottomBar'
 import { ChapterPath, type ChapterLevel } from '../components/ChapterPath'
 import { go } from '../hooks/useHashRoute'
@@ -74,7 +75,16 @@ export function CityBook({
   // the story pages: every part of the story, then the "On the board" hints
   const parts = [...ch.story.map((text) => ({ text, board: false })), ...(ch.board ?? []).map((text) => ({ text, board: true }))]
   // Lu, 13.11.: a city always opens on its cover (openCity forgets the page); only coming back from a game keeps the page
-  const [page, setPage] = useState<Page>(() => savedPage(s.id) ?? { kind: 'cover' })
+  const [page, setPageNow] = useState<Page>(() => savedPage(s.id) ?? { kind: 'cover' })
+  // Lu, 15.11.: no hard cut between cover, story and chapter – the city picture glides from one page to the next
+  // (browser View Transitions; where they are missing, or with reduced motion, the page just changes as before)
+  const setPage = (to: Page) => {
+    const doc = document as Document & { startViewTransition?: (cb: () => void) => { finished: Promise<void> } }
+    if (to.kind === page.kind || !doc.startViewTransition || matchMedia('(prefers-reduced-motion: reduce)').matches) return setPageNow(to)
+    const html = document.documentElement
+    html.classList.add('bp-vt')
+    doc.startViewTransition(() => flushSync(() => setPageNow(to))).finished.finally(() => html.classList.remove('bp-vt'))
+  }
   // Lu, 13.11./15.11.: in every city the story comes first; after its last page you arrive on the chapter path, which
   // shows every task – you start the first one from there (no jump straight onto the board).
   useEffect(() => {
@@ -265,7 +275,8 @@ export function CityBook({
           <p className="book-body">{s.intro}</p>
           {/* Lu, 15.11.: the picture on top is the story – tap it to read it again; the tasks follow on the path below */}
           <button type="button" className="bp-hero" onClick={() => setPage({ kind: 'story', i: 0 })}>
-            <img src={cover} alt="" />
+            {/* the story's own picture, whole (Lu, 15.11.: "ein bisschen abgeschnitten") – it is also the one the story page shows */}
+            <img src={storyImg} alt="" />
             <span className="bp-hero-in">
               <span className="bp-hero-txt">
                 <small>The story · {parts.length} pages</small>

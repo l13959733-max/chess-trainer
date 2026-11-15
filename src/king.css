@@ -986,3 +986,21 @@
 @keyframes trn-ring { from { transform: scale(.9); opacity: 1; } to { transform: scale(1.25); opacity: 0; } }
 @media (prefers-reduced-motion: reduce) { .cp-lvl.now .cp-coin, .cp-lvl.now::before { animation: none; } }
 .bp-tech .bp-hero { width: calc(100% - 44px); box-sizing: border-box; }
+
+/* page turns in a city (Lu, 15.11.: "eleganter Motion-Übergang"): the picture glides, the rest fades up; the bar stays */
+.bp-vt .book-paged .bp { animation: none; }
+.bp-vt .bp-cover .book-art, .bp-vt .bp-story .bp-img, .bp-vt .bp-tech .bp-hero { view-transition-name: city-pic; }
+.bp-vt .hub-bar { view-transition-name: city-bar; }
+::view-transition-group(city-pic) { animation-duration: .6s; animation-timing-function: cubic-bezier(.22, .8, .3, 1); }
+::view-transition-old(city-pic), ::view-transition-new(city-pic) { width: 100%; height: 100%; object-fit: cover; }
+::view-transition-old(city-pic) { animation-duration: .35s; }
+::view-transition-new(city-pic) { animation-duration: .6s; }
+::view-transition-old(root) { animation: bp-vt-out .45s ease both; }
+::view-transition-new(root) { animation: bp-vt-in .45s cubic-bezier(.22, .8, .3, 1) both; }
+::view-transition-group(city-bar) { animation: none; }
+@keyframes bp-vt-out { to { opacity: 0; } }
+@keyframes bp-vt-in { from { opacity: 0; transform: translateY(16px); } }
+/* the picture card shows the whole picture (its own height), the text lies on its lower edge */
+.bp-tech .bp-hero { display: block; min-height: 0; }
+.bp-tech .bp-hero img { position: relative; inset: auto; display: block; width: 100%; height: auto; max-height: 340px; object-fit: cover; object-position: center 40%; }
+.bp-tech .bp-hero-in { position: absolute; left: 0; right: 0; bottom: 0; }
