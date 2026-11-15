@@ -333,6 +333,20 @@ Lu hat gemerkt: Highscore + Belohnung + Töne motivieren ihn wie in großen Apps
   Drohung. Darum zählt Puzzle Rush nicht für „sichere Züge in %“ und ersetzt Threat Check nicht – es ist das Spaß-Extra obendrauf.
 - Prüfen: Vitest für Punkte/Leben/Zeit-Logik (`src/lib/puzzleRush.test.ts`), beide Looks ansehen, am Handy in der Vorschau.
 
+### [ ] 35. IDEE (erst testen, Lu entscheidet): Eröffnungs-Drill mit Zurücksetzen bei Fehler (Lu, 16.11. nachts)
+Lu: „beim Nachspielen … wenn man einen Fehler macht, zurückgesetzt ein paar Schritte. Nicht auf Zeit, aber man muss sich
+wieder an die Reihenfolge genau erinnern.“ – Erst als Versuch bauen, Lu probiert es und sagt, ob es bleibt.
+- Heute (`src/screens/Drill.tsx`): falscher Zug → rot, richtiger Zug + Erklärung, dann geht es an derselben Stelle weiter.
+- Neu als **Schalter/Modus „Strict“** (Standard bleibt wie heute): nach einem Fehler erst Erklärung + richtiger Zug zeigen
+  (erst raten, dann erklären), dann **3 eigene Züge zurück** (Brett spult sichtbar zurück, kurzer „Rewind“-Ton). Am Anfang
+  der Linie: zurück auf Zug 1. Der Weg bis zur Fehlerstelle muss dann wieder fehlerfrei gespielt werden.
+- Kein Zeitdruck. Nicht endlos: dieselbe Stelle höchstens 2× zurücksetzen, danach normal weiter (kein Frust).
+- Feeling wie Square Rush, aber leise: Fortschrittsbalken der Linie, Serie fehlerfreier Züge, am Ende „Clean run!“ wenn
+  die ganze Linie ohne Zurücksetzen gelang (Lob mit Information: „you remembered the whole order“).
+- SRS: Rücksetzer zählen als Fehler wie heute (`mistakePlies`), eine saubere Strict-Runde zählt etwas besser.
+- Warum es passt (LERNKONZEPT): selbst abrufen statt anschauen; die Reihenfolge wird als Kette geübt statt nur der eine Zug.
+- Rücksetz-Logik als reine Funktion mit Vitest (`src/lib/rewind.ts`, z. B. `rewindTo(ply, side, steps)`), beide Looks ansehen.
+
 ### [x] 33. Abenteuer-Karte sofort da (Lu, 14.11.: „wenn ich oben aufs Abenteuer klicke, die Map sofort da“)
 Vorher wurde die echte Karte (`#/journey`) bei jedem Öffnen neu gebaut (Stil laden → Karte bauen → Kacheln) und beim Verlassen weggeworfen.
 Jetzt: `src/lib/realMap.ts` hält EINE Karte für den ganzen Besuch. 1,5 s nach dem Start wird sie unsichtbar gebaut (`prewarm()`,
