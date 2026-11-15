@@ -9,7 +9,7 @@ import { STATIONS, loadKing, route, stationById } from '../lib/king'
 import { cachedRapid, loadRapid } from '../lib/ratingHistory'
 import { nextCity, openCity } from '../lib/travel'
 import { mineOf } from '../lib/trainingToday'
-import { CATEGORY } from '../lib/weakness'
+import { Donut } from './Training'
 import '../training.css'
 
 // Journey (Lu, 15.11.: tap "Journey" on the start page → "Diagramme, Analysen sinnvoll eingebunden, ohne den Nutzer
@@ -59,15 +59,6 @@ export function Journey({ puzzles, player }: { puzzles: Puzzles; player: string 
         : next
           ? `${beaten} cities done – ${next.name} is waiting for us.`
           : 'We travelled the whole world!'
-
-  // the weakest spot: the most frequent kind of mistake in your games
-  const top = useMemo(() => {
-    const counts = new Map<string, number>()
-    for (const p of mineOf(puzzles.puzzles, player)) if (p.category) counts.set(p.category, (counts.get(p.category) ?? 0) + 1)
-    const total = [...counts.values()].reduce((s, n) => s + n, 0)
-    const best = [...counts].sort((a, b) => b[1] - a[1])[0]
-    return best ? { title: CATEGORY[best[0] as keyof typeof CATEGORY]?.title ?? best[0], pct: Math.round((100 * best[1]) / total) } : null
-  }, [puzzles.puzzles, player])
 
   // the road scrolls to the next city
   const road = useRef<HTMLDivElement>(null)
@@ -130,12 +121,17 @@ export function Journey({ puzzles, player }: { puzzles: Puzzles; player: string 
           </div>
 
           <div className="trn-sec"><h2>Your analyses</h2></div>
+          {/* Lu, 15.11.: "das Kreisdiagramm fand ich ganz nice" – the mistakes of your games by type; tap = My weaknesses */}
+          <button type="button" className="trn-card jr-donut" onClick={() => go('weaknesses')} aria-label="Mistakes by type – open My weaknesses">
+            <h4>Mistakes by type <span className="trn-chip">your games</span></h4>
+            <span className="jr-donut-in"><Donut puzzles={mineOf(puzzles.puzzles, player)} /></span>
+          </button>
           <div className="jr-tiles">
             <button type="button" className="jr-tile t-blue" onClick={() => go(own ? 'games' : 'connect')}>
               <span className="e">♟</span><b>{records.length || '–'}</b><small>{own ? 'games checked' : 'Connect chess.com'}</small>
             </button>
             <button type="button" className="jr-tile t-red" onClick={() => go('weaknesses')}>
-              <span className="e">🧩</span><b>{top ? `${top.pct}%` : '–'}</b><small>{top ? top.title : 'My weaknesses'}</small>
+              <span className="e">🧩</span><b>Weak spots</b><small>Rules and examples</small>
             </button>
             <button type="button" className="jr-tile t-green" onClick={() => go('check')}>
               <span className="e">🔍</span><b>Check</b><small>What costs you points?</small>

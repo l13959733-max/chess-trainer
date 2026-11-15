@@ -556,7 +556,7 @@ function SafeLine({ records }: { records: GameRecord[] }) {
 }
 
 const DONUT_COLORS = ['var(--red)', 'var(--grape)', 'var(--blue)', 'var(--sun)', 'var(--lock-d)']
-function Donut({ puzzles }: { puzzles: Puzzle[] }) {
+export function Donut({ puzzles }: { puzzles: Puzzle[] }) {
   const counts = new Map<string, number>()
   for (const p of puzzles) if (p.category) counts.set(p.category, (counts.get(p.category) ?? 0) + 1)
   const total = [...counts.values()].reduce((s, n) => s + n, 0)
