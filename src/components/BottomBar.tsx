@@ -6,7 +6,8 @@ import { nextCity, travelTo } from '../lib/travel'
 import { pathProgress } from '../lib/trainingToday'
 
 // One bottom bar everywhere (Lu, 12.11.: "nicht quer durch die Seiten springen"): Home · Journey · Hoppy · Training · More.
-// Lu, 13.11.: the world map only once – through the big picture on the start page, not in the bar. Journey = Fast travel.
+// Lu, 13.11.: the world map only once – through the big picture on the start page, not in the bar.
+// Lu, 15.11.: Journey = the Journey page (#/progress: how far you came, charts of your chess, Fast travel there).
 // Hoppy in the middle continues the journey in the next city.
 export function BottomBar({ active }: { active: 'home' | 'journey' | 'training' | null }) {
   const [more, setMore] = useState(false)
@@ -24,7 +25,7 @@ export function BottomBar({ active }: { active: 'home' | 'journey' | 'training' 
         {!home && <button type="button" onClick={() => go('')}>
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" aria-hidden="true"><path d="M3 11 12 4l9 7v9h-6v-6H9v6H3z" /></svg>Home
         </button>}
-        {!home && <button type="button" className={active === 'journey' ? 'on' : ''} aria-current={active === 'journey' ? 'page' : undefined} onClick={() => go('road')}>
+        {!home && <button type="button" className={active === 'journey' ? 'on' : ''} aria-current={active === 'journey' ? 'page' : undefined} onClick={() => go('progress')}>
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9" /><path d="m15.5 8.5-2.2 4.8-4.8 2.2 2.2-4.8z" /></svg>Journey
         </button>}
         <button type="button" className="hub-mid" onClick={() => (next ? travelTo(next) : go('tent'))} aria-label={next ? `Play – ${next.name}` : 'Play'}>

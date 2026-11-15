@@ -146,3 +146,8 @@ Nach jedem Schritt: committen, deployen, kurz zusammenfassen was ich testen soll
 - Kleine, funktionierende Schritte; nach jedem Schritt muss die App laufen.
 - Schachlogik (Zuglegalität, PGN-Parsing) mit Tests absichern (Vitest).
 - README mit Setup, Deploy und Worker-Einrichtung (Secret setzen) pflegen.
+
+## Startseite = Journey + Daily (15.11.2026, Vorschau)
+- Startseite (`HomeHub.tsx`): Bild oben (Kapitel), darunter nur **Journey** (Städte, Mini-Kurve sichere Züge/Woche, Rapid) und **Daily** (Threat Check, Tagespfad, Lines/Mistakes/Rush/Bot). Zitat/Tagebuch → Journey-Seite.
+- **Journey-Seite `#/progress`** (`screens/Journey.tsx`, Leisten-Knopf „Journey“): Diagramme aus echten Daten – sichere Züge pro Woche (`lib/growth.ts` aus GameRecords), Rapid-Wertung (chess.com-Archive, 12 Monate, 6 h im Gerät gecacht: `lib/ratingHistory.ts`), große Fehler pro Partie pro Monat, Fehler nach Typ, XP; dazu eigene Partien, Check your chess, Schwächen, Trophäen, Fast travel, Tagebuch. Training (`#/tent`) = Daily, ohne Wochen-Diagramme.
+- **Übergänge** (`lib/pageMotion.ts`, aus `useHashRoute`): rein/raus aus der Startseite per View Transitions; Startbild (`.hub-hero`) gleitet ins Stadtbild bzw. die Weltkarte (Name `city-pic`), `vt-still`/`bp-still` gegen Nachrutschen.

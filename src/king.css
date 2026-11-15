@@ -1000,3 +1000,55 @@
 .bp-tech .bp-hero { display: block; min-height: 0; }
 .bp-tech .bp-hero img { position: relative; inset: auto; display: block; width: 100%; height: auto; max-height: 340px; object-fit: cover; object-position: center 40%; }
 .bp-tech .bp-hero-in { position: absolute; left: 0; right: 0; bottom: 0; }
+
+/* 15.11. (Lu: "alles sinnvoll unterbringen in Journey und Daily", Journey mit Diagrammen) – start page:
+   under the picture two fields. Journey = cities + a little chart of your safe moves, Daily = today. */
+.hub-jr, .hub-dl { flex: 1 1 0; min-height: 0; border: 1px solid var(--line); cursor: pointer; }
+.hub-dl { cursor: default; flex-grow: 1.15; background: #fffaf1; }
+.hub .hub-jr { display: flex; flex-direction: column; gap: 4px; }
+.hub-jr-top { display: flex; justify-content: space-between; align-items: center; gap: 8px; flex: none; }
+.hub-jr-cities { display: inline-flex; align-items: center; gap: 5px; font-size: 11.5px; font-weight: 700; color: var(--ink); }
+.hub-ringsm { transform: rotate(-90deg); }
+.hub-jr-body { flex: 1; min-height: 0; display: flex; gap: 12px; align-items: stretch; }
+.hub-jr-chart { flex: 1; min-width: 0; min-height: 0; display: flex; align-items: center; }
+.hub-jr-empty { font-size: 12px; color: var(--soft); line-height: 1.3; }
+.hub-jr-nums { flex: none; display: flex; flex-direction: column; justify-content: center; gap: 6px; font-size: 10px; color: var(--soft); }
+.hub-jr-nums b { display: block; font-family: 'EB Garamond', Georgia, serif; font-weight: 500; font-size: 22px; line-height: 1; color: var(--ink); font-variant-numeric: tabular-nums; }
+.hub-jr-nums em { font-style: normal; font-weight: 800; margin-left: 4px; }
+.hub-jr-nums em.up { color: #3a8a12; } .hub-jr-nums em.down { color: #b23a2a; }
+.hub-jr-go { flex: none; font-size: 11.5px; font-weight: 700; color: var(--terra); }
+.hub-dl { display: flex; flex-direction: column; gap: 6px; }
+.hub-dl-body { flex: 1; min-height: 0; display: flex; gap: 10px; }
+.hub .hub-dl-board { flex: none; display: flex; flex-direction: column; gap: 4px; align-items: center; border: 0; background: none; padding: 0; cursor: pointer; container-type: size; width: 38%; min-height: 0; }
+.hub-dl-board .hub-mini { width: min(100cqw, calc(100cqh - 30px)); }
+.hub-dl-q { font-family: 'EB Garamond', Georgia, serif; font-size: 13.5px; line-height: 1.05; text-align: center; }
+.hub-dl-side { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 6px; }
+.hub .hub-dl-path { flex: 1; min-height: 0; display: flex; flex-direction: column; justify-content: center; gap: 6px; background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 8px 10px; cursor: pointer; }
+.hub-dl-path .row { display: flex; justify-content: space-between; align-items: baseline; font-size: 12px; }
+.hub-dl-path .row b { font-family: 'EB Garamond', Georgia, serif; font-weight: 500; font-size: 16px; }
+.hub-dl-track { display: block; height: 8px; border-radius: 99px; background: #e8dfcf; overflow: hidden; }
+.hub-dl-track i { display: block; height: 100%; background: #58cc02; border-radius: 99px; }
+.hub-dl-cta { align-self: flex-start; border-radius: 10px; background: #58cc02; box-shadow: 0 3px 0 #46a302; color: #fff; font-family: 'Nunito', sans-serif; font-weight: 900; font-size: 11px; padding: 5px 10px; text-transform: uppercase; }
+.hub-dl-chips { flex: none; display: grid; grid-template-columns: 1fr 1fr; gap: 5px; }
+.hub .hub-dl-chips button { display: flex; align-items: center; justify-content: center; gap: 4px; border: 1px solid var(--line); background: var(--paper); border-radius: 99px; padding: 5px 6px; font-weight: 600; font-size: 11.5px; white-space: nowrap; cursor: pointer; }
+.hub-dl-chips b { background: var(--terra); color: #fff; border-radius: 99px; padding: 0 5px; font-size: 10px; }
+.hub-dl-chips small { color: var(--soft); font-size: 10px; }
+
+/* Journey page (#/progress) – the Training look, plus "then → now" over every chart */
+.jrn-row { display: flex; gap: 8px; }
+.jrn-row .btn { flex: 1; }
+.jrn-tn { display: flex; align-items: baseline; gap: 6px; font-size: 12px; color: var(--muted); font-weight: 700; margin: 2px 0 4px; }
+.jrn-tn b { font-size: 17px; color: var(--text); font-weight: 900; }
+.jrn-tn .arr { color: var(--lock-d); }
+.jrn-delta { margin-left: auto; border-radius: 99px; padding: 2px 8px; font-weight: 900; font-size: 12px; }
+.jrn-delta.up { background: var(--green-t); color: var(--green-d); }
+.jrn-delta.down { background: var(--red-t); color: var(--red-d); }
+.jrn-note { margin: 2px 0 0; font-size: 12px; color: var(--muted); font-weight: 600; }
+.jrn-when { font-size: 11px; color: var(--muted); font-weight: 700; white-space: nowrap; }
+.jrn-quote { margin: 0; font-family: 'EB Garamond', Georgia, serif; font-size: 18px; line-height: 1.25; }
+.jrn-quote small { display: block; font-family: var(--body); font-size: 12px; color: var(--muted); margin-top: 4px; }
+
+/* 15.11. (Lu: "flüssige Übergänge wie im Stadtbuch" also on the start page) – src/lib/pageMotion.ts: in and out of
+   the start page the big picture glides into the city's picture or the world map and back; the rest fades */
+.bp-vt .hub-hero, .bp-vt .rm > .rm-map { view-transition-name: city-pic; }
+.vt-still .screen { animation: none; }
