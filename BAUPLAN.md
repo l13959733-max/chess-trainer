@@ -306,6 +306,33 @@ alle 5 Züge (Springer, Läufer, Turm, Dame, König, Bauer). Schalter: Buchstabe
 Töne im Browser erzeugt (keine Dateien). Vibration nur Android (iPhone-Safari kann es nicht). Gibt es schon klein in
 Bagdad („Blindfold: find the square“) – das hier wäre ein eigenes Spiel, z. B. im Training oder als Tagesspiel.
 
+### [ ] 34. Rekord-Moment + Puzzle Rush auf Zeit (Lu, 16.11. nachts: „Highscore mit Belohnung … Puzzle auch auf Zeit nach dem gleichen Konzept, Sounds … das macht Spaß“)
+Lu hat gemerkt: Highscore + Belohnung + Töne motivieren ihn wie in großen Apps. Zwei Teile, einzeln bauen und in die Vorschau:
+
+**A) Square Rush: neuer Rekord = eigener Moment** (`src/screens/SquareRush.tsx`, Bestwert heute stumm in `finish()`):
+- Ist `cur.score > best` (und `best > 0`): eigener Abschluss-Bildschirm „New record!“ mit altem → neuem Wert (Zahl zählt hoch),
+  größere Explosion als bei Sternen (`boom()` + `burst` mehrfach), eigener Fanfaren-Akkord (im Browser erzeugt, wie die bisherigen Töne),
+  Vibration (Android). Erster Lauf (`best == 0`) ohne Rekord-Feier, nur Sterne.
+- Während des Laufs: sobald der Bestwert überholt wird, kurz „Record!“ einblenden + heller Ton (nur einmal pro Lauf) – überraschend,
+  nicht vorher angekündigt (LERNKONZEPT: Belohnungen eher überraschend).
+- Bestwerte-Liste: die 5 besten Läufe mit Datum (localStorage `hoppy-rush-top`), unter dem Bestwert aufklappbar. `hoppy-rush-best` bleibt.
+- Rekord-Bonus: einmal Kastanien 🌰 (+3) über das vorhandene Kastanien-System.
+
+**B) Puzzle Rush: Rätsel auf Zeit, gleiches Gefühl** – neue Seite `#/puzzle-rush` (`src/screens/PuzzleRush.tsx`), im Training und unter More:
+- Quelle: `src/data/lichess-puzzles.json` (CC0), vom leichten zum schweren (nach Lichess-Wertung sortiert), dazwischen eigene
+  Fehler-Puzzles aus `usePuzzles` gemischt (Aufgaben mischen). Brett = `Board.tsx`, gleiche Figuren wie überall.
+- Regeln: 3 Minuten, **3 Leben** (falscher Zug = Leben weg, richtiger Zug wird kurz gezeigt) → wer rät, verliert schnell.
+  Optional später Modus „Survival“ (keine Zeit, nur 3 Leben).
+- Feeling wie Square Rush: Serie lässt den Ton steigen, 3 richtige in Folge = Explosion + Akkord + Vibration + 5 s Bonuszeit,
+  Punkte steigen mit der Schwierigkeit. Am Ende Sterne, Bestwert, Rekord-Moment wie in A (gemeinsamen Code nach `src/lib/rushFx.ts` ziehen).
+- **Lernen nicht vergessen:** nach dem Lauf die verpassten Rätsel als „Look again“-Liste (ohne Zeit, mit Lösung + kurzem Satz warum);
+  verpasste kommen in die Wiederholung. Lob mit Information („Fork found!“ statt nur „Great“).
+- Tagespfad: `report('puzzle-rush', stars)` wie Square Rush; Bestwert als Kachel auf `#/today`.
+- Fair Play bleibt: nur eigene/Lichess-Rätsel, nichts während einer chess.com-Partie.
+- Hinweis aus dem Lernkonzept: Zeitdruck trainiert schnelles Erkennen von Mustern, aber Lus Hauptfehler ist die nicht geprüfte
+  Drohung. Darum zählt Puzzle Rush nicht für „sichere Züge in %“ und ersetzt Threat Check nicht – es ist das Spaß-Extra obendrauf.
+- Prüfen: Vitest für Punkte/Leben/Zeit-Logik (`src/lib/puzzleRush.test.ts`), beide Looks ansehen, am Handy in der Vorschau.
+
 ### [x] 33. Abenteuer-Karte sofort da (Lu, 14.11.: „wenn ich oben aufs Abenteuer klicke, die Map sofort da“)
 Vorher wurde die echte Karte (`#/journey`) bei jedem Öffnen neu gebaut (Stil laden → Karte bauen → Kacheln) und beim Verlassen weggeworfen.
 Jetzt: `src/lib/realMap.ts` hält EINE Karte für den ganzen Besuch. 1,5 s nach dem Start wird sie unsichtbar gebaut (`prewarm()`,
