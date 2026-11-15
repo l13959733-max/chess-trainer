@@ -1005,4 +1005,4 @@
 .bp-tech .bp-hero img { position: relative; inset: auto; display: block; width: 100%; height: auto; max-height: 340px; object-fit: cover; object-position: center 40%; }
 .bp-tech .bp-hero-in { position: absolute; left: 0; right: 0; bottom: 0; }
 /* Lu, 15.11.: back to the slimmer strip – the picture shows almost whole, only its very top is cut */
-.bp-tech .bp-hero img { height: 140px; max-height: none; object-fit: cover; object-position: center 62%; } /* as slim as the Training card (Lu, 15.11.) */
+.bp-tech .bp-hero img { height: 200px; max-height: none; object-fit: cover; object-position: center 72%; }
