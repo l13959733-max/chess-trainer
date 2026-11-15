@@ -82,7 +82,9 @@ export function CityBook({
     const doc = document as Document & { startViewTransition?: (cb: () => void) => { finished: Promise<void> } }
     if (to.kind === page.kind || !doc.startViewTransition || matchMedia('(prefers-reduced-motion: reduce)').matches) return setPageNow(to)
     const html = document.documentElement
-    html.classList.add('bp-vt')
+    // bp-still: the old slide-in of a page stays off from now on – switching it back on after a transition started it
+    // once more at the end, which made the page twitch (Lu, 15.11.: "warum zuckt das?")
+    html.classList.add('bp-vt', 'bp-still')
     doc.startViewTransition(() => flushSync(() => setPageNow(to))).finished.finally(() => html.classList.remove('bp-vt'))
   }
   // Lu, 13.11./15.11.: in every city the story comes first; after its last page you arrive on the chapter path, which
@@ -101,6 +103,14 @@ export function CityBook({
   const lineRoute = (l: Line) => (known(l.id) ? 'drill/' : 'learn/') + l.id
   const cover = IMG + 'book/' + (ch.cover ?? `${s.id}.jpg`)
   const storyImg = ch.storyImg ? IMG + 'book/' + ch.storyImg : cover
+  // both pictures ready before the first page turn, so none pops in during the glide
+  useEffect(() => {
+    for (const src of [cover, storyImg]) {
+      const im = new Image()
+      im.src = src
+      im.decode?.().catch(() => {})
+    }
+  }, [cover, storyImg])
   const vars = { '--house': ch.region.color, '--accent': ch.region.accent } as CSSProperties
   const count = (ls: Line[]) => `${ls.filter((l) => known(l.id)).length}/${ls.length}`
 
