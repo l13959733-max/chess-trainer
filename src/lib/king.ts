@@ -943,6 +943,17 @@ export function saveKing(p: KingProgress) {
 
 // ---------- boss rounds from your own lines ----------
 
+// The technical names of the openings a chapter teaches, as the repertoire calls them (Lu, 15.11.: "The long diagonal"
+// is nice to learn with, but you have to find it under "Catalan"). With the station you play as Black there.
+export function openingNames(s: Station | undefined, blackId?: string): string[] {
+  const of = (st?: Station) => {
+    if (!st?.lines) return []
+    const { opening, title } = st.lines
+    return title ? [title] : Array.isArray(opening) ? opening : [opening]
+  }
+  return [...new Set([...of(s), ...(blackId ? of(stationById(blackId)) : [])])]
+}
+
 export function stationLines(s: Station, lines: Line[]): Line[] {
   if (!s.lines) return []
   const { opening, side, title } = s.lines

@@ -209,3 +209,12 @@ describe('Lichess puzzles (CC0)', () => {
     }
   })
 })
+
+describe('opening names of a chapter (findable title, Lu 15.11.)', () => {
+  it('gives the repertoire names, with the Black station of the chapter', async () => {
+    const { openingNames, stationById } = await import('./king')
+    expect(openingNames(stationById('barcelona'))).toEqual(['Catalan'])
+    expect(openingNames(stationById('rome'))).toContain('Italian Game')
+    expect(openingNames(stationById('kannauj'))).toEqual([])
+  })
+})

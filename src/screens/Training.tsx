@@ -31,7 +31,7 @@ import {
   type LevelKind,
   type LevelView,
 } from '../lib/trainingPath'
-import { route, stationById } from '../lib/king'
+import { openingNames, route, stationById } from '../lib/king'
 import { nextCity } from '../lib/travel'
 import { CATEGORY } from '../lib/weakness'
 import { PuzzleView } from './PuzzleScreen'
@@ -69,6 +69,9 @@ const RULES: Record<LevelKind, [string, string, string] | null> = {
   treasure: ['Played it', 'A draw', 'Won it'],
   boss: null,
 }
+// at most two names on a card, the rest as "+N"
+const shortList = (names: string[]) => names.slice(0, 2).join(' · ') + (names.length > 2 ? ` +${names.length - 2}` : '')
+
 function sayFor(l: LevelView, linesDue: number, city?: string): string {
   switch (l.kind) {
     case 'lines': return `${linesDue} ${linesDue === 1 ? 'line is' : 'lines are'} due. Play them from memory!`
@@ -322,6 +325,8 @@ export function Training({ rep, progress, puzzles, player, analyzer }: { rep: Re
                 <span style={{ flex: 1, minWidth: 0 }}>
                   <small>Chapter {cities.indexOf(next) + 1} · {next.name}</small>
                   <span className="h3">{chapterOf(next.id)?.headline ?? next.name}</span>
+                  {/* the technical name too, so you find the chapter (Lu, 15.11.: "z. B. Catalan") */}
+                  {openingNames(next, chapterOf(next.id)?.black).length > 0 && <span className="op">{shortList(openingNames(next, chapterOf(next.id)?.black))}</span>}
                 </span>
                 {starsMax > 0 && <span className="stars">★ {starsToday} / {starsMax}</span>}
               </span>

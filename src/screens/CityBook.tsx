@@ -1,8 +1,9 @@
 import { Fragment, useEffect, useLayoutEffect, useRef, useState, type CSSProperties, type TouchEvent } from 'react'
 import { BottomBar } from '../components/BottomBar'
+import { ChapterPath, type ChapterLevel } from '../components/ChapterPath'
 import { go } from '../hooks/useHashRoute'
 import type { Chapter } from '../lib/cityBook'
-import type { Station } from '../lib/king'
+import { openingNames, type Station } from '../lib/king'
 import { shortName } from '../lib/lineNames'
 import type { Line } from '../lib/pgn'
 
@@ -36,8 +37,6 @@ const short = (title: string, opening: string) => {
   return t.charAt(0).toUpperCase() + t.slice(1)
 }
 const pageKey = (id: string) => 'hoppy-book-page-' + id
-// what the big card on the chapter page names (Lu, 15.11.)
-const UP_NAME: Record<string, string> = { story: 'The story', practice: 'Practice', white: 'As White', black: 'As Black', boss: 'Boss' }
 
 function savedPage(id: string): Page | null {
   try {
@@ -95,10 +94,6 @@ export function CityBook({
   const storyImg = ch.storyImg ? IMG + 'book/' + ch.storyImg : cover
   const vars = { '--house': ch.region.color, '--accent': ch.region.accent } as CSSProperties
   const count = (ls: Line[]) => `${ls.filter((l) => known(l.id)).length}/${ls.length}`
-  const share = (ls: Line[]) => (ls.length ? (100 * ls.filter((l) => known(l.id)).length) / ls.length : 0)
-  // Lu, 13.11. (prototype "Hoppy Mix"): every tile says what is inside, and the tile the big button opens is marked
-  const lineSide = (key: string) => (black.some((l) => 'line:' + l.id === key) ? 'black' : 'white')
-  const upNext = !storyDone ? 'story' : !next ? '' : next.key === 'boss' ? 'boss' : next.key.startsWith('line:') ? lineSide(next.key) : 'practice'
 
   function back() {
     if (page.kind === 'cover' || page.kind === 'tech') return go('journey')
@@ -235,69 +230,77 @@ export function CityBook({
       </section>
     )
   } else if (page.kind === 'tech') {
+    // Lu, 15.11.: the chapter as a level path like today's path in Training – the story, every exercise and every line
+    // by its name, the boss at the end. The big picture card on top opens the first one not done yet.
+    const names = openingNames(s, ch.black)
+    const lineLevel = (l: Line, side: 'white' | 'black'): ChapterLevel => {
+      const op = l.opening ?? 'Lines'
+      const moves = short(l.title, op)
+      // the variation's name; "Italian Game: …" loses the prefix when the chapter already says it
+      let name = shortName(l, op) ?? moves
+      const cut = name.indexOf(': ')
+      if (cut > 0 && (name.slice(0, cut) === op || names.includes(name.slice(0, cut)))) name = name.slice(cut + 2)
+      const glyph = side === 'white' ? '♔' : '♚'
+      return { key: 'line:' + l.id, title: name, sub: `${glyph} ${op}${moves !== name ? ' · ' + moves : ''}`, label: `${side === 'white' ? 'As White' : 'As Black'} · ${op}`, done: known(l.id), say: known(l.id) ? 'Play it again from memory.' : 'Learn this line move by move.', open: () => go(lineRoute(l)) }
+    }
+    const levels: ChapterLevel[] = [
+      { key: 'story', title: 'The story', sub: `${s.name}, ${s.year}`, label: 'The story', icon: '📖', done: storyDone, say: `${parts.length} pages – how it all began.`, open: () => setPage({ kind: 'story', i: 0 }) },
+    ]
+    let linesOut = false
+    const allLines = () => {
+      if (linesOut) return
+      linesOut = true
+      levels.push(...white.map((l) => lineLevel(l, 'white')), ...black.map((l) => lineLevel(l, 'black')))
+    }
+    for (const x of steps) {
+      if (x.key === 'talk') continue
+      if (x.key.startsWith('line:')) {
+        allLines()
+        continue
+      }
+      if (x.key === 'choose' || x.key === 'boss') allLines()
+      levels.push(
+        x.key === 'boss'
+          ? { key: 'boss', title: s.boss.name, sub: 'Boss', label: 'Boss', icon: '👑', boss: true, done: x.done, say: `“${s.boss.taunt}”`, open: () => go(x.route) }
+          : { key: x.key, title: x.title, label: 'Practice', done: x.done, say: 'A short practice for this chapter.', open: () => go(x.route) },
+      )
+    }
+    allLines()
+    const now = levels.find((l) => !l.done)
+    const started = levels.some((l) => l.done && l.key !== 'story')
     body = (
       <section className="bp bp-tech" aria-label="Techniques">
         {top(`Chapter ${chapterNo} · ${ch.region.name}`)}
-        <h2>{ch.headline}</h2>
-        <p className="book-body">{s.intro}</p>
-        {/* Lu, 15.11. (like the Training page): one big picture card says what comes next – the only way forward on
-            this page; under it the chapter's parts only show where you stand and let you jump in */}
-        <button type="button" className="bp-hero" onClick={() => (upNext === 'story' ? setPage({ kind: 'story', i: 0 }) : next ? go(next.route) : go('journey'))}>
-          <img src={cover} alt="" />
-          <span className="bp-hero-in">
-            <span className="bp-hero-txt">
-              <small>{upNext ? `Up next · ${UP_NAME[upNext]}` : 'Chapter done'}</small>
-              <span className="bp-hero-h">{upNext === 'story' ? `${s.name}, ${s.year}` : next ? (next.key === 'boss' ? s.boss.name : next.title) : 'Back to the world map'}</span>
+        <div className="bp-scroll">
+          <h2>{ch.headline}</h2>
+          {names.length > 0 && <p className="bp-openings">{names.join(' · ')}</p>}
+          <p className="book-body">{s.intro}</p>
+          {/* one big picture card says what comes next (like the Training page) */}
+          <button type="button" className="bp-hero" onClick={() => (now ? now.open() : go('journey'))}>
+            <img src={cover} alt="" />
+            <span className="bp-hero-in">
+              <span className="bp-hero-txt">
+                <small>{now ? `Up next · ${now.label}` : 'Chapter done'}</small>
+                <span className="bp-hero-h">{now ? (now.key === 'story' ? `${s.name}, ${s.year}` : now.title) : 'Back to the world map'}</span>
+              </span>
+              <span className="bp-hero-go" aria-hidden="true">{!now ? 'Map' : now.key === 'story' ? 'Read' : started ? 'Continue' : 'Start'} ›</span>
             </span>
-            <span className="bp-hero-go" aria-hidden="true">{upNext === 'story' ? 'Read' : next ? (steps.some((x) => x.done && x.key !== 'talk') ? 'Continue' : 'Start') : 'Map'} ›</span>
-          </span>
-        </button>
-        <h3 className="bp-sec">This chapter</h3>
-        <div className="bp-tiles">
-          <button type="button" className={`bp-tile${storyDone ? ' is-done' : ''}`} onClick={() => setPage({ kind: 'story', i: 0 })}>
-            <b>The story</b>
-            <span className="bp-what">{parts.length} pages · {s.name}, {s.year}</span>
-            <small>{storyDone ? '✓ read' : 'not read yet'}</small>
           </button>
-          {practice.length > 0 && (
-            <button type="button" className={`bp-tile${practice.every((x) => x.done) ? ' is-done' : ''}`} onClick={() => setPage({ kind: 'list', group: 'steps' })}>
-              <b>Practice</b>
-              <span className="bp-what">{practice.map((x) => x.title).join(' · ')}</span>
-              <small>{practice.every((x) => x.done) ? '✓ ' : ''}{practice.filter((x) => x.done).length}/{practice.length} done</small>
-            </button>
+          <h3 className="bp-sec">
+            This chapter <span>{levels.filter((l) => l.done).length}/{levels.length}</span>
+          </h3>
+          <ChapterPath levels={levels} doneSay="Chapter done! On to the next city." />
+          {extras.length > 0 && (
+            <div className="bp-extras">
+              {extras.map((g) => (
+                <button type="button" key={g.id} onClick={() => go(`king/${s.id}/${g.id}`)}>
+                  {g.title}
+                  {g.done ? ' ✓' : ''}
+                </button>
+              ))}
+            </div>
           )}
-          {white.length > 0 && (
-            <button type="button" className={`bp-tile`} onClick={() => setPage({ kind: 'list', group: 'white' })}>
-              <b><span aria-hidden="true">♔ </span>As White</b>
-              <span className="bp-what">{group(white).map(([op]) => op).join(' · ')} · {white.length} lines</span>
-              <span className="bp-meter" aria-hidden="true"><i style={{ width: `${share(white)}%` }} /></span>
-              <small>{count(white)} learned</small>
-            </button>
-          )}
-          {black.length > 0 && (
-            <button type="button" className={`bp-tile`} onClick={() => setPage({ kind: 'list', group: 'black' })}>
-              <b><span aria-hidden="true">♚ </span>As Black</b>
-              <span className="bp-what">{group(black).map(([op]) => op).join(' · ')} · {black.length} lines</span>
-              <span className="bp-meter" aria-hidden="true"><i style={{ width: `${share(black)}%` }} /></span>
-              <small>{count(black)} learned</small>
-            </button>
-          )}
-          <button type="button" className={`bp-tile boss${boss.done ? ' is-done' : ''}`} onClick={() => go(boss.route)}>
-            <b>{s.boss.name}</b>
-            <span className="bp-what">“{s.boss.taunt}”</span>
-            <small>{boss.done ? '✓ Beaten' : 'Boss'}</small>
-          </button>
         </div>
-        {extras.length > 0 && (
-          <div className="bp-extras">
-            {extras.map((g) => (
-              <button type="button" key={g.id} onClick={() => go(`king/${s.id}/${g.id}`)}>
-                {g.title}
-                {g.done ? ' ✓' : ''}
-              </button>
-            ))}
-          </div>
-        )}
       </section>
     )
   } else {

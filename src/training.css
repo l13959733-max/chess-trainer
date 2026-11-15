@@ -240,3 +240,4 @@
 @keyframes trn-up { from { transform: translateY(100%); } }
 .trn-toast { animation-name: trn-fade; } @keyframes trn-fade { from { opacity: 0; } }
 @media (prefers-reduced-motion: reduce) { .trn *, .trn *::before { animation: none !important; transition: none !important; } }
+.trn-unit .op { display: block; margin-top: 3px; font-weight: 800; font-size: 13px; color: #fff; opacity: .92; text-shadow: 0 1px 4px rgba(0,0,0,.5); }
