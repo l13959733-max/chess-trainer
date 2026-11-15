@@ -1,4 +1,5 @@
 import { report } from '../lib/trainingPath'
+import { defaultPieces } from 'react-chessboard'
 import { useEffect, useRef, useState } from 'react'
 import { go } from '../hooks/useHashRoute'
 import {
@@ -22,7 +23,11 @@ import {
 // Square Rush (Lu, 12.11.: „wie Candy Crush – dreimal, dann explodiert es, mit Geräuschen, Vibration, Feeling“).
 // Hoppy calls a square, you tap it, the piece jumps. Three right in a row explode. 60 seconds a round.
 
-const GLYPH: Record<RushPiece, string> = { N: '♞', B: '♝', R: '♜', Q: '♛', K: '♚', P: '♟︎' }
+// Lu, 15.11.: the pieces look like on all our boards (react-chessboard's set), in the colour you play
+function Piece({ p, black }: { p: RushPiece; black: boolean }) {
+  const draw = defaultPieces[`${black ? 'b' : 'w'}${p}` as keyof typeof defaultPieces]
+  return <>{draw()}</>
+}
 const BEST_KEY = 'hoppy-rush-best'
 const OPTS_KEY = 'hoppy-rush-options'
 const SCALE = [392, 440, 523, 587, 659, 784, 880, 1047]
@@ -358,14 +363,14 @@ export function SquareRush() {
       <div className="rush-order" aria-live="polite">
         {g ? (
           <>
-            <span className="pc" aria-hidden="true">{GLYPH[g.p]}</span>
+            <span className="pc" aria-hidden="true"><Piece p={g.p} black={opts.black} /></span>
             {RUSH_NAMES[g.p]} to <span className="sq">{g.target}</span>
           </>
         ) : over ? 'Time!' : 'Ready?'}
       </div>
       <div className="rush-stage">
         <div key={shake} className={`rush-board${shake ? ' shake' : ''}`} role="grid" aria-label="Chessboard">{cells}</div>
-        {g && <div className="rush-piece" style={pieceStyle} aria-hidden="true">{GLYPH[g.p]}</div>}
+        {g && <div className="rush-piece" style={pieceStyle} aria-hidden="true"><Piece p={g.p} black={opts.black} /></div>}
         <canvas ref={canvas} className="rush-fx" aria-hidden="true" />
         {word && <div key={word.n} className="rush-word" aria-hidden="true">{word.text}</div>}
         {!g && (
