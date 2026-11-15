@@ -36,6 +36,9 @@ const short = (title: string, opening: string) => {
   return t.charAt(0).toUpperCase() + t.slice(1)
 }
 const pageKey = (id: string) => 'hoppy-book-page-' + id
+// what the big card on the chapter page names (Lu, 15.11.)
+const UP_NAME: Record<string, string> = { story: 'The story', practice: 'Practice', white: 'As White', black: 'As Black', boss: 'Boss' }
+
 function savedPage(id: string): Page | null {
   try {
     const v = sessionStorage.getItem(pageKey(id))
@@ -96,7 +99,6 @@ export function CityBook({
   // Lu, 13.11. (prototype "Hoppy Mix"): every tile says what is inside, and the tile the big button opens is marked
   const lineSide = (key: string) => (black.some((l) => 'line:' + l.id === key) ? 'black' : 'white')
   const upNext = !storyDone ? 'story' : !next ? '' : next.key === 'boss' ? 'boss' : next.key.startsWith('line:') ? lineSide(next.key) : 'practice'
-  const tag = (k: string) => (upNext === k ? <i className="bp-next">Up next</i> : null)
 
   function back() {
     if (page.kind === 'cover' || page.kind === 'tech') return go('journey')
@@ -238,27 +240,34 @@ export function CityBook({
         {top(`Chapter ${chapterNo} · ${ch.region.name}`)}
         <h2>{ch.headline}</h2>
         <p className="book-body">{s.intro}</p>
-        <button type="button" className="book-go" onClick={() => (next ? go(next.route) : go('journey'))}>
-          {next ? `${steps.some((x) => x.done && x.key !== 'talk') ? 'Continue' : 'Start'}: ${next.title}` : 'Back to the world map'}
+        {/* Lu, 15.11. (like the Training page): one big picture card says what comes next – the only way forward on
+            this page; under it the chapter's parts only show where you stand and let you jump in */}
+        <button type="button" className="bp-hero" onClick={() => (upNext === 'story' ? setPage({ kind: 'story', i: 0 }) : next ? go(next.route) : go('journey'))}>
+          <img src={cover} alt="" />
+          <span className="bp-hero-in">
+            <span className="bp-hero-txt">
+              <small>{upNext ? `Up next · ${UP_NAME[upNext]}` : 'Chapter done'}</small>
+              <span className="bp-hero-h">{upNext === 'story' ? `${s.name}, ${s.year}` : next ? (next.key === 'boss' ? s.boss.name : next.title) : 'Back to the world map'}</span>
+            </span>
+            <span className="bp-hero-go" aria-hidden="true">{upNext === 'story' ? 'Read' : next ? (steps.some((x) => x.done && x.key !== 'talk') ? 'Continue' : 'Start') : 'Map'} ›</span>
+          </span>
         </button>
+        <h3 className="bp-sec">This chapter</h3>
         <div className="bp-tiles">
-          <button type="button" className={`bp-tile${storyDone ? ' is-done' : ''}${upNext === 'story' ? ' up' : ''}`} onClick={() => setPage({ kind: 'story', i: 0 })}>
-            {tag('story')}
+          <button type="button" className={`bp-tile${storyDone ? ' is-done' : ''}`} onClick={() => setPage({ kind: 'story', i: 0 })}>
             <b>The story</b>
             <span className="bp-what">{parts.length} pages · {s.name}, {s.year}</span>
             <small>{storyDone ? '✓ read' : 'not read yet'}</small>
           </button>
           {practice.length > 0 && (
-            <button type="button" className={`bp-tile${practice.every((x) => x.done) ? ' is-done' : ''}${upNext === 'practice' ? ' up' : ''}`} onClick={() => setPage({ kind: 'list', group: 'steps' })}>
-              {tag('practice')}
+            <button type="button" className={`bp-tile${practice.every((x) => x.done) ? ' is-done' : ''}`} onClick={() => setPage({ kind: 'list', group: 'steps' })}>
               <b>Practice</b>
               <span className="bp-what">{practice.map((x) => x.title).join(' · ')}</span>
               <small>{practice.every((x) => x.done) ? '✓ ' : ''}{practice.filter((x) => x.done).length}/{practice.length} done</small>
             </button>
           )}
           {white.length > 0 && (
-            <button type="button" className={`bp-tile${upNext === 'white' ? ' up' : ''}`} onClick={() => setPage({ kind: 'list', group: 'white' })}>
-              {tag('white')}
+            <button type="button" className={`bp-tile`} onClick={() => setPage({ kind: 'list', group: 'white' })}>
               <b><span aria-hidden="true">♔ </span>As White</b>
               <span className="bp-what">{group(white).map(([op]) => op).join(' · ')} · {white.length} lines</span>
               <span className="bp-meter" aria-hidden="true"><i style={{ width: `${share(white)}%` }} /></span>
@@ -266,23 +275,19 @@ export function CityBook({
             </button>
           )}
           {black.length > 0 && (
-            <button type="button" className={`bp-tile${upNext === 'black' ? ' up' : ''}`} onClick={() => setPage({ kind: 'list', group: 'black' })}>
-              {tag('black')}
+            <button type="button" className={`bp-tile`} onClick={() => setPage({ kind: 'list', group: 'black' })}>
               <b><span aria-hidden="true">♚ </span>As Black</b>
               <span className="bp-what">{group(black).map(([op]) => op).join(' · ')} · {black.length} lines</span>
               <span className="bp-meter" aria-hidden="true"><i style={{ width: `${share(black)}%` }} /></span>
               <small>{count(black)} learned</small>
             </button>
           )}
-          <button type="button" className={`bp-tile boss${boss.done ? ' is-done' : ''}${upNext === 'boss' ? ' up' : ''}`} onClick={() => go(boss.route)}>
-            {tag('boss')}
+          <button type="button" className={`bp-tile boss${boss.done ? ' is-done' : ''}`} onClick={() => go(boss.route)}>
             <b>{s.boss.name}</b>
             <span className="bp-what">“{s.boss.taunt}”</span>
             <small>{boss.done ? '✓ Beaten' : 'Boss'}</small>
           </button>
         </div>
-        {/* the chapter and today's training belong together (Lu, 13.11.) */}
-        <button type="button" className="bp-train" onClick={() => go('tent')}>⛺ Practice in today’s training →</button>
         {extras.length > 0 && (
           <div className="bp-extras">
             {extras.map((g) => (
