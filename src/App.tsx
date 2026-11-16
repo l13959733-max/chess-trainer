@@ -59,6 +59,7 @@ const Watch = lazy(() => import('./screens/Watch').then((m) => ({ default: m.Wat
 const Weaknesses = lazy(() => import('./screens/Weaknesses').then((m) => ({ default: m.Weaknesses })))
 const Journey = lazy(() => import('./screens/Journey').then((m) => ({ default: m.Journey })))
 const Today = lazy(() => import('./screens/Today').then((m) => ({ default: m.Today })))
+const PuzzleRush = lazy(() => import('./screens/PuzzleRush').then((m) => ({ default: m.PuzzleRush })))
 const Workout = lazy(() => import('./screens/Workout').then((m) => ({ default: m.Workout })))
 const Diary = lazy(() => import('./screens/Diary').then((m) => ({ default: m.Diary })))
 const Attacks = lazy(() => import('./screens/Attacks').then((m) => ({ default: m.Attacks })))
@@ -200,6 +201,7 @@ function App() {
   else if (page === 'progress') body = <Journey puzzles={puzzles} player={player} />
   else if (page === 'today') body = <Today rep={rep} progress={progress} puzzles={puzzles} />
   else if (page === 'diary') body = <Diary />
+  else if (page === 'puzzle-rush') body = <PuzzleRush puzzles={puzzles} player={player} />
   else if (page === 'workout') body = <Workout puzzles={puzzles} progress={progress} player={player} />
   else if (page === 'road') body = <KingFastTravel />
   else if (page === 'check') body = <ChessCheck rep={rep} />

@@ -306,7 +306,7 @@ alle 5 Züge (Springer, Läufer, Turm, Dame, König, Bauer). Schalter: Buchstabe
 Töne im Browser erzeugt (keine Dateien). Vibration nur Android (iPhone-Safari kann es nicht). Gibt es schon klein in
 Bagdad („Blindfold: find the square“) – das hier wäre ein eigenes Spiel, z. B. im Training oder als Tagesspiel.
 
-### [ ] 34. Rekord-Moment + Puzzle Rush auf Zeit (Lu, 16.11. nachts: „Highscore mit Belohnung … Puzzle auch auf Zeit nach dem gleichen Konzept, Sounds … das macht Spaß“)
+### [x] 34. Rekord-Moment + Puzzle Rush auf Zeit – A + B gebaut 16.11. (Vorschau) (Lu, 16.11. nachts: „Highscore mit Belohnung … Puzzle auch auf Zeit nach dem gleichen Konzept, Sounds … das macht Spaß“)
 Lu hat gemerkt: Highscore + Belohnung + Töne motivieren ihn wie in großen Apps. Zwei Teile, einzeln bauen und in die Vorschau:
 
 **A) Square Rush: neuer Rekord = eigener Moment** – ✅ gebaut 16.11. (Vorschau; Effekte in `src/lib/rushFx.ts`, Rekord-Logik dort mit Vitest) (`src/screens/SquareRush.tsx`, Bestwert heute stumm in `finish()`):
@@ -318,7 +318,7 @@ Lu hat gemerkt: Highscore + Belohnung + Töne motivieren ihn wie in großen Apps
 - Bestwerte-Liste: die 5 besten Läufe mit Datum (localStorage `hoppy-rush-top`), unter dem Bestwert aufklappbar. `hoppy-rush-best` bleibt.
 - Rekord-Bonus: einmal Kastanien 🌰 (+3) über das vorhandene Kastanien-System.
 
-**B) Puzzle Rush: Rätsel auf Zeit, gleiches Gefühl** – neue Seite `#/puzzle-rush` (`src/screens/PuzzleRush.tsx`), im Training und unter More:
+**B) Puzzle Rush: Rätsel auf Zeit, gleiches Gefühl** – ✅ gebaut 16.11. (Vorschau; Regeln `src/lib/puzzleRush.ts` + Vitest; `report('puzzle-rush')` wird gemeldet, ein eigenes Level im Tagespfad gibt es dafür noch nicht – Lu entscheidet) – neue Seite `#/puzzle-rush` (`src/screens/PuzzleRush.tsx`), im Training und unter More:
 - Quelle: `src/data/lichess-puzzles.json` (CC0), vom leichten zum schweren (nach Lichess-Wertung sortiert), dazwischen eigene
   Fehler-Puzzles aus `usePuzzles` gemischt (Aufgaben mischen). Brett = `Board.tsx`, gleiche Figuren wie überall.
 - Regeln: 3 Minuten, **3 Leben** (falscher Zug = Leben weg, richtiger Zug wird kurz gezeigt) → wer rät, verliert schnell.

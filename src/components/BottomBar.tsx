@@ -42,6 +42,7 @@ export function BottomBar({ active }: { active: 'home' | 'journey' | 'training' 
         <div className="hub-more" role="dialog" aria-label="More">
           <button type="button" onClick={() => go('threat-check')}>🎯 Daily Threat Check</button>
           <button type="button" onClick={() => go('rush')}>💥 Square Rush</button>
+          <button type="button" onClick={() => go('puzzle-rush')}>⏱ Puzzle Rush</button>
           <button type="button" onClick={() => go('path')}>📚 All openings</button>
           <button type="button" onClick={() => go('quests')}>📖 Quest book</button>
           <button type="button" onClick={() => go('painted')}>🎨 The painted map</button>

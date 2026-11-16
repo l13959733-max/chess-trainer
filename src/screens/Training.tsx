@@ -701,6 +701,7 @@ function Shelf({ puzzles, own, fresher }: { puzzles: Puzzles; own: boolean; fres
       <div><h5>Tactics & skills</h5><div className="trn-tools">
         <T e="🎯" bg={b} title="Daily Threat Check" sub="One a day" to="threat-check" />
         <T e="💥" bg={b} title="Square Rush" sub="60 seconds" to="rush" />
+        <T e="⏱" bg={b} title="Puzzle Rush" sub="3 minutes, 3 lives" to="puzzle-rush" />
         <T e="🛡" bg={b} title="Armoury" sub="Tactics to endgame" to="armoury" />
         <T e="🗼" bg={b} title="Watchtower" sub="Check the threat first" to="threats" />
       </div></div>

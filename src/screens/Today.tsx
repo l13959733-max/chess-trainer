@@ -17,9 +17,9 @@ import '../training.css'
 
 type Prog = ReturnType<typeof useProgress>
 
-function rushBest(): number {
+function rushBest(key = 'hoppy-rush-best'): number {
   try {
-    return JSON.parse(localStorage.getItem('hoppy-rush-best') ?? '0') || 0
+    return JSON.parse(localStorage.getItem(key) ?? '0') || 0
   } catch {
     return 0
   }
@@ -31,7 +31,8 @@ export function Today({ rep, progress, puzzles }: { rep: ReturnType<typeof useRe
   const board = useMemo(() => dailyBoard(day), [day])
   const result = loadResults()[day]
   const [path] = useState(pathProgress)
-  const [best] = useState(rushBest)
+  const [best] = useState(() => rushBest())
+  const [pBest] = useState(() => rushBest('hoppy-prush-best'))
   const linesDue = rep.lines.filter((l) => isDue(rep.srs.get(l.id), now)).length
   const mistakes = puzzles.due.length + puzzles.fresh.length
 
@@ -110,6 +111,7 @@ export function Today({ rep, progress, puzzles }: { rep: ReturnType<typeof useRe
           <div className="trn-sec"><h2>Quick game</h2></div>
           <div className="dly-quick">
             <button type="button" onClick={() => go('rush')}><span className="e">💥</span><b>Square Rush</b><small>{best ? `Best ${best}` : '60 seconds'}</small></button>
+            <button type="button" onClick={() => go('puzzle-rush')}><span className="e">⏱</span><b>Puzzle Rush</b><small>{pBest ? `Best ${pBest}` : '3 minutes'}</small></button>
             <button type="button" onClick={() => go('play')}><span className="e">🐴</span><b>Hoppy-Bot</b><small>A game</small></button>
             <button type="button" onClick={() => go('warmup')}><span className="e">🔥</span><b>Warm-up</b><small>2 min</small></button>
           </div>
