@@ -1130,3 +1130,21 @@
 .ring-legend em { font-style: normal; line-height: 1.2; }
 .ring-legend em small { display: block; font-size: 11.5px; font-weight: 700; color: #8a849c; }
 .ring-legend span { margin-left: auto; font-variant-numeric: tabular-nums; }
+
+/* My weaknesses, summed up (16.11., Lu: "too much"): one card, a ring of the three kinds, slim rows that open */
+.weak-sum .ring-chart { margin-bottom: 8px; }
+.weak-list { display: grid; border-top: 1px solid #ece8f2; }
+.weak-item { border-bottom: 1px solid #ece8f2; }
+.weak-item:last-child { border-bottom: 0; }
+.play-card .weak-line { all: unset; box-sizing: border-box; width: 100%; display: flex; align-items: center; gap: 10px; padding: 11px 2px; cursor: pointer; font-size: 15px; }
+.weak-line:focus-visible { outline: 3px solid #2ea7f0; outline-offset: 2px; border-radius: 8px; }
+.weak-line i { width: 10px; height: 10px; border-radius: 50%; flex: none; }
+.weak-line b { flex: 1; min-width: 0; font-weight: 800; }
+.weak-line .count { font-weight: 900; color: #8a849c; font-variant-numeric: tabular-nums; }
+.weak-line .chev { color: #b9b3c9; font-weight: 900; font-size: 18px; transition: transform .15s; }
+.weak-item.on .chev { transform: rotate(90deg); }
+.weak-more { padding: 0 2px 12px 20px; }
+.weak-more .note { margin: 0 0 8px; }
+.weak-more .row { display: flex; gap: 8px; }
+.weak-more .row button { flex: 1; min-width: 0; }
+.greet .weak-go { display: block; margin-top: 10px; }

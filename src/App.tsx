@@ -350,7 +350,13 @@ function PuzzleSession({ puzzles, progress, category }: { puzzles: ReturnType<ty
           <div className="done-title">{queue.length ? 'All puzzles done for now' : 'No puzzles yet'}</div>
           {!queue.length && <p>Analyse your chess.com games on the overview first.</p>}
           <div className="done-actions">
-            {stationOrigin() ? (
+            {category ? (
+              // a round of one weakness (started on "My weaknesses"): back there, the next one is waiting (Lu, 16.11.)
+              <>
+                <button type="button" onClick={() => go('')}>Overview</button>
+                <button type="button" className="primary" onClick={() => go('weaknesses')}>My weaknesses</button>
+              </>
+            ) : stationOrigin() ? (
               <button type="button" className="primary" onClick={() => go(stationOrigin()!)}>Back to the city</button>
             ) : (
               <button type="button" className="primary" onClick={() => go('')}>Overview</button>

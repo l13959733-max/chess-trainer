@@ -1,14 +1,14 @@
-import { useMemo } from 'react'
-import { RingChart } from '../components/RingChart'
+import { useMemo, useState } from 'react'
+import { RING_COLORS, RingChart } from '../components/RingChart'
 import { Mascot } from '../components/Mascot'
 import { go } from '../hooks/useHashRoute'
 import type { Puzzles } from '../hooks/usePuzzles'
 import { CATEGORY, phaseOf, type Category, type Phase } from '../lib/weakness'
 
 const FAMILIES = [
-  { key: 'opponent', title: "You didn't see what your opponent can do" },
-  { key: 'chance', title: 'You missed your own chance' },
-  { key: 'other', title: 'Other mistakes' },
+  { key: 'opponent', title: "You didn't see what your opponent can do", short: "Opponent's chance not seen" },
+  { key: 'chance', title: 'You missed your own chance', short: 'Own chance missed' },
+  { key: 'other', title: 'Other mistakes', short: 'Other' },
 ] as const
 
 const PHASES: { key: Phase; title: string }[] = [
@@ -36,6 +36,12 @@ export function Weaknesses({ puzzles, player }: { puzzles: Puzzles; player: stri
   const top = [...counts.entries()].filter(([c]) => c !== 'other').sort((a, b) => b[1] - a[1])[0]
   const threats = list.filter((p) => p.refutation && p.category && CATEGORY[p.category].family === 'opponent').length
   const pct = (n: number, of: number) => (of ? Math.round((100 * n) / of) : 0)
+  // the three kinds with their mistakes, biggest first inside each kind; colours as in the ring
+  const famParts = FAMILIES.map((f, i) => {
+    const cats = (Object.keys(CATEGORY) as Category[]).filter((c) => CATEGORY[c].family === f.key && counts.get(c)).sort((a, b) => counts.get(b)! - counts.get(a)!)
+    return { ...f, cats, sum: cats.reduce((s, c) => s + counts.get(c)!, 0), color: RING_COLORS[i] }
+  })
+  const [open, setOpen] = useState<Category | null>(null)
 
   return (
     <div className="screen">
@@ -66,6 +72,8 @@ export function Weaknesses({ puzzles, player }: { puzzles: Puzzles; player: stri
             <Mascot mood="happy" />
             <span>
               Your biggest weakness: <b>{CATEGORY[top[0]].title}</b> ({pct(top[1], sortedTotal)}% of your mistakes). The rule: <b>{CATEGORY[top[0]].rule}</b>
+              {/* Lu, 16.11.: from the top straight into the exercises of this weakness, one after another */}
+              <button type="button" className="primary wide weak-go" onClick={() => go('puzzles/' + top[0])}>Train it now ›</button>
             </span>
           </div>
         )
@@ -79,34 +87,40 @@ export function Weaknesses({ puzzles, player }: { puzzles: Puzzles; player: stri
         </section>
       )}
 
-      {FAMILIES.map((f) => {
-        const cats = (Object.keys(CATEGORY) as Category[]).filter((c) => CATEGORY[c].family === f.key && counts.get(c))
-        if (!cats.length) return null
-        const sum = cats.reduce((s, c) => s + counts.get(c)!, 0)
-        return (
-          <section key={f.key} className="play-card">
-            <div className="label">{f.title} · {pct(sum, sortedTotal)}%</div>
-            {cats
-              .sort((a, b) => counts.get(b)! - counts.get(a)!)
-              .map((c) => (
-                <div key={c} className="weak-row">
-                  <div className="weak-head">
-                    <b>{CATEGORY[c].title}</b>
-                    <span className="count">{counts.get(c)}</span>
-                  </div>
-                  <div className="bar"><span style={{ width: `${pct(counts.get(c)!, sortedTotal)}%` }} /></div>
-                  <p className="note">{CATEGORY[c].rule}</p>
-                  <div className="row">
-                    <button type="button" onClick={() => go('puzzles/' + c)}>Find the better move</button>
-                    {f.key === 'opponent' && (
-                      <button type="button" onClick={() => go('threats/' + c)}>What's the threat?</button>
+      {/* Lu, 16.11.: "das ist too much, die ganzen Felder optisch zusammenfassen" – one card: a ring of the three
+          kinds, then every kind of mistake as one slim row; its rule and training open only when you tap it */}
+      {sortedTotal > 0 && (
+        <section className="play-card weak-sum">
+          <div className="label">Your mistakes by kind</div>
+          <RingChart parts={famParts.map((f) => [f.short, f.sum] as [string, number])} center={sortedTotal} sub="mistakes" label={`Your mistakes: ${famParts.map((f) => `${f.short} ${pct(f.sum, sortedTotal)}%`).join(', ')}`} />
+          <div className="weak-list">
+            {famParts.flatMap((f) =>
+              f.cats.map((c) => {
+                const on = open === c
+                return (
+                  <div key={c} className={`weak-item${on ? ' on' : ''}`}>
+                    <button type="button" className="weak-line" aria-expanded={on} onClick={() => setOpen(on ? null : c)}>
+                      <i style={{ background: f.color }} aria-hidden="true" />
+                      <b>{CATEGORY[c].title}</b>
+                      <span className="count">{counts.get(c)}</span>
+                      <span className="chev" aria-hidden="true">›</span>
+                    </button>
+                    {on && (
+                      <div className="weak-more">
+                        <p className="note">{CATEGORY[c].rule}</p>
+                        <div className="row">
+                          <button type="button" onClick={() => go('puzzles/' + c)}>Find the better move</button>
+                          {f.key === 'opponent' && <button type="button" onClick={() => go('threats/' + c)}>What's the threat?</button>}
+                        </div>
+                      </div>
                     )}
                   </div>
-                </div>
-              ))}
-          </section>
-        )
-      })}
+                )
+              }),
+            )}
+          </div>
+        </section>
+      )}
 
       {list.length > 0 && (
         <section className="play-card">
