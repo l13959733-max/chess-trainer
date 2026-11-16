@@ -1,7 +1,9 @@
 import { report } from '../lib/trainingPath'
 import { defaultPieces } from 'react-chessboard'
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { go } from '../hooks/useHashRoute'
+import { earn } from '../lib/king'
+import { addTop, audio, boom, buzz, confetti, ding, fanfare, isRecord, loadTop, saveTop, step, wrong, type TopRun } from '../lib/rushFx'
 import {
   COMBO,
   COMBO_BONUS,
@@ -30,7 +32,7 @@ function Piece({ p, black }: { p: RushPiece; black: boolean }) {
 }
 const BEST_KEY = 'hoppy-rush-best'
 const OPTS_KEY = 'hoppy-rush-options'
-const SCALE = [392, 440, 523, 587, 659, 784, 880, 1047]
+const TOP_KEY = 'hoppy-rush-top'
 
 interface Game {
   p: RushPiece
@@ -68,74 +70,6 @@ function store(key: string, v: unknown) {
   }
 }
 const rnd = (n: number) => Math.floor(Math.random() * n)
-const buzz = (p: number | number[]) => {
-  try {
-    navigator.vibrate?.(p)
-  } catch {
-    // no vibration on this phone (iPhone)
-  }
-}
-
-// ---------- sound, made in the browser ----------
-let ac: AudioContext | null = null
-function audio(): AudioContext | null {
-  if (!ac) {
-    try {
-      const AC = window.AudioContext ?? (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext
-      ac = new AC()
-    } catch {
-      ac = null
-    }
-  }
-  if (ac?.state === 'suspended') void ac.resume()
-  return ac
-}
-function tone(freq: number, t0: number, dur: number, type: OscillatorType = 'sine', vol = 0.25) {
-  const a = audio()
-  if (!a) return
-  const o = a.createOscillator()
-  const g = a.createGain()
-  const t = a.currentTime + t0
-  o.type = type
-  o.frequency.setValueAtTime(freq, t)
-  o.frequency.exponentialRampToValueAtTime(freq * 1.5, t + dur * 0.6)
-  g.gain.setValueAtTime(0, t)
-  g.gain.linearRampToValueAtTime(vol, t + 0.01)
-  g.gain.exponentialRampToValueAtTime(0.001, t + dur)
-  o.connect(g).connect(a.destination)
-  o.start(t)
-  o.stop(t + dur + 0.02)
-}
-function boom() {
-  const a = audio()
-  if (!a) return
-  const n = Math.floor(a.sampleRate * 0.5)
-  const buf = a.createBuffer(1, n, a.sampleRate)
-  const d = buf.getChannelData(0)
-  for (let i = 0; i < n; i++) d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / n, 3)
-  const s = a.createBufferSource()
-  const f = a.createBiquadFilter()
-  const g = a.createGain()
-  s.buffer = buf
-  f.type = 'lowpass'
-  f.frequency.value = 900
-  g.gain.value = 0.5
-  s.connect(f).connect(g).connect(a.destination)
-  s.start()
-  ;[523, 659, 784, 1047].forEach((fr, i) => tone(fr, 0.05 + i * 0.07, 0.35, 'triangle', 0.18))
-}
-
-// ---------- confetti on a canvas over the board ----------
-interface Part {
-  x: number
-  y: number
-  vx: number
-  vy: number
-  life: number
-  size: number
-  c: string
-  sq: boolean
-}
 
 export function SquareRush() {
   const [opts, setOpts] = useState<Opts>(() => load(OPTS_KEY, { letters: true, dots: true, black: false }))
@@ -148,9 +82,13 @@ export function SquareRush() {
   const [word, setWord] = useState<{ text: string; n: number } | null>(null)
   const [shake, setShake] = useState(0)
   const canvas = useRef<HTMLCanvasElement>(null)
-  const parts = useRef<Part[]>([])
-  const raf = useRef(0)
+  const fx = useMemo(() => confetti(() => canvas.current), [])
   const gameRef = useRef<Game | null>(null)
+  // BAUPLAN 34A (Lu, 16.11.): the record as its own moment, a top 5, and once in a run a surprise "Record!"
+  const [top, setTop] = useState<TopRun[]>(() => loadTop(TOP_KEY))
+  const [showTop, setShowTop] = useState(false)
+  const [record, setRecord] = useState<{ from: number; to: number; nuts: number } | null>(null)
+  const passed = useRef(false)
   useEffect(() => {
     gameRef.current = g
   })
@@ -195,19 +133,34 @@ export function SquareRush() {
     audio()
     setOver(null)
     setTell(null)
-    parts.current = []
+    setRecord(null)
+    passed.current = false
+    fx.stop()
     const fresh = nextPiece({ pi: -1, score: 0, streak: 0, combo: 0, hits: 0, miss: 0, end: Date.now() + RUSH_SECONDS * 1000 })
     setG(order(fresh))
   }
   function finish(cur: Game) {
     setG(null)
     setOver(cur)
+    const rec = isRecord(cur.score, best)
     if (cur.score > best) {
       setBest(cur.score)
       store(BEST_KEY, cur.score)
     }
+    const nextTop = addTop(top, { score: cur.score, at: Date.now() })
+    setTop(nextTop)
+    saveTop(TOP_KEY, nextTop)
     report('rush', starsFor(cur.score)) // today's path in Training (0 stars = not done)
-    if (starsFor(cur.score))
+    if (rec) {
+      // a new record: its own screen, a fanfare, a bigger explosion, and chestnuts once per record
+      const nuts = earn('rush-record/' + cur.score, 3)
+      setRecord({ from: best, to: cur.score, nuts })
+      window.setTimeout(() => {
+        fanfare()
+        buzz([60, 50, 60, 50, 200])
+        ;['d4', 'b6', 'g6', 'b2', 'g2'].forEach((sq, i) => window.setTimeout(() => burst(sq, 110, true), i * 140))
+      }, 150)
+    } else if (starsFor(cur.score))
       window.setTimeout(() => {
         boom()
         burst('d4', 120, true)
@@ -224,55 +177,10 @@ export function SquareRush() {
     return [col * w + w / 2, row * w + w / 2]
   }
   function burst(sq: string, n: number, big: boolean) {
-    if (window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) return
-    const c = canvas.current
     const at = cellCenter(sq)
-    if (!c || !at) return
-    const dpr = window.devicePixelRatio || 1
-    if (c.width !== c.clientWidth * dpr) {
-      c.width = c.clientWidth * dpr
-      c.height = c.clientHeight * dpr
-    }
-    const cols = big ? ['#f5b82e', '#8a5cf6', '#58cc02', '#ff4b4b', '#4fc3f7', '#fff'] : ['#f5b82e', '#fff', '#58cc02']
-    for (let i = 0; i < n; i++) {
-      const a = Math.random() * Math.PI * 2
-      const s = (big ? 4 : 2.4) + Math.random() * (big ? 7 : 3.5)
-      parts.current.push({ x: at[0], y: at[1], vx: Math.cos(a) * s, vy: Math.sin(a) * s - (big ? 2 : 1), life: 1, size: (big ? 5 : 3.5) + Math.random() * 4, c: cols[i % cols.length], sq: Math.random() < 0.5 })
-    }
-    if (!raf.current) raf.current = requestAnimationFrame(tick)
+    if (at) fx.burst(at[0], at[1], n, big)
   }
-  function tick() {
-    const c = canvas.current
-    const ctx = c?.getContext('2d')
-    if (!c || !ctx) return
-    const dpr = window.devicePixelRatio || 1
-    ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
-    ctx.clearRect(0, 0, c.clientWidth, c.clientHeight)
-    parts.current = parts.current.filter((p) => p.life > 0)
-    for (const p of parts.current) {
-      p.x += p.vx
-      p.y += p.vy
-      p.vy += 0.22
-      p.vx *= 0.985
-      p.life -= 0.02
-      ctx.globalAlpha = Math.max(p.life, 0)
-      ctx.fillStyle = p.c
-      if (p.sq) {
-        ctx.save()
-        ctx.translate(p.x, p.y)
-        ctx.rotate(p.life * 8)
-        ctx.fillRect(-p.size / 2, -p.size / 2, p.size, p.size)
-        ctx.restore()
-      } else {
-        ctx.beginPath()
-        ctx.arc(p.x, p.y, p.size / 2, 0, 7)
-        ctx.fill()
-      }
-    }
-    ctx.globalAlpha = 1
-    raf.current = parts.current.length ? requestAnimationFrame(tick) : 0
-  }
-  useEffect(() => () => cancelAnimationFrame(raf.current), [])
+  useEffect(() => () => fx.stop(), [fx])
 
   function tap(sq: string) {
     if (!g) return
@@ -282,7 +190,7 @@ export function SquareRush() {
       let combo = g.combo + 1
       let score = g.score + pointsFor(streak)
       let end = g.end
-      tone(SCALE[Math.min(streak - 1, SCALE.length - 1)], 0, 0.18, 'sine', 0.3)
+      step(streak)
       burst(sq, 18, false)
       buzz(15)
       setFlash({ sq, kind: 'hit', n: Date.now() })
@@ -298,10 +206,18 @@ export function SquareRush() {
           setWord({ text: praise(streak), n: Date.now() })
         }, 120)
       }
+      // passing your best in the middle of the run: once, not announced (LERNKONZEPT: surprise rewards)
+      if (!passed.current && best > 0 && score > best) {
+        passed.current = true
+        window.setTimeout(() => {
+          ding()
+          setWord({ text: 'Record!', n: Date.now() })
+        }, combo === 0 ? 700 : 60)
+      }
       setTell(null)
       setG(order({ ...g, sq, moved: g.moved + 1, streak, combo, score, end, hits: g.hits + 1 }))
     } else {
-      tone(140, 0, 0.25, 'square', 0.12)
+      wrong()
       buzz(80)
       setFlash({ sq, kind: 'miss', n: Date.now() })
       setTell({ tapped: sq, target: g.target })
@@ -358,8 +274,15 @@ export function SquareRush() {
         <div className="rush-combo" aria-label={`Combo ${g?.combo ?? 0} of ${COMBO}`}>
           {Array.from({ length: COMBO }, (_, i) => <i key={i} className={g && i < g.combo ? 'on' : ''} />)}
         </div>
-        <div className="rush-score best"><small>Best</small>{best}</div>
+        <button type="button" className="rush-score best" aria-expanded={showTop} onClick={() => setShowTop(!showTop)}><small>Best {top.length > 1 ? (showTop ? '▴' : '▾') : ''}</small>{best}</button>
       </div>
+      {showTop && top.length > 0 && (
+        <ol className="rush-top" aria-label="Your 5 best runs">
+          {top.map((r, i) => (
+            <li key={r.at}><b>{i + 1}.</b> {r.score}<small>{new Date(r.at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })}</small></li>
+          ))}
+        </ol>
+      )}
       <div className="rush-order" aria-live="polite">
         {g ? (
           <>
@@ -372,10 +295,21 @@ export function SquareRush() {
         <div key={shake} className={`rush-board${shake ? ' shake' : ''}`} role="grid" aria-label="Chessboard">{cells}</div>
         {g && <div className="rush-piece" style={pieceStyle} aria-hidden="true"><Piece p={g.p} black={opts.black} /></div>}
         <canvas ref={canvas} className="rush-fx" aria-hidden="true" />
-        {word && <div key={word.n} className="rush-word" aria-hidden="true">{word.text}</div>}
+        {word && <div key={word.n} className={`rush-word${word.text === 'Record!' ? ' rec' : ''}`} aria-hidden="true">{word.text}</div>}
         {!g && (
           <div className="rush-overlay">
-            {over ? (
+            {over && record ? (
+              <div className="rush-record">
+                <small>New record!</small>
+                <CountUp from={record.from} to={record.to} />
+                <p>Your best was {record.from}. Now it is {record.to}.</p>
+                <div className="rush-stars" aria-label={`${stars} of 3 stars`}>
+                  {[0, 1, 2].map((i) => <span key={i} className={i < stars ? '' : 'off'}>★</span>)}
+                </div>
+                {record.nuts > 0 && <span className="rush-nuts">+{record.nuts} 🌰</span>}
+                <button type="button" className="rush-btn" onClick={start}>Beat it again</button>
+              </div>
+            ) : over ? (
               <>
                 <h2>{stars === 3 ? 'Brilliant!!' : stars === 2 ? 'Great!' : stars === 1 ? 'Good!' : 'Keep going!'}</h2>
                 <div className="rush-stars" aria-label={`${stars} of 3 stars`}>
@@ -403,4 +337,25 @@ export function SquareRush() {
       </div>
     </div>
   )
+}
+
+// the new record counts up from the old best (instant with reduced motion)
+function CountUp({ from, to }: { from: number; to: number }) {
+  const [n, setN] = useState(from)
+  useEffect(() => {
+    if (window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) {
+      const t = window.setTimeout(() => setN(to), 0)
+      return () => window.clearTimeout(t)
+    }
+    let id = 0
+    const t0 = performance.now() + 250
+    const run = (t: number) => {
+      const k = Math.min(1, Math.max(0, (t - t0) / 1100))
+      setN(Math.round(from + (to - from) * (1 - Math.pow(1 - k, 3))))
+      if (k < 1) id = requestAnimationFrame(run)
+    }
+    id = requestAnimationFrame(run)
+    return () => cancelAnimationFrame(id)
+  }, [from, to])
+  return <b className="rush-count" aria-label={`${to} points`}>{n}</b>
 }

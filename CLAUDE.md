@@ -156,3 +156,7 @@ Nach jedem Schritt: committen, deployen, kurz zusammenfassen was ich testen soll
 - Daten: `lib/growth.ts` (sichere Züge/Woche, Fehler/Partie/Monat aus GameRecords, Rapid aus chess.com-Partien, then/now = Ø erstes/letztes Viertel),
   `lib/ratingHistory.ts` (chess.com-Archive 12 Monate, 6 h gecacht). Nur echte Daten, sonst Leer-Hinweis.
 - **Übergänge** (`lib/pageMotion.ts`, aus `useHashRoute`): rein/raus aus der Startseite per View Transitions; Startbild (`.hub-hero`) gleitet ins Stadtbild bzw. die Weltkarte (Name `city-pic`), `vt-still`/`bp-still` gegen Nachrutschen.
+
+## Rush-Spiele: Rekord + Belohnung (BAUPLAN 34, ab 16.11.2026, Vorschau)
+- Gemeinsame Effekte `src/lib/rushFx.ts`: Töne im Browser (`step`, `wrong`, `boom`, `ding`, `fanfare`, `rewindSound`), `buzz` (nur Android), `confetti(canvas)`, Rekorde (`isRecord`, `addTop`, Top 5).
+- Square Rush (`#/rush`): neuer Rekord = eigener Bildschirm (zählt hoch, Fanfare, große Explosion, +3 🌰 einmal je Rekordwert über `earn('rush-record/<punkte>')`), im Lauf einmal überraschend „Record!“, Top 5 unter „Best“ (localStorage `hoppy-rush-top`).

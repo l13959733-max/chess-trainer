@@ -309,7 +309,7 @@ Bagdad („Blindfold: find the square“) – das hier wäre ein eigenes Spiel, 
 ### [ ] 34. Rekord-Moment + Puzzle Rush auf Zeit (Lu, 16.11. nachts: „Highscore mit Belohnung … Puzzle auch auf Zeit nach dem gleichen Konzept, Sounds … das macht Spaß“)
 Lu hat gemerkt: Highscore + Belohnung + Töne motivieren ihn wie in großen Apps. Zwei Teile, einzeln bauen und in die Vorschau:
 
-**A) Square Rush: neuer Rekord = eigener Moment** (`src/screens/SquareRush.tsx`, Bestwert heute stumm in `finish()`):
+**A) Square Rush: neuer Rekord = eigener Moment** – ✅ gebaut 16.11. (Vorschau; Effekte in `src/lib/rushFx.ts`, Rekord-Logik dort mit Vitest) (`src/screens/SquareRush.tsx`, Bestwert heute stumm in `finish()`):
 - Ist `cur.score > best` (und `best > 0`): eigener Abschluss-Bildschirm „New record!“ mit altem → neuem Wert (Zahl zählt hoch),
   größere Explosion als bei Sternen (`boom()` + `burst` mehrfach), eigener Fanfaren-Akkord (im Browser erzeugt, wie die bisherigen Töne),
   Vibration (Android). Erster Lauf (`best == 0`) ohne Rekord-Feier, nur Sterne.

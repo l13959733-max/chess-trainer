@@ -1,7 +1,7 @@
 // A ring chart like "Mistakes by type" in Training (same colours, same ring, number in the middle, legend beside it).
 // Lu, 15.11.: "probier mal, wie das als Kreisdiagramm aussieht, so wie beim Trainingsprogramm".
 
-export const RING_COLORS = ['#ef4a5a', '#8a5cf6', '#2ea7f0', '#ffc531', '#b9b3c9']
+const RING_COLORS = ['#ef4a5a', '#8a5cf6', '#2ea7f0', '#ffc531', '#b9b3c9']
 
 export function RingChart({ parts, center, sub, label }: { parts: [string, number][]; center: string | number; sub: string; label: string }) {
   const total = parts.reduce((s, [, n]) => s + n, 0)

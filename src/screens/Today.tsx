@@ -8,7 +8,7 @@ import { dateKey } from '../lib/progress'
 import { isDue } from '../lib/srs'
 import { dayNumber, loadResults } from '../lib/threatcheck'
 import { pathProgress } from '../lib/trainingToday'
-import { dailyBoard } from './HomeHub'
+import { dailyBoard } from '../lib/dailyBoard'
 import '../training.css'
 
 // Daily (Lu, 15.11.: tap "Daily" on the start page → today's training, "ohne den Nutzer zu erschlagen, optisch Spaß"):

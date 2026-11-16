@@ -1182,3 +1182,18 @@
 .wk-chips { display: flex; flex-wrap: wrap; gap: 6px; }
 .wk-chip { border: 1.5px solid #ece8f2; border-radius: 99px; padding: 5px 10px; font-size: 12.5px; font-weight: 700; background: #fff; }
 .wk-chip b { color: #8a5cf6; }
+
+/* BAUPLAN 34A (Lu, 16.11.): the record as its own moment – gold, counting up, a top 5 under "Best" */
+.rush .rush-score.best { all: unset; box-sizing: border-box; cursor: pointer; text-align: right; font-weight: 900; font-size: 26px; font-variant-numeric: tabular-nums; }
+.rush .rush-score.best:focus-visible { outline: 3px solid #8a5cf6; outline-offset: 2px; border-radius: 8px; }
+.rush-top { list-style: none; margin: -4px 0 0 auto; padding: 8px 12px; min-width: 170px; border-radius: 14px; background: rgba(138, 92, 246, .1); display: grid; gap: 3px; font-weight: 800; font-variant-numeric: tabular-nums; }
+.rush-top li { display: flex; gap: 8px; align-items: baseline; }
+.rush-top li b { width: 1.4em; color: #8a5cf6; }
+.rush-top li small { margin-left: auto; color: var(--muted); font-size: 11px; }
+.rush-word.rec { color: #ffd54a; -webkit-text-stroke: 2px #7a4a00; text-shadow: 0 5px 0 #7a4a00; font-size: 52px; }
+.rush-record { display: flex; flex-direction: column; align-items: center; gap: 8px; animation: rush-rec-in .5s cubic-bezier(.2, 1.6, .4, 1); }
+.rush-record > small { font-size: 15px; font-weight: 900; letter-spacing: .14em; text-transform: uppercase; color: #ffd54a; }
+.rush-count { font-size: 68px; line-height: 1; font-weight: 900; color: #fff; -webkit-text-stroke: 2px #7a4a00; text-shadow: 0 6px 0 #7a4a00, 0 0 30px rgba(255, 213, 74, .6); font-variant-numeric: tabular-nums; }
+.rush-nuts { background: #3b2a14; color: #ffd54a; border-radius: 99px; padding: 5px 14px; font-weight: 900; }
+@keyframes rush-rec-in { 0% { transform: scale(.5); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
+@media (prefers-reduced-motion: reduce) { .rush-record { animation: none; } }

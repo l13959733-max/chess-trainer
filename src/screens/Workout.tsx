@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { Mascot } from '../components/Mascot'
 import { go } from '../hooks/useHashRoute'
 import type { useProgress } from '../hooks/useProgress'
@@ -31,32 +31,31 @@ function save(v: Saved) {
 }
 
 export function Workout({ puzzles, progress, player }: { puzzles: ReturnType<typeof usePuzzles>; progress: ReturnType<typeof useProgress>; player: string }) {
-  const [w, setW] = useState<Saved | null>(load)
+  const [saved, setW] = useState<Saved | null>(load)
   const [running, setRunning] = useState(false)
-  const mine = mineOf(puzzles.puzzles, player)
+  const [now] = useState(() => Date.now())
+  const mine = useMemo(() => mineOf(puzzles.puzzles, player), [puzzles.puzzles, player])
 
-  // the round is put together once a day, when the mistakes are there
-  useEffect(() => {
-    if (w || !mine.length) return
-    const now = Date.now()
+  // the round is put together once a day, when the mistakes are there (kept in localStorage from then on)
+  const fresh = useMemo<Saved | null>(() => {
+    if (saved || !mine.length) return null
     const rank = (p: (typeof mine)[number]) => {
       const s = puzzles.srs.get('p:' + p.id)
       return !s ? 1 : isDue(s, now) ? 0 : 2 + s.due / 1e13
     }
     const { plan, ids } = buildWorkout(mine, rank)
-    if (!ids.length) return
-    const v = { date: today(), ids, plan, i: 0, slips: 0, first: 0 }
-    save(v)
-    setW(v)
-  }, [w, mine, puzzles.srs])
+    return ids.length ? { date: today(), ids, plan, i: 0, slips: 0, first: 0 } : null
+  }, [saved, mine, puzzles.srs, now])
+  useEffect(() => {
+    if (fresh) save(fresh)
+  }, [fresh])
+  const w = saved ?? fresh
 
   const step = (patch: Partial<Saved>) => {
-    setW((cur) => {
-      if (!cur) return cur
-      const v = { ...cur, ...patch }
-      save(v)
-      return v
-    })
+    if (!w) return
+    const v = { ...w, ...patch }
+    save(v)
+    setW(v)
   }
 
   if (!w) {
