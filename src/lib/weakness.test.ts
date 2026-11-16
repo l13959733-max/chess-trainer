@@ -1,6 +1,6 @@
 import { Chess } from 'chess.js'
 import { describe, expect, it } from 'vitest'
-import { categorize, phaseOf } from './weakness'
+import { categorize, otherKindOf, phaseOf } from './weakness'
 
 // Real positions from Lu's games (30.10.2026 analysis)
 describe('categorize', () => {
@@ -43,5 +43,27 @@ describe('phaseOf', () => {
     expect(phaseOf('rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq - 0 1')).toBe('opening')
     expect(phaseOf('r1bq1rk1/ppp2ppp/2np1n2/2b1p3/2B1P3/2PP1N2/PP3PPP/RNBQ1RK1 w - - 0 20')).toBe('middlegame')
     expect(phaseOf('8/5pk1/6p1/3R4/8/6P1/5PK1/3r4 w - - 0 40')).toBe('endgame')
+  })
+})
+
+describe('otherKindOf', () => {
+  const start = 'rnbqkbnr/pppp1ppp/8/4p3/4P3/8/PPPP1PPP/RNBQKBNR w KQkq - 0 2' // 1.e4 e5
+  it('engine develops, you push a side pawn = development missed', () => {
+    expect(otherKindOf({ fen: start, played: 'h4', best: 'g1f3' })).toBe('development')
+  })
+  it('you develop too = not development', () => {
+    expect(otherKindOf({ fen: start, played: 'Nc3', best: 'g1f3' })).toBe('positional')
+  })
+  it("the opponent's best line gives check = king came under attack", () => {
+    // 1.e4 e5 2.f3? – Black answers Qh4+
+    expect(otherKindOf({ fen: start, played: 'f3', best: 'g1f3', refutation: { best: 'd8h4', pv: ['d8h4', 'g2g3'], score: { cp: 250 } } })).toBe('king-attack')
+  })
+  it('the line wins material only after more than 4 moves = lost a bit later', () => {
+    // 2.Qg4? d5 3.exd5 Bxg4: the line ends with Black winning the queen
+    expect(otherKindOf({ fen: start, played: 'Qg4', best: 'g1f3', refutation: { best: 'd7d5', pv: ['d7d5', 'e4d5', 'c8g4'], score: { cp: 800 } } })).toBe('later-loss')
+  })
+  it('later than move 12, nothing of the above = position got worse', () => {
+    const fen = 'r1bq1rk1/pp2bppp/2n1pn2/3p4/3P4/2NBPN2/PP3PPP/R2QK2R w KQ - 0 13'
+    expect(otherKindOf({ fen, played: 'a3', best: 'e1g1' })).toBe('positional')
   })
 })

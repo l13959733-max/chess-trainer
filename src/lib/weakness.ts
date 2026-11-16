@@ -92,3 +92,56 @@ export function phaseOf(fen: string): Phase {
   const pieces = c.board().flat().reduce((s, p) => s + (p && p.type !== 'p' && p.type !== 'k' ? VALUE[p.type] : 0), 0)
   return pieces <= 13 ? 'endgame' : 'middlegame'
 }
+
+// "Other" (Lu, 16.11.: "40 % Other – ich will wissen, was das ist"): the position got 2+ pawns worse, but no
+// material went within 4 moves. Sorted further with what the engine lines show – no guessing:
+// later-loss  = the opponent's best line wins material after all, only later than 4 moves
+// king-attack = the opponent's best line gives you check within his first 3 moves
+// development = in the opening (moves 1–12) the engine castles or brings out a knight/bishop, and you did neither
+// positional  = none of these: a slow, long-term mistake (plan, pawns, passive pieces)
+export type OtherKind = 'later-loss' | 'king-attack' | 'development' | 'positional'
+
+export const OTHER_KIND: Record<OtherKind, { title: string; rule: string }> = {
+  'later-loss': { title: 'Material lost a bit later', rule: 'Look one step further: after all the exchanges, who wins what?' },
+  'king-attack': { title: 'King came under attack', rule: 'Before you move: can your opponent give check or open a line to your king?' },
+  development: { title: 'Development or castling missed', rule: 'In the opening: bring out knights and bishops and castle before you go hunting.' },
+  positional: { title: 'Position got worse', rule: 'Make a plan: develop, castle, and put your pieces on good squares.' },
+}
+
+function isDevelopment(fen: string, uci: string): boolean {
+  const c = new Chess(fen)
+  const from = uci.slice(0, 2) as Square
+  const piece = c.get(from)
+  if (!piece) return false
+  if (piece.type === 'k' && Math.abs(uci.charCodeAt(0) - uci.charCodeAt(2)) === 2) return true // castling
+  const home = piece.color === 'w' ? '1' : '8'
+  return (piece.type === 'n' || piece.type === 'b') && from[1] === home
+}
+
+export function otherKindOf(p: { fen: string; played: string; best: string; refutation?: Refutation }): OtherKind {
+  const me = new Chess(p.fen).turn()
+  const after = new Chess(p.fen)
+  let playedUci = ''
+  try {
+    const m = after.move(p.played)
+    playedUci = m.from + m.to
+  } catch {
+    return 'positional'
+  }
+  const r = p.refutation
+  if (r && r.pv.length) {
+    if (swing(after.fen(), r.pv, me) <= -2) return 'later-loss'
+    const c = new Chess(after.fen())
+    for (let i = 0; i < Math.min(r.pv.length, 6); i++) {
+      try {
+        c.move({ from: r.pv[i].slice(0, 2), to: r.pv[i].slice(2, 4), promotion: r.pv[i][4] })
+      } catch {
+        break
+      }
+      if (i % 2 === 0 && c.inCheck()) return 'king-attack'
+    }
+  }
+  const moveNo = Number(p.fen.split(' ')[5]) || 1
+  if (moveNo <= 12 && isDevelopment(p.fen, p.best) && !isDevelopment(p.fen, playedUci)) return 'development'
+  return 'positional'
+}

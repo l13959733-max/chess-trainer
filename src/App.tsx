@@ -73,7 +73,7 @@ import { MuteButton } from './components/MuteButton'
 import { ThreatView } from './screens/Threat'
 import { Welcome } from './screens/Welcome'
 import type { Category } from './lib/weakness'
-import { CATEGORY } from './lib/weakness'
+import { CATEGORY, otherKindOf, phaseOf } from './lib/weakness'
 import './App.css'
 
 function App() {
@@ -166,7 +166,7 @@ function App() {
       return progress.recordGame(score)
     }
     body = <Play key={`${id ?? ''}/${arg ?? ''}`} mode={mode} lines={rep.lines} player={player} onGame={onGame} onPuzzlesFound={() => setBotFound((n) => n + 1)} />
-  } else if (page === 'puzzles') body = <PuzzleSession key={id ?? 'all'} puzzles={puzzles} progress={progress} category={id && id in CATEGORY ? (id as Category) : undefined} />
+  } else if (page === 'puzzles') body = <PuzzleSession key={(id ?? 'all') + (arg ?? '')} puzzles={puzzles} progress={progress} filter={weaknessFilter(id, arg)} />
   else if (page === 'threats') body = <ThreatSession key={(id ?? 'all') + (arg ?? '')} puzzles={puzzles} progress={progress} category={id && id in CATEGORY ? (id as Category) : undefined} games={id === 'games' ? arg?.split(',') : undefined} />
   else if (page === 'afterwards') body = <Afterwards />
   else if (page === 'armoury') body = <ArmouryScreen key={(id ?? '') + '/' + (arg ?? '')} id={id} stage={arg} />
@@ -336,9 +336,19 @@ function sessionQueue(puzzles: ReturnType<typeof usePuzzles>, prefix: 'p:' | 't:
   return queue.map((p) => p.id)
 }
 
-function PuzzleSession({ puzzles, progress, category }: { puzzles: ReturnType<typeof usePuzzles>; progress: ReturnType<typeof useProgress>; category?: Category }) {
+// A round from "My weaknesses": one kind (#/puzzles/<kind>), one game phase (#/puzzles/phase/<phase>) or one part of
+// "Other" (#/puzzles/other/<part>) – Lu, 16.11.: "Middlegame oder Opening oder Endgame – dazu sollen die Übungen kommen"
+function weaknessFilter(id?: string, arg?: string): ((p: Puzzle) => boolean) | undefined {
+  if (id === 'phase' && arg) return (p) => phaseOf(p.fen) === arg
+  if (id === 'other' && arg) return (p) => p.category === 'other' && otherKindOf(p) === arg
+  if (id && id in CATEGORY) return (p) => p.category === id
+  return undefined
+}
+
+function PuzzleSession({ puzzles, progress, filter }: { puzzles: ReturnType<typeof usePuzzles>; progress: ReturnType<typeof useProgress>; filter?: (p: Puzzle) => boolean }) {
+  const category = !!filter
   const [queue] = useState(() =>
-    category ? sessionQueue(puzzles, 'p:', (p) => p.category === category) : [...puzzles.due, ...puzzles.fresh.slice(0, NEW_PER_SESSION)].map((p) => p.id),
+    filter ? sessionQueue(puzzles, 'p:', filter) : [...puzzles.due, ...puzzles.fresh.slice(0, NEW_PER_SESSION)].map((p) => p.id),
   )
   const [index, setIndex] = useState(0)
   const puzzle = puzzles.puzzles.find((p) => p.id === queue[index])

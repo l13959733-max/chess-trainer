@@ -1,24 +1,29 @@
 import { useMemo, useState } from 'react'
-import { RING_COLORS, RingChart } from '../components/RingChart'
+import { DoubleRing, type RingPart } from '../components/RingChart'
 import { Mascot } from '../components/Mascot'
 import { go } from '../hooks/useHashRoute'
 import type { Puzzles } from '../hooks/usePuzzles'
-import { CATEGORY, phaseOf, type Category, type Phase } from '../lib/weakness'
+import { CATEGORY, OTHER_KIND, otherKindOf, phaseOf, type Category, type OtherKind, type Phase } from '../lib/weakness'
+
+// "My weaknesses" (Lu, 16.11.): everything in ONE card – a double ring (outside: what went wrong, inside: when in
+// the game), the three phases to train, then every kind of mistake as a slim row that opens its rule and training.
+// "Other" is split into what the engine lines show (lib/weakness.ts otherKindOf). The button on top leads to today's
+// training, which picks your weakness by itself (trainingToday.redCandidates).
 
 const FAMILIES = [
-  { key: 'opponent', title: "You didn't see what your opponent can do", short: "Opponent's chance not seen" },
-  { key: 'chance', title: 'You missed your own chance', short: 'Own chance missed' },
-  { key: 'other', title: 'Other mistakes', short: 'Other' },
+  { key: 'opponent', short: "Opponent's chance not seen", color: '#ef4a5a' },
+  { key: 'chance', short: 'Own chance missed', color: '#8a5cf6' },
+  { key: 'other', short: 'No material lost – slower mistakes', color: '#b9b3c9' },
 ] as const
 
-const PHASES: { key: Phase; title: string }[] = [
-  { key: 'opening', title: 'Opening (moves 1–12)' },
-  { key: 'middlegame', title: 'Middlegame' },
-  { key: 'endgame', title: 'Endgame' },
+const PHASES: { key: Phase; title: string; sub: string; color: string }[] = [
+  { key: 'opening', title: 'Opening', sub: 'moves 1–12', color: '#ffc531' },
+  { key: 'middlegame', title: 'Middlegame', sub: '', color: '#4fc414' },
+  { key: 'endgame', title: 'Endgame', sub: 'few pieces left', color: '#2ea7f0' },
 ]
 
-// "My weaknesses": every mistake from the analysed games, sorted by kind, each with its rule
-// and a way to train exactly that.
+type Row = { key: string; title: string; rule: string; n: number; color: string; train: string; threat?: string }
+
 export function Weaknesses({ puzzles, player }: { puzzles: Puzzles; player: string }) {
   const list = puzzles.puzzles
   const counts = useMemo(() => {
@@ -31,17 +36,35 @@ export function Weaknesses({ puzzles, player }: { puzzles: Puzzles; player: stri
     for (const p of list) c.set(phaseOf(p.fen), (c.get(phaseOf(p.fen)) ?? 0) + 1)
     return c
   }, [list])
+  const others = useMemo(() => {
+    const c = new Map<OtherKind, number>()
+    for (const p of list) if (p.category === 'other') c.set(otherKindOf(p), (c.get(otherKindOf(p)) ?? 0) + 1)
+    return c
+  }, [list])
   const sortedTotal = [...counts.values()].reduce((a, b) => a + b, 0)
   // The catch-all class is no habit you can fix with one rule, so it never counts as the biggest weakness
   const top = [...counts.entries()].filter(([c]) => c !== 'other').sort((a, b) => b[1] - a[1])[0]
-  const threats = list.filter((p) => p.refutation && p.category && CATEGORY[p.category].family === 'opponent').length
   const pct = (n: number, of: number) => (of ? Math.round((100 * n) / of) : 0)
-  // the three kinds with their mistakes, biggest first inside each kind; colours as in the ring
-  const famParts = FAMILIES.map((f, i) => {
-    const cats = (Object.keys(CATEGORY) as Category[]).filter((c) => CATEGORY[c].family === f.key && counts.get(c)).sort((a, b) => counts.get(b)! - counts.get(a)!)
-    return { ...f, cats, sum: cats.reduce((s, c) => s + counts.get(c)!, 0), color: RING_COLORS[i] }
+  const [open, setOpen] = useState<string | null>(null)
+
+  const fam = FAMILIES.map((f) => {
+    const cats = (Object.keys(CATEGORY) as Category[]).filter((c) => CATEGORY[c].family === f.key && counts.get(c))
+    return { ...f, cats, n: cats.reduce((s, c) => s + counts.get(c)!, 0) }
   })
-  const [open, setOpen] = useState<Category | null>(null)
+  // every row: the kinds, and "Other" split into its parts – biggest first inside each colour
+  const rows: Row[] = fam.flatMap<Row>((f) =>
+    f.key === 'other'
+      ? (Object.keys(OTHER_KIND) as OtherKind[])
+          .filter((k) => others.get(k))
+          .sort((a, b) => others.get(b)! - others.get(a)!)
+          .map((k) => ({ key: 'other:' + k, title: OTHER_KIND[k].title, rule: OTHER_KIND[k].rule, n: others.get(k)!, color: f.color, train: 'puzzles/other/' + k }))
+      : f.cats
+          .filter((c) => c !== 'other')
+          .sort((a, b) => counts.get(b)! - counts.get(a)!)
+          .map((c) => ({ key: c, title: CATEGORY[c].title, rule: CATEGORY[c].rule, n: counts.get(c)!, color: f.color, train: 'puzzles/' + c, threat: f.key === 'opponent' ? 'threats/' + c : undefined })),
+  )
+  const outer: RingPart[] = fam.map((f) => ({ label: f.short, n: f.n, color: f.color }))
+  const inner: RingPart[] = PHASES.map((ph) => ({ label: ph.title, n: phases.get(ph.key) ?? 0, color: ph.color }))
 
   return (
     <div className="screen">
@@ -72,62 +95,67 @@ export function Weaknesses({ puzzles, player }: { puzzles: Puzzles; player: stri
             <Mascot mood="happy" />
             <span>
               Your biggest weakness: <b>{CATEGORY[top[0]].title}</b> ({pct(top[1], sortedTotal)}% of your mistakes). The rule: <b>{CATEGORY[top[0]].rule}</b>
-              {/* Lu, 16.11.: from the top straight into the exercises of this weakness, one after another */}
-              <button type="button" className="primary wide weak-go" onClick={() => go('puzzles/' + top[0])}>Train it now ›</button>
+              {/* Lu, 16.11.: the button leads to Training – today's path brings your weakness by itself */}
+              <button type="button" className="primary wide weak-go" onClick={() => go('tent')}>Train in today’s path ›</button>
             </span>
           </div>
         )
       )}
 
-      {threats > 0 && (
-        <section className="play-card threat-card">
-          <div className="label">Training for your #1 habit</div>
-          <p><b>What's the threat?</b> You get the position right after one of your mistakes and play your opponent's side: find the move that punishes it. This trains the look at your opponent's chances before every move.</p>
-          <button type="button" className="primary wide" onClick={() => go('threats')}>Start ({threats} positions)</button>
-        </section>
-      )}
-
-      {/* Lu, 16.11.: "das ist too much, die ganzen Felder optisch zusammenfassen" – one card: a ring of the three
-          kinds, then every kind of mistake as one slim row; its rule and training open only when you tap it */}
       {sortedTotal > 0 && (
         <section className="play-card weak-sum">
-          <div className="label">Your mistakes by kind</div>
-          <RingChart parts={famParts.map((f) => [f.short, f.sum] as [string, number])} center={sortedTotal} sub="mistakes" label={`Your mistakes: ${famParts.map((f) => `${f.short} ${pct(f.sum, sortedTotal)}%`).join(', ')}`} />
-          <div className="weak-list">
-            {famParts.flatMap((f) =>
-              f.cats.map((c) => {
-                const on = open === c
-                return (
-                  <div key={c} className={`weak-item${on ? ' on' : ''}`}>
-                    <button type="button" className="weak-line" aria-expanded={on} onClick={() => setOpen(on ? null : c)}>
-                      <i style={{ background: f.color }} aria-hidden="true" />
-                      <b>{CATEGORY[c].title}</b>
-                      <span className="count">{counts.get(c)}</span>
-                      <span className="chev" aria-hidden="true">›</span>
-                    </button>
-                    {on && (
-                      <div className="weak-more">
-                        <p className="note">{CATEGORY[c].rule}</p>
-                        <div className="row">
-                          <button type="button" onClick={() => go('puzzles/' + c)}>Find the better move</button>
-                          {f.key === 'opponent' && <button type="button" onClick={() => go('threats/' + c)}>What's the threat?</button>}
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                )
-              }),
-            )}
+          <div className="weak-top">
+            <DoubleRing outer={outer} inner={inner} center={sortedTotal} sub="mistakes" label={`Outside: ${outer.map((o) => `${o.label} ${pct(o.n, sortedTotal)}%`).join(', ')}. Inside: ${inner.map((o) => `${o.label} ${pct(o.n, list.length)}%`).join(', ')}`} />
+            <div className="weak-legend">
+              <small>Outside · what went wrong</small>
+              {fam.map((f) => (
+                <div key={f.key}><i style={{ background: f.color }} /><em>{f.short}</em><span>{pct(f.n, sortedTotal)}%</span></div>
+              ))}
+            </div>
           </div>
-        </section>
-      )}
 
-      {list.length > 0 && (
-        <section className="play-card">
-          <div className="label">Where your mistakes happen</div>
-          {/* Lu, 15.11.: as a ring chart like in Training instead of bars */}
-          <RingChart parts={PHASES.map((ph) => [ph.title, phases.get(ph.key) ?? 0] as [string, number])} center={list.length} sub="mistakes" label={`Where your mistakes happen: ${PHASES.map((ph) => `${ph.title} ${pct(phases.get(ph.key) ?? 0, list.length)}%`).join(', ')}`} />
-          <p className="note small">Few endgame mistakes usually means few endgames: most of your games are decided earlier. Converting a won position is trained under “Win it”.</p>
+          <div className="weak-phases">
+            <small>Inside · when in the game – tap to train</small>
+            <div className="weak-phase-row">
+              {PHASES.map((ph) => {
+                const n = phases.get(ph.key) ?? 0
+                return (
+                  <button key={ph.key} type="button" className="weak-phase" disabled={!n} onClick={() => go('puzzles/phase/' + ph.key)} aria-label={`Train your ${ph.title.toLowerCase()} mistakes (${n})`}>
+                    <i style={{ background: ph.color }} />
+                    <b>{pct(n, list.length)}%</b>
+                    <span>{ph.title}</span>
+                    {ph.sub && <em>{ph.sub}</em>}
+                  </button>
+                )
+              })}
+            </div>
+          </div>
+
+          <div className="weak-list">
+            {rows.map((r) => {
+              const on = open === r.key
+              return (
+                <div key={r.key} className={`weak-item${on ? ' on' : ''}`}>
+                  <button type="button" className="weak-line" aria-expanded={on} onClick={() => setOpen(on ? null : r.key)}>
+                    <i style={{ background: r.color }} aria-hidden="true" />
+                    <b>{r.title}</b>
+                    <span className="count">{r.n}</span>
+                    <span className="chev" aria-hidden="true">›</span>
+                  </button>
+                  {on && (
+                    <div className="weak-more">
+                      <p className="note">{r.rule}</p>
+                      <div className="row">
+                        <button type="button" onClick={() => go(r.train)}>Find the better move</button>
+                        {r.threat && <button type="button" onClick={() => go(r.threat!)}>What's the threat?</button>}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )
+            })}
+          </div>
+          <p className="note small">Grey = the position got 2+ pawns worse, but no material went in the next 4 moves. Hoppy sorts these by what the engine’s lines show.</p>
         </section>
       )}
     </div>

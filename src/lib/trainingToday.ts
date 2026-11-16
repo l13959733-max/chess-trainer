@@ -11,7 +11,7 @@ import { isDue, type SrsState } from './srs'
 import { dayNumber, loadResults as loadThreat } from './threatcheck'
 import { loadPlan, loadResults, today, type DayPlan } from './trainingPath'
 import { nextCity } from './travel'
-import { CATEGORY } from './weakness'
+import { CATEGORY, type Category } from './weakness'
 import type { Line } from './pgn'
 
 export interface PuzzleSets {
@@ -50,13 +50,23 @@ export function forgetBackToTraining() {
 
 export const mineOf = (puzzles: Puzzle[], player: string) => puzzles.filter((p) => p.source !== 'bot' && (p.player ?? USERNAME) === player)
 
-// Own chess.com mistakes for the path: due ones first, then the newest
+// Own chess.com mistakes for the path. Lu, 16.11.: "mein Training soll mich automatisch zu meinen Schwächen führen" –
+// mistakes of your biggest weakness first (the kind you make most often, as on "My weaknesses"), then due ones,
+// then the newest. The level is named after its kind.
+export function weakestKind(puzzles: Puzzle[]): Category | undefined {
+  const counts = new Map<Category, number>()
+  for (const p of puzzles) if (p.category && p.category !== 'other') counts.set(p.category, (counts.get(p.category) ?? 0) + 1)
+  return [...counts].sort((a, b) => b[1] - a[1])[0]?.[0]
+}
+
 export function redCandidates(puzzles: PuzzleSets, player: string) {
   const due = new Set(puzzles.due.map((p) => p.id))
   const fresh = new Set(puzzles.fresh.map((p) => p.id))
-  return mineOf(puzzles.puzzles, player)
+  const mine = mineOf(puzzles.puzzles, player)
+  const weak = weakestKind(mine)
+  return mine
     .filter((p) => due.has(p.id) || fresh.has(p.id))
-    .sort((a, b) => Number(due.has(b.id)) - Number(due.has(a.id)) || b.endTime - a.endTime)
+    .sort((a, b) => Number(b.category === weak) - Number(a.category === weak) || Number(due.has(b.id)) - Number(due.has(a.id)) || b.endTime - a.endTime)
     .map((p) => ({ id: p.id, title: p.category ? CATEGORY[p.category].title : 'Your game' }))
 }
 

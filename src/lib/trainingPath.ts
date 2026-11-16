@@ -38,7 +38,7 @@ export interface PlanInput {
 export const RED_PER_DAY = 2
 
 export function buildPlan(p: PlanInput): DayPlan {
-  const red = p.mistakes.slice(0, RED_PER_DAY).map<Level>((m) => ({ key: 'mistake:' + m.id, kind: 'mistake', title: 'Your game', route: 'mistake/' + encodeURIComponent(m.id), red: true }))
+  const red = p.mistakes.slice(0, RED_PER_DAY).map<Level>((m) => ({ key: 'mistake:' + m.id, kind: 'mistake', title: m.title, route: 'mistake/' + encodeURIComponent(m.id), red: true }))
   // the day starts with the Daily Threat Check: short, the same habit every day (check the threat first)
   const levels: Level[] = [{ key: 'threat', kind: 'threat', title: 'Daily Threat Check', route: 'threat-check' }]
   if (p.linesDue > 0) levels.push({ key: 'lines', kind: 'lines', title: 'Due lines', route: 'review' })
@@ -54,7 +54,7 @@ export function buildPlan(p: PlanInput): DayPlan {
 // After the chess.com check: put today's red levels into a plan that has none yet
 export function addRed(plan: DayPlan, mistakes: { id: string; title: string }[]): DayPlan {
   if (plan.levels.some((l) => l.red) || !mistakes.length) return plan
-  const red = mistakes.slice(0, RED_PER_DAY).map<Level>((m) => ({ key: 'mistake:' + m.id, kind: 'mistake', title: 'Your game', route: 'mistake/' + encodeURIComponent(m.id), red: true }))
+  const red = mistakes.slice(0, RED_PER_DAY).map<Level>((m) => ({ key: 'mistake:' + m.id, kind: 'mistake', title: m.title, route: 'mistake/' + encodeURIComponent(m.id), red: true }))
   // after the lines and the lesson, before Square Rush (where a Lost battle stood)
   const levels = plan.levels.filter((l) => l.kind !== 'lost')
   const rush = levels.findIndex((l) => l.kind === 'rush')
