@@ -35,6 +35,14 @@ export function review(prev: SrsState, quality: number, now: number, mistakes = 
   return { ...prev, ef, interval, reps, due: now + interval * DAY, lastReviewed: now, lastMistakes: mistakes }
 }
 
+// Strict drill (BAUPLAN 35): a line played without a single rewind counts a little better – 20 % longer until it
+// comes back (only after a flawless round, i.e. quality 5)
+export const STRICT_BONUS = 1.2
+export function strictBonus(state: SrsState): SrsState {
+  const interval = Math.max(state.interval, Math.round(state.interval * STRICT_BONUS))
+  return { ...state, interval, due: state.lastReviewed + interval * DAY }
+}
+
 export function isDue(state: SrsState | undefined, now: number): boolean {
   return !!state && state.lastReviewed > 0 && state.due <= now
 }

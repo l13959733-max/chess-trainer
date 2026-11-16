@@ -10,6 +10,8 @@ import { feedback as fx } from '../lib/feedback'
 import { onDrillMoves, shareDrill, type Mover } from '../lib/live'
 import type { Line, LineMove } from '../lib/pgn'
 import { explanationText } from '../lib/speech'
+import { canRewind, rewindTo } from '../lib/rewind'
+import { rewindSound } from '../lib/rushFx'
 import { daysUntil, type SrsState } from '../lib/srs'
 import { go } from '../hooks/useHashRoute'
 import type { Reward } from '../hooks/useProgress'
@@ -23,13 +25,21 @@ type Feedback =
 
 interface Props {
   line: Line
-  onDone: (mistakes: number) => Promise<{ srs: SrsState; reward: Reward }>
+  onDone: (mistakes: number, strictClean?: boolean) => Promise<{ srs: SrsState; reward: Reward }>
   // Shown when the line is done (e.g. “Next due line”).
   after: (restart: () => void) => React.ReactNode
   progress?: string
 }
 
 const OPPONENT_DELAY = 550
+const STRICT_KEY = 'hoppy-drill-strict'
+function loadStrict(): boolean {
+  try {
+    return localStorage.getItem(STRICT_KEY) === '1'
+  } catch {
+    return false
+  }
+}
 
 // Drill mode: Lu plays their side, the app plays the opponent's moves.
 export function Drill({ line, onDone, after, progress }: Props) {
@@ -42,6 +52,14 @@ export function Drill({ line, onDone, after, progress }: Props) {
   const [lastBy, setLastBy] = useState<(Mover & { san: string }) | null>(null)
   const timer = useRef<number | undefined>(undefined)
   const recorded = useRef(false)
+  // Strict (BAUPLAN 35, a try – Lu decides after testing): after a mistake and the right move, back 3 own moves
+  const [strict, setStrict] = useState(loadStrict)
+  const [resets, setResets] = useState<Map<number, number>>(new Map())
+  const [rewinding, setRewinding] = useState(false)
+  const [rewound, setRewound] = useState(0) // how often today's round went back
+  const [streak, setStreak] = useState(0) // right own moves in a row
+  const [furthest, setFurthest] = useState(0)
+  const [rewindNote, setRewindNote] = useState<string | null>(null)
 
   const finished = isFinished(line, ply)
   const current = line.moves[ply]
@@ -57,29 +75,44 @@ export function Drill({ line, onDone, after, progress }: Props) {
     setReward(null)
     setReview(null)
     setLastBy(null)
+    setResets(new Map())
+    setRewinding(false)
+    setRewound(0)
+    setStreak(0)
+    setFurthest(0)
+    setRewindNote(null)
   }, [])
+  function toggleStrict() {
+    const next = !strict
+    setStrict(next)
+    try {
+      localStorage.setItem(STRICT_KEY, next ? '1' : '0')
+    } catch {
+      // only for this visit
+    }
+  }
 
   // Play the opponent's move automatically
   useEffect(() => {
-    if (finished || !current || current.color === line.side) return
+    if (finished || rewinding || !current || current.color === line.side) return
     timer.current = window.setTimeout(() => {
       fx.move(current.san, false)
       setPly((p) => p + 1)
       if (current.comment) setFeedback({ kind: 'info', move: current, ply })
     }, ply === 0 ? 300 : OPPONENT_DELAY)
     return () => window.clearTimeout(timer.current)
-  }, [ply, finished, current, line.side])
+  }, [ply, finished, current, line.side, rewinding])
 
   // Line done → update the review schedule (once)
   useEffect(() => {
     if (!finished || recorded.current || ply < firstPlayerPly(line)) return
     recorded.current = true
     fx.success()
-    onDone(mistakePlies.size).then(({ srs, reward }) => {
+    onDone(mistakePlies.size, strict && rewound === 0 && mistakePlies.size === 0).then(({ srs, reward }) => {
       setNextDays(daysUntil(srs, Date.now()))
       setReward(reward)
     })
-  }, [finished, ply, line, mistakePlies, onDone])
+  }, [finished, ply, line, mistakePlies, onDone, strict, rewound])
 
   // The others in the watch room see this line as it is played
   const watched = useMemo(() => {
@@ -111,21 +144,48 @@ export function Drill({ line, onDone, after, progress }: Props) {
 
   // `by`: someone else in the watch room played it on their phone
   function onMove(from: string, to: string, by?: Mover): boolean {
-    if (!myTurn) return false
+    if (!myTurn || rewinding) return false
     const res = checkMove(current, from, to)
     if (res === 'illegal') return false
     if (res === 'wrong') {
       fx.wrong()
       setMistakePlies((s) => new Set(s).add(ply))
       setFeedback({ kind: 'wrong', tried: { from, to }, expected: current, ply, by })
+      setStreak(0)
       return false
     }
     fx.move(current.san)
     // after a wrong try the right move was shown – then it counts, but does not light up
+    const hadWrong = feedback?.kind === 'wrong' && feedback.ply === ply
     fx.glow(to, 'good', mistakePlies.has(ply))
     setFeedback(current.comment ? { kind: 'info', move: current, ply } : null)
     setLastBy(by ? { ...by, san: current.san } : null)
     setPly(ply + 1)
+    setFurthest((f) => Math.max(f, ply + 1))
+    setStreak((n) => (hadWrong ? 0 : n + 1))
+    // Strict: the right move after a mistake → the board goes back, the way there is played again from memory
+    const count = resets.get(ply) ?? 0
+    if (strict && hadWrong && canRewind(count)) {
+      const target = rewindTo(line.moves.map((m) => m.color), line.side, ply)
+      setResets((m) => new Map(m).set(ply, count + 1))
+      setRewound((n) => n + 1)
+      setRewinding(true)
+      let at = ply + 1
+      window.setTimeout(() => {
+        rewindSound()
+        setFeedback(null)
+        setRewindNote(target === 0 ? 'Back to move 1 – play the line again from memory.' : 'Back 3 moves – play the way there again from memory.')
+        const back = window.setInterval(() => {
+          at -= 1
+          setPly(at)
+          if (at <= target) {
+            window.clearInterval(back)
+            setRewinding(false)
+          }
+        }, 160)
+      }, 700)
+    } else if (strict && hadWrong) setRewindNote('Twice back at this spot already – on we go.')
+    else if (rewindNote && !hadWrong) setRewindNote(null)
     return true
   }
 
@@ -166,6 +226,22 @@ export function Drill({ line, onDone, after, progress }: Props) {
         </div>
       </div>
 
+      <div className="strict-bar">
+        <button type="button" className={`strict-toggle${strict ? ' on' : ''}`} aria-pressed={strict} onClick={toggleStrict} disabled={rewinding}>
+          Strict {strict ? 'on' : 'off'}
+        </button>
+        {strict && (
+          <>
+            <span className="strict-track" aria-label={`${ply} of ${line.moves.length} moves`}>
+              <i className="far" style={{ width: `${(100 * furthest) / line.moves.length}%` }} />
+              <i style={{ width: `${(100 * ply) / line.moves.length}%` }} />
+            </span>
+            <span className="strict-streak" title="Right moves in a row">🔥 {streak}</span>
+          </>
+        )}
+      </div>
+      {strict && rewindNote && !finished && <p className={`strict-note${rewinding ? ' going' : ''}`} aria-live="polite">⏪ {rewindNote}</p>}
+
       <Board fen={boardFen} orientation={line.side === 'w' ? 'white' : 'black'} onMove={finished ? undefined : onMove} arrows={finished ? [] : arrows} squareStyles={boardStyles} />
       {/* Lu, 13.11.: the real name of the position, live under the board */}
       <p className="opening-now" aria-live="polite">{nameAt(line, finished && review !== null ? review : ply) ?? lineName(line) ?? ''}</p>
@@ -201,7 +277,9 @@ export function Drill({ line, onDone, after, progress }: Props) {
       {finished && (
         <div className="done">
           <Mascot mood="cheer" />
-          <div className="done-title">{mistakes === 0 ? 'Perfect!' : mistakes === 1 ? 'Well done!' : 'You did it!'}</div>
+          <div className="done-title">{strict && mistakes === 0 && rewound === 0 ? 'Clean run!' : mistakes === 0 ? 'Perfect!' : mistakes === 1 ? 'Well done!' : 'You did it!'}</div>
+          {strict && mistakes === 0 && rewound === 0 && <p>You remembered the whole order – no step back. It comes back a little later.</p>}
+          {strict && rewound > 0 && <p>{rewound === 1 ? 'One step back' : `${rewound} steps back`} – next time the whole line in one go.</p>}
           {reward && <Celebrate reward={reward} />}
           {nextDays !== null && <p>Next review: {nextDays <= 1 ? 'tomorrow' : `in ${nextDays} days`}</p>}
           <div className="done-actions">{after(restart)}</div>

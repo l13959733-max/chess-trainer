@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import * as store from '../lib/db'
 import { parsePgn, type Line } from '../lib/pgn'
 import { builtinLines } from '../lib/repertoire'
-import { newState, qualityFromMistakes, review, type SrsState } from '../lib/srs'
+import { newState, qualityFromMistakes, review, strictBonus, type SrsState } from '../lib/srs'
 
 export function useRepertoire() {
   const [imports, setImports] = useState<store.ImportRecord[]>([])
@@ -34,9 +34,11 @@ export function useRepertoire() {
   }, [imports])
 
   const recordDrill = useCallback(
-    async (lineId: string, mistakes: number) => {
+    async (lineId: string, mistakes: number, strictClean = false) => {
       const now = Date.now()
-      const next = review(srs.get(lineId) ?? newState(lineId), qualityFromMistakes(mistakes), now, mistakes)
+      const graded = review(srs.get(lineId) ?? newState(lineId), qualityFromMistakes(mistakes), now, mistakes)
+      // a clean Strict round (no mistake, no rewind) counts a little better (BAUPLAN 35)
+      const next = strictClean && mistakes === 0 ? strictBonus(graded) : graded
       setSrs((m) => new Map(m).set(lineId, next))
       await store.putSrs(next)
       return next

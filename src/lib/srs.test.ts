@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { daysUntil, isDue, lineResult, newState, qualityFromMistakes, review } from './srs'
+import { daysUntil, isDue, lineResult, newState, qualityFromMistakes, review, strictBonus } from './srs'
 
 const DAY = 86_400_000
 const T0 = Date.UTC(2026, 9, 29)
@@ -51,5 +51,17 @@ describe('lineResult', () => {
   it('the latest drill counts: mistakes then a perfect run shows perfect', () => {
     const s = review(review(newState('x'), 1, T0, 3), 5, T0 + DAY, 0)
     expect(lineResult(s, T0 + DAY).kind).toBe('perfect')
+  })
+})
+
+describe('strict bonus (BAUPLAN 35)', () => {
+  it('a clean Strict round comes back 20 % later', () => {
+    const s = { lineId: 'x', ef: 2.5, interval: 10, reps: 3, due: 0, lastReviewed: 1000, lastMistakes: 0 }
+    const b = strictBonus(s)
+    expect(b.interval).toBe(12)
+    expect(b.due).toBe(1000 + 12 * 86_400_000)
+  })
+  it('a 1-day interval stays at least 1 day', () => {
+    expect(strictBonus({ lineId: 'x', ef: 2.5, interval: 1, reps: 1, due: 0, lastReviewed: 0, lastMistakes: 0 }).interval).toBe(1)
   })
 })

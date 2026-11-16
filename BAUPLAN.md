@@ -333,7 +333,7 @@ Lu hat gemerkt: Highscore + Belohnung + Töne motivieren ihn wie in großen Apps
   Drohung. Darum zählt Puzzle Rush nicht für „sichere Züge in %“ und ersetzt Threat Check nicht – es ist das Spaß-Extra obendrauf.
 - Prüfen: Vitest für Punkte/Leben/Zeit-Logik (`src/lib/puzzleRush.test.ts`), beide Looks ansehen, am Handy in der Vorschau.
 
-### [ ] 35. IDEE (erst testen, Lu entscheidet): Eröffnungs-Drill mit Zurücksetzen bei Fehler (Lu, 16.11. nachts)
+### [~] 35. IDEE (erst testen, Lu entscheidet): Eröffnungs-Drill mit Zurücksetzen bei Fehler (Lu, 16.11. nachts) – als Versuch gebaut 16.11. (Vorschau, Schalter „Strict“ im Drill, Standard aus; Lu entscheidet, ob er bleibt)
 Lu: „beim Nachspielen … wenn man einen Fehler macht, zurückgesetzt ein paar Schritte. Nicht auf Zeit, aber man muss sich
 wieder an die Reihenfolge genau erinnern.“ – Erst als Versuch bauen, Lu probiert es und sagt, ob es bleibt.
 - Heute (`src/screens/Drill.tsx`): falscher Zug → rot, richtiger Zug + Erklärung, dann geht es an derselben Stelle weiter.

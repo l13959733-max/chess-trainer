@@ -1211,3 +1211,16 @@
 .pr-end-btns { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; }
 .rush-btn.ghost { background: #2c323c; box-shadow: 0 4px 0 #14171c; }
 .dly-quick { grid-template-columns: repeat(2, 1fr); }
+
+/* Strict drill (BAUPLAN 35, a try): switch, line progress (light = furthest so far), streak, the rewind note */
+.strict-bar { display: flex; align-items: center; gap: 10px; margin: 2px 0 6px; }
+.strict-toggle { min-height: 0; padding: 6px 12px; border-radius: 99px; font-size: 13px; font-weight: 900; text-transform: none; letter-spacing: 0; }
+.strict-toggle.on { background: #8a5cf6; color: #fff; border-color: #6a3fd6; }
+.strict-track { position: relative; flex: 1; height: 10px; border-radius: 99px; background: #ece8f2; overflow: hidden; }
+.strict-track i { position: absolute; left: 0; top: 0; bottom: 0; border-radius: 99px; background: #58cc02; transition: width .15s; }
+.strict-track i.far { background: #c9eeae; }
+.strict-streak { font-weight: 900; font-variant-numeric: tabular-nums; }
+.strict-note { margin: 0 0 6px; padding: 8px 12px; border-radius: 12px; background: #f1ebff; color: #4b2aa6; font-weight: 800; }
+.strict-note.going { animation: strict-pulse .5s ease-in-out infinite alternate; }
+@keyframes strict-pulse { to { background: #e2d6ff; } }
+@media (prefers-reduced-motion: reduce) { .strict-note.going { animation: none; } .strict-track i { transition: none; } }

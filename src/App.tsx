@@ -139,7 +139,7 @@ function App() {
       <Drill
         key={line.id}
         line={line}
-        onDone={async (m) => ({ srs: await rep.recordDrill(line.id, m), reward: await progress.recordDrill(m) })}
+        onDone={async (m, clean) => ({ srs: await rep.recordDrill(line.id, m, clean), reward: await progress.recordDrill(m) })}
         after={(restart) => (
           <>
             <button type="button" onClick={restart}>Again</button>
@@ -270,7 +270,7 @@ function Surprise({ rep, progress, side }: { rep: ReturnType<typeof useRepertoir
       key={`${line.id}/${count}`}
       line={line}
       progress={`Surprise ${count}`}
-      onDone={async (m) => ({ srs: await rep.recordDrill(line.id, m), reward: await progress.recordDrill(m) })}
+      onDone={async (m, clean) => ({ srs: await rep.recordDrill(line.id, m, clean), reward: await progress.recordDrill(m) })}
       after={(restart) => (
         <>
           <button type="button" onClick={restart}>Again</button>
@@ -310,7 +310,7 @@ function Review({ rep, progress }: { rep: ReturnType<typeof useRepertoire>; prog
       key={line.id}
       line={line}
       progress={`${index + 1} of ${queue.length}`}
-      onDone={async (m) => ({ srs: await rep.recordDrill(line.id, m), reward: await progress.recordDrill(m) })}
+      onDone={async (m, clean) => ({ srs: await rep.recordDrill(line.id, m, clean), reward: await progress.recordDrill(m) })}
       after={(restart) => (
         <>
           <button type="button" onClick={restart}>Again</button>
@@ -476,7 +476,7 @@ function DailySession({ rep, puzzles, progress }: { rep: ReturnType<typeof useRe
         key={`${index}-${line.id}`}
         line={line}
         progress={label}
-        onDone={async (m) => ({ srs: await rep.recordDrill(line.id, m), reward: await progress.recordDrill(m) })}
+        onDone={async (m, clean) => ({ srs: await rep.recordDrill(line.id, m, clean), reward: await progress.recordDrill(m) })}
         after={() => <button type="button" className="primary" onClick={next}>{index + 1 < queue.length ? 'Next card' : 'Finish'}</button>}
       />
     )
