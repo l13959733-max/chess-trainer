@@ -8,14 +8,21 @@ describe('today’s path', () => {
     expect(buildPlan(base).levels.map((l) => l.kind)).toEqual(['threat', 'rush'])
   })
 
-  it('puts at most two own mistakes on the path, around the Threat Check', () => {
+  // Lu, 16.11.: the weakness block (own mistakes, then the focus exercise) comes right after the Threat Check
+  it('puts at most two own mistakes on the path, right after the Threat Check', () => {
     const p = buildPlan({ ...base, linesDue: 3, mistakes: [1, 2, 3].map((i) => ({ id: 'g' + i, title: 'Fork' })), lostDue: 5 })
-    expect(p.levels.map((l) => l.key)).toEqual(['threat', 'lines', 'mistake:g1', 'mistake:g2', 'rush'])
+    expect(p.levels.map((l) => l.key)).toEqual(['threat', 'mistake:g1', 'mistake:g2', 'lines', 'rush'])
     expect(p.levels.filter((l) => l.red)).toHaveLength(2)
   })
 
   it('uses a Lost battle when there is no own chess.com mistake', () => {
     expect(buildPlan({ ...base, lostDue: 2 }).levels[1].kind).toBe('lost')
+  })
+
+  it('the focus exercise for the weakest phase follows the own mistakes, before lines and lesson', () => {
+    const p = buildPlan({ ...base, linesDue: 1, mistakes: [{ id: 'g1', title: 'Middlegame · Fork' }], focus: { key: 'focus:armoury:defend', title: 'Middlegame · Hold the fort', route: 'armoury/defend' } })
+    expect(p.levels.map((l) => l.key)).toEqual(['threat', 'mistake:g1', 'focus:armoury:defend', 'lines', 'rush'])
+    expect(p.levels[1].title).toBe('Middlegame · Fork')
   })
 
   it('ends with treasure and boss', () => {
@@ -26,7 +33,7 @@ describe('today’s path', () => {
   it('adds red levels after the chess.com check, once', () => {
     const p = buildPlan({ ...base, linesDue: 1, lostDue: 2 })
     const q = addRed(p, [{ id: 'a', title: 'Pin' }, { id: 'b', title: 'Fork' }])
-    expect(q.levels.map((l) => l.key)).toEqual(['threat', 'lines', 'mistake:a', 'mistake:b', 'rush'])
+    expect(q.levels.map((l) => l.key)).toEqual(['threat', 'mistake:a', 'mistake:b', 'lines', 'rush'])
     expect(addRed(q, [{ id: 'c', title: 'Pin' }])).toBe(q)
   })
 

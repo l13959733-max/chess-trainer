@@ -12,6 +12,7 @@ import { getPlayer } from '../lib/chesscom'
 import { getGameRecords, getPuzzles, type GameRecord, type Puzzle } from '../lib/db'
 import { feedback as fx } from '../lib/feedback'
 import { earn } from '../lib/king'
+import { report } from '../lib/trainingPath'
 import { KBoard, OnePuzzle, type LPuzzle } from './King'
 import '../king.css'
 
@@ -144,7 +145,7 @@ function ShowMe({ t }: { t: Technique }) {
       <div className="done-actions">
         <button type="button" disabled={ply === 0} onClick={() => setPly(ply - 1)}>Back</button>
         {end ? (
-          <button type="button" className="primary" onClick={() => { saveArmoury(finishStage(loadArmoury(), t.id, 'show')); go('armoury/' + t.id) }}>Got it</button>
+          <button type="button" className="primary" onClick={() => { saveArmoury(finishStage(loadArmoury(), t.id, 'show')); report('focus:armoury:' + t.id, 1); go('armoury/' + t.id) }}>Got it</button>
         ) : (
           <button type="button" className="primary" onClick={() => { const n = positions[ply + 1]; fx.move(n.san, ply % 2 === 1); setPly(ply + 1) }}>Next move</button>
         )}
@@ -213,6 +214,8 @@ function RoundDone({ t, stage, ok, mistakes, hints, onRetry }: { t: Technique; s
     const b = medal(a[t.id])
     const next = ok ? finishStage(a, t.id, stage) : a
     saveArmoury(next)
+    // today's path (Lu, 16.11.): a finished round of this technique counts for its weakness level
+    if (ok) report('focus:armoury:' + t.id, mistakes === 0 && hints === 0 ? 3 : mistakes <= 1 ? 2 : 1)
     return { before: b, after: medal(next[t.id]) }
   })
   const won = after !== before ? after : null

@@ -11,7 +11,8 @@ import { isDue, type SrsState } from './srs'
 import { dayNumber, loadResults as loadThreat } from './threatcheck'
 import { loadPlan, loadResults, today, type DayPlan } from './trainingPath'
 import { nextCity } from './travel'
-import { CATEGORY, type Category } from './weakness'
+import { CATEGORY, phaseOf, type Category, type Phase } from './weakness'
+import { TECHNIQUES, isOpen, loadArmoury, medal, type Technique } from './armoury'
 import type { Line } from './pgn'
 
 export interface PuzzleSets {
@@ -50,24 +51,51 @@ export function forgetBackToTraining() {
 
 export const mineOf = (puzzles: Puzzle[], player: string) => puzzles.filter((p) => p.source !== 'bot' && (p.player ?? USERNAME) === player)
 
-// Own chess.com mistakes for the path. Lu, 16.11.: "mein Training soll mich automatisch zu meinen Schwächen führen" –
-// mistakes of your biggest weakness first (the kind you make most often, as on "My weaknesses"), then due ones,
-// then the newest. The level is named after its kind.
+// Own chess.com mistakes for the path. Lu, 16.11.: "wenn ich auf Training drücke, soll das Middlegame mit mir
+// trainiert werden – oder die Eröffnung, da wo meine Weaknesses sind": the phase where you made most mistakes is
+// your weakest; inside it, the kind you make most often. Mistakes from there come first, then due ones, then newest.
 export function weakestKind(puzzles: Puzzle[]): Category | undefined {
   const counts = new Map<Category, number>()
   for (const p of puzzles) if (p.category && p.category !== 'other') counts.set(p.category, (counts.get(p.category) ?? 0) + 1)
   return [...counts].sort((a, b) => b[1] - a[1])[0]?.[0]
 }
+export function weakestPhase(puzzles: Puzzle[]): Phase | undefined {
+  const counts = new Map<Phase, number>()
+  for (const p of puzzles) counts.set(phaseOf(p.fen), (counts.get(phaseOf(p.fen)) ?? 0) + 1)
+  return [...counts].sort((a, b) => b[1] - a[1])[0]?.[0]
+}
+export const PHASE_NAME: Record<Phase, string> = { opening: 'Opening', middlegame: 'Middlegame', endgame: 'Endgame' }
 
 export function redCandidates(puzzles: PuzzleSets, player: string) {
   const due = new Set(puzzles.due.map((p) => p.id))
   const fresh = new Set(puzzles.fresh.map((p) => p.id))
   const mine = mineOf(puzzles.puzzles, player)
-  const weak = weakestKind(mine)
+  const phase = weakestPhase(mine)
+  const weak = weakestKind(mine.filter((p) => phaseOf(p.fen) === phase))
+  const score = (p: Puzzle) => (phaseOf(p.fen) === phase ? 2 : 0) + (p.category === weak ? 1 : 0)
   return mine
     .filter((p) => due.has(p.id) || fresh.has(p.id))
-    .sort((a, b) => Number(b.category === weak) - Number(a.category === weak) || Number(due.has(b.id)) - Number(due.has(a.id)) || b.endTime - a.endTime)
-    .map((p) => ({ id: p.id, title: p.category ? CATEGORY[p.category].title : 'Your game' }))
+    .sort((a, b) => score(b) - score(a) || Number(due.has(b.id)) - Number(due.has(a.id)) || b.endTime - a.endTime)
+    .map((p) => ({ id: p.id, title: (phase && phaseOf(p.fen) === phase ? PHASE_NAME[phase] + ' · ' : '') + (p.category ? CATEGORY[p.category].title : 'Your game') }))
+}
+
+// One exercise for the weakest phase, from what the app already has: middlegame = the Armoury technique that
+// belongs to your most frequent kind of mistake there, endgame = the next endgame technique, opening = a round of
+// your own opening mistakes. Techniques with gold are done; locked ones are skipped.
+export function focusExercise(puzzles: Puzzle[]): { key: string; title: string; route: string } | undefined {
+  const phase = weakestPhase(puzzles)
+  if (!phase) return undefined
+  if (phase === 'opening') return { key: 'focus:phase:opening', title: 'Opening · your opening mistakes', route: 'puzzles/phase/opening' }
+  const arm = loadArmoury()
+  const free = (t: Technique) => isOpen(t, arm) && medal(arm[t.id]) !== 'gold'
+  let t: Technique | undefined
+  if (phase === 'endgame') t = TECHNIQUES.find((x) => x.kind === 'end' && free(x))
+  else {
+    const weak = weakestKind(puzzles.filter((p) => phaseOf(p.fen) === 'middlegame'))
+    t = TECHNIQUES.find((x) => x.kind !== 'end' && free(x) && !!weak && !!x.real?.includes(weak)) ?? TECHNIQUES.find((x) => x.kind !== 'end' && free(x))
+  }
+  if (!t) return { key: 'focus:phase:' + phase, title: `${PHASE_NAME[phase]} · your ${phase} mistakes`, route: 'puzzles/phase/' + phase }
+  return { key: 'focus:armoury:' + t.id, title: `${PHASE_NAME[phase]} · ${t.name}`, route: 'armoury/' + t.id }
 }
 
 export function planInput(lines: Line[], srs: Map<string, SrsState>, puzzles: PuzzleSets, player: string) {
@@ -88,6 +116,7 @@ export function planInput(lines: Line[], srs: Map<string, SrsState>, puzzles: Pu
     lostDue: [...puzzles.due, ...puzzles.fresh].filter((p) => !redIds.has(p.id)).length,
     treasure: pickOfDay(winning)?.id,
     boss: next ? { city: next.id, name: next.boss.name } : undefined,
+    focus: focusExercise(mineOf(puzzles.puzzles, player)),
   }
 }
 

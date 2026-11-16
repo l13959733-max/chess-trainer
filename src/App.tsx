@@ -166,7 +166,7 @@ function App() {
       return progress.recordGame(score)
     }
     body = <Play key={`${id ?? ''}/${arg ?? ''}`} mode={mode} lines={rep.lines} player={player} onGame={onGame} onPuzzlesFound={() => setBotFound((n) => n + 1)} />
-  } else if (page === 'puzzles') body = <PuzzleSession key={(id ?? 'all') + (arg ?? '')} puzzles={puzzles} progress={progress} filter={weaknessFilter(id, arg)} />
+  } else if (page === 'puzzles') body = <PuzzleSession key={(id ?? 'all') + (arg ?? '')} puzzles={puzzles} progress={progress} filter={weaknessFilter(id, arg)} doneKey={id === 'phase' && arg ? 'focus:phase:' + arg : undefined} />
   else if (page === 'threats') body = <ThreatSession key={(id ?? 'all') + (arg ?? '')} puzzles={puzzles} progress={progress} category={id && id in CATEGORY ? (id as Category) : undefined} games={id === 'games' ? arg?.split(',') : undefined} />
   else if (page === 'afterwards') body = <Afterwards />
   else if (page === 'armoury') body = <ArmouryScreen key={(id ?? '') + '/' + (arg ?? '')} id={id} stage={arg} />
@@ -345,13 +345,19 @@ function weaknessFilter(id?: string, arg?: string): ((p: Puzzle) => boolean) | u
   return undefined
 }
 
-function PuzzleSession({ puzzles, progress, filter }: { puzzles: ReturnType<typeof usePuzzles>; progress: ReturnType<typeof useProgress>; filter?: (p: Puzzle) => boolean }) {
+function PuzzleSession({ puzzles, progress, filter, doneKey }: { puzzles: ReturnType<typeof usePuzzles>; progress: ReturnType<typeof useProgress>; filter?: (p: Puzzle) => boolean; doneKey?: string }) {
   const category = !!filter
   const [queue] = useState(() =>
     filter ? sessionQueue(puzzles, 'p:', filter) : [...puzzles.due, ...puzzles.fresh.slice(0, NEW_PER_SESSION)].map((p) => p.id),
   )
   const [index, setIndex] = useState(0)
+  const [slips, setSlips] = useState(0)
   const puzzle = puzzles.puzzles.find((p) => p.id === queue[index])
+  // a round of one phase from today's path (Lu, 16.11.): the whole round done = the weakness level is done
+  const finished = !puzzle && queue.length > 0 && index >= queue.length
+  useEffect(() => {
+    if (finished && doneKey) report(doneKey, slips === 0 ? 3 : slips <= 2 ? 2 : 1)
+  }, [finished, doneKey, slips])
 
   if (!puzzle) {
     return (
@@ -382,7 +388,10 @@ function PuzzleSession({ puzzles, progress, filter }: { puzzles: ReturnType<type
       key={puzzle.id}
       puzzle={puzzle}
       progress={`${index + 1} of ${queue.length}`}
-      onSolved={async (m) => ({ srs: await puzzles.record(puzzle.id, m), reward: await progress.recordPuzzle(m) })}
+      onSolved={async (m) => {
+        setSlips((n) => n + m)
+        return { srs: await puzzles.record(puzzle.id, m), reward: await progress.recordPuzzle(m) }
+      }}
       onNext={() => setIndex(index + 1)}
       isLast={index + 1 >= queue.length}
     />

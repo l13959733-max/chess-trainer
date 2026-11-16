@@ -96,7 +96,14 @@ export function Weaknesses({ puzzles, player }: { puzzles: Puzzles; player: stri
             <span>
               Your biggest weakness: <b>{CATEGORY[top[0]].title}</b> ({pct(top[1], sortedTotal)}% of your mistakes). The rule: <b>{CATEGORY[top[0]].rule}</b>
               {/* Lu, 16.11.: the button leads to Training – today's path brings your weakness by itself */}
-              <button type="button" className="primary wide weak-go" onClick={() => go('tent')}>Train in today’s path ›</button>
+              <button type="button" className="primary wide weak-go" onClick={() => {
+                  try {
+                    sessionStorage.setItem('hoppy-train-weakness', '1') // Training jumps to the weakness block
+                  } catch {
+                    // Training opens at the top
+                  }
+                  go('tent')
+                }}>Train in today’s path ›</button>
             </span>
           </div>
         )

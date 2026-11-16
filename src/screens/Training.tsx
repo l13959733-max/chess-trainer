@@ -58,6 +58,7 @@ const INFO: Record<LevelKind, string> = {
   rush: '60 seconds. Tap the right square as often as you can.',
   treasure: 'You were winning in this position. Now win it against Hoppy-Bot.',
   boss: 'The boss of this chapter.',
+  focus: 'Training for your weakest phase – the part of the game where Hoppy found most of your mistakes.',
 }
 const RULES: Record<LevelKind, [string, string, string] | null> = {
   lines: ['Done', 'One mistake', 'No mistake'],
@@ -68,6 +69,7 @@ const RULES: Record<LevelKind, [string, string, string] | null> = {
   rush: ['150 points', '450 points', '900 points'],
   treasure: ['Played it', 'A draw', 'Won it'],
   boss: null,
+  focus: ['Done', 'One mistake', 'No mistake, no hint'],
 }
 // at most two names on a card, the rest as "+N"
 const shortList = (names: string[]) => names.slice(0, 2).join(' · ') + (names.length > 2 ? ` +${names.length - 2}` : '')
@@ -82,6 +84,7 @@ function sayFor(l: LevelView, linesDue: number, city?: string): string {
     case 'rush': return '60 seconds. Find the squares!'
     case 'treasure': return 'You were winning here. Win it!'
     case 'boss': return 'The boss is waiting.'
+    case 'focus': return `Your weak spot: ${l.title}. Let's train it!`
   }
 }
 // Praise with information (LERNKONZEPT): only what the stars really say
@@ -96,6 +99,7 @@ function praise(l: LevelView): string {
     case 'rush': return `Square Rush: ${s} ${s === 1 ? 'star' : 'stars'}.`
     case 'treasure': return s === 3 ? 'You won it!' : s === 2 ? 'A draw – next time win it.' : 'Played. Winning positions need care to the end.'
     case 'boss': return 'Boss beaten!'
+    case 'focus': return s === 3 ? 'No mistake – your weak spot got a bit stronger.' : 'Done. It comes back, so it sticks.'
   }
 }
 
@@ -217,6 +221,23 @@ export function Training({ rep, progress, puzzles, player, analyzer }: { rep: Re
   const { canvas, burst } = useGlitter()
 
   useEffect(() => forgetBackToTraining(), [])
+  // from "My weaknesses" (Lu, 16.11.): straight to the weakness block of today's path, Hoppy says what it trains
+  useEffect(() => {
+    let jump = false
+    try {
+      jump = !!sessionStorage.getItem('hoppy-train-weakness')
+      sessionStorage.removeItem('hoppy-train-weakness')
+    } catch {
+      // no jump
+    }
+    if (!jump) return
+    const first = levels.find((l) => l.red || l.kind === 'focus')
+    const phase = levels.find((l) => l.kind === 'focus')?.title.split(' · ')[0]
+    setSay(first ? `Here is your weak spot${phase ? `: the ${phase.toLowerCase()}` : ''}. Level ${first.n} – let's go!` : 'No weakness levels today – Hoppy needs your checked games first.')
+    // no clean-up: the flag is read once, the jump must happen even when React runs the effect twice (dev)
+    setTimeout(() => document.querySelector('.trn .lvl.weak')?.scrollIntoView({ block: 'center', behavior: 'smooth' }), 300)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   // the plan of today: built once, later only the red levels can join (puzzles load after the page)
   const { lines, srs } = rep
@@ -488,7 +509,7 @@ function Path({ levels, fresh, say, shake, onOpen, sayFor }: { levels: LevelView
           <button
             key={l.key}
             type="button"
-            className={`lvl${l.lock ? ' lock' : ''}${l.now ? ' now' : ''}${l.kind === 'treasure' ? ' sun' : ''}${l.kind === 'boss' ? ' boss' : ''}${l.red ? ' red' : ''}`}
+            className={`lvl${l.lock ? ' lock' : ''}${l.now ? ' now' : ''}${l.kind === 'treasure' ? ' sun' : ''}${l.kind === 'boss' ? ' boss' : ''}${l.red || l.kind === 'focus' ? ' red' : ''}${l.kind === 'focus' || l.red ? ' weak' : ''}`}
             style={{ left: p.x, top: p.y }}
             onClick={() => onOpen(l)}
             aria-label={`Level ${l.n}: ${l.title}${l.stars !== null ? `, ${l.stars} stars` : l.lock ? ', locked' : ''}`}
