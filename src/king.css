@@ -1120,3 +1120,13 @@
 .jr-donut-in { display: grid; grid-template-columns: 130px 1fr; gap: 14px; align-items: center; }
 .jr-donut-in > svg { max-width: 130px !important; }
 .jr-donut-in > .trn-empty { grid-column: 1 / -1; }
+
+/* ring chart (components/RingChart.tsx) – like "Mistakes by type" in Training, usable on every page */
+.ring-chart { display: grid; grid-template-columns: 124px 1fr; gap: 16px; align-items: center; margin: 6px 0 4px; }
+.ring-chart svg { width: 124px; height: 124px; display: block; }
+.ring-legend { display: grid; gap: 6px; font-size: 14px; font-weight: 800; }
+.ring-legend div { display: flex; align-items: center; gap: 7px; min-width: 0; }
+.ring-legend i { width: 10px; height: 10px; border-radius: 50%; flex: none; }
+.ring-legend em { font-style: normal; line-height: 1.2; }
+.ring-legend em small { display: block; font-size: 11.5px; font-weight: 700; color: #8a849c; }
+.ring-legend span { margin-left: auto; font-variant-numeric: tabular-nums; }

@@ -1,4 +1,5 @@
 import { useMemo } from 'react'
+import { RingChart } from '../components/RingChart'
 import { Mascot } from '../components/Mascot'
 import { go } from '../hooks/useHashRoute'
 import type { Puzzles } from '../hooks/usePuzzles'
@@ -110,15 +111,8 @@ export function Weaknesses({ puzzles, player }: { puzzles: Puzzles; player: stri
       {list.length > 0 && (
         <section className="play-card">
           <div className="label">Where your mistakes happen</div>
-          {PHASES.map((ph) => (
-            <div key={ph.key} className="weak-row">
-              <div className="weak-head">
-                <b>{ph.title}</b>
-                <span className="count">{phases.get(ph.key) ?? 0} · {pct(phases.get(ph.key) ?? 0, list.length)}%</span>
-              </div>
-              <div className="bar"><span style={{ width: `${pct(phases.get(ph.key) ?? 0, list.length)}%` }} /></div>
-            </div>
-          ))}
+          {/* Lu, 15.11.: as a ring chart like in Training instead of bars */}
+          <RingChart parts={PHASES.map((ph) => [ph.title, phases.get(ph.key) ?? 0] as [string, number])} center={list.length} sub="mistakes" label={`Where your mistakes happen: ${PHASES.map((ph) => `${ph.title} ${pct(phases.get(ph.key) ?? 0, list.length)}%`).join(', ')}`} />
           <p className="note small">Few endgame mistakes usually means few endgames: most of your games are decided earlier. Converting a won position is trained under “Win it”.</p>
         </section>
       )}
