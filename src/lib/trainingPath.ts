@@ -6,7 +6,7 @@
 // Where a screen knows nothing about threats (lines, puzzles) ★★★ = no mistake at all.
 import { dateKey } from './progress'
 
-export type LevelKind = 'lines' | 'lesson' | 'mistake' | 'threat' | 'rush' | 'lost' | 'treasure' | 'boss' | 'focus'
+export type LevelKind = 'lines' | 'lesson' | 'mistake' | 'threat' | 'rush' | 'lost' | 'treasure' | 'boss' | 'focus' | 'workout'
 
 export interface Level {
   key: string // what a result is stored under, e.g. 'threat', 'mistake:<puzzle id>', 'boss:rome'
@@ -25,7 +25,8 @@ export interface DayPlan {
 // 2: the Daily Threat Check is always level 1 (Lu, 13.11.: "das kann vom Daily ausgehen")
 // 3: the weakness block (Lu, 16.11.): right after the threat check two mistakes of your weakest phase and kind,
 //    then one exercise for that phase (focus)
-export const PLAN_VERSION = 3
+// 4: the weakness workout (Lu, 16.11.): one level with all your kinds of mistakes instead of two single ones
+export const PLAN_VERSION = 4
 
 export interface PlanInput {
   date: string
@@ -36,6 +37,7 @@ export interface PlanInput {
   treasure?: string // a winning position to play out
   boss?: { city: string; name: string }
   focus?: { key: string; title: string; route: string } // the exercise for your weakest phase
+  workout?: number // tasks in today's weakness workout (0 / missing = no own mistakes yet)
 }
 
 export const RED_PER_DAY = 2
@@ -45,7 +47,8 @@ export function buildPlan(p: PlanInput): DayPlan {
   // the day starts with the Daily Threat Check: short, the same habit every day (check the threat first)
   const levels: Level[] = [{ key: 'threat', kind: 'threat', title: 'Daily Threat Check', route: 'threat-check' }]
   // your weaknesses first (Lu, 16.11.: "wenn ich auf Training drücke, soll das Middlegame mit mir trainiert werden")
-  if (red[0]) levels.push(...red)
+  if (p.workout) levels.push(workoutLevel(p.workout))
+  else if (red[0]) levels.push(...red)
   else if (p.lostDue > 0) levels.push({ key: 'lost', kind: 'lost', title: 'Lost battle', route: 'puzzles' })
   if (p.focus) levels.push({ key: p.focus.key, kind: 'focus', title: p.focus.title, route: p.focus.route })
   if (p.linesDue > 0) levels.push({ key: 'lines', kind: 'lines', title: 'Due lines', route: 'review' })
@@ -57,8 +60,16 @@ export function buildPlan(p: PlanInput): DayPlan {
 }
 
 // After the chess.com check: put today's red levels into a plan that has none yet
-export function addRed(plan: DayPlan, mistakes: { id: string; title: string }[]): DayPlan {
-  if (plan.levels.some((l) => l.red) || !mistakes.length) return plan
+const workoutLevel = (n: number): Level => ({ key: 'workout', kind: 'workout', title: `Weakness workout · ${n} tasks`, route: 'workout', red: true })
+
+export function addRed(plan: DayPlan, mistakes: { id: string; title: string }[], workout = 0): DayPlan {
+  if (plan.levels.some((l) => l.red)) return plan
+  if (workout > 0) {
+    const levels = plan.levels.filter((l) => l.kind !== 'lost')
+    levels.splice(levels.findIndex((l) => l.kind === 'threat') + 1, 0, workoutLevel(workout))
+    return { ...plan, levels }
+  }
+  if (!mistakes.length) return plan
   const red = mistakes.slice(0, RED_PER_DAY).map<Level>((m) => ({ key: 'mistake:' + m.id, kind: 'mistake', title: m.title, route: 'mistake/' + encodeURIComponent(m.id), red: true }))
   // right after the Daily Threat Check, where the weakness block starts (a Lost battle stood there before)
   const levels = plan.levels.filter((l) => l.kind !== 'lost')

@@ -13,6 +13,7 @@ import { loadPlan, loadResults, today, type DayPlan } from './trainingPath'
 import { nextCity } from './travel'
 import { CATEGORY, phaseOf, type Category, type Phase } from './weakness'
 import { TECHNIQUES, isOpen, loadArmoury, medal, type Technique } from './armoury'
+import { WORKOUT_SIZE } from './workout'
 import type { Line } from './pgn'
 
 export interface PuzzleSets {
@@ -117,6 +118,7 @@ export function planInput(lines: Line[], srs: Map<string, SrsState>, puzzles: Pu
     treasure: pickOfDay(winning)?.id,
     boss: next ? { city: next.id, name: next.boss.name } : undefined,
     focus: focusExercise(mineOf(puzzles.puzzles, player)),
+    workout: Math.min(WORKOUT_SIZE, mineOf(puzzles.puzzles, player).filter((p) => !!p.category).length),
   }
 }
 

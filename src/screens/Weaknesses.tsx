@@ -138,30 +138,29 @@ export function Weaknesses({ puzzles, player }: { puzzles: Puzzles; player: stri
             </div>
           </div>
 
-          <div className="weak-list">
-            {rows.map((r) => {
-              const on = open === r.key
-              return (
-                <div key={r.key} className={`weak-item${on ? ' on' : ''}`}>
-                  <button type="button" className="weak-line" aria-expanded={on} onClick={() => setOpen(on ? null : r.key)}>
-                    <i style={{ background: r.color }} aria-hidden="true" />
-                    <b>{r.title}</b>
-                    <span className="count">{r.n}</span>
-                    <span className="chev" aria-hidden="true">›</span>
-                  </button>
-                  {on && (
-                    <div className="weak-more">
-                      <p className="note">{r.rule}</p>
-                      <div className="row">
-                        <button type="button" onClick={() => go(r.train)}>Find the better move</button>
-                        {r.threat && <button type="button" onClick={() => go(r.threat!)}>What's the threat?</button>}
-                      </div>
-                    </div>
-                  )}
-                </div>
-              )
-            })}
+          {/* Lu, 16.11.: "der Überblick soll kleiner sein" – the kinds as small tiles in two columns; tap one for its
+              rule and its own training. Everything together is the weakness workout in Training. */}
+          <div className="weak-grid">
+            {rows.map((r) => (
+              <button key={r.key} type="button" className={`weak-tile${open === r.key ? ' on' : ''}`} aria-expanded={open === r.key} onClick={() => setOpen(open === r.key ? null : r.key)}>
+                <i style={{ background: r.color }} aria-hidden="true" />
+                <span>{r.title}</span>
+                <b>{r.n}</b>
+              </button>
+            ))}
           </div>
+          {(() => {
+            const r = rows.find((x) => x.key === open)
+            return r ? (
+              <div className="weak-more">
+                <p className="note"><b>{r.title}:</b> {r.rule}</p>
+                <div className="row">
+                  <button type="button" onClick={() => go(r.train)}>Find the better move</button>
+                  {r.threat && <button type="button" onClick={() => go(r.threat!)}>What's the threat?</button>}
+                </div>
+              </div>
+            ) : null
+          })()}
           <p className="note small">Grey = the position got 2+ pawns worse, but no material went in the next 4 moves. Hoppy sorts these by what the engine’s lines show.</p>
         </section>
       )}

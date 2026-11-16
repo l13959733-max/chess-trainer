@@ -25,6 +25,14 @@ describe('today’s path', () => {
     expect(p.levels[1].title).toBe('Middlegame · Fork')
   })
 
+  it('the weakness workout replaces the single mistakes, right after the Threat Check (Lu, 16.11.)', () => {
+    const p = buildPlan({ ...base, linesDue: 1, workout: 12, mistakes: [{ id: 'g1', title: 'Fork' }], focus: { key: 'focus:armoury:guard', title: 'Middlegame · The guard', route: 'armoury/guard' } })
+    expect(p.levels.map((l) => l.key)).toEqual(['threat', 'workout', 'focus:armoury:guard', 'lines', 'rush'])
+    expect(p.levels[1].title).toBe('Weakness workout · 12 tasks')
+    const later = addRed(buildPlan({ ...base, linesDue: 1 }), [{ id: 'a', title: 'Pin' }], 12)
+    expect(later.levels.map((l) => l.key)).toEqual(['threat', 'workout', 'lines', 'rush'])
+  })
+
   it('ends with treasure and boss', () => {
     const p = buildPlan({ ...base, treasure: 'x/1', boss: { city: 'barcelona', name: 'The Diagonal Bishop' } })
     expect(p.levels.slice(-2).map((l) => l.route)).toEqual(['play/puzzle/x%2F1', 'king/barcelona/boss'])

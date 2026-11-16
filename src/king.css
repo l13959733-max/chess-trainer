@@ -1167,3 +1167,18 @@
 .weak-phase b { font-size: 19px; font-weight: 900; }
 .weak-phase span { font-size: 13px; font-weight: 800; }
 .weak-phase em { font-style: normal; font-size: 10.5px; font-weight: 700; color: #8a849c; }
+
+/* 16.11. (Lu: "der Überblick soll kleiner sein"): the kinds of mistakes as small tiles, two columns */
+.weak-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-top: 4px; }
+.play-card .weak-tile { all: unset; box-sizing: border-box; display: flex; align-items: center; gap: 6px; padding: 7px 9px; border: 1.5px solid #ece8f2; border-radius: 12px; background: #fff; cursor: pointer; font-size: 12.5px; font-weight: 800; line-height: 1.15; min-width: 0; }
+.weak-tile.on { border-color: #8a5cf6; background: #f6f2ff; }
+.weak-tile:focus-visible { outline: 3px solid #2ea7f0; outline-offset: 2px; }
+.weak-tile i { width: 8px; height: 8px; border-radius: 50%; flex: none; }
+.weak-tile span { flex: 1; min-width: 0; }
+.weak-tile b { color: #8a849c; font-variant-numeric: tabular-nums; }
+.weak-grid + .weak-more { padding: 10px 2px 2px; }
+
+/* the weakness workout #/workout: what it is made of, as small chips */
+.wk-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.wk-chip { border: 1.5px solid #ece8f2; border-radius: 99px; padding: 5px 10px; font-size: 12.5px; font-weight: 700; background: #fff; }
+.wk-chip b { color: #8a5cf6; }
