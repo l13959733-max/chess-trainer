@@ -784,8 +784,9 @@ export const DRAGON_CFILE: QuizQuestion[] = [
 export const TENT_AT = { x: 1600, y: 485 }
 
 export const stationById = (id: string | undefined) => STATIONS.find((s) => s.id === id) ?? MIRROR.find((s) => s.id === id)
-// The Mirror World opens when Rome's boss is beaten: by then you know how to react with White
-export const mirrorOpen = (beaten: string[]) => beaten.includes('rome')
+// The Mirror World is open from the start (Lu, 22.11.: "ich kann noch gar nicht mit Schwarz spielen … frei zwischen den
+// Techniken hin und her springen"). Before, it opened after Rome's boss. The old rule is kept in the signature.
+export const mirrorOpen = (_beaten: string[]) => true
 
 // The journey is guided (Lu's rule): the cities lie in the fog and open one after another –
 // the main road first, then the other cities, Chennai last. A beaten city always stays open.
@@ -795,12 +796,10 @@ export function route(): string[] {
   return [...ROAD, ...rest, ...STATIONS.filter((x) => x.finale).map((x) => x.id)]
 }
 export function isOpen(s: Station, beaten: string[]): boolean {
-  const order = route()
-  const i = order.indexOf(s.id)
-  // the Mirror World is guided too: one shadow after another
-  const mi = MIRROR.indexOf(s)
-  if (mi >= 0) return mirrorOpen(beaten) && (beaten.includes(s.id) || MIRROR.slice(0, mi).every((m) => beaten.includes(m.id)))
-  return i < 0 || beaten.includes(s.id) || order.slice(0, i).every((id) => beaten.includes(id))
+  // Lu, 22.11.: every city is open – jump wherever you like. The route still suggests the next city (nextStation).
+  // Only the finale waits: Chennai opens when every other boss is beaten.
+  if (s.finale) return STATIONS.filter((x) => !x.finale).every((x) => beaten.includes(x.id))
+  return true
 }
 // The city whose boss opens this one (for "still in the fog" hints)
 export function opensAfter(s: Station, beaten: string[]): Station | undefined {

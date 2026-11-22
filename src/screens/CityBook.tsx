@@ -2,6 +2,7 @@ import { Fragment, useEffect, useLayoutEffect, useRef, useState, type CSSPropert
 import { flushSync } from 'react-dom'
 import { BottomBar } from '../components/BottomBar'
 import { ChapterPath, type ChapterLevel } from '../components/ChapterPath'
+import { ARENA_KEYS, keyOf } from '../lib/openingRush'
 import { go } from '../hooks/useHashRoute'
 import type { Chapter } from '../lib/cityBook'
 import { openingNames, type Station } from '../lib/king'
@@ -299,6 +300,14 @@ export function CityBook({
             This chapter <span>{levels.filter((l) => l.done).length}/{levels.length}</span>
           </h3>
           <ChapterPath levels={levels} doneSay="Chapter done! On to the next city." />
+          {/* Lu, 22.11.: after the chapter, train its openings hard – every situation, on time */}
+          {rushOf(white, black).map((r) => (
+            <button type="button" key={r.key} className="bp-rush" onClick={() => go('opening-rush/' + r.key)}>
+              <span aria-hidden="true">⚡</span>
+              <span><b>{r.name} Rush</b><small>Every situation of the opening, on time</small></span>
+              <span aria-hidden="true">›</span>
+            </button>
+          ))}
           {extras.length > 0 && (
             <div className="bp-extras">
               {extras.map((g) => (
@@ -362,4 +371,15 @@ export function CityBook({
       <BottomBar active={null} />
     </div>
   )
+}
+
+// the openings of a chapter that have an Opening Rush (book lines + Stockfish tasks)
+function rushOf(white: Line[], black: Line[]): { key: string; name: string }[] {
+  const out = new Map<string, string>()
+  for (const l of [...white, ...black]) {
+    if (!l.opening) continue
+    const k = keyOf(l.opening, l.side)
+    if (ARENA_KEYS.includes(k)) out.set(k, l.opening)
+  }
+  return [...out.entries()].map(([key, name]) => ({ key, name }))
 }

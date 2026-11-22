@@ -691,6 +691,8 @@ function Shelf({ puzzles, own, fresher }: { puzzles: Puzzles; own: boolean; fres
   return (
     <div className="trn-shelf">
       <div><h5>Your openings</h5><div className="trn-tools">
+        <T e="⚡" bg={g} title="Opening Rush" sub="Catalan & your Black system, on time" to="opening-rush" />
+        <T e="♚" bg={g} title="Your Black system" sub="Pick it, learn it" to="black" />
         <T e="🗺" bg={g} title="Battle plans" sub="Lines that are due" to="review" />
         <T e="🪙" bg={g} title="All openings" sub="Every line" to="path" />
         <T e="🧭" bg={g} title="Opening atlas" sub="New weapons" to="atlas" />

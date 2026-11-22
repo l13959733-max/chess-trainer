@@ -333,6 +333,16 @@ Lu hat gemerkt: Highscore + Belohnung + Töne motivieren ihn wie in großen Apps
   Drohung. Darum zählt Puzzle Rush nicht für „sichere Züge in %“ und ersetzt Threat Check nicht – es ist das Spaß-Extra obendrauf.
 - Prüfen: Vitest für Punkte/Leben/Zeit-Logik (`src/lib/puzzleRush.test.ts`), beide Looks ansehen, am Handy in der Vorschau.
 
+### [x] 36. Opening Rush + alles offen + Schwarz-System wählen – gebaut 22.11. (Vorschau) (Lu, 22.11.: „keine Lust mehr die Story weiter zu spielen … auf die Catalan konzentrieren … hardcore trainieren … zufällig … gegen Zeit und Belohnungen … ich kann noch gar nicht mit Schwarz spielen … frei zwischen den Techniken hin und her springen … mir jetzt ein schwarzes System raussuchen“)
+- **Alles offen:** `isOpen()` in `king.ts` = jede Stadt offen (nur Chennai wartet auf alle Bosse), `mirrorOpen()` = immer (Spiegelwelt/Schwarz ab Start), Armoury-Techniken alle offen. Die Route schlägt weiter die nächste Stadt vor.
+- **Opening Rush** `#/opening-rush` (Auswahl) und `#/opening-rush/<key>[~<key>…]` (eine Eröffnung oder ein ganzes System zusammen), `src/screens/OpeningRush.tsx`, Regeln `src/lib/openingRush.ts` + Vitest.
+  Drei Aufgabenarten zufällig gemischt: **Your book** (Buchzug aus den eigenen Linien), **Out of book** (Gegner weicht mit gutem Zug ab, Stockfish: beste Antwort, alles ≤ 0,2 Bauern schlechter zählt auch), **Punish it!** (Gegnerfehler ≥ 2 Bauern, eindeutige Bestrafung).
+  3 min, 3 Leben, Combo +5 s, Punkte 10/20/30, Rekord + Top 5 + 🌰, **Meisterschaft** (Aufgabe gemeistert nach 2× richtig in Folge) mit Gürteln Bronze 25 % / Silber 50 % / Gold 80 % / Master 100 % (🌰 einmal je Gürtel). „Practice – no clock“ = gleiche Aufgaben mit Erklärung nach jeder. Verpasste kommen im nächsten Lauf früh wieder.
+- Stockfish-Aufgaben: `node scripts/build-arena.mjs [Eröffnung …]` → `src/data/arena/<slug>-<w|b>.json` (Catalan + jede Schwarz-Eröffnung mit ≥ 2 Linien). Nach neuen Linien neu erzeugen. Erklärtexte nur aus Engine-Linie + geschlagenem Material („wins a piece for a pawn“), keine Bewertungszahlen.
+- **Dein Schwarz-System** `#/black` (`src/screens/BlackSystem.tsx`, Liste `src/lib/blackSystems.ts`): je eine Antwort auf 1.e4 und 1.d4 wählen (localStorage `hoppy-black-system`), dann „Learn“ (Stadt der Spiegelwelt) und „Rush: all of it“. Hoppys Tipp: Skandinavisch + Damengambit abgelehnt (Begründung im Text).
+- Einstiege: Training „Your openings“ (Opening Rush, Your Black system), More-Menü, Rush-Knopf unter jedem Stadtkapitel mit passender Eröffnung (z. B. Barcelona → Catalan Rush).
+- Offen / Lu entscheidet: echte Häufigkeiten aus der Lichess-Datenbank (braucht Lichess-Token), Rush als Level im Tagespfad, Lücken im Schwarz-Repertoire (1...e5 ohne Spanisch, Damengambit abgelehnt ohne Linie gegen Catalan 3.g3 / Levitsky 2.Bg5 – der Rush deckt sie nur per Stockfish ab).
+
 ### [~] 35. IDEE (erst testen, Lu entscheidet): Eröffnungs-Drill mit Zurücksetzen bei Fehler (Lu, 16.11. nachts) – als Versuch gebaut 16.11. (Vorschau, Schalter „Strict“ im Drill, Standard aus; Lu entscheidet, ob er bleibt)
 Lu: „beim Nachspielen … wenn man einen Fehler macht, zurückgesetzt ein paar Schritte. Nicht auf Zeit, aber man muss sich
 wieder an die Reihenfolge genau erinnern.“ – Erst als Versuch bauen, Lu probiert es und sagt, ob es bleibt.

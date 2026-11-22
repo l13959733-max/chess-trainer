@@ -1230,6 +1230,7 @@ export interface LPuzzle {
   direct?: boolean // no mistake first: you move at once (our own positions)
   threat?: boolean // you play your opponent's move: "what does he threaten?"
   why?: string
+  alts?: string[] // UCI: other moves that also count as the last answer (Opening Rush: answers as good as the best)
 }
 
 // One of our own positions as a puzzle, so everything can be mixed on the road
@@ -1317,7 +1318,8 @@ export function OnePuzzle({ p, threat, onMistake, onSolved, onHelp }: { p: LPuzz
                 // a pawn reaching the last rank becomes the piece of the solution (or a queen)
                 const pawn = c.get(from as Parameters<typeof c.get>[0])?.type === 'p' && (to[1] === '8' || to[1] === '1')
                 const m = c.move({ from, to, promotion: pawn ? (want.slice(0, 4) === from + to && want[4]) || 'q' : undefined })
-                const right = from + to === want.slice(0, 4) || (step === p.moves.length - 1 && c.isCheckmate())
+                const final = step === p.moves.length - 1
+                const right = from + to === want.slice(0, 4) || (final && c.isCheckmate()) || (final && !!p.alts?.some((u) => u.slice(0, 4) === from + to))
                 if (!right) {
                   fx.wrong()
                   onMistake()

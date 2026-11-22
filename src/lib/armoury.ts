@@ -89,10 +89,10 @@ export function medal(p?: TechProgress): Medal {
   return 'none'
 }
 
-export function isOpen(t: Technique, a: Armoury): boolean {
-  const same = TECHNIQUES.filter((x) => x.kind === t.kind)
-  const i = same.indexOf(t)
-  return i <= 0 || medal(a[same[i - 1].id]) !== 'none'
+// Lu, 22.11.: every technique is open, jump freely. Before, a technique opened after a medal in the one before;
+// that order still decides what Training suggests next.
+export function isOpen(_t: Technique, _a: Armoury): boolean {
+  return true
 }
 
 // Was the round good enough to count? Help and showing always count; alone and shield allow one

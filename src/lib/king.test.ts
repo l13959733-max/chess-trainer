@@ -82,20 +82,14 @@ describe('King of Chess', () => {
     expect(isOpen(chennai, others)).toBe(true)
   })
 
-  it('the journey is guided: cities open one after another, beaten cities stay open', () => {
+  it('every city is open from the start (Lu, 22.11.), the route still suggests the next one', () => {
     const open = (beaten: string[]) => STATIONS.filter((s) => isOpen(s, beaten)).map((s) => s.id)
-    expect(open([])).toEqual(['kannauj'])
-    expect(open(['kannauj'])).toEqual(['kannauj', 'samarkand'])
-    expect(open(['kannauj', 'samarkand', 'rome', 'baghdad'])).toContain('persia')
-    expect(open(['kannauj', 'samarkand', 'rome', 'baghdad'])).not.toContain('north')
-    // an old save with a city beaten out of order: that city stays open, the next gap opens
-    expect(open(['valencia'])).toEqual(['kannauj', 'valencia'])
-    // every city's "next" is the one the route opens
+    expect(open([])).toEqual(STATIONS.filter((s) => !s.finale).map((s) => s.id))
     let beaten: string[] = []
     for (let k = 0; k < STATIONS.length - 1; k++) {
       const n = nextStation(beaten.at(-1) ?? 'kannauj', beaten) ?? STATIONS.find((s) => s.id === 'kannauj')!
       const target = k === 0 ? 'kannauj' : n.id
-      expect(isOpen(STATIONS.find((s) => s.id === target)!, beaten), target).toBe(true)
+      expect(beaten, target).not.toContain(target)
       beaten = [...beaten, target]
     }
     expect(beaten.length).toBe(STATIONS.length - 1)

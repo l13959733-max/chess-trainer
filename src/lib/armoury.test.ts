@@ -38,10 +38,10 @@ describe('medals', () => {
   it('stages cannot be skipped', () => {
     expect(finishStage({}, 'fork', 'mixed')).toEqual({})
   })
-  it('the next technique opens with the bronze of the one before', () => {
+  it('every technique is open from the start (Lu, 22.11.)', () => {
     const fork = TECHNIQUES.find((t) => t.id === 'fork')!
     expect(isOpen(TECHNIQUES[0], {})).toBe(true)
-    expect(isOpen(fork, {})).toBe(false)
+    expect(isOpen(fork, {})).toBe(true) // every technique open (Lu, 22.11.)
     expect(isOpen(fork, { guard: { done: 2 } })).toBe(true)
   })
   it('help never counts in the mixed round', () => {
