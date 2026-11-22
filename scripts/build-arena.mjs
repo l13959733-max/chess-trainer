@@ -6,7 +6,8 @@
 //   punish – the opponent makes a mistake that loses at least 2 pawns: find the one move that punishes it
 //            (the best move must be clearly better than the second best, so the answer is unique)
 // Every task is checked by Stockfish here; src/lib/openingRush.test.ts checks that every move is legal.
-// Usage: node scripts/build-arena.mjs [opening …]   (default: the Catalan and every Black opening with 2+ lines)
+// Usage: node scripts/build-arena.mjs [--side=w|b] [opening …]   (default: the Catalan and every Black opening with 2+ lines;
+//        --side=w alone: every White opening with 2+ lines)
 import { spawn } from 'node:child_process'
 import { mkdirSync, readdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { createRequire } from 'node:module'
@@ -237,10 +238,13 @@ for (const file of readdirSync('data').filter((f) => f.endsWith('.pgn')))
     const side = /\[Side "Black"\]/.test(pgn) ? 'b' : 'w'
     if (o) groups.set(o + '|' + side, (groups.get(o + '|' + side) ?? 0) + 1)
   }
-const wanted = process.argv.slice(2)
+// --side=w or --side=b: only that side (with names: only those openings of that side; without: all of it with 2+ lines)
+const sideArg = process.argv.find((a) => a.startsWith('--side='))?.slice(7)
+const wanted = process.argv.slice(2).filter((a) => !a.startsWith('--'))
 const todo = [...groups.entries()]
   .map(([k, n]) => ({ name: k.split('|')[0], side: k.split('|')[1], n }))
-  .filter((g) => (wanted.length ? wanted.includes(g.name) : (g.name === 'Catalan' && g.side === 'w') || (g.side === 'b' && g.n >= 2)))
+  .filter((g) => !sideArg || g.side === sideArg)
+  .filter((g) => (wanted.length ? wanted.includes(g.name) : sideArg ? g.n >= 2 : (g.name === 'Catalan' && g.side === 'w') || (g.side === 'b' && g.n >= 2)))
 
 mkdirSync(OUT, { recursive: true })
 const pool = Array.from({ length: PROCS }, () => engine())

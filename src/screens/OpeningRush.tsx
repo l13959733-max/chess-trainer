@@ -25,6 +25,7 @@ import {
   runStars,
   solveTask,
   startRun,
+  pathSans,
   type ArenaTask,
   type Mastery,
   type RunState,
@@ -32,6 +33,9 @@ import {
 } from '../lib/openingRush'
 import { addTop, audio, boom, buzz, confetti, ding, fanfare, isRecord, loadTop, saveTop, step, wrong, type TopRun } from '../lib/rushFx'
 import { OnePuzzle, type LPuzzle } from './King'
+import { MoveReplay } from '../components/MoveReplay'
+import { explainWrong } from '../lib/explainWrong'
+import { Chess } from 'chess.js'
 import { systemOf } from '../lib/blackSystems'
 
 // Opening Rush (Lu, 22.11.2026): one opening – or a whole system like "Black against 1.d4" – trained hard:
@@ -103,7 +107,10 @@ export function OpeningRushHome({ rep }: { rep: Rep }) {
   const sideKeys = (names: string[]) => names.map((n) => keyOf(n, 'b')).filter((k) => all.has(k))
   const e4 = black.e4 ? systemOf('e4', black.e4) : null
   const d4 = black.d4 ? systemOf('d4', black.d4) : null
-  const rest = [...all.entries()].filter(([k]) => ARENA_KEYS.includes(k) && k !== keyOf('Catalan', 'w'))
+  // every opening with a rush, the most lines first; the Catalan stays on top of White (Lu's focus)
+  const withRush = [...all.entries()].filter(([k]) => ARENA_KEYS.includes(k) && k !== keyOf('Catalan', 'w')).sort((a, b) => b[1].lines - a[1].lines)
+  const whites = withRush.filter(([, o]) => o.side === 'w')
+  const blacks = withRush.filter(([, o]) => o.side === 'b')
   return (
     <div className="screen rush or-home">
       <div className="rush-head">
@@ -120,9 +127,13 @@ export function OpeningRushHome({ rep }: { rep: Rep }) {
       <button type="button" className="or-pick" onClick={() => go('black')}>
         {e4 || d4 ? 'Change your Black system →' : 'Pick your Black system →'}
       </button>
+      <details className="or-more" open>
+        <summary>Every White opening ({whites.length})</summary>
+        {whites.map(([k, o]) => card(k, o.name, `${o.lines} lines`, '♔'))}
+      </details>
       <details className="or-more">
-        <summary>Every opening ({rest.length})</summary>
-        {rest.map(([k, o]) => card(k, o.name, `${o.side === 'w' ? 'White' : 'Black'} · ${o.lines} lines`, o.side === 'w' ? '♔' : '♚'))}
+        <summary>Every Black opening ({blacks.length})</summary>
+        {blacks.map(([k, o]) => card(k, o.name, `${o.lines} lines`, '♚'))}
       </details>
     </div>
   )
@@ -174,6 +185,13 @@ export function OpeningRush({ rep, keys }: { rep: Rep; keys: string }) {
   const [review, setReview] = useState(0)
   const [answered, setAnswered] = useState<'right' | 'wrong' | null>(null)
   const [calmScore, setCalmScore] = useState({ right: 0, done: 0 })
+  // after a wrong move (Lu, 22.11.): the clock stops, you play the right move yourself, then see why yours was wrong
+  // and can step through the moves again
+  const [fix, setFix] = useState<{ pausedAt: number } | null>(null)
+  const [wrongWhy, setWrongWhy] = useState<string | null | 'loading'>(null)
+  const [replay, setReplay] = useState(false)
+  const fixRef = useRef(fix)
+  const taskRef = useRef<string | null>(null)
   const canvas = useRef<HTMLCanvasElement>(null)
   const fx = useMemo(() => confetti(() => canvas.current), [])
   const sRef = useRef(s)
@@ -184,6 +202,7 @@ export function OpeningRush({ rep, keys }: { rep: Rep; keys: string }) {
   useEffect(() => {
     sRef.current = s
     mRef.current = mastery
+    fixRef.current = fix
   })
   useEffect(() => () => fx.stop(), [fx])
 
@@ -211,6 +230,10 @@ export function OpeningRush({ rep, keys }: { rep: Rep; keys: string }) {
     setReview(0)
     setAnswered(null)
     setCalmScore({ right: 0, done: 0 })
+    setFix(null)
+    fixRef.current = null
+    setWrongWhy(null)
+    setReplay(false)
     passed.current = false
     solvedIds.current = []
     pctAtStart.current = masteryPct(mRef.current, tasks)
@@ -262,6 +285,11 @@ export function OpeningRush({ rep, keys }: { rep: Rep; keys: string }) {
     const tick = () => {
       const cur = sRef.current
       const now = Date.now()
+      // the clock stands still while you fix a wrong move
+      if (fixRef.current) {
+        id = requestAnimationFrame(tick)
+        return
+      }
       setLeft(runLeft(cur, now) / OR_TIME)
       if (runOver(cur, now)) return finish(cur)
       id = requestAnimationFrame(tick)
@@ -277,17 +305,57 @@ export function OpeningRush({ rep, keys }: { rep: Rep; keys: string }) {
     if (c) fx.burst(c.clientWidth * x, c.clientHeight * y, n, big)
   }
   const item = queue[i]
+  const missed = (tasks ? s.missed.map((id) => tasks.find((t) => t.id === id)) : []).filter((t): t is ArenaTask => !!t)
   const next = () => {
     setLock(false)
     setAnswered(null)
+    setWrongWhy(null)
+    setReplay(false)
+    taskRef.current = null
     if (i + 1 >= queue.length && phase === 'run') return finish(sRef.current)
     setI((k) => k + 1)
+  }
+
+  // what was wrong with your move: Stockfish in the browser, in plain words
+  function explain(t: ArenaTask, wrongUci?: string) {
+    if (!wrongUci) return
+    taskRef.current = t.id
+    setWrongWhy('loading')
+    const c = new Chess(t.fen)
+    c.move({ from: t.moves[0].slice(0, 2), to: t.moves[0].slice(2, 4), promotion: t.moves[0][4] })
+    void explainWrong(c.fen(), wrongUci, t.moves[1], t.kind).then((txt) => {
+      if (taskRef.current === t.id) setWrongWhy(txt)
+    })
+  }
+  // back to the clock after a fixed mistake: the time you spent looking is given back
+  function resume() {
+    const f = fixRef.current
+    const cur = sRef.current
+    const n = f ? { ...cur, end: cur.end + (Date.now() - f.pausedAt) } : cur
+    setS(n)
+    sRef.current = n
+    setFix(null)
+    fixRef.current = null
+    if (n.lives <= 0) {
+      setLock(false)
+      setWrongWhy(null)
+      setReplay(false)
+      return finish(n)
+    }
+    next()
   }
 
   function onSolved() {
     if (!item || lock) return
     setLock(true)
+    // the right move after a mistake in the rush: no points, the explanation and the replay instead
+    if (phase === 'run' && fixRef.current) {
+      step(1)
+      setReplay(true)
+      return
+    }
     if (phase === 'calm') {
+      setReplay(true)
       mark(item.id, answered !== 'wrong')
       if (answered !== 'wrong') setCalmScore((c) => ({ right: c.right + 1, done: c.done + 1 }))
       else setCalmScore((c) => ({ ...c, done: c.done + 1 }))
@@ -321,26 +389,35 @@ export function OpeningRush({ rep, keys }: { rep: Rep; keys: string }) {
     } else setWord({ text: KIND[item.kind].praise, n: Date.now() })
     window.setTimeout(next, 650)
   }
-  function onMistake() {
-    if (phase === 'review') return void wrong()
+  function onMistake(wrongUci?: string) {
+    if (phase === 'review') {
+      const t = missed[review]
+      if (t && !wrongWhy) explain(t, wrongUci)
+      return void wrong()
+    }
     if (!item) return
     if (phase === 'calm') {
       // first try counts; you then play the arrow to go on
       if (!answered) {
         setAnswered('wrong')
         mark(item.id, false)
+        explain(item, wrongUci)
       }
       wrong()
       return
     }
-    if (lock) return
-    setLock(true)
+    if (lock || fixRef.current) return void wrong()
+    // the rush: a life is gone, the clock stops, now play the right move (the green arrow)
     mark(item.id, false)
     const n = missTask(s, item.id)
     setS(n)
+    sRef.current = n
     wrong()
     buzz(80)
-    window.setTimeout(() => (n.lives <= 0 ? finish(n) : next()), 1400)
+    const f = { pausedAt: Date.now() }
+    setFix(f)
+    fixRef.current = f
+    explain(item, wrongUci)
   }
 
   if (!tasks) return <div className="screen rush"><p className="note">Loading…</p></div>
@@ -357,8 +434,6 @@ export function OpeningRush({ rep, keys }: { rep: Rep; keys: string }) {
   const counts = { book: 0, react: 0, punish: 0 }
   for (const t of tasks) counts[t.kind]++
   const stars = runStars(s.score)
-  const byId = new Map(tasks.map((t) => [t.id, t]))
-  const missed = s.missed.map((id) => byId.get(id)).filter((t): t is ArenaTask => !!t)
   const belt = beltOf(pct)
   const nb = nextBelt(pct)
 
@@ -371,6 +446,27 @@ export function OpeningRush({ rep, keys }: { rep: Rep; keys: string }) {
       </div>
     )
   }
+
+  const replayOf = (t: ArenaTask) => {
+    const c = new Chess(t.fen)
+    const me = c.turn() === 'w' ? 'black' : 'white'
+    c.move({ from: t.moves[0].slice(0, 2), to: t.moves[0].slice(2, 4), promotion: t.moves[0][4] })
+    const ans = c.move({ from: t.moves[1].slice(0, 2), to: t.moves[1].slice(2, 4), promotion: t.moves[1][4] })
+    return <MoveReplay key={'mr' + t.id} sans={[...pathSans(t.path), ans.san]} orientation={me} />
+  }
+  const feedback = (t: ArenaTask, wrongOnce: boolean, onNext: () => void, nextLabel = 'Next') => (
+    <div className={`king-fb ${wrongOnce ? '' : 'ok'}`}>
+      <b>{wrongOnce ? 'Now you know it' : KIND[t.kind].praise}</b>
+      {wrongOnce && wrongWhy !== null && (
+        <p className="or-wrong">
+          <span>Your move</span>
+          {wrongWhy === 'loading' ? 'Hoppy is checking your move…' : wrongWhy}
+        </p>
+      )}
+      <p><span className="or-right">The right move</span>{t.why}</p>
+      <button type="button" className="primary wide" onClick={onNext}>{nextLabel}</button>
+    </div>
+  )
 
   if (phase === 'review' || phase === 'calm') {
     const list = phase === 'review' ? missed : queue
@@ -391,6 +487,7 @@ export function OpeningRush({ rep, keys }: { rep: Rep; keys: string }) {
       )
     }
     const done = phase === 'review' ? answered === 'right' : lock
+    const wrongOnce = phase === 'review' ? wrongWhy !== null : answered === 'wrong'
     return (
       <div className="screen rush prush">
         <div className="rush-head">
@@ -404,25 +501,21 @@ export function OpeningRush({ rep, keys }: { rep: Rep; keys: string }) {
           </div>
         )}
         {head(t)}
-        <OnePuzzle key={phase + t.id + k} p={toPuzzle(t)} onMistake={onMistake} onSolved={phase === 'review' ? () => { mark(t.id, true); setAnswered('right') } : onSolved} />
-        {done && (
-          <div className={`king-fb ${answered === 'wrong' ? '' : 'ok'}`}>
-            <b>{answered === 'wrong' ? 'Now you know it' : KIND[t.kind].praise}</b>
-            <p>{t.why}</p>
-            <button
-              type="button"
-              className="primary wide"
-              onClick={() => {
-                if (phase === 'review') {
-                  setReview(review + 1)
-                  setAnswered(null)
-                } else next()
-              }}
-            >
-              Next
-            </button>
-          </div>
+        {done && replay ? (
+          replayOf(t)
+        ) : (
+          <OnePuzzle key={phase + t.id + k} p={toPuzzle(t)} onMistake={onMistake} onSolved={phase === 'review' ? () => { mark(t.id, true); setAnswered('right'); setReplay(true) } : onSolved} />
         )}
+        {done &&
+          feedback(t, wrongOnce, () => {
+            if (phase === 'review') {
+              setReview(review + 1)
+              setAnswered(null)
+              setWrongWhy(null)
+              setReplay(false)
+              taskRef.current = null
+            } else next()
+          })}
       </div>
     )
   }
@@ -453,7 +546,11 @@ export function OpeningRush({ rep, keys }: { rep: Rep; keys: string }) {
       </div>
       {phase === 'run' && cur ? head(cur) : <div className="or-task or-task-blank" />}
       <div className="pr-stage">
-        {phase === 'run' && cur ? <OnePuzzle key={cur.id + '/' + i} p={toPuzzle(cur)} onMistake={onMistake} onSolved={onSolved} /> : <div className="pr-blank" />}
+        {phase === 'run' && cur ? (
+          fix && replay ? replayOf(cur) : <OnePuzzle key={cur.id + '/' + i} p={toPuzzle(cur)} onMistake={onMistake} onSolved={onSolved} />
+        ) : (
+          <div className="pr-blank" />
+        )}
         <canvas ref={canvas} className="rush-fx" aria-hidden="true" />
         {word && <div key={word.n} className={`rush-word${word.big ? ' rec' : ' pr-word'}`} aria-hidden="true">{word.text}</div>}
         {phase !== 'run' && (
@@ -504,7 +601,9 @@ export function OpeningRush({ rep, keys }: { rep: Rep; keys: string }) {
           </div>
         )}
       </div>
-      <div className="rush-time" aria-hidden="true"><i style={{ width: `${(phase === 'run' ? left : 1) * 100}%` }} className={phase === 'run' && left < 1 / 6 ? 'low' : ''} /></div>
+      {phase === 'run' && cur && fix && !replay && <p className="or-fix">⏸ Clock stopped. Play the right move – follow the green arrow.</p>}
+      {phase === 'run' && cur && fix && replay && feedback(cur, true, resume, s.lives <= 0 ? 'See your score' : 'Continue – the clock runs again')}
+      <div className="rush-time" aria-hidden="true"><i style={{ width: `${(phase === 'run' ? left : 1) * 100}%` }} className={phase === 'run' && (left < 1 / 6) ? 'low' : ''} /></div>
       <p className="note small">Book moves from your lines; out-of-book answers and mistakes checked by Stockfish. A task is mastered after two right in a row.</p>
     </div>
   )

@@ -1274,7 +1274,7 @@ function PuzzleRounds({ s, puzzles, boss, title, lesson, threat, back, finish }:
 }
 
 // `onHelp`: shows a hint button (first the piece, then the move); each press is counted
-export function OnePuzzle({ p, threat, onMistake, onSolved, onHelp }: { p: LPuzzle; threat?: boolean; onMistake: () => void; onSolved: () => void; onHelp?: () => void }) {
+export function OnePuzzle({ p, threat, onMistake, onSolved, onHelp }: { p: LPuzzle; threat?: boolean; onMistake: (wrong?: string) => void; onSolved: () => void; onHelp?: () => void }) {
   const [fen, setFen] = useState(p.fen)
   const [step, setStep] = useState(0) // index of the next move in p.moves
   const [last, setLast] = useState<{ from: string; to: string } | null>(null)
@@ -1322,7 +1322,7 @@ export function OnePuzzle({ p, threat, onMistake, onSolved, onHelp }: { p: LPuzz
                 const right = from + to === want.slice(0, 4) || (final && c.isCheckmate()) || (final && !!p.alts?.some((u) => u.slice(0, 4) === from + to))
                 if (!right) {
                   fx.wrong()
-                  onMistake()
+                  onMistake(from + to + (m?.promotion ?? ''))
                   setHint(want)
                   return false
                 }

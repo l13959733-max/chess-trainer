@@ -168,3 +168,4 @@ Nach jedem Schritt: committen, deployen, kurz zusammenfassen was ich testen soll
 - Opening Rush `#/opening-rush[/<key>~<key>]`: Buchzüge + Stockfish-Aufgaben (Out of book / Punish it!) auf Zeit, Gürtel nach Meisterschaft. Daten `src/data/arena/*.json` aus `scripts/build-arena.mjs` (nach neuen Linien neu erzeugen, Test `openingRush.test.ts` prüft Legalität).
 - Schwarz-System wählen `#/black` (`lib/blackSystems.ts`). `OnePuzzle` kennt `alts` (gleich gute Antworten).
 - Hoppys Schwarz-Training `#/black-course` (BAUPLAN 37): Skandinavisch + Damengambit abgelehnt als ein Pfad, Regel „eine Antwort je Stellung“ per Test.
+- Rush für alle weißen Eröffnungen (`build-arena.mjs --side=w`), Fehler: Uhr stoppt → richtigen Zug nachziehen → Erklärung (`lib/explainWrong.ts`) + Nachspielen (`components/MoveReplay.tsx`) (BAUPLAN 38).

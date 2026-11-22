@@ -37,6 +37,9 @@ export async function loadArena(key: string): Promise<ArenaFile | null> {
   return f ? f() : null
 }
 
+// "1.d4 Nf6 2.c4 e6" -> ["d4", "Nf6", "c4", "e6"]
+export const pathSans = (path: string) => path.split(/\s+/).map((x) => x.replace(/^\d+\.+/, '')).filter(Boolean)
+
 const place = (fen: string) => fen.split(' ').slice(0, 4).join(' ')
 const uciOf = (m: { from: string; to: string; promotion?: string }) => m.from + m.to + (m.promotion ?? '')
 
