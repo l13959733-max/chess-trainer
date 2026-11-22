@@ -62,6 +62,7 @@ const Today = lazy(() => import('./screens/Today').then((m) => ({ default: m.Tod
 const PuzzleRush = lazy(() => import('./screens/PuzzleRush').then((m) => ({ default: m.PuzzleRush })))
 const OpeningRush = lazy(() => import('./screens/OpeningRush').then((m) => ({ default: m.OpeningRush })))
 const OpeningRushHome = lazy(() => import('./screens/OpeningRush').then((m) => ({ default: m.OpeningRushHome })))
+const BlackCourse = lazy(() => import('./screens/BlackCourse').then((m) => ({ default: m.BlackCourse })))
 const BlackSystemScreen = lazy(() => import('./screens/BlackSystem').then((m) => ({ default: m.BlackSystemScreen })))
 const Workout = lazy(() => import('./screens/Workout').then((m) => ({ default: m.Workout })))
 const Diary = lazy(() => import('./screens/Diary').then((m) => ({ default: m.Diary })))
@@ -102,6 +103,7 @@ function App() {
     else if (page) rememberLine(null)
     if (page === 'path') rememberOrigin('path')
     else if (page === 'atlas') rememberOrigin('atlas')
+    else if (page === 'black-course') rememberOrigin('black-course')
     else if (page === 'king' && id && !arg) rememberOrigin('king/' + id)
   }, [page, id, arg])
   // The start page is the world map; back from a line you land where you opened it
@@ -207,6 +209,7 @@ function App() {
   else if (page === 'puzzle-rush') body = <PuzzleRush puzzles={puzzles} player={player} />
   else if (page === 'opening-rush') body = id ? <OpeningRush key={id} rep={rep} keys={decodeURIComponent(id)} /> : <OpeningRushHome rep={rep} />
   else if (page === 'black') body = <BlackSystemScreen rep={rep} />
+  else if (page === 'black-course') body = <BlackCourse rep={rep} />
   else if (page === 'workout') body = <Workout puzzles={puzzles} progress={progress} player={player} />
   else if (page === 'road') body = <KingFastTravel />
   else if (page === 'check') body = <ChessCheck rep={rep} />

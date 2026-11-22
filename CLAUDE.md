@@ -167,4 +167,4 @@ Nach jedem Schritt: committen, deployen, kurz zusammenfassen was ich testen soll
 - Alle Städte, die Spiegelwelt (Schwarz) und alle Armoury-Techniken sind ab Start offen (Lu: „frei hin und her springen“); nur Chennai wartet auf alle Bosse.
 - Opening Rush `#/opening-rush[/<key>~<key>]`: Buchzüge + Stockfish-Aufgaben (Out of book / Punish it!) auf Zeit, Gürtel nach Meisterschaft. Daten `src/data/arena/*.json` aus `scripts/build-arena.mjs` (nach neuen Linien neu erzeugen, Test `openingRush.test.ts` prüft Legalität).
 - Schwarz-System wählen `#/black` (`lib/blackSystems.ts`). `OnePuzzle` kennt `alts` (gleich gute Antworten).
-
+- Hoppys Schwarz-Training `#/black-course` (BAUPLAN 37): Skandinavisch + Damengambit abgelehnt als ein Pfad, Regel „eine Antwort je Stellung“ per Test.

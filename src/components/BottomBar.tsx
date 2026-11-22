@@ -44,7 +44,7 @@ export function BottomBar({ active }: { active: 'home' | 'journey' | 'training' 
           <button type="button" onClick={() => go('rush')}>💥 Square Rush</button>
           <button type="button" onClick={() => go('puzzle-rush')}>⏱ Puzzle Rush</button>
           <button type="button" onClick={() => go('opening-rush')}>⚡ Opening Rush</button>
-          <button type="button" onClick={() => go('black')}>♚ Your Black system</button>
+          <button type="button" onClick={() => go('black-course')}>♚ Black training</button>
           <button type="button" onClick={() => go('path')}>📚 All openings</button>
           <button type="button" onClick={() => go('quests')}>📖 Quest book</button>
           <button type="button" onClick={() => go('painted')}>🎨 The painted map</button>

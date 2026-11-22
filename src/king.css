@@ -1289,3 +1289,10 @@
 .or-intro h2 { color: #fff; font-size: 26px; }
 .or-intro p { font-size: 14px; }
 .or-intro .rush-btn { padding: 12px 18px; font-size: 15px; }
+/* Hoppy's Black training #/black-course */
+.bc { --house: #7a3420; --accent: #e2a42b; --soft: #6a5f55; max-width: 460px; margin: 0 auto; padding-inline: 16px; box-sizing: border-box; display: flex; flex-direction: column; gap: 10px; }
+.bc-intro { display: flex; flex-direction: column; gap: 4px; padding: 12px 14px; border-radius: 16px; background: #f8f3ea; border: 2px solid #ddd2c0; color: #1b1612; font-size: 14px; line-height: 1.45; }
+.bc-intro > b { font-size: 17px; color: #7a3420; }
+.bc-count { font-weight: 800; color: #6a5f55; font-size: 13px; }
+.bc .cpath { margin: 6px 6px 0; }
+.bs .bs-course { width: 100%; margin: 0; }

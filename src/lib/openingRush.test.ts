@@ -98,3 +98,23 @@ describe('Opening Rush tasks', () => {
     expect(rememberMissed(['a', 'b'], ['c'], ['a'])).toEqual(['c', 'b'])
   })
 })
+
+describe("Hoppy's Black training", () => {
+  it('every line of the path is in the repertoire, every rush has its files', async () => {
+    const { COURSE, courseLine } = await import('./blackCourse')
+    for (const st of COURSE) {
+      if (st.kind === 'line') expect(courseLine(builtinLines, st.title), st.title).toBeTruthy()
+      else for (const k of st.key.split('~')) expect(ARENA_KEYS, k).toContain(k)
+    }
+    // one answer per position: no two lines of the path disagree on Black's move
+    const lines = COURSE.flatMap((st) => (st.kind === 'line' ? [courseLine(builtinLines, st.title)!] : []))
+    const answer = new Map<string, string>()
+    for (const l of lines)
+      for (const m of l.moves)
+        if (m.color === 'b') {
+          const k = m.fenBefore.split(' ').slice(0, 4).join(' ')
+          expect(answer.get(k) ?? m.san, `${l.title}: ${m.san}`).toBe(m.san)
+          answer.set(k, m.san)
+        }
+  })
+})

@@ -333,7 +333,7 @@ Lu hat gemerkt: Highscore + Belohnung + Töne motivieren ihn wie in großen Apps
   Drohung. Darum zählt Puzzle Rush nicht für „sichere Züge in %“ und ersetzt Threat Check nicht – es ist das Spaß-Extra obendrauf.
 - Prüfen: Vitest für Punkte/Leben/Zeit-Logik (`src/lib/puzzleRush.test.ts`), beide Looks ansehen, am Handy in der Vorschau.
 
-### [x] 36. Opening Rush + alles offen + Schwarz-System wählen – gebaut 22.11. (Vorschau) (Lu, 22.11.: „keine Lust mehr die Story weiter zu spielen … auf die Catalan konzentrieren … hardcore trainieren … zufällig … gegen Zeit und Belohnungen … ich kann noch gar nicht mit Schwarz spielen … frei zwischen den Techniken hin und her springen … mir jetzt ein schwarzes System raussuchen“)
+### [x] 36. Opening Rush + alles offen + Schwarz-System wählen – gebaut + LIVE 22.11. (Lu, 22.11.: „keine Lust mehr die Story weiter zu spielen … auf die Catalan konzentrieren … hardcore trainieren … zufällig … gegen Zeit und Belohnungen … ich kann noch gar nicht mit Schwarz spielen … frei zwischen den Techniken hin und her springen … mir jetzt ein schwarzes System raussuchen“)
 - **Alles offen:** `isOpen()` in `king.ts` = jede Stadt offen (nur Chennai wartet auf alle Bosse), `mirrorOpen()` = immer (Spiegelwelt/Schwarz ab Start), Armoury-Techniken alle offen. Die Route schlägt weiter die nächste Stadt vor.
 - **Opening Rush** `#/opening-rush` (Auswahl) und `#/opening-rush/<key>[~<key>…]` (eine Eröffnung oder ein ganzes System zusammen), `src/screens/OpeningRush.tsx`, Regeln `src/lib/openingRush.ts` + Vitest.
   Drei Aufgabenarten zufällig gemischt: **Your book** (Buchzug aus den eigenen Linien), **Out of book** (Gegner weicht mit gutem Zug ab, Stockfish: beste Antwort, alles ≤ 0,2 Bauern schlechter zählt auch), **Punish it!** (Gegnerfehler ≥ 2 Bauern, eindeutige Bestrafung).
@@ -342,6 +342,12 @@ Lu hat gemerkt: Highscore + Belohnung + Töne motivieren ihn wie in großen Apps
 - **Dein Schwarz-System** `#/black` (`src/screens/BlackSystem.tsx`, Liste `src/lib/blackSystems.ts`): je eine Antwort auf 1.e4 und 1.d4 wählen (localStorage `hoppy-black-system`), dann „Learn“ (Stadt der Spiegelwelt) und „Rush: all of it“. Hoppys Tipp: Skandinavisch + Damengambit abgelehnt (Begründung im Text).
 - Einstiege: Training „Your openings“ (Opening Rush, Your Black system), More-Menü, Rush-Knopf unter jedem Stadtkapitel mit passender Eröffnung (z. B. Barcelona → Catalan Rush).
 - Offen / Lu entscheidet: echte Häufigkeiten aus der Lichess-Datenbank (braucht Lichess-Token), Rush als Level im Tagespfad, Lücken im Schwarz-Repertoire (1...e5 ohne Spanisch, Damengambit abgelehnt ohne Linie gegen Catalan 3.g3 / Levitsky 2.Bg5 – der Rush deckt sie nur per Stockfish ab).
+
+### [x] 37. Hoppys Schwarz-Training (Skandinavisch + Damengambit abgelehnt) – gebaut + LIVE 22.11. (Lu: „mach mir ein Schwarz-Training fertig mit deinem Vorschlag, wo ich beide Antworten lerne … und dann live stellen“)
+- `#/black-course` (`src/screens/BlackCourse.tsx`, Schritte `src/lib/blackCourse.ts`): ein Level-Pfad (ChapterPath), 20 Linien, 1.e4 und 1.d4 abwechselnd, Rush-Stufen nach Teil 1 (gegen 1.e4, 1 Stern) und Teil 2 (gegen 1.d4, 1 Stern), Finale = ganzes System (Bronze-Gürtel). Öffnen setzt `hoppy-black-system` auf Skandinavisch + QGD, falls nichts gewählt ist.
+- Neue Linien (Stockfish-geprüft): „QGD: 3.Nc3 Nf6 4.Nf3“, „QGD: vs the Catalan 4.g3“, „vs the Levitsky 2.Bg5“.
+- **Eine Antwort je Stellung** (Test in `openingRush.test.ts`): „Scandinavian: 3.d4“ jetzt 4...Bf5 statt 4...Bg4 (gleiche Stellung wie in 3.Nf3), „Qa5 4.Nf3“ jetzt 5...c6 wie die Hauptlinie (Endstellung unverändert). Nicht im Pfad (andere Antwort in derselben Stellung): „2...Nf6“, „3.Nc3 Qd6“, Elephant Trap – bleiben in der App. Durch die geänderten Züge haben zwei Linien eine neue ID (alter Lernstand dieser zwei Linien zählt nicht mehr).
+- Einstiege: Training „Black training“, More-Menü, `#/black` oben, Opening-Rush-Seite.
 
 ### [~] 35. IDEE (erst testen, Lu entscheidet): Eröffnungs-Drill mit Zurücksetzen bei Fehler (Lu, 16.11. nachts) – als Versuch gebaut 16.11. (Vorschau, Schalter „Strict“ im Drill, Standard aus; Lu entscheidet, ob er bleibt)
 Lu: „beim Nachspielen … wenn man einen Fehler macht, zurückgesetzt ein paar Schritte. Nicht auf Zeit, aber man muss sich

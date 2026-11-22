@@ -116,6 +116,7 @@ export function OpeningRushHome({ rep }: { rep: Rep }) {
       <h5 className="or-h">Your Black system</h5>
       {e4 && sideKeys(e4.openings).length > 0 && card(sideKeys(e4.openings).join('~'), `Against 1.e4: ${e4.name}`, e4.moves, '♚')}
       {d4 && sideKeys(d4.openings).length > 0 && card(sideKeys(d4.openings).join('~'), `Against 1.d4: ${d4.name}`, d4.moves, '♚')}
+      <button type="button" className="or-pick" onClick={() => go('black-course')}>♚ Hoppy's Black training (Scandinavian + QGD)</button>
       <button type="button" className="or-pick" onClick={() => go('black')}>
         {e4 || d4 ? 'Change your Black system →' : 'Pick your Black system →'}
       </button>

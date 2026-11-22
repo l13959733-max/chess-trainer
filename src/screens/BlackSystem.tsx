@@ -73,6 +73,11 @@ export function BlackSystemScreen({ rep }: { rep: Rep }) {
         <button type="button" className="back" onClick={() => go('opening-rush')} aria-label="Back">←</button>
         <h1>Your Black system</h1>
       </div>
+      <button type="button" className="bp-rush bs-course" onClick={() => go('black-course')}>
+        <span aria-hidden="true">♚</span>
+        <span><b>Hoppy's Black training</b><small>Scandinavian + Queen's Gambit Declined, ready to learn</small></span>
+        <span aria-hidden="true">›</span>
+      </button>
       <p className="note">Pick one answer to 1.e4 and one to 1.d4. Every city is open – learn the lines there, then train them in the Rush. You can change it any time.</p>
       {group('e4', BLACK_E4)}
       {group('d4', BLACK_D4)}
