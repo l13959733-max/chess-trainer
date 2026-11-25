@@ -26,7 +26,7 @@ export function Atlas({ rep }: { rep: Repertoire }) {
   return (
     <div className="screen king-screen">
       <div className="screen-head">
-        <button type="button" className="back" onClick={() => go('tent')} aria-label="Back to the Training Camp">←</button>
+        <button type="button" className="back" onClick={() => go('today')} aria-label="Back to Daily">←</button>
         <div>
           <div className="eyebrow">Opening atlas · {known} of {ATLAS.length} learned</div>
           <h2>Widen your horizon</h2>

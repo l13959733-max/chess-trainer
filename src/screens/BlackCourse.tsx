@@ -61,7 +61,7 @@ export function BlackCourse({ rep }: { rep: Rep }) {
   return (
     <div className="screen bc">
       <div className="rush-head">
-        <button type="button" className="back" onClick={() => go('tent')} aria-label="Back to Training">←</button>
+        <button type="button" className="back" onClick={() => go('today')} aria-label="Back to Daily">←</button>
         <h1>Your Black training</h1>
       </div>
       <div className="bc-intro">

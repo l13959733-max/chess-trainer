@@ -3,12 +3,11 @@ import { BottomBar } from '../components/BottomBar'
 import { go } from '../hooks/useHashRoute'
 import type { Puzzles } from '../hooks/usePuzzles'
 import type { useProgress } from '../hooks/useProgress'
-import { dateKey } from '../lib/progress'
 import { longestStreak } from '../lib/trainingPath'
 import { hasOwnPlayer } from '../lib/chesscom'
 import { getGameRecords, type GameRecord } from '../lib/db'
 import { mistakesByMonth, safeByWeek, thenNow, type Point } from '../lib/growth'
-import { STATIONS, loadKing, mirrorOpen, route, stationById } from '../lib/king'
+import { STATIONS, loadKing, route, stationById } from '../lib/king'
 import { cachedRapid, loadRapid } from '../lib/ratingHistory'
 import { nextCity, openCity } from '../lib/travel'
 import { mineOf } from '../lib/trainingToday'
@@ -26,21 +25,10 @@ const month = (t: number) => new Date(t).toLocaleDateString('en-GB', { month: 's
 
 type Tab = 'rating' | 'safe' | 'mistakes'
 
-// 25.11.2026 (Lu: "durchgehendes Design, nichts doppelt, wie man sich verbessert hat will ich sehen"): this page is
-// "Progress" – the 5th tab of the bottom bar. It took over the week (flames + XP, from the old Daily page) and the
-// old "More" menu (section "More" at the bottom).
+// 25.11.2026 (Lu: "bei Journey hatte ich nur eine Statistikseite – alle Auswertungen, wie ich besser/schlechter
+// geworden bin"): this page is "Progress", the 5th tab, and ONLY statistics: streak/XP/level, the cities, the charts,
+// the analyses. The places of the world and Together are on Daily under "More", Settings is the gear.
 export function Journey({ puzzles, player, progress }: { puzzles: Puzzles; player: string; progress: ReturnType<typeof useProgress> }) {
-  const [now] = useState(() => Date.now())
-  // Monday … Sunday of this week: active days burn (was the Daily page #/today)
-  const week = Array.from({ length: 7 }, (_, i) => {
-    const d = new Date(now)
-    d.setHours(12, 0, 0, 0)
-    d.setDate(d.getDate() - ((d.getDay() + 6) % 7) + i)
-    const a = progress.days.get(dateKey(d))
-    const active = !!a && a.lines + a.puzzles + (a.games ?? 0) + a.xp > 0
-    return { label: d.toLocaleDateString('en-GB', { weekday: 'narrow' }), xp: a?.xp ?? 0, active, today: dateKey(d) === dateKey(new Date(now)), future: d.getTime() > now }
-  })
-  const weekXp = week.reduce((s, d) => s + d.xp, 0)
   const best = useMemo(() => longestStreak([...progress.days.values()].filter((d) => d.lines + d.puzzles + (d.games ?? 0) > 0).map((d) => d.date)), [progress.days])
   const [king] = useState(loadKing)
   const own = hasOwnPlayer()
@@ -102,17 +90,10 @@ export function Journey({ puzzles, player, progress }: { puzzles: Puzzles; playe
             <span>{say}</span>
           </div>
 
-          <div className="trn-card dly-week" aria-label={`This week: ${week.filter((d) => d.active).length} active days, ${weekXp} XP`}>
-            <div className="dly-days">
-              {week.map((d, i) => (
-                <span key={i} className={`dly-day${d.active ? ' on' : ''}${d.today ? ' today' : ''}${d.future ? ' future' : ''}`}>
-                  <i aria-hidden="true">{d.active ? '🔥' : ''}</i>
-                  <small>{d.label}</small>
-                </span>
-              ))}
-            </div>
+          {/* Lu, 25.11.: Progress = only statistics (the flames of the week are on Daily) */}
+          <div className="trn-card">
             <div className="prg-week">
-              <span><b>{weekXp.toLocaleString('en')}</b>XP this week</span>
+              <span><b>{progress.totalXp.toLocaleString('en')}</b>XP in total</span>
               <span><b>{progress.streak}</b>{progress.streak === 1 ? 'day' : 'days'} in a row</span>
               <span><b>{Math.max(best, progress.streak)}</b>best streak</span>
               <span><b>{progress.level.level}</b>level</span>
@@ -176,20 +157,14 @@ export function Journey({ puzzles, player, progress }: { puzzles: Puzzles; playe
             <button type="button" className="jr-tile t-sun" onClick={() => go('trophies')}>
               <span className="e">🏆</span><b>Trophies</b><small>What you have won</small>
             </button>
+            <button type="button" className="jr-tile t-grape" onClick={() => go('accuracy')}>
+              <span className="e">📊</span><b>Accuracy</b><small>How well did I play? (test)</small>
+            </button>
+            <button type="button" className="jr-tile t-blue" onClick={() => go('diary')}>
+              <span className="e">📔</span><b>Diary</b><small>What you learned, city by city</small>
+            </button>
           </div>
 
-          {/* the old "More" menu of the bottom bar – everything that is not training lives here now */}
-          <div className="trn-sec"><h2>More</h2></div>
-          <div className="prg-more">
-            <button type="button" onClick={() => go('diary')}><span>📔</span>Hoppy’s diary</button>
-            <button type="button" onClick={() => go('quests')}><span>📖</span>Quest book</button>
-            <button type="button" onClick={() => go(king.beaten.includes('kannauj') ? 'portal' : 'check')}><span>🌀</span>Real world</button>
-            <button type="button" onClick={() => go('painted')}><span>🎨</span>The painted map</button>
-            {mirrorOpen(king.beaten) && <button type="button" onClick={() => go('mirror')}><span>🪞</span>Mirror World</button>}
-            <button type="button" onClick={() => go('watch')}><span>👫</span>Together</button>
-            <button type="button" onClick={() => go('accuracy')}><span>📊</span>How well did I play? (test)</button>
-            <button type="button" onClick={() => go('settings')}><span>⚙️</span>Settings</button>
-          </div>
         </div>
       </div>
       <BottomBar active="progress" />

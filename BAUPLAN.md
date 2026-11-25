@@ -61,6 +61,8 @@ Lu: „durchgehendes Corporate Design im Duolingo-Stil … nichts verloren, nich
 verbessert hat“. Gebaut: `src/brand.css` (siehe CLAUDE.md → UI), eine Leiste Home · Journey · Hoppy · Training · Progress,
 Daily/Camp/alte Karte zusammengelegt (Weiterleitungen), Progress mit Woche + „More“, Training ohne doppelte Kacheln/Diagramme,
 „All openings“ ohne zweites Dashboard, Startseite ohne doppelte Trainingsleiste. Klicktests auf `#/painted` umgestellt.
+2. Runde (Lu, 25.11.): Daily ist wieder da und die Trainings-Startseite (alle Trainer als Kacheln, keine Unterpunkte),
+Training = „Today's path“ als Unterseite, Progress = nur Statistik. Leiste: Home · Journey · Hoppy · Daily · Progress.
 Bekannt (schon VOR dem Umbau so, Vergleich mit dem Tag geprüft): `king-all.mjs` bleibt in mehreren Städten an einem Klick hängen.
 
 

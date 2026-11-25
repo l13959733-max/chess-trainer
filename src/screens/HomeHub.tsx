@@ -179,7 +179,7 @@ export function HomeHub({ progress, player }: { rep: ReturnType<typeof useRepert
             <span><b>{progress.level.level}</b>Level</span>
           </span>
         </button>
-        <button type="button" className="hub-card hub-daily" onClick={() => go('threat-check')} aria-label={`Daily Threat Check, day ${day}`}>
+        <button type="button" className="hub-card hub-daily" onClick={() => go('today')} aria-label={`Daily, day ${day}`}>
           <h3>🎯 Daily · Day {day}</h3>
           <span className="hub-dbody">
             <span className="hub-mini" aria-hidden="true">

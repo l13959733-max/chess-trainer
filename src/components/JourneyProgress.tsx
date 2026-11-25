@@ -38,7 +38,7 @@ export function JourneyProgress({ beaten, bosses, chapter, city, coins, title }:
         <span className="jp-line">{chapter && city ? `Chapter ${chapter} · ${city}` : title}</span>
         <span className="jp-line">🌰 {coins.toLocaleString('en')}</span>
       </div>
-      <button type="button" className="jp-card jp-train" onClick={() => go('tent')} aria-label="Open Training">
+      <button type="button" className="jp-card jp-train" onClick={() => go('today')} aria-label="Open Training">
         <small>Training</small>
         <div className="jp-top">
           <b>{path ? path.done : 0}<i>/{path ? path.total : '–'}</i></b>

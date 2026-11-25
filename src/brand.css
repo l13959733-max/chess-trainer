@@ -220,3 +220,8 @@ html .king-screen > .king-bleed { margin-inline: 0; }
 html .book .hub-bar button.on { color: var(--b-green-d); }
 html .king-screen .hub-bar button, html .screen .hub-bar button { background: none; border: 0; border-radius: 0; box-shadow: none; min-height: 0; padding: 0; margin: 0; text-transform: uppercase; }
 html .king-screen .hub-bar .hub-mid, html .screen .hub-bar .hub-mid { background: var(--b-grape); border-bottom: 4px solid var(--b-grape-d); border-radius: 50%; margin: -26px auto 0; }
+/* Daily: the little board in the palette's board colours, disabled tiles quiet */
+html .dly-mini i.l { background: var(--b-board-light); }
+html .dly-mini i.d { background: var(--b-board-dark); }
+html .trn .dly-quick button:disabled { opacity: .5; }
+html .trn .dly-quick { grid-template-columns: repeat(3, 1fr); } /* 6 / 9 / 3 / 6 tiles: full rows */

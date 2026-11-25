@@ -114,7 +114,7 @@ export function OpeningRushHome({ rep }: { rep: Rep }) {
   return (
     <div className="screen rush or-home">
       <div className="rush-head">
-        <button type="button" className="back" onClick={() => go('tent')} aria-label="Back to Training">←</button>
+        <button type="button" className="back" onClick={() => go('today')} aria-label="Back to Daily">←</button>
         <h1>Opening Rush</h1>
       </div>
       <p className="note">Every situation of an opening as a task – your book moves, what to do when the opponent leaves the book, and how to punish his mistakes. Random, on time.</p>

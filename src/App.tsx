@@ -62,6 +62,7 @@ const OpeningRushHome = lazy(() => import('./screens/OpeningRush').then((m) => (
 const BlackCourse = lazy(() => import('./screens/BlackCourse').then((m) => ({ default: m.BlackCourse })))
 const BlackSystemScreen = lazy(() => import('./screens/BlackSystem').then((m) => ({ default: m.BlackSystemScreen })))
 const Workout = lazy(() => import('./screens/Workout').then((m) => ({ default: m.Workout })))
+const Today = lazy(() => import('./screens/Today').then((m) => ({ default: m.Today })))
 const Diary = lazy(() => import('./screens/Diary').then((m) => ({ default: m.Diary })))
 const Attacks = lazy(() => import('./screens/Attacks').then((m) => ({ default: m.Attacks })))
 import { Connect, MistakeOne, Training, YourGames } from './screens/Training'
@@ -133,7 +134,7 @@ function App() {
     return () => window.clearTimeout(t)
   }, [])
   // Pages that were doubles (Lu, 25.11.2026: "was doppelt ist, nur einmal") – old links and bookmarks land on the one
-  // page that has it all now: Daily → Training (+ the week on Progress), the old Training Camp → Training, the old
+  // page that has it all now: the old Training Camp → Daily (Lu, 25.11.: Daily is the training home), the old
   // painted map → the painted map, the second name of the real map → the real map.
   const alias = page ? MERGED[page] : undefined
   useEffect(() => {
@@ -208,6 +209,7 @@ function App() {
   else if (page === 'journey') body = RealMapReady ? <RealMapReady /> : <Suspense fallback={null}><RealMap /></Suspense>
   else if (page === 'painted') body = <KingStamps />
   else if (page === 'progress') body = <Journey puzzles={puzzles} player={player} progress={progress} />
+  else if (page === 'today') body = <Today rep={rep} progress={progress} puzzles={puzzles} />
   else if (page === 'diary') body = <Diary />
   else if (page === 'puzzle-rush') body = <PuzzleRush puzzles={puzzles} player={player} />
   else if (page === 'opening-rush') body = id ? <OpeningRush key={id} rep={rep} keys={decodeURIComponent(id)} /> : <OpeningRushHome rep={rep} />
@@ -243,7 +245,7 @@ function App() {
   )
 }
 
-const MERGED: Record<string, string> = { today: 'tent', camp: 'tent', world: 'painted', realmap: 'journey' }
+const MERGED: Record<string, string> = { camp: 'today', world: 'painted', realmap: 'journey' }
 
 function hasStoredPlayer() {
   try {

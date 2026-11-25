@@ -5,8 +5,7 @@ import type { useProgress } from '../hooks/useProgress'
 import type { Puzzles } from '../hooks/usePuzzles'
 import type { useRepertoire } from '../hooks/useRepertoire'
 import { analyzeOnly, recentRapid, reset as resetAnalyzer, type AnalyzerState } from '../lib/analyzer'
-import { doneMap, forgetBackToTraining, launch, mineOf, pickOfDay, planInput, redCandidates } from '../lib/trainingToday'
-import { clampScore } from '../lib/blunders'
+import { doneMap, forgetBackToTraining, launch, mineOf, planInput, redCandidates } from '../lib/trainingToday'
 import { shapeReport } from '../lib/check'
 import { fetchProfile, fetchRapidRating, gameKey, hasOwnPlayer, setPlayer, type ChessComGame } from '../lib/chesscom'
 import { chapterOf } from '../lib/cityBook'
@@ -219,7 +218,6 @@ export function Training({ rep, progress, puzzles, player, analyzer }: { rep: Re
   const cities = route().map((id) => stationById(id)!).filter(Boolean)
   const after = next ? cities[cities.indexOf(next) + 1] : undefined
   const linesDue = rep.lines.filter((l) => isDue(rep.srs.get(l.id), now)).length
-  const mistakesDue = puzzles.due.length + puzzles.fresh.length
   const own = hasOwnPlayer()
   const { canvas, burst } = useGlitter()
 
@@ -293,8 +291,6 @@ export function Training({ rep, progress, puzzles, player, analyzer }: { rep: Re
       gone = true
     }
   }, [player, own, analyzer.analyzed])
-  const last20 = useMemo(() => [...records].sort((a, b) => b.endTime - a.endTime).slice(0, 20), [records])
-  const safe = safeShare(last20)
 
   const name = getName() ?? 'Traveller'
   const hour = new Date(now).getHours()
@@ -316,9 +312,12 @@ export function Training({ rep, progress, puzzles, player, analyzer }: { rep: Re
     <div className="trn">
       <div className="trn-scroll" id="trn-scroll">
         <div className="trn-in">
+          {/* Lu, 25.11.: "das ganze Training in das Daily-Design, Training als Unterpunkt" – this page is today's
+              path now, opened from Daily (#/today); all trainers are on Daily under "All training" */}
           <header className="trn-head">
+            <button type="button" className="trn-back" onClick={() => go('today')} aria-label="Back to Daily">←</button>
             <div className="grow">
-              <h1>Training</h1>
+              <h1>Today’s path</h1>
               <p>{hello}, {name}!</p>
             </div>
             <span className="trn-pill fire" title="Days in a row">🔥 {progress.streak}</span>
@@ -332,13 +331,8 @@ export function Training({ rep, progress, puzzles, player, analyzer }: { rep: Re
 
           <ChessComCard own={own} player={player} rating={rating} checked={records.length} fresher={fresher} reading={reading} analyzer={analyzer} />
 
-          <div className="trn-tiles">
-            {/* 25.11.: streak and chestnuts are in the pills above, the week and the charts on Progress – here only what you do next */}
-            <button type="button" className="trn-tile t-green" onClick={() => go('progress')}><div className="top">Safe moves <span className="ic">🛡️</span></div><b>{safe === null ? '–' : `${Math.round(safe * 100)}%`}</b><small>{safe === null ? 'from your chess.com games' : `last ${last20.length} ${last20.length === 1 ? 'game' : 'games'}`}</small></button>
-            <button type="button" className="trn-tile t-blue" onClick={() => go('daily')}><div className="top">Due today <span className="ic">📖</span></div><b>{linesDue + mistakesDue}</b><small>{linesDue} lines · {mistakesDue} mistakes</small></button>
-          </div>
 
-          <div className="trn-sec"><h2>Today's path</h2><button type="button" onClick={() => document.getElementById('trn-shelf')?.scrollIntoView({ behavior: 'smooth' })}>All training ↓</button></div>
+          <div className="trn-sec"><h2>Your levels</h2><button type="button" onClick={() => go('today')}>All training ›</button></div>
 
           {next && (
             <button type="button" className="trn-unit" onClick={() => go('king/' + next.id)} aria-label={`Open the chapter ${next.name}`}>
@@ -388,12 +382,10 @@ export function Training({ rep, progress, puzzles, player, analyzer }: { rep: Re
             )}
           </div>
 
-          <div className="trn-sec" id="trn-shelf"><h2>All training</h2></div>
-          <Shelf puzzles={puzzles} own={own} fresher={fresher} />
         </div>
       </div>
 
-      <BottomBar active="training" />
+      <BottomBar active="daily" />
       {canvas}
 
       {sheet && (
@@ -596,54 +588,7 @@ function ChessComCard({ own, player, rating, checked, fresher, reading, analyzer
   )
 }
 
-// ---------- the shelf: every trainer of the old Training Camp ----------
-function T({ e, bg, title, sub, to, off }: { e: string; bg: string; title: string; sub: string; to?: string; off?: boolean }) {
-  return (
-    <button type="button" className="tool" disabled={off} onClick={() => to && go(to)}>
-      <span className="e" style={{ background: bg }} aria-hidden="true">{e}</span><b>{title}</b><small>{sub}</small>
-    </button>
-  )
-}
-function Shelf({ puzzles, own, fresher }: { puzzles: Puzzles; own: boolean; fresher: number | null }) {
-  const winning = useMemo(() => puzzles.puzzles.filter((p) => clampScore(p.scoreBefore) >= 300), [puzzles.puzzles])
-  const g = 'var(--green-t)', b = 'var(--blue-t)', r = 'var(--red-t)', p = 'var(--grape-t)'
-  return (
-    <div className="trn-shelf">
-      <div><h5>Your openings</h5><div className="trn-tools">
-        <T e="⚡" bg={g} title="Opening Rush" sub="Catalan & your Black system, on time" to="opening-rush" />
-        <T e="♚" bg={g} title="Black training" sub="1...d5 against everything" to="black-course" />
-        <T e="🎛" bg={g} title="Your Black system" sub="Pick another one" to="black" />
-        <T e="🗺" bg={g} title="Battle plans" sub="Lines that are due" to="review" />
-        <T e="🪙" bg={g} title="All openings" sub="Every line" to="path" />
-        <T e="🧭" bg={g} title="Opening atlas" sub="New weapons" to="atlas" />
-        <T e="🪤" bg={g} title="Attacks & traps" sub="With the defence" to="attacks" />
-        <T e="🔁" bg={g} title="Your habits" sub="Where you leave your book" to="habits" />
-        <T e="🃏" bg={g} title="Today's cards" sub="Everything due, mixed" to="daily" />
-      </div></div>
-      <div><h5>Tactics & skills</h5><div className="trn-tools">
-        <T e="🎯" bg={b} title="Daily Threat Check" sub="One a day" to="threat-check" />
-        <T e="💥" bg={b} title="Square Rush" sub="60 seconds" to="rush" />
-        <T e="⏱" bg={b} title="Puzzle Rush" sub="3 minutes, 3 lives" to="puzzle-rush" />
-        <T e="🛡" bg={b} title="Armoury" sub="Tactics to endgame" to="armoury" />
-        <T e="🗼" bg={b} title="Watchtower" sub="Check the threat first" to="threats" />
-      </div></div>
-      <div><h5>Your own games</h5>
-        <button type="button" className="trn-cc" style={{ marginBottom: 8 }} onClick={() => go(own ? 'games' : 'connect')}>
-          <span className="row"><span className="trn-av">♟</span><span className="tx"><b>Your chess.com games</b><small>Every finished game, checked by Hoppy</small></span>{!!fresher && <span className="trn-new">{fresher} new</span>}</span>
-        </button>
-        <div className="trn-tools">
-          <T e="🩹" bg={r} title="Lost battles" sub="Mistakes as puzzles" to="puzzles" />
-          <T e="🧩" bg={r} title="My weaknesses" sub="By type" to="weaknesses" />
-        </div>
-      </div>
-      <div><h5>Play Hoppy</h5><div className="trn-tools">
-        <T e="🐴" bg={p} title="Sparring" sub="A game vs Hoppy-Bot" to="play" />
-        <T e="💰" bg={p} title="Treasure chest" sub="Win your winning positions" to={winning.length ? 'play/puzzle/' + encodeURIComponent(pickOfDay(winning)!.id) : undefined} off={!winning.length} />
-        <T e="🔥" bg={p} title="Warm-up" sub="2 min before chess.com" to="warmup" />
-      </div></div>
-    </div>
-  )
-}
+// the shelf of all trainers is on Daily now (Lu, 25.11.)
 
 // =====================================================================================================
 // Connect chess.com: name → "Is this you?" → Hoppy reads the last 20 rapid games → mistakes go on the path
@@ -711,7 +656,7 @@ export function Connect({ step, player, onPlayer, analyzer, puzzles }: { step?: 
       <div className="trn-scroll">
         <div className="trn-in full">
           <div className="trn-hd">
-            <button type="button" className="back" onClick={() => go('tent')} aria-label="Back to Training">←</button>
+            <button type="button" className="back" onClick={() => go('today')} aria-label="Back to Daily">←</button>
             <h2>{phase === 'ask' ? 'Connect chess.com' : !result ? 'Hoppy reads your games' : `${who}'s chess today`}</h2>
           </div>
 
@@ -824,7 +769,7 @@ function ConnectResult({ who, rating: given, games, puzzles }: { who: string; ra
       ) : (
         <>
           <div className="trn-talk"><img src={HOPPY} alt="Hoppy" /><p>No big mistake in these games. Every move was safe or close.</p></div>
-          <button type="button" className="btn" onClick={() => go('tent')}>Back to Training</button>
+          <button type="button" className="btn" onClick={() => go('tent')}>Back to today’s path</button>
         </>
       )}
     </>
@@ -861,7 +806,7 @@ export function YourGames({ player, puzzles }: { player: string; puzzles: Puzzle
       <div className="trn-scroll">
         <div className="trn-in full">
           <div className="trn-hd">
-            <button type="button" className="back" onClick={() => go('tent')} aria-label="Back to Training">←</button>
+            <button type="button" className="back" onClick={() => go('today')} aria-label="Back to Daily">←</button>
             <h2>Your games</h2>
           </div>
           <div className="trn-cc">

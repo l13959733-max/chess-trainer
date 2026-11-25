@@ -32,7 +32,7 @@ export function Accuracy({ player }: { player: string }) {
   return (
     <div className="screen accuracy">
       <div className="screen-head">
-        <button type="button" className="back" onClick={() => go('tent')} aria-label="Back">←</button>
+        <button type="button" className="back" onClick={() => go('today')} aria-label="Back">←</button>
         <div>
           <div className="eyebrow">Test · your finished rapid games</div>
           <h2>How well did I play?</h2>

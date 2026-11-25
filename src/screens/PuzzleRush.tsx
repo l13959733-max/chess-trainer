@@ -230,7 +230,7 @@ export function PuzzleRush({ puzzles, player }: { puzzles: ReturnType<typeof use
             <div className="done-title">All looked at again</div>
             <p>These come back in your next runs until you solve them.</p>
             <div className="done-actions">
-              <button type="button" onClick={() => go('tent')}>Training</button>
+              <button type="button" onClick={() => go('today')}>Daily</button>
               <button type="button" className="primary" onClick={start}>Play again</button>
             </div>
           </div>
@@ -259,7 +259,7 @@ export function PuzzleRush({ puzzles, player }: { puzzles: ReturnType<typeof use
   return (
     <div className="screen rush prush">
       <div className="rush-head">
-        <button type="button" className="back" onClick={() => go('tent')} aria-label="Back to Training">←</button>
+        <button type="button" className="back" onClick={() => go('today')} aria-label="Back to Daily">←</button>
         <h1>Puzzle Rush</h1>
       </div>
       <div className="rush-hud">

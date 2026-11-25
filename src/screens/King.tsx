@@ -1816,7 +1816,7 @@ export function Habits({ rep }: { rep: Repertoire }) {
   const camp = { ...stationById('kannauj')!, id: 'habits', name: 'Training Camp', year: 'your habits' }
   const wait = (text: string, action?: React.ReactNode) => (
     <div className="screen king-screen">
-      <StationHead s={camp} back={() => go('tent')} title="Your habits" />
+      <StationHead s={camp} back={() => go('today')} title="Your habits" />
       <p className="king-lesson">{text}</p>
       {action}
     </div>
@@ -1857,7 +1857,7 @@ export function WarmUp({ rep }: { rep: Repertoire }) {
               <div className="done-title">Ready for battle</div>
               <p>Before every move: what does your opponent threaten? Good luck – on chess.com you fight alone.</p>
               <div className="done-actions">
-                <button type="button" onClick={() => go('tent')}>Training Camp</button>
+                <button type="button" onClick={() => go('today')}>Daily</button>
                 <a className="button primary" href="https://www.chess.com/play/online" target="_blank" rel="noopener" onClick={() => saveKing({ ...loadKing(), warmupAt: Date.now() })}>Play on chess.com</a>
               </div>
             </div>

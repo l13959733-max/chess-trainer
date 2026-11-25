@@ -83,7 +83,7 @@ export function Home({ rep, progress, puzzles, analyzer, player, trophies }: { r
       {/* 25.11.2026 (Lu: "nichts doppelt"): this page is the opening library now. Streak/XP/level are on Progress,
           today's cards, play, puzzles, weaknesses and "win it" in Training, watch and trophies on Progress. */}
       <div className="screen-head">
-        <button type="button" className="back" onClick={() => go('tent')} aria-label="Back to Training">←</button>
+        <button type="button" className="back" onClick={() => go('today')} aria-label="Back to Daily">←</button>
         <div>
           <div className="eyebrow">Training · {rep.lines.length} lines</div>
           <h2>All openings</h2>

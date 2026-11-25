@@ -6,12 +6,12 @@ import { pathProgress } from '../lib/trainingToday'
 import { useState } from 'react'
 
 // ONE bottom bar, the same on every overview page (Lu, 25.11.2026: "durchgehend, gut bedienen, nichts doppelt"):
-// Home · Journey (the world map) · Hoppy (continue in the next city) · Training (everything to practise) · Progress
-// (how you got better + everything else). The old "More" sheet is gone – its entries live on the Progress page
+// Home · Journey (the world map) · Hoppy (continue in the next city) · Daily (today + every trainer; Training's
+// path is a sub page) · Progress (statistics only). Lu, 25.11.: "Daily-Design, Training als Unterpunkt". The old "More" sheet is gone – its entries live on the Progress page
 // (section "More") or were already in Training's shelf.
 // Earlier decisions this replaces: 13.11. "start page only Hoppy + More" and "Journey = Fast travel" – fast travel is
 // one tap away on the map and on the Progress page.
-export type Tab = 'home' | 'journey' | 'training' | 'progress'
+export type Tab = 'home' | 'journey' | 'daily' | 'progress'
 
 export function BottomBar({ active }: { active: Tab | null }) {
   const king = loadKing()
@@ -28,12 +28,12 @@ export function BottomBar({ active }: { active: Tab | null }) {
       <button type="button" {...tab('journey')} onClick={() => go('journey')}>
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9" /><path d="m15.5 8.5-2.2 4.8-4.8 2.2 2.2-4.8z" /></svg>Journey
       </button>
-      <button type="button" className="hub-mid" onClick={() => (next ? travelTo(next) : go('tent'))} aria-label={next ? `Play – ${next.name}` : 'Play'}>
+      <button type="button" className="hub-mid" onClick={() => (next ? travelTo(next) : go('today'))} aria-label={next ? `Play – ${next.name}` : 'Play'}>
         <Mascot mood="happy" />
       </button>
-      <button type="button" {...tab('training')} className={`hub-train${active === 'training' ? ' on' : ''}`} onClick={() => go('tent')} aria-label={open ? `Training, ${open} levels open today` : 'Training'}>
+      <button type="button" {...tab('daily')} className={`hub-train${active === 'daily' ? ' on' : ''}`} onClick={() => go('today')} aria-label={open ? `Daily, ${open} levels open today` : 'Daily'}>
         {open === null ? <i className="hub-dot" aria-hidden="true" /> : open > 0 ? <i className="hub-dot" aria-hidden="true">{open}</i> : null}
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" aria-hidden="true"><path d="M12 3 3 20h18L12 3Z" /><path d="M12 3v17M9 20l3-6 3 6" /></svg>Training
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" aria-hidden="true"><path d="M12 3c1.2 4.2 6 6 6 11a6 6 0 0 1-12 0c0-3 2-5 3-6 0 2 1 3 2 3 0-3.5-1-5.5 1-8Z" /></svg>Daily
       </button>
       <button type="button" {...tab('progress')} onClick={() => go('progress')}>
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2" /></svg>Progress

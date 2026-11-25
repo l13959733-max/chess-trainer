@@ -68,13 +68,17 @@ Hauptnutzung: am Handy.
   Lila-Training sind dort darauf abgebildet; alte Buch-/Pergament-Farbwerte wurden in den CSS-Dateien ersetzt.
   Regionsfarben der Stadtkapitel = Palettenfarben (`lib/cityBook.ts`). Bilder (Städte, Karten, Hoppy) bleiben.
   **Neue Seiten: keine eigenen Farben/Schriften erfinden.** Rückweg: Tag `vor-design-aufraeumen-2026-11-25`.
-- **Navigation (25.11.):** EINE Leiste unten überall (`components/BottomBar.tsx`): Home · Journey (`#/journey`, Karte) ·
-  Hoppy (weiter in der nächsten Stadt) · Training (`#/tent`) · Progress (`#/progress`). Kein „More“-Menü mehr:
-  Tagebuch, Questbuch, Real world, gemalte Karte, Spiegelwelt, Together, Accuracy-Test, Settings stehen auf
-  Progress unter „More“. Trainieren = Training, Ansehen/Fortschritt = Progress.
-- **Zusammengelegt (alte Adressen leiten weiter, `MERGED` in App.tsx):** `#/today` → Training (Woche/XP jetzt auf
-  Progress), `#/camp` → Training (alle Trainer im Regal), `#/world` (alte Karte) → `#/painted`, `#/realmap` → `#/journey`.
-  `#/path` ist nur noch die Eröffnungs-Bibliothek „All openings“ (kein zweites Dashboard).
+- **Navigation (25.11., 2. Runde nach Lus Feedback):** EINE Leiste unten überall (`components/BottomBar.tsx`):
+  Home · Journey (`#/journey`, Karte) · Hoppy · **Daily** (`#/today`) · **Progress** (`#/progress`).
+  Lu: „die alte Daily-Seite fand ich sehr cool – das ganze Training ins Daily-Design, Training als Unterpunkt,
+  keine verschachtelten Unterpunkte, nichts verlieren“ → **Daily = Trainings-Startseite** (`screens/Today.tsx`):
+  Woche (Flammen), Threat Check, Tagespfad-Ring, Fälliges, dann ALLE Trainer als Daily-Kacheln (Play & tactics,
+  Your openings, Your games, More inkl. Questbuch, Real world, gemalte Karte, Spiegelwelt, Together, Settings).
+  `#/tent` = nur noch „Today's path“ (Level-Pfad), öffnet aus dem Ring, Zurück → Daily. Kein Regal mehr dort.
+  Lu: „bei Journey hatte ich nur eine Statistikseite“ → **Progress = NUR Statistik** (Zahlen, Städte, Kurven,
+  Analysen, Trophies, Accuracy, Tagebuch), Settings als Zahnrad.
+- **Zusammengelegt (alte Adressen leiten weiter, `MERGED` in App.tsx):** `#/camp` → Daily, `#/world` (alte Karte) →
+  `#/painted`, `#/realmap` → `#/journey`. `#/path` ist nur noch die Eröffnungs-Bibliothek „All openings“.
 - Englisch, große Touch-Ziele, Brett füllt Bildschirmbreite.
 - **Design (Ursprung): kinderfreundlich, hell, im Stil von Lern-Apps wie Duolingo** (Lus Entscheidung 29.10.2026, auch um seinen Sohn
   für Schach zu begeistern): Maskottchen „Hoppy" (Springer-Pferdchen, `src/components/Mascot.tsx`), Lernpfad auf der
