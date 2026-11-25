@@ -252,29 +252,3 @@ html .wht-bubbles { position: relative; flex: 1; min-height: 360px; border-radiu
 html .wht-hint { position: absolute; left: 0; right: 0; bottom: 18px; margin: 0; text-align: center; font-weight: 800; color: var(--b-muted); }
 html .trn .wht-bubbles .bubble-menu .menu-btn { border-radius: 50%; }
 html .trn .wht-bubbles a.pill-link { cursor: pointer; }
-
-/* ======================================================================================
-   6. Navigation (25.11., Lu: no bar, no button in the middle): one floating menu button
-      bottom right + a frosted sheet with the animated list (components/BottomBar.tsx)
-   ====================================================================================== */
-html body .nav-fab { position: fixed; z-index: 45; right: max(16px, env(safe-area-inset-right, 0px)); bottom: calc(16px + env(safe-area-inset-bottom, 0px));
-  width: 58px; height: 58px; min-height: 0; padding: 0; margin: 0; display: grid; place-items: center; border-radius: 50%;
-  background: var(--b-grape); color: #fff; border: 0; border-bottom: 4px solid var(--b-grape-d);
-  box-shadow: 0 8px 22px rgba(106, 63, 214, .35), 0 0 0 4px rgba(255, 255, 255, .85); cursor: pointer; text-transform: none; letter-spacing: 0; transition: transform .12s; }
-html body .nav-fab:active { transform: translateY(2px); border-bottom-width: 2px; }
-html body .nav-fab:focus-visible { outline: 3px solid var(--b-blue); outline-offset: 3px; }
-html body .nav-fab svg { width: 26px; height: 26px; }
-html body .nav-dot { position: absolute; top: -2px; right: -2px; min-width: 20px; height: 20px; padding: 0 5px; border-radius: 99px; background: var(--b-red); color: #fff; font-style: normal; font-weight: 900; font-size: 11px; line-height: 20px; text-align: center; box-shadow: 0 0 0 2px #fff; }
-@media (min-width: 520px) { html body .nav-fab { right: calc(50% - 220px + 16px); } }
-html body .nav-sheet { position: fixed; inset: 0; z-index: 60; display: flex; align-items: flex-end; justify-content: center;
-  background: rgba(43, 33, 64, .28); -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px); animation: nav-fade .2s ease-out; }
-html body .nav-panel { width: 100%; max-width: 440px; display: grid; gap: 4px; border-radius: 28px 28px 0 0;
-  background: rgba(247, 245, 252, .9); -webkit-backdrop-filter: blur(24px) saturate(1.6); backdrop-filter: blur(24px) saturate(1.6);
-  box-shadow: 0 -10px 40px rgba(43, 33, 64, .18); padding: 12px 10px calc(12px + env(safe-area-inset-bottom, 0px)); animation: nav-up .34s cubic-bezier(.22, 1, .36, 1); }
-html body .nav-head { display: flex; align-items: center; justify-content: space-between; padding: 4px 8px 2px; }
-html body .nav-head b { font-family: var(--b-font); font-weight: 900; font-size: 22px; letter-spacing: -0.02em; color: var(--b-text); }
-html body .nav-sheet .nav-x { width: 36px; height: 36px; min-height: 0; padding: 0; margin: 0; display: grid; place-items: center; border-radius: 50%; border: 0; background: rgba(58, 52, 80, .08); color: var(--b-text); font-size: 15px; font-weight: 900; box-shadow: none; text-transform: none; cursor: pointer; }
-html body .nav-sheet .animated-list { width: 100%; }
-@keyframes nav-up { from { transform: translateY(40px); opacity: 0; } to { transform: none; opacity: 1; } }
-@keyframes nav-fade { from { opacity: 0; } }
-@media (prefers-reduced-motion: reduce) { html body .nav-panel, html body .nav-sheet { animation: none; } }

@@ -68,10 +68,6 @@ Hauptnutzung: am Handy.
   Lila-Training sind dort darauf abgebildet; alte Buch-/Pergament-Farbwerte wurden in den CSS-Dateien ersetzt.
   Regionsfarben der Stadtkapitel = Palettenfarben (`lib/cityBook.ts`). Bilder (Städte, Karten, Hoppy) bleiben.
   **Neue Seiten: keine eigenen Farben/Schriften erfinden.** Rückweg: Tag `vor-design-aufraeumen-2026-11-25`.
-- **Navigation (25.11., 3. Runde – VORSCHAU):** Lu: „die Leiste und den Button in der Mitte gefallen mir nicht“ →
-  KEINE Leiste, KEIN Mittelknopf. Ein schwebender runder Menüknopf unten rechts (`.nav-fab`, `components/BottomBar.tsx`,
-  Name blieb) öffnet ein Glas-Menü mit der AnimatedList (React Bits, `components/AnimatedList.tsx`) aller Ziele;
-  aktuelle Seite markiert. Testseite `#/wheel` vergleicht Wheel / List / Bubbles.
 - **Navigation (25.11., 2. Runde nach Lus Feedback):** EINE Leiste unten überall (`components/BottomBar.tsx`):
   Home · Journey (`#/journey`, Karte) · Hoppy · **Daily** (`#/today`) · **Progress** (`#/progress`).
   Lu: „die alte Daily-Seite fand ich sehr cool – das ganze Training ins Daily-Design, Training als Unterpunkt,
