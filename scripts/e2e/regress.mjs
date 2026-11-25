@@ -10,7 +10,7 @@ for (const [r,sel] of routes) { await p.goto(U+'#/'+r); try { await p.waitForSel
 // Training must have their own look before any game page was opened
 { const q = await (await b.newContext({ viewport:{width:393,height:873}, isMobile:true, hasTouch:true })).newPage()
   await q.addInitScript(()=>{ localStorage.setItem('chess-trainer-name','Lu'); localStorage.setItem('chess-trainer-king', JSON.stringify({intro:true,here:'kannauj',beaten:[]})) })
-  for (const [r, sel, prop, want] of [['', '.hub', 'position', 'fixed'], ['tent', '.trn', 'position', 'fixed'], ['today', '.hub-bar', 'display', 'grid']]) {
+  for (const [r, sel, prop, want] of [['', '.hub', 'position', 'fixed'], ['tent', '.trn', 'position', 'fixed'], ['today', '.nav-fab', 'display', 'grid']]) {
     await q.goto(U + '#/' + r); await q.waitForSelector(sel, { timeout: 15000 })
     const got = await q.evaluate(([s, pr]) => getComputedStyle(document.querySelector(s))[pr], [sel, prop])
     console.log(got === want ? 'ok   look' : 'FEHLT look', r || 'start', sel, prop, got)
