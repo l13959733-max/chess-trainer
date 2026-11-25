@@ -10,7 +10,7 @@ import { isOpen, loadKing, route, stationById, type Station } from './king'
 const STYLE_URL = 'https://tiles.openfreemap.org/styles/positron'
 const VIEW_KEY = 'hoppy-realmap-view'
 const AHEAD = 3
-const TERRA = '#7a3420'
+const TERRA = '#8a5cf6'
 
 // [longitude, latitude]. Places that are not one town on a real map are put where their story happens:
 // Persia = Isfahan, The North = Trondheim, Queen's Palace = Göttingen (the manuscript), Winter Forest = Russian forest,

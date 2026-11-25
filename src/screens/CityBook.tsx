@@ -368,7 +368,7 @@ export function CityBook({
       {/* a fresh page each time (14.11.: the swipe left the next page pushed out of view – the story looked empty).
           The story stays one page: the picture stays, the text parts glide on a track. */}
       <Fragment key={page.kind === 'story' ? 'story' : JSON.stringify(page)}>{body}</Fragment>
-      <BottomBar active={null} />
+      <BottomBar active="journey" />
     </div>
   )
 }

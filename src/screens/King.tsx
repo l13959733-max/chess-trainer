@@ -32,6 +32,7 @@ import { CityBook } from './CityBook'
 import { Lesson } from './Lesson'
 import { LESSONS } from '../lib/lessons'
 import { JourneyProgress } from '../components/JourneyProgress'
+import { BottomBar } from '../components/BottomBar'
 import '../king.css'
 
 const IMG = import.meta.env.BASE_URL + 'king/'
@@ -131,7 +132,7 @@ function KingRoad() {
         <span className="king-coins" aria-label={`${titleOf(state.beaten)}, ${state.coins} chestnuts`}>
           <small>{titleOf(state.beaten)}</small>🌰 {state.coins}
         </span>
-        <button type="button" className="road-world" onClick={() => go('world')}>World map</button>
+        <button type="button" className="road-world" onClick={() => go('journey')}>World map</button>
       </div>
       <p className="king-bubble road-bubble">
         {crowned ? (
@@ -199,16 +200,8 @@ function KingRoad() {
       </div>
 
       {toast && <div className="king-toast road-toast" role="status">{toast}</div>}
-      <nav className="king-dock road-dock" aria-label="Places">
-        <button type="button" onClick={() => go('tent')}><span aria-hidden="true">⛺</span>Training</button>
-        {state.beaten.includes('kannauj') ? (
-          <button type="button" className="dock-portal" onClick={() => go('portal')}><span aria-hidden="true">🌀</span>Real world</button>
-        ) : (
-          <button type="button" onClick={() => go('path')}><span aria-hidden="true">📚</span>All openings</button>
-        )}
-        <button type="button" onClick={() => go('quests')}><span aria-hidden="true">📖</span>Quest book</button>
-        <button type="button" onClick={() => go('watch')}><span aria-hidden="true">👫</span>Together</button>
-      </nav>
+      {/* the one bottom bar (25.11.): Real world, Quest book and Together are on the Progress page now */}
+      <BottomBar active="journey" />
     </div>
   )
 }
@@ -351,9 +344,9 @@ function KingMap() {
                 <circle r="38" fill="transparent" />
                 {beaten && (
                   <g transform="translate(30,2)" aria-hidden="true">
-                    <circle r="11" fill="#c9a227" stroke="#8f7116" strokeWidth="2.5" />
+                    <circle r="11" fill="#ffc531" stroke="#8f7116" strokeWidth="2.5" />
                     <circle r="7.5" fill="none" stroke="#f3dfb0" strokeWidth="1" opacity=".8" />
-                    <text y="4.5" fontSize="12" textAnchor="middle" fontWeight="900" fill="#3b2a14">✓</text>
+                    <text y="4.5" fontSize="12" textAnchor="middle" fontWeight="900" fill="#3a3450">✓</text>
                   </g>
                 )}
                 {/* Lu, 09.11.: less clutter – no fog clouds and year plates; a city still in the fog is a small
@@ -362,7 +355,7 @@ function KingMap() {
                   <text className="king-label" y="42" textAnchor="middle">{s.name}</text>
                 ) : (
                   <g className="king-seal" aria-hidden="true">
-                    <circle r="15" fill="#f4e4c1" stroke="#8b6b3d" strokeWidth="2.5" />
+                    <circle r="15" fill="#f7f5fc" stroke="#b9b3c9" strokeWidth="2.5" />
                     <text y="5.5" fontSize="15" textAnchor="middle" fontWeight="900" fill="#6b5a3f" fontFamily="Cinzel, Georgia, serif">{roadNo(s.id)}</text>
                   </g>
                 )}
@@ -383,7 +376,7 @@ function KingMap() {
           )}
           <g ref={token} transform={`translate(${here.x},${here.y - TOKEN_LIFT})`} aria-label="You and Hoppy are here">
             <g className="king-bob">
-              <path d="M-8,24 L0,40 L8,24 Z" fill="#8b6b3d" />
+              <path d="M-8,24 L0,40 L8,24 Z" fill="#b9b3c9" />
               <HoppyMedallion />
               {crowned && <text y="-26" textAnchor="middle" fontSize="22" aria-hidden="true">👑</text>}
               <g ref={ship} style={{ display: 'none' }} transform="translate(-24,22) scale(.7)" dangerouslySetInnerHTML={{ __html: SHIP_INNER }} />
@@ -485,7 +478,7 @@ function RoadLines({ beaten }: { beaten: string[] }) {
 function HoppyMedallion() {
   return (
     <g>
-      <circle r="27" fill="#c9a227" stroke="#5c3d12" strokeWidth="2" />
+      <circle r="27" fill="#ffc531" stroke="#5c3d12" strokeWidth="2" />
       <circle r="23" fill="#fff7e2" />
       <g transform="translate(-21,-22) scale(.35)">
         <MascotDrawing />
@@ -498,7 +491,7 @@ function HoppyMedallion() {
 function Medallion({ img }: { img: string }) {
   return (
     <g>
-      <circle r="27" fill="#c9a227" stroke="#5c3d12" strokeWidth="2" />
+      <circle r="27" fill="#ffc531" stroke="#5c3d12" strokeWidth="2" />
       <image href={IMG + img} x="-23" y="-23" width="46" height="46" clipPath="url(#king-clip-big)" preserveAspectRatio="xMidYMid slice" />
       <circle r="23" fill="none" stroke="#5c3d12" strokeWidth="1.2" />
     </g>

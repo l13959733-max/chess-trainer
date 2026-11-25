@@ -61,8 +61,22 @@ Hauptnutzung: am Handy.
 - Kurze Erfolgsanimation, Streak-Anzeige auf der Startseite.
 
 ## UI
+- **EIN Design für alles (Lu, 25.11.2026: „durchgehendes Corporate Design im Duolingo-Stil, nichts doppelt“):**
+  `src/brand.css` (zuletzt geladen, in App.tsx) ist DIE Quelle: Farben nur aus `--b-*` (grün = los/geschafft,
+  violett = Hoppy/Marke/Geschichte, gelb = Belohnung, blau = Info, rot = Fehler), Schrift NUR Nunito, Karten weiß
+  mit 2px-Rand + 4px Unterkante, 3D-Knöpfe. Pergament/Cinzel, Buch-Look (EB Garamond/Inter, Terrakotta/Gold) und
+  Lila-Training sind dort darauf abgebildet; alte Buch-/Pergament-Farbwerte wurden in den CSS-Dateien ersetzt.
+  Regionsfarben der Stadtkapitel = Palettenfarben (`lib/cityBook.ts`). Bilder (Städte, Karten, Hoppy) bleiben.
+  **Neue Seiten: keine eigenen Farben/Schriften erfinden.** Rückweg: Tag `vor-design-aufraeumen-2026-11-25`.
+- **Navigation (25.11.):** EINE Leiste unten überall (`components/BottomBar.tsx`): Home · Journey (`#/journey`, Karte) ·
+  Hoppy (weiter in der nächsten Stadt) · Training (`#/tent`) · Progress (`#/progress`). Kein „More“-Menü mehr:
+  Tagebuch, Questbuch, Real world, gemalte Karte, Spiegelwelt, Together, Accuracy-Test, Settings stehen auf
+  Progress unter „More“. Trainieren = Training, Ansehen/Fortschritt = Progress.
+- **Zusammengelegt (alte Adressen leiten weiter, `MERGED` in App.tsx):** `#/today` → Training (Woche/XP jetzt auf
+  Progress), `#/camp` → Training (alle Trainer im Regal), `#/world` (alte Karte) → `#/painted`, `#/realmap` → `#/journey`.
+  `#/path` ist nur noch die Eröffnungs-Bibliothek „All openings“ (kein zweites Dashboard).
 - Englisch, große Touch-Ziele, Brett füllt Bildschirmbreite.
-- **Design: kinderfreundlich, hell, im Stil von Lern-Apps wie Duolingo** (Lus Entscheidung 29.10.2026, auch um seinen Sohn
+- **Design (Ursprung): kinderfreundlich, hell, im Stil von Lern-Apps wie Duolingo** (Lus Entscheidung 29.10.2026, auch um seinen Sohn
   für Schach zu begeistern): Maskottchen „Hoppy" (Springer-Pferdchen, `src/components/Mascot.tsx`), Lernpfad auf der
   Startseite, dicke drückbare Knöpfe, Schrift Nunito, Styles in `src/theme-kids.css`. Keine fremden Marken/Figuren.
 - Sound (synthetisiertes Klacken) und Vibration bei Zügen, abschaltbar in Settings.

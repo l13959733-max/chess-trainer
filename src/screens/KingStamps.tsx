@@ -1,10 +1,10 @@
 import { useEffect, useLayoutEffect, useRef, useState, type CSSProperties } from 'react'
 import { MascotDrawing } from '../components/Mascot'
+import { BottomBar } from '../components/BottomBar'
 import { go } from '../hooks/useHashRoute'
 import { openCity } from '../lib/travel'
 import { roadAmbush } from '../lib/ambush'
-import { STATIONS, isOpen, loadKing, mirrorOpen, opensAfter, route, saveKing, stationById, titleOf, type Station } from '../lib/king'
-import { dayNumber, loadResults } from '../lib/threatcheck'
+import { STATIONS, isOpen, loadKing, opensAfter, route, saveKing, stationById, titleOf, type Station } from '../lib/king'
 
 // Explore mode (Lu, 12.11.): the whole painted world map, big and calm. Every city is a round painted coin
 // (like the steps inside a city), the road is gold up to the next city and shows only three cities ahead.
@@ -62,7 +62,6 @@ const clampZoom = (z: number) => Math.min(ZOOM_MAX, Math.max(ZOOM_MIN, z))
 export function KingStamps() {
   const [state] = useState(loadKing)
   const [toast, setToast] = useState<string | null>(null)
-  const [more, setMore] = useState(false)
   const stage = useRef<HTMLDivElement>(null)
   const scroller = useRef<HTMLDivElement>(null)
   const [h, setH] = useState(0) // stage height
@@ -71,7 +70,6 @@ export function KingStamps() {
   const next = cities.find((s) => isOpen(s, state.beaten) && !state.beaten.includes(s.id))
   const bosses = STATIONS.filter((s) => !s.finale).length
   const beatenCount = state.beaten.filter((id) => STATIONS.some((s) => s.id === id && !s.finale)).length
-  const dailyOpen = !loadResults()[dayNumber()]
   const nextIdx = next ? cities.indexOf(next) : cities.length - 1
   const shownRoad = cities.slice(0, nextIdx + 1 + AHEAD)
   const goldRoad = cities.slice(0, nextIdx + 1)
@@ -273,7 +271,7 @@ export function KingStamps() {
                     <text x={np.x} y={np.y - NR - 29} className="ex-start-text">START</text>
                   </g>
                   <g transform={`translate(${np.x + NR + 8},${np.y - 18})`}>
-                    <ellipse cx="25" cy="52" rx="16" ry="4" fill="#3b2a14" opacity=".25" />
+                    <ellipse cx="25" cy="52" rx="16" ry="4" fill="#3a3450" opacity=".25" />
                     <g className="king-bob">
                       <g transform="scale(.44)">
                         <MascotDrawing />
@@ -295,28 +293,9 @@ export function KingStamps() {
         <button type="button" className="explore-go" onClick={() => (next ? open(next) : go('tent'))}>
           ▶ START <small>{next ? next.name : 'Training Camp'}</small>
         </button>
-        <nav className="explore-modes" aria-label="Modes">
-          <button type="button" onClick={() => go('')}><span aria-hidden="true">🏠</span>Home</button>
-          <button type="button" onClick={() => go('journey')}><span aria-hidden="true">🗺️</span>Map</button>
-          <button type="button" onClick={() => go('tent')}><span aria-hidden="true">⛺</span>Training</button>
-          <button type="button" className={dailyOpen ? 'dot' : ''} onClick={() => go('threat-check')}><span aria-hidden="true">🎯</span>Daily</button>
-          <button type="button" onClick={() => setMore(!more)} aria-expanded={more}><span aria-hidden="true">☰</span>More</button>
-        </nav>
       </div>
-      {more && (
-        <div className="explore-more" role="dialog" aria-label="More">
-          <button type="button" onClick={() => go('quests')}>📖 Quest book</button>
-          <button type="button" onClick={() => go('road')}>🧭 Fast travel (list)</button>
-          <button type="button" onClick={() => go(state.beaten.includes('kannauj') ? 'portal' : 'check')}>🌀 Real world</button>
-          <button type="button" onClick={() => go('watch')}>👫 Together</button>
-          {mirrorOpen(state.beaten) && <button type="button" onClick={() => go('mirror')}>🪞 Mirror World</button>}
-          <button type="button" onClick={() => go('path')}>📚 All openings</button>
-          <button type="button" onClick={() => go('world')}>🗺️ The old map</button>
-          <button type="button" onClick={() => go('rush')}>💥 Square Rush</button>
-          <button type="button" onClick={() => go('journey')}>🌍 The real map</button>
-          <button type="button" className="close" onClick={() => setMore(false)}>Close</button>
-        </div>
-      )}
+      {/* the one bottom bar (25.11.): the old Modes row + More sheet were doubles of it and of the Progress page */}
+      <BottomBar active="journey" />
     </div>
   )
 }

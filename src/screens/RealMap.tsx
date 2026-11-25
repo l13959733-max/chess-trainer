@@ -103,7 +103,7 @@ export default function RealMap() {
           )}
         </div>
       )}
-      <BottomBar active={null} />
+      <BottomBar active="journey" />
     </div>
   )
 }

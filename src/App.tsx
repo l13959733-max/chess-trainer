@@ -37,9 +37,7 @@ const Habits = lazy(() => import('./screens/King').then((m) => ({ default: m.Hab
 const KingFastTravel = lazy(() => import('./screens/King').then((m) => ({ default: m.KingFastTravel })))
 const KingHome = lazy(() => import('./screens/King').then((m) => ({ default: m.KingHome })))
 const KingStation = lazy(() => import('./screens/King').then((m) => ({ default: m.KingStation })))
-const KingWorld = lazy(() => import('./screens/King').then((m) => ({ default: m.KingWorld })))
 const WarmUp = lazy(() => import('./screens/King').then((m) => ({ default: m.WarmUp })))
-const WarTent = lazy(() => import('./screens/King').then((m) => ({ default: m.WarTent })))
 // Speed (Lu, 13.11.): pages that are not on the way from the start load when they are opened (the phone keeps them after the first time)
 const ChessCheck = lazy(() => import('./screens/Check').then((m) => ({ default: m.ChessCheck })))
 const Portal = lazy(() => import('./screens/Portal').then((m) => ({ default: m.Portal })))
@@ -58,7 +56,6 @@ const Accuracy = lazy(() => import('./screens/Accuracy').then((m) => ({ default:
 const Watch = lazy(() => import('./screens/Watch').then((m) => ({ default: m.Watch })))
 const Weaknesses = lazy(() => import('./screens/Weaknesses').then((m) => ({ default: m.Weaknesses })))
 const Journey = lazy(() => import('./screens/Journey').then((m) => ({ default: m.Journey })))
-const Today = lazy(() => import('./screens/Today').then((m) => ({ default: m.Today })))
 const PuzzleRush = lazy(() => import('./screens/PuzzleRush').then((m) => ({ default: m.PuzzleRush })))
 const OpeningRush = lazy(() => import('./screens/OpeningRush').then((m) => ({ default: m.OpeningRush })))
 const OpeningRushHome = lazy(() => import('./screens/OpeningRush').then((m) => ({ default: m.OpeningRushHome })))
@@ -81,6 +78,8 @@ import { Welcome } from './screens/Welcome'
 import type { Category } from './lib/weakness'
 import { CATEGORY, otherKindOf, phaseOf } from './lib/weakness'
 import './App.css'
+// THE one design (Lu, 25.11.2026): loaded last, maps every older look onto one Duolingo-style system
+import './brand.css'
 
 function App() {
   const rep = useRepertoire()
@@ -133,10 +132,18 @@ function App() {
     }, 1500)
     return () => window.clearTimeout(t)
   }, [])
+  // Pages that were doubles (Lu, 25.11.2026: "was doppelt ist, nur einmal") – old links and bookmarks land on the one
+  // page that has it all now: Daily → Training (+ the week on Progress), the old Training Camp → Training, the old
+  // painted map → the painted map, the second name of the real map → the real map.
+  const alias = page ? MERGED[page] : undefined
+  useEffect(() => {
+    if (alias) window.location.replace('#/' + alias)
+  }, [alias])
   const line = id ? rep.lines.find((l) => l.id === id) : undefined
 
   let body: React.ReactNode
   if (!rep.ready) body = <Loading />
+  else if (alias) body = null
   else if (!named) body = <Welcome player={player} hasPlayer={hasStoredPlayer()} onDone={(p) => { setPlayerState(p); setNamed(true) }} />
   else if (page === 'learn' && line) body = <Learn line={line} onComplete={progress.recordLearn} />
   else if (page === 'drill' && line)
@@ -188,7 +195,6 @@ function App() {
   else if (page === 'path') body = <Home rep={rep} progress={progress} puzzles={puzzles} analyzer={analyzer} player={player} trophies={trophies} />
   else if (page === 'king') body = <KingStation id={id} sub={arg} rep={rep} />
   else if (page === 'tent') body = <Training rep={rep} progress={progress} puzzles={puzzles} player={player} analyzer={analyzer} />
-  else if (page === 'camp') body = <WarTent puzzles={puzzles} />
   else if (page === 'connect') body = <Connect key={id ?? ''} step={id} player={player} onPlayer={setPlayerState} analyzer={analyzer} puzzles={puzzles} />
   else if (page === 'games') body = <YourGames player={player} puzzles={puzzles} />
   else if (page === 'mistake') body = <MistakeOne id={decodeURIComponent(id ?? '')} puzzles={puzzles} progress={progress} />
@@ -198,13 +204,10 @@ function App() {
   else if (page === 'mirror') body = <Mirror />
   else if (page === 'atlas') body = <Atlas rep={rep} />
   else if (page === 'threat-check') body = <ThreatCheck />
-  else if (page === 'world') body = <KingWorld />
   else if (page === 'rush') body = <SquareRush />
   else if (page === 'journey') body = RealMapReady ? <RealMapReady /> : <Suspense fallback={null}><RealMap /></Suspense>
   else if (page === 'painted') body = <KingStamps />
-  else if (page === 'realmap') body = RealMapReady ? <RealMapReady /> : <Suspense fallback={null}><RealMap /></Suspense>
-  else if (page === 'progress') body = <Journey puzzles={puzzles} player={player} />
-  else if (page === 'today') body = <Today rep={rep} progress={progress} puzzles={puzzles} />
+  else if (page === 'progress') body = <Journey puzzles={puzzles} player={player} progress={progress} />
   else if (page === 'diary') body = <Diary />
   else if (page === 'puzzle-rush') body = <PuzzleRush puzzles={puzzles} player={player} />
   else if (page === 'opening-rush') body = id ? <OpeningRush key={id} rep={rep} keys={decodeURIComponent(id)} /> : <OpeningRushHome rep={rep} />
@@ -239,6 +242,8 @@ function App() {
     </main>
   )
 }
+
+const MERGED: Record<string, string> = { today: 'tent', camp: 'tent', world: 'painted', realmap: 'journey' }
 
 function hasStoredPlayer() {
   try {

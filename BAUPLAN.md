@@ -56,6 +56,14 @@ Vorschau: https://l13959733-max.github.io/chess-trainer/preview/
 
 ## Die Punkte
 
+### [x] 39. Ein Design + Aufräumen (Lu, 25.11.2026) – in der Vorschau
+Lu: „durchgehendes Corporate Design im Duolingo-Stil … nichts verloren, nichts doppelt, gute Bedienung, sehen wie man sich
+verbessert hat“. Gebaut: `src/brand.css` (siehe CLAUDE.md → UI), eine Leiste Home · Journey · Hoppy · Training · Progress,
+Daily/Camp/alte Karte zusammengelegt (Weiterleitungen), Progress mit Woche + „More“, Training ohne doppelte Kacheln/Diagramme,
+„All openings“ ohne zweites Dashboard, Startseite ohne doppelte Trainingsleiste. Klicktests auf `#/painted` umgestellt.
+Bekannt (schon VOR dem Umbau so, Vergleich mit dem Tag geprüft): `king-all.mjs` bleibt in mehreren Städten an einem Klick hängen.
+
+
 ### [x] 0. FEHLER ZUERST: Nach einem Spiel reagiert die App nicht mehr (Lu, 09.11.2026) – behoben 09.11.
 Lu: „Ich spiele ein Spiel und danach reagiert das nicht mehr, lädt nicht mehr, ich kann nicht weiterspielen“
 (z. B. Gabel-Training in Samarkand, am Handy, live).

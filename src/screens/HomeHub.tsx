@@ -11,10 +11,8 @@ import { chapterOf } from '../lib/cityBook'
 import { lessonOf, loadDiary, when } from '../lib/lessons'
 import { nextCity, openCity } from '../lib/travel'
 import { getName } from '../lib/profile'
-import { isDue } from '../lib/srs'
 import { dailyBoard } from '../lib/dailyBoard'
 import { dayNumber, loadResults } from '../lib/threatcheck'
-import { pathProgress } from '../lib/trainingToday'
 
 // The start page (Lu, 12.11.: Pinterest model in our book look, "alles auf eine Handy-Seite"): the journey as the hero,
 // then four cards (quote, journey, daily, Square Rush), a training strip and the bottom bar with Hoppy in the middle.
@@ -36,7 +34,7 @@ function rushBest(): number {
   }
 }
 
-export function HomeHub({ rep, progress, puzzles, player }: { rep: ReturnType<typeof useRepertoire>; progress: ReturnType<typeof useProgress>; puzzles: ReturnType<typeof usePuzzles>; player: string }) {
+export function HomeHub({ progress, player }: { rep: ReturnType<typeof useRepertoire>; progress: ReturnType<typeof useProgress>; puzzles: ReturnType<typeof usePuzzles>; player: string }) {
   const [king] = useState(loadKing)
   const [now] = useState(() => Date.now())
   const [rating, setRating] = useState<number | null>(null)
@@ -49,8 +47,6 @@ export function HomeHub({ rep, progress, puzzles, player }: { rep: ReturnType<ty
   const day = dayNumber()
   const daily = useMemo(() => dailyBoard(day), [day])
   const result = loadResults()[day]
-  const linesDue = rep.lines.filter((l) => isDue(rep.srs.get(l.id), now)).length
-  const mistakes = puzzles.due.length + puzzles.fresh.length
   const hour = new Date(now).getHours()
   const hello = hour < 12 ? 'Good morning,' : hour < 18 ? 'Good afternoon,' : 'Good evening,'
 
@@ -74,7 +70,6 @@ export function HomeHub({ rep, progress, puzzles, player }: { rep: ReturnType<ty
   const storyOpen = !!next && !king.got.includes(`${next.id}/talk`)
   const lessonOpen = !storyOpen && !!next && !!lesson && !king.got.includes(`${next.id}/${lesson.id}`)
   const [diary] = useState(loadDiary)
-  const [path] = useState(pathProgress)
   const headline = next ? chapterOf(next.id)?.headline : undefined
   const say = !next
     ? 'We travelled the whole world!'
@@ -177,14 +172,14 @@ export function HomeHub({ rep, progress, puzzles, player }: { rep: ReturnType<ty
         )}
         <button type="button" className="hub-card hub-prog" onClick={() => go('progress')} aria-label={`Journey: ${beaten} of ${bosses} cities – your progress`}>
           <h3>Journey</h3>
-          <svg className="hub-ringsvg" viewBox="0 0 64 64" width="46" height="46" aria-hidden="true"><circle cx="32" cy="32" r="26" fill="none" stroke="#ddd2c0" strokeWidth="8" /><circle cx="32" cy="32" r="26" fill="none" stroke="#d9ad55" strokeWidth="8" strokeLinecap="round" strokeDasharray="163.4" strokeDashoffset={ring} /></svg>
+          <svg className="hub-ringsvg" viewBox="0 0 64 64" width="46" height="46" aria-hidden="true"><circle cx="32" cy="32" r="26" fill="none" stroke="#e6e3ef" strokeWidth="8" /><circle cx="32" cy="32" r="26" fill="none" stroke="#ffc531" strokeWidth="8" strokeLinecap="round" strokeDasharray="163.4" strokeDashoffset={ring} /></svg>
           <span className="hub-big">{beaten}<small> / {bosses}</small></span>
           <span className="hub-stats">
             <span><b>{rating ?? '–'}</b>Rapid</span>
             <span><b>{progress.level.level}</b>Level</span>
           </span>
         </button>
-        <button type="button" className="hub-card hub-daily" onClick={() => go('today')} aria-label={`Daily, day ${day}`}>
+        <button type="button" className="hub-card hub-daily" onClick={() => go('threat-check')} aria-label={`Daily Threat Check, day ${day}`}>
           <h3>🎯 Daily · Day {day}</h3>
           <span className="hub-dbody">
             <span className="hub-mini" aria-hidden="true">
@@ -206,7 +201,7 @@ export function HomeHub({ rep, progress, puzzles, player }: { rep: ReturnType<ty
           </span>
         </button>
         <button type="button" className="hub-card hub-rush" onClick={() => go('rush')} aria-label="Square Rush">
-          <svg className="hub-conf" viewBox="0 0 70 70" aria-hidden="true"><rect x="40" y="12" width="7" height="7" fill="#f5b82e" transform="rotate(20 43 15)" /><circle cx="58" cy="30" r="4" fill="#8a5cf6" /><rect x="24" y="30" width="6" height="6" fill="#d9ad55" transform="rotate(-15 27 33)" /><circle cx="50" cy="52" r="3" fill="#ff4b4b" /><circle cx="30" cy="12" r="3" fill="#4fc3f7" /></svg>
+          <svg className="hub-conf" viewBox="0 0 70 70" aria-hidden="true"><rect x="40" y="12" width="7" height="7" fill="#f5b82e" transform="rotate(20 43 15)" /><circle cx="58" cy="30" r="4" fill="#8a5cf6" /><rect x="24" y="30" width="6" height="6" fill="#ffc531" transform="rotate(-15 27 33)" /><circle cx="50" cy="52" r="3" fill="#ff4b4b" /><circle cx="30" cy="12" r="3" fill="#4fc3f7" /></svg>
           <h3>💥 Square Rush</h3>
           <span className="hub-rt">Knight to <span>f3</span></span>
           <span className="hub-best">{best ? `Best ${best}` : 'Learn the squares'} · 60 s</span>
@@ -214,12 +209,7 @@ export function HomeHub({ rep, progress, puzzles, player }: { rep: ReturnType<ty
         </button>
       </div>
 
-      <nav className="hub-strip" aria-label="Training">
-        <button type="button" className="hub-strip-go" onClick={() => go('tent')}>⛺ Training{path ? ` ${path.done}/${path.total}` : ''}</button>
-        <button type="button" onClick={() => go('review')}>Lines {linesDue > 0 && <b>{linesDue}</b>}</button>
-        <button type="button" onClick={() => go('puzzles')}>Mistakes {mistakes > 0 && <b>{mistakes}</b>}</button>
-        <button type="button" onClick={() => go('play')}>Bot ▶</button>
-      </nav>
+      {/* 25.11.: the strip Training · Lines · Mistakes · Bot was a double of the Training tab in the bar below */}
 
       <BottomBar active="home" />
     </div>

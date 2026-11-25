@@ -1,0 +1,222 @@
+/* =====================================================================================================
+   HOPPY – THE ONE DESIGN (Lu, 25.11.2026: "durchgehendes Corporate Design im Duolingo-Stil, für alles")
+   -----------------------------------------------------------------------------------------------------
+   This file is loaded LAST and is the single source of the look. Every older look (parchment + Cinzel,
+   the brown book look with EB Garamond/Inter, the lavender Training look) is mapped onto these tokens here.
+   Rules for new pages:
+     - colours only from the --b-* tokens below, font = Nunito (one font everywhere)
+     - cards: white, 2px border, 4px bottom edge, radius 18px · buttons: chunky 3D (border-bottom 4–5px)
+     - green = go / done, grape (Hoppy's violet) = brand + story, sun = rewards, blue = info, red = mistakes
+     - paintings (cities, maps, Hoppy) stay as they are – they are content, not decoration
+   Selectors start with `html` so this layer wins no matter in which order lazy pages load their CSS.
+   To go back to the old looks: remove the import of this file in App.tsx (restore tag: vor-design-aufraeumen-2026-11-25).
+   ===================================================================================================== */
+:root {
+  --b-font: 'Nunito', ui-rounded, 'SF Pro Rounded', system-ui, sans-serif;
+  --b-bg: #ffffff;
+  --b-bg-soft: #f7f5fc;
+  --b-card: #ffffff;
+  --b-line: #e6e3ef;
+  --b-line-d: #d4cfe2;
+  --b-text: #3a3450;
+  --b-muted: #8a849c;
+  --b-green: #4fc414; --b-green-d: #3a9a0c; --b-green-t: #ecf9e3;
+  --b-blue: #2ea7f0; --b-blue-d: #1d84c4; --b-blue-t: #e6f4fd;
+  --b-grape: #8a5cf6; --b-grape-d: #6a3fd6; --b-grape-t: #f1ebff;
+  --b-sun: #ffc531; --b-sun-d: #e0a200; --b-sun-t: #fff6dc;
+  --b-red: #ef4a5a; --b-red-d: #c42f3e; --b-red-t: #fde9eb;
+  --b-ink: #2b2140;          /* dark surfaces (hero, story box) */
+  --b-board-light: #f3f7e4;
+  --b-board-dark: #86bf5f;
+  --b-radius: 18px;
+}
+
+/* ---------- one font everywhere (headings were Cinzel / EB Garamond / Inter before) ---------- */
+html:not(.look-calm) body,
+html:not(.look-calm) body :is(h1, h2, h3, h4, h5, p, span, b, small, strong, em, li, a, button, input, select, textarea, label, div, text, tspan) {
+  font-family: var(--b-font) !important;
+}
+html body :is(h1, h2, h3) { letter-spacing: -0.01em; }
+/* the "Calm for adults" look (Settings → Look) keeps its quiet system font – but also only that one */
+html.look-calm body,
+html.look-calm body :is(h1, h2, h3, h4, h5, p, span, b, small, strong, em, li, a, button, input, select, textarea, label, div, text, tspan) {
+  font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif !important;
+}
+html:not(.look-calm) body { background: var(--b-bg); color: var(--b-text); }
+
+/* ---------- the top bar of the plain pages ---------- */
+html .top .brand { color: var(--b-grape); font-weight: 900; font-size: 1.4rem; letter-spacing: -0.02em; text-transform: none; }
+html .top .settings-link { border-radius: 14px; }
+
+/* ---------- headings and labels on plain pages ---------- */
+html .screen-head h2, html .king-screen h2 { font-weight: 900; color: var(--b-text); text-transform: none; letter-spacing: -0.01em; }
+html .eyebrow, html .king-screen .eyebrow { color: var(--b-grape); font-weight: 800; letter-spacing: .06em; text-transform: uppercase; font-size: .72rem; }
+html .back { border-radius: 14px; background: #fff; border-color: var(--b-line); }
+
+/* ======================================================================================
+   1. Parchment pages (.king-screen: camp, armoury, atlas, quests, portal, check, habits,
+      threat check, road, mirror …) → white pages with Duolingo cards
+   ====================================================================================== */
+html .king-screen {
+  --parch: var(--b-bg);
+  --parch-2: var(--b-bg);
+  --card: var(--b-card);
+  --edge: var(--b-line);
+  --ink: var(--b-text);
+  --ink-soft: var(--b-muted);
+  --wood: var(--b-line-d);
+  --forest: var(--b-green);
+  --forest-dark: var(--b-green-d);
+  --wax: var(--b-red);
+  --wax-dark: var(--b-red-d);
+  --gilt: var(--b-sun);
+  --board-light: var(--b-board-light);
+  --board-dark: var(--b-board-dark);
+  background: var(--b-bg);
+  color: var(--b-text);
+  border-radius: 0;
+  margin-inline: 0;
+}
+html .king-screen button { background: #fff; border: 2px solid var(--b-line); border-bottom-width: 4px; color: var(--b-text); border-radius: 16px; }
+html .king-screen button.primary { background: var(--b-green); border-color: var(--b-green-d); color: #fff; text-transform: uppercase; letter-spacing: .04em; font-weight: 900; }
+html .king-screen .done, html .king-screen .king-lesson, html .king-screen .king-banner, html .king-screen .explain,
+html .king-screen [class*='-card']:not(.mirror-card):not(button) { border-color: var(--b-line); }
+html .king-screen .king-bubble, html .king-bubble { background: #fff; border: 2px solid var(--b-line); color: var(--b-text); border-radius: 16px; }
+html .king-screen .king-banner { border-radius: var(--b-radius); overflow: hidden; }
+html .king-screen .king-continue { text-align: left; }
+html .king-screen .king-continue small { color: var(--b-muted); text-transform: uppercase; letter-spacing: .05em; font-size: .7rem; font-weight: 800; }
+html .king-screen .king-continue.primary small { color: rgba(255, 255, 255, .85); }
+html .king-kicker { color: var(--b-sun); }
+/* road (fast travel): coins on white */
+html .road-node { border-color: var(--b-line-d); background: #fff; box-shadow: 0 4px 0 var(--b-line-d); }
+html .road-node.beaten, html .road-node.next { border-color: var(--b-sun); }
+html .road-node.finale { border-color: var(--b-grape); }
+html .road-badge { background: var(--b-green); border-color: #fff; }
+html .road-badge.lock { background: var(--b-line-d); }
+html .road-ahead { stroke: var(--b-line-d); }
+html .road-done { stroke: var(--b-sun); }
+html .road-label { color: var(--b-muted); }
+html .road-label b { color: var(--b-text); }
+html .road-card { background: #fff; border: 2px solid var(--b-line); border-bottom-width: 4px; color: var(--b-text); border-radius: 16px; }
+html .road-card-dark, html .road-cards .king-daily, html .king-screen .road-cards .king-daily { background: var(--b-grape); color: #fff; border-color: var(--b-grape-d); }
+html .road-card-dark b { color: #fff; }
+/* mirror world: the same white page, violet is its colour */
+html .mirror-screen { background: var(--b-grape-t); }
+html .king-screen .mirror-card { background: #fff; border-color: var(--b-grape); border-bottom-width: 4px; border-radius: var(--b-radius); }
+
+/* ======================================================================================
+   2. The book look (start page .hub, city chapters .book, lessons .lsn, diary .dia)
+      paper / ink / terracotta / gold → white / ink / Hoppy violet / sun
+   ====================================================================================== */
+html :is(.hub, .book, .lsn, .dia, .hub-bar, .hub-more) {
+  --paper: var(--b-bg);
+  --card: var(--b-card);
+  --ink: var(--b-text);
+  --soft: var(--b-muted);
+  --line: var(--b-line);
+  --terra: var(--b-grape);
+  --terra-d: var(--b-grape-d);
+  --gold: var(--b-sun);
+}
+html .lsn { --ok: var(--b-green-d); --ok-bg: var(--b-green-t); --no-bg: var(--b-red-t); --meh-bg: var(--b-sun-t); --board-light: var(--b-board-light); --board-dark: var(--b-board-dark); }
+html :is(.hub, .book, .lsn, .dia) { background: var(--b-bg); color: var(--b-text); }
+
+/* --- start page --- */
+html .hub-hi b { font-weight: 900; font-size: 22px; }
+html .hub-chip { background: #fff; border: 2px solid var(--b-line); border-bottom-width: 3px; font-weight: 900; font-size: 13px; }
+html .hub-hero { background: var(--b-ink); border-radius: 22px; }
+html .hub-map { filter: saturate(1.05); opacity: .75; }
+html .hub-hero::after { background: linear-gradient(180deg, rgba(43, 33, 64, 0) 0%, rgba(43, 33, 64, .45) 40%, rgba(43, 33, 64, .94) 100%); }
+html .hub-kick { color: var(--b-sun); font-weight: 900; }
+html .hub-h1 { font-weight: 900; font-size: clamp(24px, 7vw, 29px); line-height: 1.05; }
+html .hub-h1 span { color: var(--b-sun); }
+html .hub-say { font-weight: 800; }
+html .hub .hub-gold { background: var(--b-green); color: #fff; border: 0; border-bottom: 4px solid var(--b-green-d); border-radius: 14px; font-weight: 900; text-transform: uppercase; letter-spacing: .03em; font-size: 14px; padding: 11px 16px; }
+html .hub .hub-gold small { text-transform: none; letter-spacing: 0; font-weight: 800; opacity: .9; }
+html .hub-card { background: #fff; border: 2px solid var(--b-line); border-bottom-width: 4px; border-radius: var(--b-radius); }
+html .hub-card h3 { color: var(--b-muted); font-weight: 900; font-size: 10px; }
+html .hub-quote { background: var(--b-grape); border-color: var(--b-grape-d); color: #fff; }
+html .hub-quote h3, html .hub-quote small { color: #e6dcff; }
+html .hub-quote p { font-weight: 800; font-size: clamp(14px, 4vw, 16px); line-height: 1.25; }
+html .hub-quote p span { color: var(--b-sun); }
+html .hub-diary li small { color: #e6dcff; }
+html .hub-big { font-weight: 900; }
+html .hub-stats b { color: var(--b-text); font-weight: 900; }
+html .hub-ringsvg circle:first-child { stroke: var(--b-line); }
+html .hub-ringsvg circle:last-child { stroke: var(--b-sun); }
+html .hub-daily { background: #fff; }
+html .hub-mini { box-shadow: 0 0 0 2px var(--b-text); }
+html .hub-mini i.l { background: var(--b-board-light); }
+html .hub-mini i.d { background: var(--b-board-dark); }
+html .hub-h4 { font-weight: 900; font-size: clamp(13px, 3.8vw, 15px); line-height: 1.15; }
+html .hub-pill { background: var(--b-green); border-bottom: 3px solid var(--b-green-d); color: #fff; font-weight: 900; }
+html .hub-rush { background: var(--b-ink); border-color: #1a1428; }
+html .hub-go { background: var(--b-green); box-shadow: 0 3px 0 var(--b-green-d); }
+html .hub-strip { background: #fff; border: 2px solid var(--b-line); border-bottom-width: 4px; }
+html .hub-strip button { background: var(--b-bg-soft); border: 2px solid var(--b-line); font-weight: 800; }
+html .hub-strip button b { background: var(--b-red); }
+html .hub-strip .hub-strip-go { color: var(--b-green-d); font-weight: 900; }
+
+/* --- city chapters (book): white pages, the region's house colour stays (like units in a course) --- */
+html .book-cover h1, html .book-chap h2 { font-weight: 900; letter-spacing: -0.02em; }
+html .book-sub { font-weight: 800; color: var(--b-muted); }
+html .book-art { background: var(--b-bg-soft); border-radius: 0 140px 0 0; }
+html .book-skills li { border: 2px solid var(--b-line); font-weight: 800; }
+html .book-body { color: var(--b-text); }
+html .book-go { border-radius: 16px; border-bottom: 4px solid rgba(0, 0, 0, .25); font-weight: 900; text-transform: uppercase; letter-spacing: .03em; }
+
+/* --- diary --- */
+html .dia-head { background: var(--b-grape); }
+html .dia-head small { color: var(--b-sun); }
+html .dia-head h1 { font-weight: 900; }
+html .dia-head p { color: #e6dcff; font-weight: 700; }
+
+/* ======================================================================================
+   3. Training / Daily / Progress / Your games (.trn): already the course look –
+      only the display font (Cinzel) becomes Nunito and the page white
+   ====================================================================================== */
+html .trn { --bg: var(--b-bg); --display: var(--b-font); --body: var(--b-font); }
+html .trn-head h1 { font-weight: 900; letter-spacing: -0.02em; }
+html .trn :is(h2, h3, h4) { font-weight: 900; }
+
+/* ======================================================================================
+   4. ONE bottom bar: white, a line on top, the active tab in green, Hoppy violet in the middle
+   ====================================================================================== */
+html .hub-bar, html .trn .hub-bar, html .rm .hub-bar {
+  left: 0; right: 0; bottom: 0; height: calc(66px + env(safe-area-inset-bottom, 0px)); padding-bottom: env(safe-area-inset-bottom, 0px);
+  border-radius: 0; border: 0; border-top: 2px solid var(--b-line); background: #fff; box-shadow: none;
+  grid-template-columns: repeat(2, 1fr) 76px repeat(2, 1fr);
+}
+html .hub-bar button, html .trn .hub-bar button, html .rm .hub-bar button { color: var(--b-muted); font-weight: 900; font-size: 10.5px; text-transform: uppercase; letter-spacing: .03em; }
+html .hub-bar button.on, html .trn .hub-bar button.on, html .rm .hub-bar button.on { color: var(--b-green-d); }
+html .hub-bar button.on svg { stroke-width: 2.6; }
+html .hub-bar .hub-mid, html .trn .hub-bar .hub-mid { background: var(--b-grape); border-bottom: 4px solid var(--b-grape-d); box-shadow: 0 0 0 5px #fff; margin-top: -26px; }
+html .hub-dot { background: var(--b-red); }
+html .hub-more { border: 2px solid var(--b-line); border-radius: 20px; }
+html .hub-more button { font-weight: 800; }
+/* the bar sits at the bottom of the phone on every page, also on scrolling pages (road, painted map) */
+html .hub-bar { position: fixed; z-index: 40; max-width: 440px; margin: 0 auto; }
+html .king-road { padding-bottom: calc(96px + env(safe-area-inset-bottom, 0px)); }
+html .explore { height: calc(100dvh - 88px - 70px); }
+
+/* ======================================================================================
+   5. Progress page (#/progress): the week, the "More" list
+   ====================================================================================== */
+html .prg-week { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-top: 10px; text-align: center; }
+html .prg-week span { display: grid; font-size: 11px; font-weight: 800; color: var(--b-muted); line-height: 1.2; }
+html .prg-week b { font-size: 20px; font-weight: 900; color: var(--b-text); }
+html .prg-count { font-weight: 900; font-size: 13px; color: var(--b-muted); }
+html .trn .prg-gear { cursor: pointer; padding: 4px 9px; min-height: 0; }
+html .trn .prg-more { display: grid; background: #fff; border: 2px solid var(--b-line); border-bottom-width: 4px; border-radius: var(--b-radius); overflow: hidden; }
+html .trn .prg-more button { display: flex; align-items: center; gap: 12px; padding: 13px 14px; font-weight: 800; font-size: 15px; border-top: 2px solid var(--b-line); text-align: left; }
+html .trn .prg-more button:first-child { border-top: 0; }
+html .trn .prg-more button span { width: 34px; height: 34px; border-radius: 10px; background: var(--b-bg-soft); display: grid; place-items: center; font-size: 18px; flex: none; }
+html .trn .prg-more button::after { content: '›'; margin-left: auto; color: var(--b-muted); font-size: 20px; }
+html .trn button.trn-tile { text-align: left; cursor: pointer; }
+
+/* ---------- details found in the sweep (25.11.) ---------- */
+html:root .top .brand { font-family: var(--b-font); color: var(--b-grape); font-weight: 900; letter-spacing: -0.02em; }
+html .king-screen > .king-bleed { margin-inline: 0; }
+html .book .hub-bar button.on { color: var(--b-green-d); }
+html .king-screen .hub-bar button, html .screen .hub-bar button { background: none; border: 0; border-radius: 0; box-shadow: none; min-height: 0; padding: 0; margin: 0; text-transform: uppercase; }
+html .king-screen .hub-bar .hub-mid, html .screen .hub-bar .hub-mid { background: var(--b-grape); border-bottom: 4px solid var(--b-grape-d); border-radius: 50%; margin: -26px auto 0; }

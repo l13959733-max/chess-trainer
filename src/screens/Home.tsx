@@ -1,5 +1,4 @@
 import { Fragment, useEffect, useMemo, useState } from 'react'
-import { Mascot } from '../components/Mascot'
 import { PathStep } from '../components/PathStep'
 import { WhatWhen } from './OpeningMap'
 import { OpponentsCard } from '../components/OpponentsCard'
@@ -7,37 +6,24 @@ import { go } from '../hooks/useHashRoute'
 import type { Achievements } from '../hooks/useAchievements'
 import type { Progress } from '../hooks/useProgress'
 import type { Puzzles } from '../hooks/usePuzzles'
-import { dailyQueue } from '../lib/daily'
 import { lastLine } from '../lib/returnTo'
 import { pause, start, type AnalyzerState } from '../lib/analyzer'
 import type { Repertoire } from '../hooks/useRepertoire'
-import { clampScore } from '../lib/blunders'
 import { chapters, type Chapter } from '../lib/chapters'
 import { branchMove, guideFor, type Guide } from '../lib/guide'
 import type { Line } from '../lib/pgn'
 import { PUZZLES_AVAILABLE } from '../lib/progress'
-import { daysUntil, isDue } from '../lib/srs'
+import { isDue } from '../lib/srs'
 import { useLive } from '../lib/live'
 import { Together } from './Watch'
 
 export function Home({ rep, progress, puzzles, analyzer, player, trophies }: { rep: Repertoire; progress: Progress; puzzles: Puzzles; analyzer: AnalyzerState; player: string; trophies: Achievements }) {
   const now = Date.now()
   const live = useLive()
-  const due = rep.lines.filter((l) => isDue(rep.srs.get(l.id), now))
-  const fresh = rep.lines.filter((l) => !rep.srs.get(l.id))
-  const upcoming = rep.lines
-    .map((l) => rep.srs.get(l.id))
-    .filter((s) => s && !isDue(s, now))
-    .map((s) => daysUntil(s!, now))
-    .sort((a, b) => a - b)[0]
 
   const doneLines = progress.today?.lines ?? 0
-  const activeToday = doneLines + (progress.today?.puzzles ?? 0) > 0
   const { goal } = progress
   const [open, setOpen] = useState<string | null>(null)
-  const cards = dailyQueue(rep.lines, rep.srs, puzzles.puzzles, puzzles.srs, now).length
-  // Positions from your games where you were clearly winning before a mistake: win them again vs the bot
-  const winning = useMemo(() => puzzles.puzzles.filter((p) => clampScore(p.scoreBefore) >= 300), [puzzles.puzzles])
   const chapterList = useMemo(() => chapters(rep.lines), [rep.lines])
   const [openChapters, setOpenChapters] = useState<Set<string>>(() => {
     const open = loadOpen(chapterList, rep, now)
@@ -94,24 +80,14 @@ export function Home({ rep, progress, puzzles, analyzer, player, trophies }: { r
 
   return (
     <div className="screen">
-      <section className="chips" aria-label="Your progress">
-        <div className="chip-stat streak">
-          <svg viewBox="0 0 24 24"><path d="M12 2c1 4 6 6 6 12a6 6 0 0 1-12 0c0-3 2-5 3-6 0 2 1 3 2 3 0-4-1-6 1-9z" fill="#ff8a1e" /><path d="M12 13c1 2 3 3 3 5a3 3 0 0 1-6 0c0-1 1-2 1.5-2.5.2 1 .8 1.5 1.5 1.5 0-1.5-.5-2.5 0-4z" fill="#ffd166" /></svg>
-          <span>{progress.streak}<small>day streak</small></span>
+      {/* 25.11.2026 (Lu: "nichts doppelt"): this page is the opening library now. Streak/XP/level are on Progress,
+          today's cards, play, puzzles, weaknesses and "win it" in Training, watch and trophies on Progress. */}
+      <div className="screen-head">
+        <button type="button" className="back" onClick={() => go('tent')} aria-label="Back to Training">←</button>
+        <div>
+          <div className="eyebrow">Training · {rep.lines.length} lines</div>
+          <h2>All openings</h2>
         </div>
-        <div className="chip-stat xp">
-          <svg viewBox="0 0 24 24"><path d="M12 2l3 6.5 7 .8-5.2 4.8 1.4 7L12 17.6 5.8 21.1l1.4-7L2 9.3l7-.8z" fill="#ffc531" /></svg>
-          <span>{progress.totalXp}<small>XP</small></span>
-        </div>
-        <div className="chip-stat level">
-          <svg viewBox="0 0 24 24"><path d="M12 2l8 3v6c0 5-3.5 9-8 11-4.5-2-8-6-8-11V5z" fill="#8a5cf6" /><text x="12" y="15.5" textAnchor="middle" fontSize="9" fontWeight="900" fill="#fff">{progress.level.level}</text></svg>
-          <span>Lvl {progress.level.level}<small>{progress.level.needed - progress.level.into} XP to go</small></span>
-        </div>
-      </section>
-
-      <div className="greet">
-        <Mascot mood={activeToday ? 'cheer' : 'happy'} />
-        {activeToday ? 'Great job today! Want to play one more?' : progress.streak ? `Hi! Play today to keep your ${progress.streak}-day streak!` : 'Hi, I’m Hoppy! Let’s learn some chess together.'}
       </div>
 
       {trophies.fresh.length > 0 && (
@@ -126,42 +102,6 @@ export function Home({ rep, progress, puzzles, analyzer, player, trophies }: { r
       )}
 
       <Together live={live} />
-
-      <section className="daily-card" aria-label="Today's cards">
-        <div className="label">Today's cards</div>
-        <div><span className="big">{cards}</span> {cards === 1 ? 'card' : 'cards'} to repeat</div>
-        <p className="note">Lines, puzzles and threats come back just before you would forget them.</p>
-        <button type="button" className="primary wide" disabled={!cards} onClick={() => go('daily')}>{cards ? 'Start' : 'All done for today'}</button>
-      </section>
-
-      <section className="quick" aria-label="Train">
-        <button type="button" className="quick-tile play" onClick={() => go('play')}>
-          <span className="quick-icon" aria-hidden="true">♞</span>
-          <span className="quick-text">Play<small>vs Hoppy-Bot</small></span>
-        </button>
-        <button type="button" className="quick-tile puzzles" onClick={() => go('puzzles')}>
-          <span className="quick-icon" aria-hidden="true">♜</span>
-          <span className="quick-text">Puzzles<small>{puzzles.due.length + puzzles.fresh.length} waiting</small></span>
-        </button>
-        <button type="button" className="quick-tile weak" onClick={() => go('weaknesses')}>
-          <span className="quick-icon" aria-hidden="true">♝</span>
-          <span className="quick-text">My weaknesses<small>train them</small></span>
-        </button>
-        <button type="button" className="quick-tile win" disabled={!winning.length} onClick={() => go('play/puzzle/' + encodeURIComponent(winning[Math.floor(Math.random() * winning.length)].id))}>
-          <span className="quick-icon" aria-hidden="true">♛</span>
-          <span className="quick-text">Win it<small>{winning.length ? `${winning.length} won positions` : 'from your games'}</small></span>
-        </button>
-      </section>
-
-      <button type="button" className="trophy-row" onClick={() => go('watch')}>
-        <span><span className="label">Watch</span><br /><b>Watch each other</b> and play for each other</span>
-        <span className="chevron" aria-hidden="true">▸</span>
-      </button>
-
-      <button type="button" className="trophy-row" onClick={() => go('trophies')}>
-        <span><span className="label">Trophies</span><br /><b>{trophies.list.filter((a) => a.earned).length} of {trophies.list.length}</b> collected</span>
-        <span className="chevron" aria-hidden="true">▸</span>
-      </button>
 
       <OpponentsCard player={player} lines={rep.lines} srs={rep.srs} onOpen={openAndScroll} />
 
@@ -237,24 +177,6 @@ export function Home({ rep, progress, puzzles, analyzer, player, trophies }: { r
           <span>Blunder puzzles</span>
           <span className="count">{PUZZLES_AVAILABLE ? `${progress.today?.puzzles ?? 0} / ${goal.puzzles}` : 'coming in step 4'}</span>
         </div>
-      </section>
-
-      <section className="due-card">
-        <div className="label">Lines due</div>
-        <div className="big">{rep.ready ? due.length : '…'}</div>
-        {due.length > 0 ? (
-          <button type="button" className="primary wide" onClick={() => go('review')}>
-            Review now
-          </button>
-        ) : (
-          <p className="note">
-            {fresh.length > 0
-              ? `Nothing due. ${fresh.length} new lines are waiting – learn one, then play it in a drill.`
-              : upcoming !== undefined
-                ? `Nothing due. Next review ${upcoming <= 1 ? 'tomorrow' : `in ${upcoming} days`}.`
-                : 'Nothing due.'}
-          </p>
-        )}
       </section>
 
       <section className="due-card" aria-label="Blunder puzzles">

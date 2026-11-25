@@ -65,7 +65,7 @@ export function Diary() {
           {diary.length > 0 && <p className="dia-count">{diary.length} {diary.length === 1 ? 'page' : 'pages'} written · {groups.length} {groups.length === 1 ? 'city' : 'cities'}</p>}
         </div>
       </div>
-      <BottomBar active={null} />
+      <BottomBar active="progress" />
     </div>
   )
 }

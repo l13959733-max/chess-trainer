@@ -2,10 +2,13 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { BottomBar } from '../components/BottomBar'
 import { go } from '../hooks/useHashRoute'
 import type { Puzzles } from '../hooks/usePuzzles'
+import type { useProgress } from '../hooks/useProgress'
+import { dateKey } from '../lib/progress'
+import { longestStreak } from '../lib/trainingPath'
 import { hasOwnPlayer } from '../lib/chesscom'
 import { getGameRecords, type GameRecord } from '../lib/db'
 import { mistakesByMonth, safeByWeek, thenNow, type Point } from '../lib/growth'
-import { STATIONS, loadKing, route, stationById } from '../lib/king'
+import { STATIONS, loadKing, mirrorOpen, route, stationById } from '../lib/king'
 import { cachedRapid, loadRapid } from '../lib/ratingHistory'
 import { nextCity, openCity } from '../lib/travel'
 import { mineOf } from '../lib/trainingToday'
@@ -23,7 +26,22 @@ const month = (t: number) => new Date(t).toLocaleDateString('en-GB', { month: 's
 
 type Tab = 'rating' | 'safe' | 'mistakes'
 
-export function Journey({ puzzles, player }: { puzzles: Puzzles; player: string }) {
+// 25.11.2026 (Lu: "durchgehendes Design, nichts doppelt, wie man sich verbessert hat will ich sehen"): this page is
+// "Progress" – the 5th tab of the bottom bar. It took over the week (flames + XP, from the old Daily page) and the
+// old "More" menu (section "More" at the bottom).
+export function Journey({ puzzles, player, progress }: { puzzles: Puzzles; player: string; progress: ReturnType<typeof useProgress> }) {
+  const [now] = useState(() => Date.now())
+  // Monday … Sunday of this week: active days burn (was the Daily page #/today)
+  const week = Array.from({ length: 7 }, (_, i) => {
+    const d = new Date(now)
+    d.setHours(12, 0, 0, 0)
+    d.setDate(d.getDate() - ((d.getDay() + 6) % 7) + i)
+    const a = progress.days.get(dateKey(d))
+    const active = !!a && a.lines + a.puzzles + (a.games ?? 0) + a.xp > 0
+    return { label: d.toLocaleDateString('en-GB', { weekday: 'narrow' }), xp: a?.xp ?? 0, active, today: dateKey(d) === dateKey(new Date(now)), future: d.getTime() > now }
+  })
+  const weekXp = week.reduce((s, d) => s + d.xp, 0)
+  const best = useMemo(() => longestStreak([...progress.days.values()].filter((d) => d.lines + d.puzzles + (d.games ?? 0) > 0).map((d) => d.date)), [progress.days])
   const [king] = useState(loadKing)
   const own = hasOwnPlayer()
   const cities = route().map((id) => stationById(id)!).filter(Boolean)
@@ -72,10 +90,11 @@ export function Journey({ puzzles, player }: { puzzles: Puzzles; player: string 
         <div className="trn-in">
           <header className="trn-head">
             <div className="grow">
-              <h1>Journey</h1>
+              <h1>Progress</h1>
               <p>How far you came</p>
             </div>
-            <span className="trn-pill nut">🗺 {beaten} / {bosses}</span>
+            <span className="trn-pill fire" title="Days in a row">🔥 {progress.streak}</span>
+            <button type="button" className="trn-pill prg-gear" onClick={() => go('settings')} aria-label="Settings">⚙️</button>
           </header>
 
           <div className="jr-say">
@@ -83,6 +102,24 @@ export function Journey({ puzzles, player }: { puzzles: Puzzles; player: string 
             <span>{say}</span>
           </div>
 
+          <div className="trn-card dly-week" aria-label={`This week: ${week.filter((d) => d.active).length} active days, ${weekXp} XP`}>
+            <div className="dly-days">
+              {week.map((d, i) => (
+                <span key={i} className={`dly-day${d.active ? ' on' : ''}${d.today ? ' today' : ''}${d.future ? ' future' : ''}`}>
+                  <i aria-hidden="true">{d.active ? '🔥' : ''}</i>
+                  <small>{d.label}</small>
+                </span>
+              ))}
+            </div>
+            <div className="prg-week">
+              <span><b>{weekXp.toLocaleString('en')}</b>XP this week</span>
+              <span><b>{progress.streak}</b>{progress.streak === 1 ? 'day' : 'days'} in a row</span>
+              <span><b>{Math.max(best, progress.streak)}</b>best streak</span>
+              <span><b>{progress.level.level}</b>level</span>
+            </div>
+          </div>
+
+          <div className="trn-sec"><h2>Your journey</h2><span className="prg-count">🗺 {beaten} / {bosses} cities</span></div>
           <div className="jr-road-card">
             <div className="jr-road" ref={road}>
               {cities.filter((c) => !c.finale).map((c, i) => {
@@ -140,9 +177,22 @@ export function Journey({ puzzles, player }: { puzzles: Puzzles; player: string 
               <span className="e">🏆</span><b>Trophies</b><small>What you have won</small>
             </button>
           </div>
+
+          {/* the old "More" menu of the bottom bar – everything that is not training lives here now */}
+          <div className="trn-sec"><h2>More</h2></div>
+          <div className="prg-more">
+            <button type="button" onClick={() => go('diary')}><span>📔</span>Hoppy’s diary</button>
+            <button type="button" onClick={() => go('quests')}><span>📖</span>Quest book</button>
+            <button type="button" onClick={() => go(king.beaten.includes('kannauj') ? 'portal' : 'check')}><span>🌀</span>Real world</button>
+            <button type="button" onClick={() => go('painted')}><span>🎨</span>The painted map</button>
+            {mirrorOpen(king.beaten) && <button type="button" onClick={() => go('mirror')}><span>🪞</span>Mirror World</button>}
+            <button type="button" onClick={() => go('watch')}><span>👫</span>Together</button>
+            <button type="button" onClick={() => go('accuracy')}><span>📊</span>How well did I play? (test)</button>
+            <button type="button" onClick={() => go('settings')}><span>⚙️</span>Settings</button>
+          </div>
         </div>
       </div>
-      <BottomBar active="journey" />
+      <BottomBar active="progress" />
     </div>
   )
 }

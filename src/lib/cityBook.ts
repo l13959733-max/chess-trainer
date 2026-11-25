@@ -7,17 +7,19 @@ export interface Region {
   color: string // the house colour of the reading page
   accent: string
 }
+// 25.11.2026 (one design): every region gets a colour of the Hoppy palette (like the units of a course) – deep
+// enough for white text. Before: dark book colours (terracotta, maroon, forest …).
 const R = {
-  in: { name: 'India', color: '#7a3420', accent: '#e0a23a' },
-  or: { name: 'The Silk Road', color: '#7a3420', accent: '#2f9c9a' },
-  es: { name: 'The Mediterranean', color: '#7a3420', accent: '#e2a42b' },
-  fr: { name: 'Paris & Vienna', color: '#5c1f2e', accent: '#c9a24a' },
-  uk: { name: 'Britain', color: '#22402f', accent: '#b8892f' },
-  no: { name: 'The North', color: '#2d4656', accent: '#d9d2c3' },
-  ny: { name: 'New York', color: '#1b2a45', accent: '#d4a843' },
-  br: { name: 'Brazil', color: '#0f5536', accent: '#f2c230' },
-  sp: { name: 'Orbit', color: '#221d45', accent: '#b9c4d6' },
-  ru: { name: 'Russia', color: '#6b1d1d', accent: '#d8b25a' },
+  in: { name: 'India', color: '#6a3fd6', accent: '#ffc531' },
+  or: { name: 'The Silk Road', color: '#1d84c4', accent: '#ffc531' },
+  es: { name: 'The Mediterranean', color: '#3a9a0c', accent: '#ffc531' },
+  fr: { name: 'Paris & Vienna', color: '#c42f3e', accent: '#ffc531' },
+  uk: { name: 'Britain', color: '#2f8a4a', accent: '#ffc531' },
+  no: { name: 'The North', color: '#1d6fa8', accent: '#ffe08a' },
+  ny: { name: 'New York', color: '#5a34b8', accent: '#ffc531' },
+  br: { name: 'Brazil', color: '#2f8a0a', accent: '#ffc531' },
+  sp: { name: 'Orbit', color: '#2b2140', accent: '#c4adfb' },
+  ru: { name: 'Russia', color: '#b02a3a', accent: '#ffc531' },
 } satisfies Record<string, Region>
 
 export interface Chapter {

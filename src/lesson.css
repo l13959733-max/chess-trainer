@@ -1,7 +1,7 @@
 /* Lessons (Lu, 13.11., prototype "Hoppy Mix"): the book look of the city chapters (paper, terracotta, gold,
    EB Garamond + Inter) with one question per screen and Hoppy's face in a sheet at the bottom. */
 .lsn {
-  --paper: #eee8dc; --card: #f8f3ea; --ink: #1b1612; --soft: #6a5f55; --line: #ddd2c0; --terra: #7a3420; --gold: #d9ad55;
+  --paper: #f7f5fc; --card: #ffffff; --ink: #3a3450; --soft: #8a849c; --line: #e6e3ef; --terra: #8a5cf6; --gold: #ffc531;
   --ok: #4f6f2c; --ok-bg: #e4ead2; --no-bg: #f3dfd6; --meh-bg: #f6ead0;
   --board-light: #f0e2c0; --board-dark: #a87b51;
   position: fixed; inset: 0; z-index: 30; overflow: hidden; display: flex; flex-direction: column;
@@ -9,7 +9,7 @@
   padding: calc(14px + env(safe-area-inset-top, 0px)) max(20px, env(safe-area-inset-right, 0px)) calc(20px + env(safe-area-inset-bottom, 0px)) max(20px, env(safe-area-inset-left, 0px));
   box-sizing: border-box;
 }
-@media (min-width: 520px) { .lsn { left: 50%; right: auto; width: 440px; transform: translateX(-50%); box-shadow: 0 0 40px rgba(30, 20, 10, .2); } }
+@media (min-width: 520px) { .lsn { left: 50%; right: auto; width: 440px; transform: translateX(-50%); box-shadow: 0 0 40px rgba(43, 33, 64, .2); } }
 .lsn button { font: inherit; color: inherit; min-height: 0; text-transform: none; letter-spacing: 0; box-shadow: none; cursor: pointer; }
 .lsn button:focus-visible { outline: 2px solid var(--terra); outline-offset: 2px; }
 
@@ -28,7 +28,7 @@
 .lsn-hint { margin: 0; font-size: 13.5px; color: var(--soft); min-height: 1.4em; }
 .lsn-hint.warn { color: var(--terra); font-weight: 600; }
 
-.lsn-board { margin-top: 14px; flex: none; align-self: center; width: 100%; border-radius: 6px; box-shadow: 0 0 0 4px #3b2a14, 0 12px 24px -12px rgba(40, 20, 5, .5); overflow: hidden; }
+.lsn-board { margin-top: 14px; flex: none; align-self: center; width: 100%; border-radius: 6px; box-shadow: 0 0 0 4px #3a3450, 0 12px 24px -12px rgba(40, 20, 5, .5); overflow: hidden; }
 .lsn-board.small { width: 72%; }
 .lsn-shake { animation: lsn-shake .3s; }
 @keyframes lsn-shake { 25% { transform: translateX(-4px); } 75% { transform: translateX(4px); } }
@@ -41,7 +41,7 @@
 .lsn-check { margin-top: auto; }
 
 .lsn-sheet { position: absolute; left: 0; right: 0; bottom: 0; z-index: 3; padding: 18px 20px calc(20px + env(safe-area-inset-bottom, 0px)); border-radius: 22px 22px 0 0;
-  transform: translateY(105%); transition: transform .24s ease-out; display: grid; gap: 14px; box-shadow: 0 -10px 30px rgba(60, 30, 10, .18); background: var(--card); }
+  transform: translateY(105%); transition: transform .24s ease-out; display: grid; gap: 14px; box-shadow: 0 -10px 30px rgba(43, 33, 64, .18); background: var(--card); }
 .lsn-sheet.open { transform: none; }
 .lsn-sheet:not(.open) { pointer-events: none; }
 .lsn-sheet.good { background: var(--ok-bg); } .lsn-sheet.bad { background: var(--no-bg); } .lsn-sheet.meh { background: var(--meh-bg); }

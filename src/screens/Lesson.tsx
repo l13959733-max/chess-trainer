@@ -18,7 +18,7 @@ import '../lesson.css'
 const IMG = import.meta.env.BASE_URL + 'king/'
 type Sheet = { kind: 'good' | 'bad' | 'meh'; say: Say } | null
 const COLOR = { good: 'rgba(79, 111, 44, 0.9)', idea: 'rgba(122, 52, 32, 0.45)', main: 'rgba(122, 52, 32, 0.85)' }
-const FOCUS: CSSProperties = { boxShadow: 'inset 0 0 0 3px #7a3420' }
+const FOCUS: CSSProperties = { boxShadow: 'inset 0 0 0 3px #8a5cf6' }
 const GOOD: CSSProperties = { backgroundColor: 'rgba(79, 111, 44, 0.5)' }
 const BAD: CSSProperties = { backgroundColor: 'rgba(122, 52, 32, 0.55)' }
 

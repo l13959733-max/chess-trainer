@@ -14,14 +14,12 @@ import { getGameRecords, type GameRecord, type Puzzle } from '../lib/db'
 import { feedback } from '../lib/feedback'
 import { loadKing } from '../lib/king'
 import { getName } from '../lib/profile'
-import { dateKey } from '../lib/progress'
 import { isDue } from '../lib/srs'
 import {
   addRed,
   buildPlan,
   loadPlan,
   loadSeen,
-  longestStreak,
   report,
   safeShare,
   savePlan,
@@ -298,7 +296,6 @@ export function Training({ rep, progress, puzzles, player, analyzer }: { rep: Re
   const last20 = useMemo(() => [...records].sort((a, b) => b.endTime - a.endTime).slice(0, 20), [records])
   const safe = safeShare(last20)
 
-  const best = useMemo(() => longestStreak([...progress.days.values()].filter((d) => d.lines + d.puzzles + (d.games ?? 0) > 0).map((d) => d.date)), [progress.days])
   const name = getName() ?? 'Traveller'
   const hour = new Date(now).getHours()
   const hello = hour < 12 ? 'Good morning' : hour < 18 ? 'Good afternoon' : 'Good evening'
@@ -336,10 +333,9 @@ export function Training({ rep, progress, puzzles, player, analyzer }: { rep: Re
           <ChessComCard own={own} player={player} rating={rating} checked={records.length} fresher={fresher} reading={reading} analyzer={analyzer} />
 
           <div className="trn-tiles">
-            <div className="trn-tile t-green"><div className="top">Safe moves <span className="ic">🛡️</span></div><b>{safe === null ? '–' : `${Math.round(safe * 100)}%`}</b><small>{safe === null ? 'from your chess.com games' : `last ${last20.length} ${last20.length === 1 ? 'game' : 'games'}`}</small></div>
-            <div className="trn-tile t-sun"><div className="top">Streak <span className="ic">🔥</span></div><b>{progress.streak}</b><small>Best: {Math.max(best, progress.streak)} {best === 1 ? 'day' : 'days'}</small></div>
-            <div className="trn-tile t-grape"><div className="top">Chestnuts <span className="ic">🌰</span></div><b>{king.coins.toLocaleString('en')}</b><small>Level {progress.level.level}</small></div>
-            <div className="trn-tile t-blue"><div className="top">Due today <span className="ic">📖</span></div><b>{linesDue + mistakesDue}</b><small>{linesDue} lines · {mistakesDue} mistakes</small></div>
+            {/* 25.11.: streak and chestnuts are in the pills above, the week and the charts on Progress – here only what you do next */}
+            <button type="button" className="trn-tile t-green" onClick={() => go('progress')}><div className="top">Safe moves <span className="ic">🛡️</span></div><b>{safe === null ? '–' : `${Math.round(safe * 100)}%`}</b><small>{safe === null ? 'from your chess.com games' : `last ${last20.length} ${last20.length === 1 ? 'game' : 'games'}`}</small></button>
+            <button type="button" className="trn-tile t-blue" onClick={() => go('daily')}><div className="top">Due today <span className="ic">📖</span></div><b>{linesDue + mistakesDue}</b><small>{linesDue} lines · {mistakesDue} mistakes</small></button>
           </div>
 
           <div className="trn-sec"><h2>Today's path</h2><button type="button" onClick={() => document.getElementById('trn-shelf')?.scrollIntoView({ behavior: 'smooth' })}>All training ↓</button></div>
@@ -374,21 +370,7 @@ export function Training({ rep, progress, puzzles, player, analyzer }: { rep: Re
             </div>
           )}
 
-          <div className="trn-sec"><h2>Your week</h2></div>
-          <div className="trn-card">
-            <h4>Safe moves <span className="trn-chip">per chess.com game</span></h4>
-            <SafeLine records={records} />
-          </div>
-          <div className="trn-two">
-            <div className="trn-card">
-              <h4>Mistakes by type</h4>
-              <Donut puzzles={mineOf(puzzles.puzzles, player)} />
-            </div>
-            <div className="trn-card">
-              <h4>XP this week</h4>
-              <XpBars days={progress.days} now={now} />
-            </div>
-          </div>
+          {/* the week's charts (safe moves, mistakes by type, XP) moved to Progress (25.11.) – no doubles */}
           <div className="trn-card">
             <h4>Done today</h4>
             {levels.some((l) => l.stars !== null) ? (
@@ -547,40 +529,6 @@ function Path({ levels, fresh, say, shake, onOpen, sayFor }: { levels: LevelView
   )
 }
 
-// ---------- charts (real data only; empty states say where it comes from) ----------
-function SafeLine({ records }: { records: GameRecord[] }) {
-  const games = [...records].sort((a, b) => a.endTime - b.endTime).slice(-10)
-  if (games.length < 2) return <p className="trn-empty">Appears after Hoppy has checked two of your chess.com games.</p>
-  const vals = games.map((g) => Math.round((safeShare([g]) ?? 0) * 100))
-  const lo = Math.max(0, Math.min(50, Math.floor(Math.min(...vals) / 10) * 10))
-  const L = 34, R = 330, T = 14, B = 140
-  const y = (v: number) => B - ((v - lo) / (100 - lo)) * (B - T)
-  const x = (i: number) => L + (i * (R - L)) / (games.length - 1)
-  const pts = vals.map((v, i) => `${x(i)},${y(v)}`).join(' ')
-  const mid = Math.round((lo + 100) / 2)
-  const lastI = vals.length - 1
-  return (
-    <svg viewBox="0 0 340 170" width="100%" role="img" aria-label={`Safe moves in your last ${games.length} games, from ${vals[0]}% to ${vals[lastI]}%`}>
-      <defs><linearGradient id="trn-ga" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#8a5cf6" stopOpacity=".35" /><stop offset="1" stopColor="#8a5cf6" stopOpacity="0" /></linearGradient></defs>
-      {[lo, mid, 100].map((v) => (
-        <g key={v}>
-          <line x1={L} x2={R} y1={y(v)} y2={y(v)} stroke="var(--line)" strokeWidth="1.5" />
-          <text x={L - 6} y={y(v) + 4} textAnchor="end" fontSize="10" fontWeight="800" fill="var(--muted)">{v}%</text>
-        </g>
-      ))}
-      <polygon points={`${x(0)},${B} ${pts} ${x(lastI)},${B}`} fill="url(#trn-ga)" />
-      <polyline points={pts} fill="none" stroke="var(--grape)" strokeWidth="3" strokeLinejoin="round" />
-      {vals.map((v, i) => <circle key={i} cx={x(i)} cy={y(v)} r={i === lastI ? 5.5 : 4} fill={i === lastI ? 'var(--grape)' : '#fff'} stroke="var(--grape)" strokeWidth="2.5" />)}
-      {games.map((g, i) => (i === 0 || i === lastI || i === Math.floor(lastI / 2) ? <text key={i} x={x(i)} y={B + 20} textAnchor="middle" fontSize="10.5" fontWeight="800" fill="var(--muted)">{new Date(g.endTime * 1000).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })}</text> : null))}
-      <g transform={`translate(${Math.min(Math.max(x(lastI) - 30, 0), 280)},${Math.max(y(vals[lastI]) - 46, 0)})`}>
-        <rect width="60" height="34" rx="8" fill="#fff" stroke="var(--line)" strokeWidth="2" />
-        <text x="30" y="14" textAnchor="middle" fontSize="9.5" fontWeight="800" fill="var(--muted)">last game</text>
-        <text x="30" y="28" textAnchor="middle" fontSize="12" fontWeight="900" fill="var(--grape-d)">{vals[lastI]}%</text>
-      </g>
-    </svg>
-  )
-}
-
 const DONUT_COLORS = ['var(--red)', 'var(--grape)', 'var(--blue)', 'var(--sun)', 'var(--lock-d)']
 export function Donut({ puzzles }: { puzzles: Puzzle[] }) {
   const counts = new Map<string, number>()
@@ -607,35 +555,6 @@ export function Donut({ puzzles }: { puzzles: Puzzle[] }) {
       <div className="trn-legend">
         {top.map(([t, n], i) => <div key={t}><i style={{ background: DONUT_COLORS[i] }} /><em>{t}</em><span>{Math.round((100 * n) / total)}%</span></div>)}
       </div>
-    </>
-  )
-}
-
-function XpBars({ days, now }: { days: Prog['days']; now: number }) {
-  const list = Array.from({ length: 7 }, (_, i) => {
-    const d = new Date(now)
-    d.setDate(d.getDate() - 6 + i)
-    return { label: d.toLocaleDateString('en-GB', { weekday: 'narrow' }), xp: days.get(dateKey(d))?.xp ?? 0 }
-  })
-  const total = list.reduce((s, d) => s + d.xp, 0)
-  const max = Math.max(...list.map((d) => d.xp), 1)
-  const B = 76
-  return (
-    <>
-      <div className="trn-big">{total.toLocaleString('en')} <small>XP</small></div>
-      <svg viewBox="0 0 150 92" width="100%" role="img" aria-label={`XP of the last 7 days, ${total} in total`}>
-        <line x1="0" x2="150" y1={B} y2={B} stroke="var(--line)" strokeWidth="1.5" />
-        {list.map((d, i) => {
-          const h = (d.xp / max) * (B - 6)
-          const x = 6 + i * 20.5
-          return (
-            <g key={i}>
-              <rect x={x} y={B - Math.max(h, d.xp ? 3 : 0)} width="12" height={Math.max(h, d.xp ? 3 : 0)} rx="4" fill={i === 6 ? 'var(--grape)' : '#c4adfb'} />
-              <text x={x + 6} y={B + 13} textAnchor="middle" fontSize="9" fontWeight="800" fill="var(--muted)">{d.label}</text>
-            </g>
-          )
-        })}
-      </svg>
     </>
   )
 }
@@ -687,7 +606,7 @@ function T({ e, bg, title, sub, to, off }: { e: string; bg: string; title: strin
 }
 function Shelf({ puzzles, own, fresher }: { puzzles: Puzzles; own: boolean; fresher: number | null }) {
   const winning = useMemo(() => puzzles.puzzles.filter((p) => clampScore(p.scoreBefore) >= 300), [puzzles.puzzles])
-  const g = 'var(--green-t)', b = 'var(--blue-t)', r = 'var(--red-t)', p = 'var(--grape-t)', s = 'var(--sun-t)'
+  const g = 'var(--green-t)', b = 'var(--blue-t)', r = 'var(--red-t)', p = 'var(--grape-t)'
   return (
     <div className="trn-shelf">
       <div><h5>Your openings</h5><div className="trn-tools">
@@ -714,21 +633,13 @@ function Shelf({ puzzles, own, fresher }: { puzzles: Puzzles; own: boolean; fres
         </button>
         <div className="trn-tools">
           <T e="🩹" bg={r} title="Lost battles" sub="Mistakes as puzzles" to="puzzles" />
-          <T e="🔍" bg={r} title="Check your chess" sub="What costs you points?" to="check" />
           <T e="🧩" bg={r} title="My weaknesses" sub="By type" to="weaknesses" />
-          <T e="📊" bg={r} title="How well did I play?" sub="Test" to="accuracy" />
         </div>
       </div>
       <div><h5>Play Hoppy</h5><div className="trn-tools">
         <T e="🐴" bg={p} title="Sparring" sub="A game vs Hoppy-Bot" to="play" />
         <T e="💰" bg={p} title="Treasure chest" sub="Win your winning positions" to={winning.length ? 'play/puzzle/' + encodeURIComponent(pickOfDay(winning)!.id) : undefined} off={!winning.length} />
         <T e="🔥" bg={p} title="Warm-up" sub="2 min before chess.com" to="warmup" />
-      </div></div>
-      <div><h5>More</h5><div className="trn-tools">
-        <T e="🚀" bg={s} title="Fast travel" sub="Every city in a list" to="road" />
-        <T e="🏆" bg={s} title="Trophies" sub="What you have won" to="trophies" />
-        <T e="👫" bg={s} title="Together" sub="Watch and help" to="watch" />
-        <T e="⛺" bg={s} title="Old Training Camp" sub="As before" to="camp" />
       </div></div>
     </div>
   )

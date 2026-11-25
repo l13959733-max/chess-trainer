@@ -78,7 +78,7 @@ function MirrorMap({ beaten, next }: { beaten: string[]; next?: string }) {
         return (
           <g key={s.id} transform={`translate(${s.x},${s.y})`} className={`mirror-stop ${open ? '' : 'locked'}`} role="button" tabIndex={open ? 0 : -1} aria-label={`${s.name}${done ? ', beaten' : open ? '' : ', still in the fog'}`} onClick={() => open && go(`king/${s.id}`)} onKeyDown={(e) => e.key === 'Enter' && open && go(`king/${s.id}`)}>
             {s.id === next && <circle r="40" fill="#c9a8ff" opacity=".45" className="king-pulse" />}
-            <circle r="33" fill={done ? '#c9a227' : '#2b2140'} />
+            <circle r="33" fill={done ? '#ffc531' : '#2b2140'} />
             <image href={IMG + s.scene} x="-30" y="-30" width="60" height="60" clipPath="url(#mirror-clip)" preserveAspectRatio="xMidYMid slice" opacity={open ? 1 : 0.35} />
             {!open && <text y="9" textAnchor="middle" fontSize="24" aria-hidden="true">🔒</text>}
             {done && <text x="24" y="-20" textAnchor="middle" fontSize="18" aria-hidden="true">✓</text>}

@@ -30,7 +30,7 @@ export function JourneyProgress({ beaten, bosses, chapter, city, coins, title }:
         <div className="jp-top">
           <svg viewBox="0 0 56 56" width="52" height="52" aria-hidden="true">
             <circle cx="28" cy="28" r="22" fill="none" stroke="#e4d3ac" strokeWidth="7" />
-            <circle cx="28" cy="28" r="22" fill="none" stroke="#c9a227" strokeWidth="7" strokeLinecap="round" strokeDasharray={ring} strokeDashoffset={ring * (1 - beaten / Math.max(bosses, 1))} transform="rotate(-90 28 28)" />
+            <circle cx="28" cy="28" r="22" fill="none" stroke="#ffc531" strokeWidth="7" strokeLinecap="round" strokeDasharray={ring} strokeDashoffset={ring * (1 - beaten / Math.max(bosses, 1))} transform="rotate(-90 28 28)" />
           </svg>
           <b>{beaten}<i>/{bosses}</i></b>
         </div>
