@@ -45,7 +45,7 @@ Vorschau: https://l13959733-max.github.io/chess-trainer/preview/
 - **Fair Play:** Die App zeigt während einer laufenden chess.com-Partie nie Hilfe oder Engine-Werte.
   Sie liest nur fertige Partien.
 - **Nichts Fremdes kopieren:** keine Figuren, Namen oder Bilder anderer Spiele, keine echten Personen nachmalen.
-- **App-Texte auf Englisch** (UI, Linien, Gespräche). Design: Pergament-Stil (`src/king.css`, Schrift Cinzel).
+- **App-Texte auf Englisch** (UI, Linien, Gespräche). Design: EIN Design für alles – `src/brand.css` (Duolingo-Stil, Nunito, Palette `--b-*`, seit 25.11.2026; siehe CLAUDE.md → UI). Kein Pergament/Cinzel mehr für neue Seiten.
 - **Bilder:** Higgsfield ist Lus Konto (kostet Geld, nur nach Absprache). Kostenlos geht: vorhandene
   Bilder per Python/PIL spiegeln und einfärben (so ist die Spiegelwelt gemacht). Neue Stadtbilder ohne Liam malen.
 - **Nach jedem Schritt muss die App laufen.** Bestehendes verbessern, nicht verschlechtern; nichts löschen, was Lu mag.
