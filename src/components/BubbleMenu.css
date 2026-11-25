@@ -1,0 +1,24 @@
+/* Bubble menu (React Bits, see BubbleMenu.tsx) – Hoppy look: Nunito 900, chunky pills */
+.bubble-menu { left: 0; right: 0; top: 1em; display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 0 1em; pointer-events: none; z-index: 99; }
+.bubble-menu.fixed { position: fixed; }
+.bubble-menu.absolute { position: absolute; }
+.bubble-menu .bubble { --bubble-size: 48px; width: var(--bubble-size); height: var(--bubble-size); border-radius: 50%; background: #fff; box-shadow: 0 4px 16px rgba(58, 52, 80, 0.14); display: inline-flex; align-items: center; justify-content: center; pointer-events: auto; }
+.bubble-menu .logo-bubble { width: auto; min-height: var(--bubble-size); height: var(--bubble-size); padding: 0 16px; border-radius: calc(var(--bubble-size) / 2); gap: 8px; }
+.bubble-menu .logo-content { display: inline-flex; align-items: center; justify-content: center; height: 100%; font-weight: 900; font-size: 18px; color: #8a5cf6; gap: 6px; }
+.bubble-menu .menu-btn { border: none; cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 0; min-height: 0; }
+.bubble-menu .menu-line { width: 24px; height: 2.5px; border-radius: 2px; display: block; margin: 0 auto; transition: transform 0.3s ease, opacity 0.3s ease; transform-origin: center; }
+.bubble-menu .menu-line + .menu-line { margin-top: 6px; }
+.bubble-menu .menu-btn.open .menu-line:first-child { transform: translateY(4px) rotate(45deg); }
+.bubble-menu .menu-btn.open .menu-line:last-child { transform: translateY(-4px) rotate(-45deg); }
+.bubble-menu-items { inset: 0; display: flex; align-items: flex-start; justify-content: center; padding-top: 84px; pointer-events: none; z-index: 98; background: rgba(247, 245, 252, 0.72); -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px); }
+.bubble-menu-items.fixed { position: fixed; }
+.bubble-menu-items.absolute { position: absolute; }
+.bubble-menu-items .pill-list { list-style: none; margin: 0 auto; padding: 0 20px; display: flex; flex-wrap: wrap; row-gap: 12px; width: 100%; max-width: 520px; pointer-events: auto; }
+.bubble-menu-items .pill-col { display: flex; justify-content: center; align-items: stretch; flex: 0 0 100%; box-sizing: border-box; }
+.bubble-menu-items .pill-link { --pill-bg: #fff; --pill-color: #3a3450; --item-rot: 0deg; --hover-bg: #f7f5fc; --hover-color: #3a3450;
+  width: 100%; min-height: 64px; padding: 14px 0; font-size: 1.35rem; font-weight: 900; letter-spacing: -0.01em; border-radius: 999px; background: var(--pill-bg); color: var(--pill-color);
+  text-decoration: none; box-shadow: 0 4px 0 #e6e3ef, 0 6px 18px rgba(58, 52, 80, 0.1); display: flex; align-items: center; justify-content: center; position: relative;
+  transition: background 0.25s ease, color 0.25s ease; box-sizing: border-box; white-space: nowrap; overflow: hidden; transform: rotate(var(--item-rot)); }
+.bubble-menu-items .pill-link:hover, .bubble-menu-items .pill-link:focus-visible { background: var(--hover-bg); color: var(--hover-color); outline: none; }
+.bubble-menu-items .pill-link:active { filter: brightness(0.95); }
+.bubble-menu-items .pill-label { display: inline-block; line-height: 1.2; }

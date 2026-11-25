@@ -225,3 +225,30 @@ html .dly-mini i.l { background: var(--b-board-light); }
 html .dly-mini i.d { background: var(--b-board-dark); }
 html .trn .dly-quick button:disabled { opacity: .5; }
 html .trn .dly-quick { grid-template-columns: repeat(3, 1fr); } /* 6 / 9 / 3 / 6 tiles: full rows */
+
+/* back arrow in the Training-look headers (Today's path, wheel test) */
+html .trn .trn-back { width: 40px; height: 40px; flex: none; display: grid; place-items: center; border: 2px solid var(--b-line); border-bottom-width: 4px; border-radius: 14px; background: #fff; font-size: 20px; font-weight: 900; color: var(--b-text); }
+
+/* #/wheel – test page for the option wheel (25.11.) */
+html .wht-in { position: absolute; inset: 0; display: flex; flex-direction: column; gap: 12px; max-width: 430px; margin: 0 auto;
+  padding: calc(12px + env(safe-area-inset-top, 0px)) max(16px, env(safe-area-inset-right, 0px)) calc(16px + env(safe-area-inset-bottom, 0px)) max(16px, env(safe-area-inset-left, 0px)); }
+html .wht-seg { display: grid; grid-template-columns: repeat(3, 1fr); gap: 3px; background: var(--b-bg-soft); border: 2px solid var(--b-line); border-radius: 14px; padding: 3px; }
+html .trn .wht-seg button { font-weight: 900; font-size: 13px; text-align: center; padding: 8px 4px; border-radius: 10px; color: var(--b-muted); }
+html .trn .wht-seg button[aria-pressed="true"] { background: #fff; color: var(--b-text); box-shadow: 0 2px 0 var(--b-line); }
+html .wht-wheel { position: relative; flex: 1; min-height: 260px; border-radius: 22px; background: var(--b-bg-soft); overflow: hidden; }
+html .wht-wheel::before, html .wht-wheel::after { content: ""; position: absolute; left: 0; right: 0; height: 22%; z-index: 1; pointer-events: none; }
+html .wht-wheel::before { top: 0; background: linear-gradient(var(--b-bg-soft), transparent); }
+html .wht-wheel::after { bottom: 0; background: linear-gradient(transparent, var(--b-bg-soft)); }
+html .wht-mark { position: absolute; top: 50%; left: 12px; width: 8px; height: 30px; margin-top: -15px; border-radius: 99px; background: var(--b-grape); z-index: 2; }
+html .wht-right .wht-mark { left: auto; right: 12px; }
+html .wht-card { display: grid; gap: 10px; background: #fff; border: 2px solid var(--b-line); border-bottom-width: 4px; border-radius: 18px; padding: 14px; }
+html .wht-card p { margin: 0; font-weight: 800; color: var(--b-text); min-height: 2.6em; }
+html .trn .wht-go { background: var(--b-green); color: #fff; border-bottom: 4px solid var(--b-green-d); border-radius: 14px; padding: 13px; text-align: center; font-weight: 900; text-transform: uppercase; letter-spacing: .03em; }
+html .wht-sub { margin-top: -4px; }
+html .wht-list { flex: 1; min-height: 0; display: flex; }
+html .wht-list .animated-list { flex: 1; display: flex; }
+html .wht-list .animated-list__viewport { flex: 1; }
+html .wht-bubbles { position: relative; flex: 1; min-height: 360px; border-radius: 22px; background: var(--b-bg-soft); overflow: hidden; }
+html .wht-hint { position: absolute; left: 0; right: 0; bottom: 18px; margin: 0; text-align: center; font-weight: 800; color: var(--b-muted); }
+html .trn .wht-bubbles .bubble-menu .menu-btn { border-radius: 50%; }
+html .trn .wht-bubbles a.pill-link { cursor: pointer; }
