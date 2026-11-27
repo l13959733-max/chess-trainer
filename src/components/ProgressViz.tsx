@@ -1,8 +1,8 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useState } from 'react'
 import { go } from '../hooks/useHashRoute'
-import { fetchArchives, fetchMonth, type ChessComGame } from '../lib/chesscom'
-import { getGameRecords, type GameRecord, type Puzzle } from '../lib/db'
-import { buildGames, sessions, stats, weekly, windows, type Kind, type PGame, type Range } from '../lib/progressStats'
+import { useGames } from '../hooks/useGames'
+import type { Puzzle } from '../lib/db'
+import { sessions, stats, weekly, windows, type Kind, type PGame, type Range } from '../lib/progressStats'
 
 // The visual Progress page (prototype, Lu 25.11.2026: "Statistik visuell, alles"): at a glance where, how and when you
 // got better or worse – Hoppy's sentence, four numbers with their trend, "better or worse?" in mistakes per 10 games,
@@ -13,25 +13,6 @@ const fmtDate = (t: number) => new Date(t * 1000).toLocaleDateString('en-GB', { 
 const pct = (x: number) => `${Math.round(x * 100)}%`
 const sum = (a: number[]) => a.reduce((s, x) => s + x, 0)
 const mean = (a: number[]) => (a.length ? sum(a) / a.length : null)
-
-function useGames(player: string, puzzles: Puzzle[]) {
-  const [games, setGames] = useState<ChessComGame[] | null>(null)
-  const [records, setRecords] = useState<GameRecord[]>([])
-  const [failed, setFailed] = useState(false)
-  useEffect(() => {
-    let gone = false
-    getGameRecords(player).then((r) => !gone && setRecords(r)).catch(() => {})
-    fetchArchives(player)
-      .then((months) => Promise.all(months.slice(-12).map((m) => fetchMonth(m).catch(() => [] as ChessComGame[]))))
-      .then((all) => !gone && setGames(all.flat()))
-      .catch(() => !gone && setFailed(true))
-    return () => {
-      gone = true
-    }
-  }, [player])
-  const G = useMemo(() => (games ? buildGames(games, player, records, puzzles) : null), [games, player, records, puzzles])
-  return { G, failed }
-}
 
 export function ProgressViz({ player, puzzles }: { player: string; puzzles: Puzzle[] }) {
   const { G, failed } = useGames(player, puzzles)

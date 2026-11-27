@@ -72,12 +72,13 @@ interface Props {
   player: string
   onGame: (score: number) => Promise<Reward>
   onPuzzlesFound: () => void
+  startColor?: 'w' | 'b' // #/play/w, #/play/b – a game straight from the White / Black page (27.11.)
 }
 
-export function Play({ mode, lines, player, onGame, onPuzzlesFound }: Props) {
+export function Play({ mode, lines, player, onGame, onPuzzlesFound, startColor }: Props) {
   const [stats, setStats] = useState<BotStats | null>(null)
   const [game, setGame] = useState<Game | null>(null)
-  const [color, setColor] = useState<'w' | 'b' | 'random'>('w')
+  const [color, setColor] = useState<'w' | 'b' | 'random'>(startColor ?? 'w')
   const [level, setLevel] = useState<number | 'auto'>('auto')
   const [safety, setSafety] = useState(true)
   const [thinking, setThinking] = useState(false)

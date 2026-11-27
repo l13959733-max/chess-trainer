@@ -182,9 +182,9 @@ function App() {
       if (mode.kind === 'puzzle') report('treasure', score === 1 ? 3 : score === 0.5 ? 2 : 1)
       return progress.recordGame(score)
     }
-    body = <Play key={`${id ?? ''}/${arg ?? ''}`} mode={mode} lines={rep.lines} player={player} onGame={onGame} onPuzzlesFound={() => setBotFound((n) => n + 1)} />
+    body = <Play key={`${id ?? ''}/${arg ?? ''}`} mode={mode} lines={rep.lines} player={player} onGame={onGame} onPuzzlesFound={() => setBotFound((n) => n + 1)} startColor={id === 'w' || id === 'b' ? id : undefined} />
   } else if (page === 'puzzles') body = <PuzzleSession key={(id ?? 'all') + (arg ?? '')} puzzles={puzzles} progress={progress} filter={weaknessFilter(id, arg)} doneKey={id === 'phase' && arg ? 'focus:phase:' + arg : undefined} />
-  else if (page === 'threats') body = <ThreatSession key={(id ?? 'all') + (arg ?? '')} puzzles={puzzles} progress={progress} category={id && id in CATEGORY ? (id as Category) : undefined} games={id === 'games' ? arg?.split(',') : undefined} />
+  else if (page === 'threats') body = <ThreatSession key={(id ?? 'all') + (arg ?? '')} puzzles={puzzles} progress={progress} category={id && id in CATEGORY ? (id as Category) : undefined} games={id === 'games' ? arg?.split(',') : undefined} color={id === 'color' && (arg === 'w' || arg === 'b') ? arg : undefined} />
   else if (page === 'afterwards') body = <Afterwards />
   else if (page === 'armoury') body = <ArmouryScreen key={(id ?? '') + '/' + (arg ?? '')} id={id} stage={arg} />
   else if (page === 'weaknesses') body = <Weaknesses puzzles={puzzles} player={player} />
@@ -213,7 +213,7 @@ function App() {
   else if (page === 'progress') body = <Journey puzzles={puzzles} player={player} progress={progress} />
   else if (page === 'today') body = <Today rep={rep} progress={progress} puzzles={puzzles} />
   else if (page === 'wheel') body = <WheelTest />
-  else if (page === 'proto') body = <ProtoNav player={player} puzzles={puzzles.puzzles} progress={progress} />
+  else if (page === 'proto') body = <ProtoNav player={player} puzzles={puzzles.puzzles} progress={progress} rep={rep} />
   else if (page === 'diary') body = <Diary />
   else if (page === 'puzzle-rush') body = <PuzzleRush puzzles={puzzles} player={player} />
   else if (page === 'opening-rush') body = id ? <OpeningRush key={id} rep={rep} keys={decodeURIComponent(id)} /> : <OpeningRushHome rep={rep} />
@@ -363,6 +363,8 @@ function sessionQueue(puzzles: ReturnType<typeof usePuzzles>, prefix: 'p:' | 't:
 // "Other" (#/puzzles/other/<part>) – Lu, 16.11.: "Middlegame oder Opening oder Endgame – dazu sollen die Übungen kommen"
 function weaknessFilter(id?: string, arg?: string): ((p: Puzzle) => boolean) | undefined {
   if (id === 'phase' && arg) return (p) => phaseOf(p.fen) === arg
+  // only the mistakes from games with White / Black (#/puzzles/color/w – the White and Black pages, 27.11.)
+  if (id === 'color' && (arg === 'w' || arg === 'b')) return (p) => p.myColor === arg
   if (id === 'other' && arg) return (p) => p.category === 'other' && otherKindOf(p) === arg
   if (id && id in CATEGORY) return (p) => p.category === id
   return undefined
@@ -422,12 +424,13 @@ function PuzzleSession({ puzzles, progress, filter, doneKey }: { puzzles: Return
 }
 
 // "What's the threat?" positions: mistakes where the opponent could punish, with the stored answer
-function ThreatSession({ puzzles, progress, category, games }: { puzzles: ReturnType<typeof usePuzzles>; progress: ReturnType<typeof useProgress>; category?: Category; games?: string[] }) {
+// `color` (27.11.): only positions from games with White / Black – the White and Black pages
+function ThreatSession({ puzzles, progress, category, games, color }: { puzzles: ReturnType<typeof usePuzzles>; progress: ReturnType<typeof useProgress>; category?: Category; games?: string[]; color?: 'w' | 'b' }) {
   // `games`: only the positions from these games (after a real game: "where would the watch have helped?")
   const [queue] = useState(() =>
     games
       ? puzzles.puzzles.filter((p) => games.includes(p.gameUuid) && !!p.refutation && !!p.category && CATEGORY[p.category].family === 'opponent').map((p) => p.id)
-      : sessionQueue(puzzles, 't:', (p) => !!p.refutation && !!p.category && CATEGORY[p.category].family === 'opponent' && (!category || p.category === category)),
+      : sessionQueue(puzzles, 't:', (p) => !!p.refutation && !!p.category && CATEGORY[p.category].family === 'opponent' && (!category || p.category === category) && (!color || p.myColor === color)),
   )
   const [index, setIndex] = useState(0)
   const puzzle = puzzles.puzzles.find((p) => p.id === queue[index])

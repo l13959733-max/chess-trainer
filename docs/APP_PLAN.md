@@ -5,7 +5,7 @@
 > **Erst bauen, wenn Lu „Plan fertig" oder „bauen" sagt.** Dann alles nach diesem Plan in der Vorschau
 > (`preview`) bauen, am Handy-Format prüfen, Lu den Link geben. Live erst nach „übernehmen".
 > Punkte mit **❓** sind offen und werden mit Lu geklärt, nicht geraten.
-> Prototypen zum Nachschauen: Vorschau `#/proto` (A/B/C), Statistik-Prototyp https://claude.ai/artifact/LFtPR87zyiq4gQo7jeqcru
+> Prototyp der Struktur v2: Vorschau `#/proto` (`src/screens/ProtoNav.tsx`, gebaut 27.11.). Statistik-Prototyp https://claude.ai/artifact/LFtPR87zyiq4gQo7jeqcru
 
 ## 0. Grundregeln (gelten überall)
 
@@ -116,3 +116,4 @@ Lu, 27.11.: „unten der Balken aus der neuen Version" (= Prototyp A).
 - 27.11.2026: Weiß/Schwarz lernen beschrieben (alles einer Farbe an einem Ort, animierte Liste).
 - 27.11.2026: Nicht zu viel: Training-Seite nur 3 Karten (verworfen).
 - 27.11.2026: Struktur v2: Training weg, Weiß und Schwarz eigene Punkte, Gemischtes = 🔥 Heute (5 Symbole).
+- 27.11.2026: Prototyp v2 in der Vorschau `#/proto` gebaut (Lu: „bau jetzt erstmal den Prototypen"). Neu dafür: Farb-Filter `#/puzzles/color/w|b`, `#/threats/color/w|b`, `#/play/w|b`.

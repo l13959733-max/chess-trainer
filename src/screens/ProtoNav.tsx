@@ -1,75 +1,48 @@
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { AnimatedList, type ListItem } from '../components/AnimatedList'
 import { ProgressViz } from '../components/ProgressViz'
+import { useGames } from '../hooks/useGames'
 import { go } from '../hooks/useHashRoute'
 import type { useProgress } from '../hooks/useProgress'
+import type { useRepertoire } from '../hooks/useRepertoire'
+import { clampScore } from '../lib/blunders'
+import { chapters } from '../lib/chapters'
+import { hasOwnPlayer } from '../lib/chesscom'
+import { chapterOf } from '../lib/cityBook'
 import type { Puzzle } from '../lib/db'
 import { STATIONS, loadKing, route, stationById } from '../lib/king'
-import { chapterOf } from '../lib/cityBook'
 import { dateKey } from '../lib/progress'
-import { pathProgress } from '../lib/trainingToday'
+import { isDue } from '../lib/srs'
+import { mineOf, pathProgress } from '../lib/trainingToday'
 import { nextCity, openCity } from '../lib/travel'
 
-// #/proto – navigation prototypes (Lu, 25.11.2026: "Duolingo-Style bleiben, Prototypen mit den animierten Listen; die
-// Leiste, der Button in der Mitte und der lila Knopf sollen weg" → then: "sortieren, nicht alles nur Liste, Statistik
-// visuell – Prototypen durchbauen"). A = Duolingo bar (icons only), B = no bar, the start page is a list, C = tabs on
-// top. The content is the same in all three: sorted groups, a picture on top, Progress as charts. Rows open the real
-// pages. Nothing in the real navigation changes.
+// #/proto – prototype of the whole app, structure v2 from docs/APP_PLAN.md (Lu, 27.11.2026):
+// bar 🔥 Today · ♔ White · ♚ Black · 📊 Progress · 🧭 Story (Duolingo bar, icons only, no middle button), no
+// "Training" level – everything for White runs under White, everything for Black under Black, the mixed daily path is
+// Today. Profile = round picture top right. Rows open the real pages; the real navigation of the app is unchanged.
 const IMG = import.meta.env.BASE_URL + 'king/'
-type Proto = 'A' | 'B' | 'C'
-type Section = 'today' | 'journey' | 'progress' | 'me'
+type Section = 'today' | 'white' | 'black' | 'progress' | 'story'
 type Row = ListItem & { to: string }
 type Group = { title: string; rows: Row[] }
 type Prog = ReturnType<typeof useProgress>
+type Rep = ReturnType<typeof useRepertoire>
+type Side = 'w' | 'b'
 
-const TODAY: Group[] = [
-  { title: 'Now', rows: [
-    { to: 'threat-check', icon: '🎯', title: 'Daily Threat Check', description: 'One position – what does your opponent threaten?' },
-    { to: 'review', icon: '🗺', title: 'Lines to repeat', description: 'Your openings that are due' },
-    { to: 'puzzles', icon: '🩹', title: 'Your mistakes', description: 'Positions from your own games' },
-  ] },
-  { title: 'Quick games', rows: [
-    { to: 'rush', icon: '💥', title: 'Square Rush', description: 'Learn the squares – 60 seconds' },
-    { to: 'puzzle-rush', icon: '⏱', title: 'Puzzle Rush', description: '3 minutes, 3 lives' },
-    { to: 'opening-rush', icon: '⚡', title: 'Opening Rush', description: 'Your openings on time' },
-    { to: 'play', icon: '♞', title: 'Hoppy-Bot', description: 'A game at your level' },
-  ] },
-  { title: 'Learn & train', rows: [
-    { to: 'path', icon: '🪙', title: 'All openings', description: 'Every line, chapter by chapter' },
-    { to: 'black-course', icon: '♚', title: 'Black training', description: '1...d5 against everything' },
-    { to: 'atlas', icon: '🧭', title: 'Opening atlas', description: 'New weapons' },
-    { to: 'attacks', icon: '🪤', title: 'Attacks & traps', description: 'With the defence' },
-    { to: 'armoury', icon: '🛡', title: 'Armoury', description: 'Tactics to endgame' },
-    { to: 'weaknesses', icon: '🧩', title: 'Weaknesses', description: 'Your own mistakes, trained' },
-    { to: 'habits', icon: '🔁', title: 'Your habits', description: 'Where you leave your book' },
-    { to: 'warmup', icon: '🔥', title: 'Warm-up', description: '2 minutes before chess.com' },
-  ] },
+const TABS: { s: Section; icon: string; label: string }[] = [
+  { s: 'today', icon: '🔥', label: 'Today' },
+  { s: 'white', icon: '♔', label: 'White' },
+  { s: 'black', icon: '♚', label: 'Black' },
+  { s: 'progress', icon: '📊', label: 'Progress' },
+  { s: 'story', icon: '🧭', label: 'Story' },
 ]
-const ME: Group[] = [
-  { title: 'You', rows: [
-    { to: 'settings', icon: '⚙️', title: 'Settings', description: 'Sound, look, chess.com account' },
-    { to: 'trophies', icon: '🏆', title: 'Trophies', description: 'What you have won' },
-    { to: 'diary', icon: '📔', title: 'Diary', description: 'What you learned in every city' },
-  ] },
-  { title: 'Together', rows: [{ to: 'watch', icon: '👫', title: 'Together', description: 'Watch and help each other' }] },
-  { title: 'More worlds', rows: [
-    { to: 'mirror', icon: '🪞', title: 'Mirror World', description: 'Act 2 – you play Black' },
-    { to: 'painted', icon: '🎨', title: 'The painted map', description: 'The world as a painting' },
-    { to: 'quests', icon: '📖', title: 'Quest book', description: 'Your quests' },
-    { to: 'portal', icon: '🌀', title: 'Real world', description: 'Your chess.com games' },
-  ] },
-]
-const TITLE: Record<Section, string> = { today: 'Today', journey: 'Journey', progress: 'Progress', me: 'Profile' }
-const ICON: Record<Section, string> = { today: '🔥', journey: '🧭', progress: '📊', me: '👤' }
-const SUB: Record<Section, string> = { today: 'Threat check, today’s path, every trainer', journey: 'The world map, city by city', progress: 'How you got better – in charts', me: 'Settings, trophies, more worlds' }
 
-function Groups({ groups, k }: { groups: Group[]; k: string }) {
+function Groups({ groups, k, dark }: { groups: Group[]; k: string; dark?: boolean }) {
   return (
     <>
-      {groups.map((g) => (
+      {groups.filter((g) => g.rows.length).map((g) => (
         <section key={k + g.title} className="pn-group">
           <h2>{g.title}</h2>
-          <AnimatedList items={g.rows} theme="duo" frame={false} width="100%" maxHeight="none" radius={16} gap={10} stagger={0.035} showGradients={false} displayScrollbar={false} selectOnHover={false}
+          <AnimatedList items={g.rows} theme={dark ? 'dark' : 'duo'} frame={false} width="100%" maxHeight="none" radius={16} gap={10} stagger={0.035} showGradients={false} displayScrollbar={false} selectOnHover={false}
             onItemSelect={(_, i) => go(g.rows[i].to)} />
         </section>
       ))}
@@ -77,7 +50,21 @@ function Groups({ groups, k }: { groups: Group[]; k: string }) {
   )
 }
 
-function TodayTop({ progress }: { progress: Prog }) {
+// ---------- 🔥 Today: a little journey strip, the week, the mixed daily path, free play ----------
+function TravelStrip({ onOpen }: { onOpen: () => void }) {
+  const king = loadKing()
+  const next = nextCity(king.beaten)
+  const bosses = STATIONS.filter((s) => !s.finale).length
+  const beaten = king.beaten.filter((id) => STATIONS.some((s) => s.id === id && !s.finale)).length
+  return (
+    <button type="button" className="pn-travel" onClick={onOpen} aria-label="Open the story">
+      <img src={`${IMG}${next ? 'stamp-' + next.id : 'hoppy'}.jpg`} alt="" />
+      <span><b>🐴 Hoppy {next ? `travels to ${next.name}` : 'travelled the world'}</b><i><em style={{ width: `${(100 * beaten) / bosses}%` }} /></i></span>
+      <small>{beaten}/{bosses}</small>
+    </button>
+  )
+}
+function Today({ progress, onStory }: { progress: Prog; onStory: () => void }) {
   const [now] = useState(() => Date.now())
   const [path] = useState(pathProgress)
   const week = Array.from({ length: 7 }, (_, i) => {
@@ -91,6 +78,7 @@ function TodayTop({ progress }: { progress: Prog }) {
   const C = 2 * Math.PI * 26
   return (
     <>
+      <TravelStrip onOpen={onStory} />
       <div className="pn-week" aria-label="This week">
         {week.map((d, i) => (
           <span key={i} className={`${d.on ? 'on' : ''}${d.today ? ' today' : ''}`}><i>{d.on ? '🔥' : ''}</i><small>{d.label}</small></span>
@@ -102,14 +90,109 @@ function TodayTop({ progress }: { progress: Prog }) {
           <circle cx="32" cy="32" r="26" fill="none" stroke="#fff" strokeWidth="9" strokeLinecap="round" strokeDasharray={C} strokeDashoffset={C * (1 - ring)} transform="rotate(-90 32 32)" />
           <text x="32" y="37" textAnchor="middle" fontSize="14" fontWeight="900" fill="#fff">{path ? `${path.done}/${path.total}` : '0'}</text>
         </svg>
-        <span><small>Today’s path</small><b>{!path ? 'Ready when you are' : path.done >= path.total ? 'All done – well played!' : `${path.total - path.done} levels left`}</b></span>
+        <span><small>Today’s path · White and Black mixed</small><b>{!path ? 'Ready when you are' : path.done >= path.total ? 'All done – well played!' : `${path.total - path.done} levels left`}</b></span>
         <i>{!path || path.done === 0 ? 'START' : 'GO'}</i>
       </button>
+      <Groups k="today" groups={[
+        { title: 'Everything due', rows: [{ to: 'daily', icon: '🃏', title: 'Today’s cards', description: 'Lines, mistakes and threats that are due – mixed' }] },
+        { title: 'Free play', rows: [
+          { to: 'threat-check', icon: '🎯', title: 'Daily Threat Check', description: 'One position – what does your opponent threaten?' },
+          { to: 'rush', icon: '💥', title: 'Square Rush', description: 'Learn the squares – 60 seconds' },
+          { to: 'puzzle-rush', icon: '⏱', title: 'Puzzle Rush', description: '3 minutes, 3 lives' },
+          { to: 'armoury', icon: '🛡', title: 'Armoury', description: 'Tactics to endgame – bronze, silver, gold' },
+        ] },
+      ]} />
     </>
   )
 }
 
-function JourneyTop() {
+// ---------- ♔ White / ♚ Black: everything of one colour ----------
+function SidePage({ side, rep, puzzles, player }: { side: Side; rep: Rep; puzzles: Puzzle[]; player: string }) {
+  const [now] = useState(() => Date.now())
+  const { G } = useGames(player, puzzles)
+  const white = side === 'w'
+  const name = white ? 'White' : 'Black'
+  // quick numbers of this colour (real games)
+  const mine = (G ?? []).filter((g) => g.color === side)
+  const win = mine.length ? mine.filter((g) => g.result === 'w').length / mine.length : null
+  const fam = new Map<string, number[]>()
+  for (const g of mine) fam.set(g.family, [...(fam.get(g.family) ?? []), g.result === 'w' ? 1 : 0])
+  const enough = [...fam.entries()].filter(([, r]) => r.length >= 10).map(([f, r]) => ({ f, w: r.reduce((a, b) => a + b, 0) / r.length, n: r.length }))
+  const best = [...enough].sort((a, b) => b.w - a.w)[0], worst = [...enough].sort((a, b) => a.w - b.w)[0]
+
+  const chs = useMemo(() => chapters(rep.lines).filter((c) => c.side === side), [rep.lines, side])
+  const rowOf = (c: (typeof chs)[number]): Row => {
+    const played = c.lines.filter((l) => rep.srs.get(l.id)).length
+    const due = c.lines.filter((l) => isDue(rep.srs.get(l.id), now))
+    const fresh = c.lines.find((l) => !rep.srs.get(l.id))
+    const to = due[0] ? 'drill/' + due[0].id : fresh ? 'learn/' + fresh.id : 'drill/' + c.lines[0].id
+    return { id: c.key, to, icon: white ? '♙' : '♟', title: c.title, description: `${played} of ${c.lines.length} lines${due.length ? ` · ${due.length} due` : ''}`, meta: due.length ? '!' : played === c.lines.length ? '✓' : '' }
+  }
+  // sorted like the app's opening book: one group per section (e.g. "White · 1.e4 e5", "White · 1.d4")
+  const openingGroups: Group[] = [...new Set(chs.map((c) => c.group))].map((g) => ({ title: g.replace(/^(White|Black) · /, ''), rows: chs.filter((c) => c.group === g).map(rowOf) }))
+  const myMistakes = mineOf(puzzles, player).filter((p) => p.myColor === side)
+  const threats = myMistakes.filter((p) => !!p.refutation)
+  const winning = myMistakes.filter((p) => clampScore(p.scoreBefore) >= 300)
+  const [pick] = useState(() => Math.random()) // one treasure per visit
+  const treasure = winning[Math.floor(pick * winning.length)]
+
+  return (
+    <>
+      <div className={`pn-sidehero ${white ? 'w' : 'b'}`}>
+        <span className="pn-piece" aria-hidden="true">{white ? '♔' : '♚'}</span>
+        <div>
+          <small>You with {name}</small>
+          <b>{win == null ? '–' : `${Math.round(win * 100)}% won`}</b>
+          <span>{mine.length ? `${mine.length} rapid games` : G ? 'No rapid games yet' : 'Loading your games …'}</span>
+        </div>
+        <button type="button" onClick={() => go('progress')}>Stats ›</button>
+      </div>
+      {best && worst && best.f !== worst.f && (
+        <div className="pn-chips"><span className="good">Best: {best.f} · {Math.round(best.w * 100)}%</span><span className="bad">Hardest: {worst.f} · {Math.round(worst.w * 100)}%</span></div>
+      )}
+      <Groups k={side} dark={!white} groups={[
+        ...openingGroups.map((g) => ({ ...g, title: `${name} openings · ${g.title}` })),
+        { title: 'Practise the openings', rows: [
+          { to: 'opening-rush', icon: '⚡', title: 'Opening Rush', description: `Your ${name} openings on time` },
+          { to: `surprise/${side}`, icon: '🎲', title: 'Surprise me', description: `A random ${name} line you know` },
+          { to: `map/${side}`, icon: '🗺', title: 'What to play when?', description: white ? 'Black’s replies and your answer' : 'White’s first moves and your answer' },
+          ...(white ? [] : [
+            { to: 'black-course', icon: '♚', title: 'Hoppy’s Black training', description: '1...d5 against everything' },
+            { to: 'black', icon: '🎛', title: 'Your Black system', description: 'Pick your answer to 1.e4 and 1.d4' },
+          ]),
+        ] },
+        { title: 'Tactics & your mistakes', rows: [
+          { to: `puzzles/color/${side}`, icon: '🩹', title: `Your mistakes with ${name}`, description: `${myMistakes.length} positions from your own games` },
+          { to: `threats/color/${side}`, icon: '🗼', title: 'What does your opponent threaten?', description: `${threats.length} positions from your ${name} games` },
+          ...(treasure ? [{ to: 'play/puzzle/' + encodeURIComponent(treasure.id), icon: '💰', title: 'Treasure chest', description: `Win your won positions again · ${winning.length}` }] : []),
+          { to: 'attacks', icon: '🪤', title: 'Attacks & traps', description: 'Every famous attack with its defence' },
+        ] },
+        { title: 'Play', rows: [
+          { to: `play/${side}`, icon: '🐴', title: `Hoppy-Bot · you play ${name}`, description: 'A game at your level' },
+          { to: 'habits', icon: '🔁', title: 'Your habits', description: 'Where you leave your book' },
+          ...(white ? [] : [{ to: 'mirror', icon: '🪞', title: 'The Mirror World', description: 'The story’s second act – you play Black' }]),
+        ] },
+      ]} />
+    </>
+  )
+}
+
+// ---------- 📊 Progress ----------
+function ProgressTab({ player, puzzles }: { player: string; puzzles: Puzzle[] }) {
+  return (
+    <>
+      <button type="button" className="pn-update" onClick={() => go(hasOwnPlayer() ? 'connect/read' : 'connect')}>
+        <span aria-hidden="true">🔄</span>
+        <span><b>Update the analysis</b><small>Hoppy checks your newest chess.com games</small></span>
+        <i>GO</i>
+      </button>
+      <ProgressViz player={player} puzzles={puzzles} />
+    </>
+  )
+}
+
+// ---------- 🧭 Story ----------
+function Story() {
   const king = loadKing()
   const next = nextCity(king.beaten)
   const cities = route().map((id) => stationById(id)!).filter((s) => s && STATIONS.includes(s) && !s.finale)
@@ -128,17 +211,33 @@ function JourneyTop() {
       )}
       <div className="pn-mapbtns">
         <button type="button" onClick={() => go('journey')}>🗺 World map</button>
-        <button type="button" onClick={() => go('road')}>🧭 All cities</button>
+        <button type="button" onClick={() => go('diary')}>📔 Diary</button>
       </div>
-      <Groups k="j" groups={[{ title: `Done · ${beaten.length}`, rows: beaten.map((s) => row(s, '✓')) }, { title: 'Still ahead', rows: ahead.slice(0, 6).map((s) => row(s)) }].filter((g) => g.rows.length)} />
+      <Groups k="story" groups={[
+        { title: `Done · ${beaten.length}`, rows: beaten.map((s) => row(s, '✓')) },
+        { title: 'Still ahead', rows: ahead.map((s) => row(s)) },
+        { title: 'More', rows: [
+          { to: 'painted', icon: '🎨', title: 'The painted map', description: 'The world as a painting' },
+          { to: 'quests', icon: '📖', title: 'Quest book', description: 'Your quests' },
+          { to: 'portal', icon: '🌀', title: 'Real world', description: 'Quests from your chess.com games' },
+        ] },
+      ]} />
     </>
   )
 }
 
-export function ProtoNav({ player, puzzles, progress }: { player: string; puzzles: Puzzle[]; progress: Prog }) {
-  const [proto, setProto] = useState<Proto>('A')
+// ---------- profile (round picture top right) ----------
+const PROFILE: Group[] = [
+  { title: 'You', rows: [
+    { to: 'settings', icon: '⚙️', title: 'Settings', description: 'Name, chess.com account, sound, look' },
+    { to: 'trophies', icon: '🏆', title: 'Trophies', description: 'What you have won' },
+  ] },
+  { title: 'Together', rows: [{ to: 'watch', icon: '👫', title: 'Together', description: 'Watch and help each other' }] },
+]
+
+export function ProtoNav({ player, puzzles, progress, rep }: { player: string; puzzles: Puzzle[]; progress: Prog; rep: Rep }) {
   const [section, setSection] = useState<Section>('today')
-  const [inside, setInside] = useState<Section | null>(null) // B: a section opened from the start list
+  const [profile, setProfile] = useState(false)
   const name = (() => {
     try {
       return localStorage.getItem('chess-trainer-name') || 'you'
@@ -146,83 +245,36 @@ export function ProtoNav({ player, puzzles, progress }: { player: string; puzzle
       return 'you'
     }
   })()
-  const content = (s: Section) => (
-    <div className="pn-scroll" key={proto + s}>
-      {s === 'today' && <><TodayTop progress={progress} /><Groups k="t" groups={TODAY} /></>}
-      {s === 'journey' && <JourneyTop />}
-      {s === 'progress' && <ProgressViz player={player} puzzles={puzzles} />}
-      {s === 'me' && <Groups k="m" groups={ME} />}
-    </div>
-  )
-  const switchTo = (p: Proto) => {
-    setProto(p)
-    setSection('today')
-    setInside(null)
-  }
-
+  const title = profile ? 'Profile' : TABS.find((t) => t.s === section)!.label
   return (
-    <div className="pn">
-      <div className="pn-proto" role="group" aria-label="Prototype">
-        <button type="button" className="pn-exit" onClick={() => go('')} aria-label="Leave the prototypes">✕</button>
-        <span>PROTOTYPE</span>
-        {(['A', 'B', 'C'] as Proto[]).map((p) => (
-          <button key={p} type="button" aria-pressed={proto === p} onClick={() => switchTo(p)}>{p}</button>
-        ))}
+    <div className={`pn${section === 'black' && !profile ? ' pn-dark' : ''}`}>
+      <div className="pn-proto">
+        <button type="button" className="pn-exit" onClick={() => go('')} aria-label="Leave the prototype">✕</button>
+        <span>PROTOTYPE · STRUCTURE V2</span>
       </div>
-
-      {proto === 'A' && (
-        <div className="pn-screen">
-          <header className="pn-head"><h1>{TITLE[section]}</h1><span className="pn-pill">🔥 {progress.streak}</span></header>
-          {content(section)}
-          <nav className="pn-duobar" aria-label="Main">
-            {(['today', 'journey', 'progress', 'me'] as Section[]).map((s) => (
-              <button key={s} type="button" className={section === s ? 'on' : ''} aria-label={TITLE[s]} aria-current={section === s ? 'page' : undefined} onClick={() => setSection(s)}>
-                <span aria-hidden="true">{ICON[s]}</span>
-              </button>
-            ))}
-          </nav>
+      <div className="pn-screen">
+        <header className="pn-head">
+          {profile && <button type="button" className="pn-back" onClick={() => setProfile(false)} aria-label="Back">←</button>}
+          <h1>{title}</h1>
+          <span className="pn-pill">🔥 {progress.streak}</span>
+          {!profile && <button type="button" className="pn-avatar" onClick={() => setProfile(true)} aria-label="Profile">{name.slice(0, 1).toUpperCase()}</button>}
+        </header>
+        <div className="pn-scroll" key={profile ? 'profile' : section}>
+          {profile ? <Groups k="profile" groups={PROFILE} /> : section === 'today' ? <Today progress={progress} onStory={() => setSection('story')} />
+            : section === 'white' ? <SidePage side="w" rep={rep} puzzles={puzzles} player={player} />
+            : section === 'black' ? <SidePage side="b" rep={rep} puzzles={puzzles} player={player} />
+            : section === 'progress' ? <ProgressTab player={player} puzzles={puzzles} />
+            : <Story />}
         </div>
-      )}
-
-      {proto === 'B' && !inside && (
-        <div className="pn-screen">
-          <header className="pn-head"><h1>Hi {name}!</h1><span className="pn-pill">🔥 {progress.streak}</span></header>
-          <div className="pn-scroll">
-            <button type="button" className="pn-continue" onClick={() => go('')}>
-              <img src={`${IMG}hoppy.jpg`} alt="" />
-              <span><small>Continue the story</small><b>{nextCity(loadKing().beaten)?.name ?? 'The world map'}</b></span>
-              <i>GO</i>
+        <nav className="pn-duobar pn-bar5" aria-label="Main">
+          {TABS.map((t) => (
+            <button key={t.s} type="button" className={!profile && section === t.s ? 'on' : ''} aria-label={t.label} aria-current={!profile && section === t.s ? 'page' : undefined}
+              onClick={() => { setProfile(false); setSection(t.s) }}>
+              <span aria-hidden="true">{t.icon}</span>
             </button>
-            <section className="pn-group">
-              <AnimatedList key="B-home" theme="duo" frame={false} width="100%" maxHeight="none" radius={16} gap={10} showGradients={false} displayScrollbar={false} selectOnHover={false}
-                items={(['today', 'journey', 'progress', 'me'] as Section[]).map((s) => ({ id: s, icon: ICON[s], title: TITLE[s], description: SUB[s], meta: '›' }))}
-                onItemSelect={(_, i) => setInside((['today', 'journey', 'progress', 'me'] as Section[])[i])} />
-            </section>
-          </div>
-        </div>
-      )}
-      {proto === 'B' && inside && (
-        <div className="pn-screen">
-          <header className="pn-head">
-            <button type="button" className="pn-back" onClick={() => setInside(null)} aria-label="Back">←</button>
-            <h1>{TITLE[inside]}</h1>
-          </header>
-          {content(inside)}
-        </div>
-      )}
-
-      {proto === 'C' && (
-        <div className="pn-screen">
-          <header className="pn-head"><h1>Hoppy</h1><span className="pn-pill">🔥 {progress.streak}</span></header>
-          <div className="pn-tabs" role="tablist">
-            {(['today', 'journey', 'progress'] as Section[]).map((s) => (
-              <button key={s} type="button" role="tab" aria-selected={section === s} onClick={() => setSection(s)}>{TITLE[s]}</button>
-            ))}
-            <button type="button" className="pn-gear" aria-label="Profile" aria-selected={section === 'me'} onClick={() => setSection('me')}>👤</button>
-          </div>
-          {content(section)}
-        </div>
-      )}
+          ))}
+        </nav>
+      </div>
     </div>
   )
 }

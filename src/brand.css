@@ -387,3 +387,42 @@ html .pn-mapbtns { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
 html .pn .pn-mapbtns button { text-align: center; padding: 11px 6px; border: 2px solid #e5e5e5; border-bottom-width: 4px; border-radius: 14px; font-weight: 900; font-size: 14px; }
 html .pn .animated-list__meta { font-size: 16px; font-weight: 900; color: var(--b-green-d); }
 html .pn-scroll > * { flex: none; } /* nothing in the scrolling column shrinks (buttons with min-height 0 got squeezed in a grid) */
+/* prototype v2 (27.11.): 5 icons, journey strip, White page / Black page, update the analysis, profile picture */
+html .pn .pn-bar5 { grid-template-columns: repeat(5, 1fr); }
+html .pn .pn-bar5 button span { font-size: 26px; line-height: 1; }
+html .pn .pn-avatar { width: 38px; height: 38px; border-radius: 50%; display: grid; place-items: center; background: var(--b-sun); border: 2px solid #fff; box-shadow: 0 0 0 2px #e5e5e5; font-weight: 900; font-size: 16px; color: #3c3c3c; text-align: center; }
+html .pn .pn-travel { display: flex; align-items: center; gap: 10px; padding: 8px 12px 8px 8px; border: 2px solid #e5e5e5; border-bottom-width: 4px; border-radius: 16px; text-align: left; }
+html .pn .pn-travel img { width: 38px; height: 38px; border-radius: 50%; object-fit: cover; border: 2px solid var(--b-sun); }
+html .pn .pn-travel span { flex: 1; display: grid; gap: 5px; min-width: 0; }
+html .pn .pn-travel b { font-size: 13.5px; font-weight: 900; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+html .pn .pn-travel span i { height: 8px; border-radius: 99px; background: #f0f0f0; overflow: hidden; display: block; }
+html .pn .pn-travel span em { display: block; height: 100%; background: var(--b-sun); border-radius: 99px; }
+html .pn .pn-travel small { font-weight: 900; color: var(--b-muted); font-size: 12px; }
+html .pn .pn-sidehero { display: flex; align-items: center; gap: 12px; padding: 14px; border-radius: 20px; border: 2px solid #e5e5e5; border-bottom-width: 5px; }
+html .pn .pn-sidehero.w { background: #fff; color: #3c3c3c; }
+html .pn .pn-sidehero.b { background: #1c1c1e; color: #fff; border-color: #2c2c2e; border-bottom-color: #000; }
+html .pn .pn-piece { font-size: 46px; line-height: 1; }
+html .pn .pn-sidehero div { flex: 1; display: grid; }
+html .pn .pn-sidehero small { font-size: 12px; font-weight: 900; text-transform: uppercase; letter-spacing: .06em; opacity: .7; }
+html .pn .pn-sidehero b { font-size: 26px; font-weight: 900; line-height: 1.1; }
+html .pn .pn-sidehero div > span { font-size: 13px; font-weight: 800; opacity: .75; }
+html .pn .pn-sidehero .pn-piece { font-family: system-ui, -apple-system, sans-serif !important; }
+html .pn .pn-sidehero button { padding: 9px 12px; border-radius: 12px; font-weight: 900; font-size: 13px; background: #f7f7f7; border-bottom: 3px solid #e5e5e5; color: #3c3c3c; }
+html .pn .pn-sidehero.b button { background: #2c2c2e; border-bottom-color: #000; color: #fff; }
+html .pn-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+html .pn-chips span { border-radius: 99px; padding: 5px 11px; font-size: 12.5px; font-weight: 900; }
+html .pn-chips .good { background: var(--b-green-t); color: var(--b-green-d); } html .pn-chips .bad { background: var(--b-red-t); color: var(--b-red-d); }
+html .pn .pn-update { display: flex; align-items: center; gap: 12px; padding: 12px 14px; border-radius: 18px; background: #1cb0f6; border-bottom: 5px solid #1899d6; color: #fff; text-align: left; }
+html .pn .pn-update > span:first-child { font-size: 26px; }
+html .pn .pn-update span:nth-child(2) { flex: 1; display: grid; }
+html .pn .pn-update b { font-size: 17px; font-weight: 900; }
+html .pn .pn-update small { font-size: 12.5px; font-weight: 800; opacity: .92; }
+html .pn .pn-update i { font-style: normal; font-weight: 900; background: #fff; color: #1899d6; border-radius: 12px; padding: 8px 12px; }
+/* the Black page is dark (Lu: "Schwarz"), the bar stays light */
+html .pn.pn-dark .pn-screen { background: #000; color: #fff; }
+html .pn.pn-dark .pn-head h1 { color: #fff; }
+html .pn.pn-dark .pn-pill { border-color: #2c2c2e; }
+html .pn.pn-dark .pn-group h2 { color: #8e8e93; }
+html .pn.pn-dark .pn-duobar { background: #fff; color: #3c3c3c; }
+html .pn.pn-dark .pn-avatar { box-shadow: 0 0 0 2px #2c2c2e; }
+html .pn .pn-bar5 button span { font-family: system-ui, -apple-system, 'Apple Color Emoji', sans-serif !important; }
