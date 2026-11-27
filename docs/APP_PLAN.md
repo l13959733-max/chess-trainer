@@ -14,6 +14,23 @@
 - Nichts geht verloren, nichts ist doppelt. Gute Bedienung.
 - Neue Gestaltung erst als Prototyp zeigen, nicht ungefragt in die echte Navigation bauen.
 
+## Struktur-Vorschlag v1 (27.11.) – wartet auf Lus OK
+
+Lu, 27.11.: „Das Hauptding ist: man lernt Schwarz und Weiß, hat die Analyse und kann trainieren." Die Weltkarte
+„soll ein cooles Gimmick sein, aber nicht die Hauptattraktion". Geschichte gefällt, Entwicklung und Training braucht
+es auf jeden Fall. „Wie bringen wir das smart unter alles?"
+
+- **Leiste: nur 3 Symbole** ♟ Training · 📊 Entwicklung · 🧭 Geschichte (Duolingo-Leiste aus Prototyp A,
+  hellblaues Kästchen, kein Mittelknopf, kein Start-, kein Profil-Knopf).
+- **♟ Training = Start** (App öffnet hier): oben kleine Reise-Leiste als Gimmick („🐴 Samarkand → Rom · noch 3 Level",
+  jede gelernte Linie bringt Hoppy weiter, Tipp → Geschichte); große Karten ♔ Weiß lernen (weiß) · ♚ Schwarz lernen
+  (schwarz) · 🔀 Gemischt (grün = Tagespfad/alles Fällige); darunter klein: Threat Check, Square Rush, Puzzle Rush,
+  Hoppy-Bot.
+- **📊 Entwicklung** = Statistik aus dem Prototyp (`ProgressViz`), oben „Analyse aktualisieren".
+- **🧭 Geschichte** = Weltkarte, Städte, Meister, Tagebuch, Spiegelwelt.
+- **Profil = rundes Bild oben rechts**: Name, chess.com-Konto, Ton, Look, Trophäen, Together.
+- ❓ Lu bestätigt oder ändert. Abschnitte 1 und 2 unten sind ältere Stände (Startseite mit Hoppy-Bild, 4 Symbole).
+
 ## 1. Startseite (erste Seite)
 
 Lu, 27.11.: „Das soll die erste Seite bleiben."
@@ -68,3 +85,4 @@ Lu, 27.11.: „unten der Balken aus der neuen Version" (= Prototyp A).
 
 - 27.11.2026: Plan angelegt mit Lus Vorgaben zu Startseite und Leiste.
 - 27.11.2026: Journey-Karte öffnet die Progress-Seite aus dem Prototyp.
+- 27.11.2026: Struktur-Vorschlag v1 (3 Symbole, Training = Start, Profil oben rechts).
