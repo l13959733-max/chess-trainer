@@ -22,8 +22,10 @@ Lu, 27.11.: „Das soll die erste Seite bleiben."
 - **Karte „A king is not born …" (oben links): WEISS** statt lila.
 - **Karte „Square Rush" (unten rechts, diagonal darunter): SCHWARZ** statt dunkellila.
 - **Karte „Journey" (oben rechts): hier kommt „unsere ganze Entwicklung"** (Lu, 27.11.).
-  - ❓ Heißt das: (a) die Karte selbst zeigt die Entwicklung (z. B. kleine Rating-Kurve + „+103 seit Juni"),
-    (b) die Karte öffnet die visuelle Statistik-Seite (Prototyp Progress), oder (c) beides?
+  - ✅ Geklärt (Lu, 27.11., mit Screenshot von `#/proto` → Progress): **Die Karte öffnet die Progress-Seite aus
+    dem Prototyp** („das ist gut, das kann da") = `components/ProgressViz.tsx` mit Zeitraum (4 Wochen / 3 Monate /
+    Everything), Reitern Overview · Mistakes · Openings · Habits, Hoppy-Satz, 4 Kennzahlen mit Trend,
+    besser/schlechter, Rating-Kurve, sichere Züge. Ersetzt die bisherige Seite `#/progress`.
 - Karte „Daily · Threat Check" (unten links): bleibt.
 
 ## 2. Leiste unten
@@ -65,3 +67,4 @@ Lu, 27.11.: „unten der Balken aus der neuen Version" (= Prototyp A).
 ## Verlauf
 
 - 27.11.2026: Plan angelegt mit Lus Vorgaben zu Startseite und Leiste.
+- 27.11.2026: Journey-Karte öffnet die Progress-Seite aus dem Prototyp.
