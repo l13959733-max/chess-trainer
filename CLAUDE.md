@@ -6,6 +6,9 @@
 > `BAUPLAN.md`, ohne weitere Rückfragen. Bei „alles“: alle offenen Punkte nacheinander.
 > Arbeit immer auf Branch `preview`; live (`main`) erst nach „übernehmen“.
 >
+> **Umbau der ganzen App (ab 27.11.2026):** Plan in `docs/APP_PLAN.md` – wird mit Lu zusammen gefüllt,
+> gebaut erst nach „Plan fertig“/„bauen“.
+>
 > Alter Startbefehl: Wenn Lu „Chess Trainer" schreibt, gilt dasselbe.
 
 ## Ziel
