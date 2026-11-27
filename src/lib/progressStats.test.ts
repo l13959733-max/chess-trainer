@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { buildGames, clockBucket, openingFamily, sessions, stats, windows, type PGame } from './progressStats'
+import { bestChapter, buildGames, clockBucket, firstMoves, openingFamily, sessions, stats, windows, type PGame } from './progressStats'
 import type { ChessComGame } from './chesscom'
 import type { GameRecord, Puzzle } from './db'
 
@@ -73,5 +73,26 @@ describe('windows and sessions', () => {
   })
   it('games less than an hour apart are one session', () => {
     expect(sessions([{ t: 0 }, { t: 1800 }, { t: 9000 }] as PGame[]).map((s) => s.length)).toEqual([2, 1])
+  })
+})
+
+describe('which chapter a game was', () => {
+  const line = (...m: string[]) => ({ moves: m.map((san) => ({ san })) })
+  const chs = [
+    { key: 'italian', lines: [line('e4', 'e5', 'Nf3', 'Nc6', 'Bc4', 'Bc5')] },
+    { key: 'two-knights', lines: [line('e4', 'e5', 'Nf3', 'Nc6', 'Bc4', 'Nf6', 'Ng5')] },
+    { key: 'scandi', lines: [line('e4', 'd5', 'exd5', 'Qxd5')] },
+  ]
+  it('reads the first moves of a chess.com PGN', () => {
+    expect(firstMoves('[Event "x"]\n\n1. e4 {[%clk 0:09:59]} 1... e5 {[%clk 0:09:58]} 2. Nf3+ 1-0')).toEqual(['e4', 'e5', 'Nf3'])
+  })
+  it('takes the chapter whose line follows the game the longest', () => {
+    expect(bestChapter(['e4', 'e5', 'Nf3', 'Nc6', 'Bc4', 'Nf6', 'd3'], chs)).toBe('two-knights')
+    expect(bestChapter(['e4', 'e5', 'Nf3', 'Nc6', 'Bc4', 'Bc5', 'c3'], chs)).toBe('italian')
+    expect(bestChapter(['e4', 'd5', 'Nc3'], chs)).toBe('scandi')
+  })
+  it('needs at least two matching half-moves', () => {
+    expect(bestChapter(['e4', 'c5'], chs)).toBe(null)
+    expect(bestChapter(['d4', 'd5'], chs)).toBe(null)
   })
 })

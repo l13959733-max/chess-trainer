@@ -214,7 +214,7 @@ function App() {
   else if (page === 'progress' || page === 'white' || page === 'black' || page === 'story' || page === 'profile' || page === 'today')
     body = <SectionPage key={page} section={page} player={player} puzzles={puzzles.puzzles} progress={progress} rep={rep} />
   else if (page === 'wheel') body = <WheelTest />
-  else if (page === 'opening' && id) body = <OpeningPath key={id} id={decodeURIComponent(id)} rep={rep} />
+  else if (page === 'opening' && id) body = <OpeningPath key={id} id={decodeURIComponent(id)} rep={rep} player={player} puzzles={puzzles.puzzles} />
   else if (page === 'diary') body = <Diary />
   else if (page === 'puzzle-rush') body = <PuzzleRush puzzles={puzzles} player={player} />
   else if (page === 'opening-rush') body = id ? <OpeningRush key={id} rep={rep} keys={decodeURIComponent(id)} /> : <OpeningRushHome rep={rep} />

@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useMemo, useState, type ReactNode } from 'react'
 import { AnimatedList, type ListItem } from '../components/AnimatedList'
 import { ProgressViz } from '../components/ProgressViz'
 import { DuoBar } from '../components/DuoBar'
@@ -7,6 +7,9 @@ import { go } from '../hooks/useHashRoute'
 import type { useProgress } from '../hooks/useProgress'
 import type { useRepertoire } from '../hooks/useRepertoire'
 import { clampScore } from '../lib/blunders'
+import { ATLAS } from '../lib/atlas'
+import { ARENA_KEYS, keyOf } from '../lib/openingRush'
+import { bestChapter, type PGame } from '../lib/progressStats'
 import { chapters } from '../lib/chapters'
 import { hasOwnPlayer } from '../lib/chesscom'
 import { chapterOf } from '../lib/cityBook'
@@ -24,8 +27,8 @@ import { nextCity, openCity } from '../lib/travel'
 // icons only (components/DuoBar.tsx). Came from the prototype #/proto.
 const IMG = import.meta.env.BASE_URL + 'king/'
 export type Section = 'today' | 'white' | 'black' | 'progress' | 'story' | 'profile'
-type Row = ListItem & { to: string }
-type Group = { title: string; rows: Row[] }
+type Row = ListItem & { to: string; op?: { key: string; played: number; total: number; due: number } } // op: an opening card
+type Group = { title: string; rows: Row[]; render?: (row: Row) => ReactNode }
 type Prog = ReturnType<typeof useProgress>
 type Rep = ReturnType<typeof useRepertoire>
 type Side = 'w' | 'b'
@@ -38,7 +41,7 @@ function Groups({ groups, k, dark }: { groups: Group[]; k: string; dark?: boolea
       {groups.filter((g) => g.rows.length).map((g) => (
         <section key={k + g.title} className="pn-group">
           <h2>{g.title}</h2>
-          <AnimatedList items={g.rows} theme={dark ? 'dark' : 'duo'} frame={false} width="100%" maxHeight="none" radius={16} gap={10} stagger={0.035} showGradients={false} displayScrollbar={false} selectOnHover={false}
+          <AnimatedList items={g.rows} renderItem={g.render ? (it) => g.render!(it as Row) : undefined} theme={dark ? 'dark' : 'duo'} frame={false} width="100%" maxHeight="none" radius={16} gap={10} stagger={0.035} showGradients={false} displayScrollbar={false} selectOnHover={false}
             onItemSelect={(_, i) => go(g.rows[i].to)} />
         </section>
       ))}
@@ -141,23 +144,62 @@ function SidePage({ side, rep, puzzles, player }: { side: Side; rep: Rep; puzzle
   const white = side === 'w'
   const name = white ? 'White' : 'Black'
   // quick numbers of this colour (real games)
-  const mine = (G ?? []).filter((g) => g.color === side)
+  const mine = useMemo(() => (G ?? []).filter((g) => g.color === side), [G, side])
   const win = mine.length ? mine.filter((g) => g.result === 'w').length / mine.length : null
-  const fam = new Map<string, number[]>()
-  for (const g of mine) fam.set(g.family, [...(fam.get(g.family) ?? []), g.result === 'w' ? 1 : 0])
-  const enough = [...fam.entries()].filter(([, r]) => r.length >= 10).map(([f, r]) => ({ f, w: r.reduce((a, b) => a + b, 0) / r.length, n: r.length }))
-  const best = [...enough].sort((a, b) => b.w - a.w)[0], worst = [...enough].sort((a, b) => a.w - b.w)[0]
 
   const chs = useMemo(() => chapters(rep.lines).filter((c) => c.side === side), [rep.lines, side])
+  // Lu, 27.11.: "die Statistik zu den Openings – wie erfolgreich ich damit bin, wie weit ich es gelernt habe – beibehalten,
+  // ausarbeiten": every real game goes to the chapter whose line it followed the longest (lib/progressStats.bestChapter)
+  const byChapter = useMemo(() => {
+    const m = new Map<string, PGame[]>()
+    for (const g of mine) {
+      const k = bestChapter(g.sans, chs)
+      if (k) m.set(k, [...(m.get(k) ?? []), g])
+    }
+    return m
+  }, [mine, chs])
+  const statOf = (key: string) => {
+    const gs = byChapter.get(key) ?? []
+    const A = gs.filter((g) => g.analysed)
+    return { n: gs.length, win: gs.length ? gs.filter((g) => g.result === 'w').length / gs.length : null, mpg: A.length ? A.reduce((s2, g) => s2 + g.mistakes.length, 0) / A.length : null }
+  }
+  const ranked = chs.map((c) => ({ c, ...statOf(c.key) })).filter((x) => x.n >= 8 && x.win != null)
+  const best = [...ranked].sort((a2, b2) => b2.win! - a2.win!)[0], worst = [...ranked].sort((a2, b2) => a2.win! - b2.win!)[0]
+  const fits = (c: (typeof chs)[number]) => ATLAS.find((e) => e.side === side && c.lines.some((l) => l.opening === e.opening))?.fits
+
   const rowOf = (c: (typeof chs)[number]): Row => {
     const played = c.lines.filter((l) => rep.srs.get(l.id)).length
-    const due = c.lines.filter((l) => isDue(rep.srs.get(l.id), now))
+    const due = c.lines.filter((l) => isDue(rep.srs.get(l.id), now)).length
     // Lu, 27.11.: an opening opens its own path with the story, not straight a drill
-    const to = 'opening/' + encodeURIComponent(c.key)
-    return { id: c.key, to, icon: white ? '♙' : '♟', title: c.title, description: `${played} of ${c.lines.length} lines${due.length ? ` · ${due.length} due` : ''}`, meta: due.length ? '!' : played === c.lines.length ? '✓' : '' }
+    return { id: c.key, to: 'opening/' + encodeURIComponent(c.key), icon: white ? '♙' : '♟', title: c.title, op: { key: c.key, played, total: c.lines.length, due } }
+  }
+  // one opening card: how far learned (bar) and how it goes in your real games
+  const renderOpening = (row: Row) => {
+    const { key, played, total, due } = row.op!
+    const c = chs.find((x) => x.key === key)!
+    const st = statOf(c.key)
+    const f = fits(c)
+    return (
+      <>
+        <span className="animated-list__lead">{row.icon}</span>
+        <span className="pn-op">
+          <b>{c.title}{due > 0 && <em className="pn-due">{due} due</em>}</b>
+          {f && <small className="pn-fits">{f}</small>}
+          <span className="pn-op-learn"><i><em style={{ width: `${(100 * played) / total}%` }} /></i><span>{played === total ? 'all lines learned' : `${played} of ${total} lines learned`}</span></span>
+          <span className="pn-op-games">
+            {st.n ? (
+              <><b className={st.n < 5 ? '' : st.win! >= 0.55 ? 'good' : st.win! < 0.4 ? 'bad' : ''}>{Math.round(st.win! * 100)}% won</b> · {st.n} {st.n === 1 ? 'game' : 'games'}{st.mpg != null && ` · ${st.mpg.toFixed(1)} mistakes/game`}</>
+            ) : (
+              'No rapid games with it yet'
+            )}
+          </span>
+        </span>
+      </>
+    )
   }
   // sorted like the app's opening book: one group per section (e.g. "White · 1.e4 e5", "White · 1.d4")
-  const openingGroups: Group[] = [...new Set(chs.map((c) => c.group))].map((g) => ({ title: g.replace(/^(White|Black) · /, ''), rows: chs.filter((c) => c.group === g).map(rowOf) }))
+  const openingGroups: Group[] = [...new Set(chs.map((c) => c.group))].map((g) => ({ title: g.replace(/^(White|Black) · /, ''), rows: chs.filter((c) => c.group === g).map(rowOf), render: renderOpening }))
+  const rushKeys = [...new Set(chs.flatMap((c) => c.lines.map((l) => keyOf(l.opening ?? '', side))))].filter((k) => ARENA_KEYS.includes(k))
   const myMistakes = mineOf(puzzles, player).filter((p) => p.myColor === side)
   const threats = myMistakes.filter((p) => !!p.refutation)
   const winning = myMistakes.filter((p) => clampScore(p.scoreBefore) >= 300)
@@ -175,22 +217,18 @@ function SidePage({ side, rep, puzzles, player }: { side: Side; rep: Rep; puzzle
         </div>
         <button type="button" onClick={() => go('progress')}>Stats ›</button>
       </div>
-      {best && worst && best.f !== worst.f && (
-        <div className="pn-chips"><span className="good">Best: {best.f} · {Math.round(best.w * 100)}%</span><span className="bad">Hardest: {worst.f} · {Math.round(worst.w * 100)}%</span></div>
+      {best && worst && best.c.key !== worst.c.key && (
+        <div className="pn-chips"><span className="good">Best: {best.c.title} · {Math.round(best.win! * 100)}%</span><span className="bad">Hardest: {worst.c.title} · {Math.round(worst.win! * 100)}%</span></div>
       )}
       <Groups k={side} dark={!white} groups={[
         ...openingGroups.map((g) => ({ ...g, title: `${name} openings · ${g.title}` })),
-        { title: 'Practise the openings', rows: [
-          { to: 'opening-rush', icon: '⚡', title: 'Opening Rush', description: `Your ${name} openings on time` },
-          { to: `surprise/${side}`, icon: '🎲', title: 'Surprise me', description: `A random ${name} line you know` },
-          { to: `map/${side}`, icon: '🗺', title: 'What to play when?', description: white ? 'Black’s replies and your answer' : 'White’s first moves and your answer' },
-          { to: 'atlas', icon: '🧭', title: 'Opening atlas', description: 'New weapons – every big opening family' },
-          { to: 'path', icon: '🪙', title: 'All openings', description: 'Every line of your book, both colours' },
-          ...(white ? [] : [
-            { to: 'black-course', icon: '♚', title: 'Hoppy’s Black training', description: '1...d5 against everything' },
-            { to: 'black-system', icon: '🎛', title: 'Your Black system', description: 'Pick your answer to 1.e4 and 1.d4' },
-          ]),
-        ] },
+        // Lu, 27.11.: Opening Rush, Surprise me, What to play when, Atlas and All openings were doubles of this page –
+        // each opening's own page has its path, Rush and story; here only ONE test over all openings of this colour
+        ...(rushKeys.length ? [{ title: 'Test yourself', rows: [{ to: 'opening-rush/' + encodeURIComponent(rushKeys.join('~')), icon: '⚡', title: `Test all ${name} openings`, description: 'Mixed and on time – every opening of your book' }] }] : []),
+        ...(white ? [] : [{ title: 'Your Black system', rows: [
+          { to: 'black-course', icon: '♚', title: 'Hoppy’s Black training', description: '1...d5 against everything' },
+          { to: 'black-system', icon: '🎛', title: 'Pick your Black system', description: 'Your answer to 1.e4 and 1.d4' },
+        ] }]),
         { title: 'Tactics & your mistakes', rows: [
           { to: `puzzles/color/${side}`, icon: '🩹', title: `Your mistakes with ${name}`, description: `${myMistakes.length} positions from your own games` },
           { to: `threats/color/${side}`, icon: '🗼', title: 'What does your opponent threaten?', description: `${threats.length} positions from your ${name} games` },
@@ -268,6 +306,10 @@ const PROFILE: Group[] = [
   { title: 'You', rows: [
     { to: 'settings', icon: '⚙️', title: 'Settings', description: 'Name, chess.com account, sound, look' },
     { to: 'trophies', icon: '🏆', title: 'Trophies', description: 'What you have won' },
+  ] },
+  { title: 'Your opening book', rows: [
+    { to: 'path', icon: '📚', title: 'The whole book', description: 'Every line of both colours · daily goal · analyse all games' },
+    { to: 'import', icon: '📥', title: 'Import a PGN', description: 'Add your own lines' },
   ] },
   { title: 'Together', rows: [{ to: 'watch', icon: '👫', title: 'Together', description: 'Watch and help each other' }] },
 ]

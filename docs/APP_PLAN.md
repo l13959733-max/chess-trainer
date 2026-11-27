@@ -61,6 +61,13 @@ Eröffnung erzählt, „Read" → Stadtkapitel) + worum es geht (`lib/guide.ts`)
 jede Linie lernen/spielen, nach je 3 Linien ein Rush, am Ende Rush als Abschlusstest (Bronze-Gürtel). Nach einer
 Linie führt „Overview" zurück auf diese Seite.
 
+**Aufgeräumt + Eröffnungs-Statistik (Lu, 27./28.11.):** Opening Rush, Surprise me, What to play when, Atlas und
+All openings waren auf Weiß/Schwarz doppelt → raus. Stattdessen: jede Eröffnungskarte zeigt „X von Y Linien gelernt"
+(Balken), den Atlas-Satz „für wen" und die echte Bilanz aus chess.com-Partien (Siegquote, Partien, Fehler/Partie;
+Zuordnung Partie → Kapitel über die längste Übereinstimmung mit deinen Linien, `bestChapter`, getestet). Eine Karte
+„Test all White/Black openings" (Rush gemischt). Eröffnungs-Seite: Statistik-Karte (S/R/N-Balken, Fehler/Partie,
+letzte 5, häufigste Fehlerart) + „Zufällige Linie". Ganzes Buch, PGN-Import, Tagesziel → Profil.
+
 **Farblos → 🔥 Heute** (siehe Struktur v2). Begründung für den gemischten Tagespfad: `docs/LERNKONZEPT.md` –
 „vor jedem Zug die Drohung prüfen" ist Lus wichtigste Gewohnheit (bleibt Level 1); Mischen wirkt. Nutzungszahlen
 gibt es keine (die App zählt nicht mit) → Abwägung, keine Messung.

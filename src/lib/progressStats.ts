@@ -31,6 +31,7 @@ export interface PGame {
   clockMoves: number[] // my moves per clock bucket
   moveBuckets: number[] // my moves per move-number bucket: 1–10, 11–20, 21–30, 31–40, 41+
   mistakes: Mistake[]
+  sans: string[] // the first moves of the game (SAN, without + # ! ?), to find the opening chapter
 }
 
 const DRAW = ['agreed', 'repetition', 'stalemate', 'insufficient', '50move', 'timevsinsufficient']
@@ -49,6 +50,37 @@ export function openingFamily(pgn: string): string {
 export function clockBucket(left: number, base: number): number {
   const f = left / base
   return f > 0.75 ? 0 : f > 0.5 ? 1 : f > 0.25 ? 2 : f > 0.1 ? 3 : 4
+}
+
+const MOVES_KEPT = 24
+const clean = (san: string) => san.replace(/[+#!?]/g, '')
+// the first moves of a chess.com PGN, e.g. ['e4', 'e5', 'Nf3', …]
+export function firstMoves(pgn: string, n = MOVES_KEPT): string[] {
+  const body = pgn.replace(/\[[^\]]*\]/g, ' ').replace(/\{[^}]*\}/g, ' ').replace(/\([^)]*\)/g, ' ')
+  return body
+    .split(/\s+/)
+    .map((t) => t.replace(/^\d+\.+/, ''))
+    .filter((t) => t && !/^(1-0|0-1|1\/2-1\/2|\*)$/.test(t))
+    .slice(0, n)
+    .map(clean)
+}
+
+// Which chapter of your book a game was: the chapter whose line follows the game's first moves the longest
+// (at least two half-moves). Lu, 27.11.: "die Statistik zu den Openings – wie erfolgreich ich damit bin".
+export function bestChapter(sans: string[], chs: { key: string; lines: { moves: { san: string }[] }[] }[]): string | null {
+  let best: string | null = null
+  let depth = 1
+  for (const c of chs) {
+    for (const l of c.lines) {
+      let d = 0
+      while (d < sans.length && d < l.moves.length && clean(l.moves[d].san) === sans[d]) d++
+      if (d > depth) {
+        depth = d
+        best = c.key
+      }
+    }
+  }
+  return best
 }
 
 const clocks = (pgn: string) => [...pgn.matchAll(/\[%clk (\d+):(\d+):(\d+(?:\.\d+)?)\]/g)].map((m) => +m[1] * 3600 + +m[2] * 60 + +m[3])
@@ -96,6 +128,7 @@ export function buildGames(games: ChessComGame[], player: string, records: GameR
         moves,
         clockMoves,
         moveBuckets,
+        sans: firstMoves(g.pgn),
         mistakes: rec
           ? (byGame.get(g.uuid) ?? []).map((p) => ({
               move: Math.floor(p.ply / 2) + 1,
