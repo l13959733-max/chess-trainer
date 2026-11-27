@@ -14,24 +14,27 @@
 - Nichts geht verloren, nichts ist doppelt. Gute Bedienung.
 - Neue Gestaltung erst als Prototyp zeigen, nicht ungefragt in die echte Navigation bauen.
 
-## Struktur v1 (27.11.) – von Lu bestätigt
+## Struktur v2 (27.11.) – GILT
 
-Lu, 27.11.: „Das Hauptding ist: man lernt Schwarz und Weiß, hat die Analyse und kann trainieren." Die Weltkarte
-„soll ein cooles Gimmick sein, aber nicht die Hauptattraktion". Geschichte gefällt, Entwicklung und Training braucht
-es auf jeden Fall. „Wie bringen wir das smart unter alles?"
+Lu, 27.11.: „Das unter Training wieder Weiß und Schwarz ist ja wieder gedoppelt. Weiß soll alles, was unter weißem
+Training ist, laufen, unter Schwarz alles, was unter schwarzem Training läuft. Dann kommt der Punkt Training weg."
+Das Gemischte bekommt einen eigenen Punkt „Heute" (Lus Wahl).
 
-- **Leiste: nur 3 Symbole** ♟ Training · 📊 Entwicklung · 🧭 Geschichte (Duolingo-Leiste aus Prototyp A,
-  hellblaues Kästchen, kein Mittelknopf, kein Start-, kein Profil-Knopf).
-- **♟ Training = Start** (App öffnet hier): oben kleine Reise-Leiste als Gimmick („🐴 Samarkand → Rom · noch 3 Level",
-  jede gelernte Linie bringt Hoppy weiter, Tipp → Geschichte); große Karten ♔ Weiß lernen (weiß) · ♚ Schwarz lernen
-  (schwarz) · 🔀 Gemischt (grün = Tagespfad/alles Fällige); darunter klein: Threat Check, Square Rush, Puzzle Rush,
-  Hoppy-Bot.
+- **Leiste: 5 Symbole** 🔥 Heute · ♔ Weiß · ♚ Schwarz · 📊 Entwicklung · 🧭 Geschichte (Duolingo-Leiste aus
+  Prototyp A: nur Symbole, aktives im hellblauen Kästchen, graue Linie oben, kein Mittelknopf).
+- **Kein Punkt „Training"** mehr, keine Ebene über Weiß/Schwarz.
+- **🔥 Heute = Start** (App öffnet hier): kleine Reise-Leiste als Gimmick („🐴 Samarkand → Rom · noch 3 Level",
+  Tipp → Geschichte), der gemischte Tagespfad (Level 1 IMMER Threat Check, dann Fehler, fällige Linien, Lektion,
+  Square Rush, Schatzkiste, Boss) + Today's cards; darunter „Freies Spielen": Threat Check, Square Rush, Puzzle Rush,
+  Hoppy-Bot, Armoury.
+- **♔ Weiß / ♚ Schwarz** = eigene Punkte, Inhalt siehe nächster Abschnitt.
 - **📊 Entwicklung** = Statistik aus dem Prototyp (`ProgressViz`), oben „Analyse aktualisieren".
-- **🧭 Geschichte** = Weltkarte, Städte, Meister, Tagebuch, Spiegelwelt.
+- **🧭 Geschichte** = Weltkarte, Städte, Meister, Tagebuch, Spiegelwelt („ein bisschen Geschichte ist schon nice",
+  „cooles Gimmick, nicht die Hauptattraktion").
 - **Profil = rundes Bild oben rechts**: Name, chess.com-Konto, Ton, Look, Trophäen, Together.
-- ✅ Lu, 27.11.: „ok". Abschnitte 1 und 2 unten sind ältere Stände (Startseite mit Hoppy-Bild, 4 Symbole) – ersetzt.
+- Ersetzt Struktur v1 (Training mit Weiß/Schwarz/Gemischt darunter) und die älteren Abschnitte 1 und 2.
 
-## Weiß lernen / Schwarz lernen (das Herzstück)
+## ♔ Weiß / ♚ Schwarz (das Herzstück, je ein eigener Punkt)
 
 Lu, 27.11.: „Schwarz und Weiß lernen = da kommen jeweils die weißen Openings, bei Schwarz die schwarzen, die ganzen
 Taktiken, das Training, alles was zu dem Themenbereich gehört." Darstellung: **animierte Liste aus dem Prototyp**
@@ -51,16 +54,11 @@ Schwarz = schwarze Seite.
 **♚ Schwarz lernen** – gleich aufgebaut, plus: Schwarz-System wählen (`#/black`), Hoppys Schwarz-Training
 (`#/black-course`), Opening Rush Schwarz, **Spiegelwelt** (Geschichte, Akt 2 = Schwarz).
 
-**Farblos → 🔀 Gemischt** (Lu, 27.11.: „wir müssen genau gucken, was zu viel ist"):
-- Training-Seite zeigt NUR Reise-Leiste + drei große Karten ♔ Weiß · ♚ Schwarz · 🔀 Gemischt – keine Extra-Kacheln.
-- 🔀 Gemischt = Tagespfad (`lib/trainingPath.ts`: Level 1 ist IMMER der Threat Check, dazu Fehler, fällige Linien,
-  Lektion, Square Rush, Schatzkiste, Boss) + Today's cards.
-- Darunter in Gemischt „Freies Spielen": Threat Check, Square Rush, Puzzle Rush, Hoppy-Bot, Armoury.
-- Begründung: `docs/LERNKONZEPT.md` – „vor jedem Zug die Drohung prüfen" ist Lus wichtigste Gewohnheit (bleibt Level 1);
-  Mischen wirkt. Nutzungszahlen gibt es keine (die App zählt nicht mit) → Abwägung, keine Messung.
-- Geschichte: eigener 🧭-Tab + kleine Reise-Leiste = „ein bisschen" (Lu: „ein bisschen Geschichte ist schon nice").
+**Farblos → 🔥 Heute** (siehe Struktur v2). Begründung für den gemischten Tagespfad: `docs/LERNKONZEPT.md` –
+„vor jedem Zug die Drohung prüfen" ist Lus wichtigste Gewohnheit (bleibt Level 1); Mischen wirkt. Nutzungszahlen
+gibt es keine (die App zählt nicht mit) → Abwägung, keine Messung.
 
-## 1. Startseite (erste Seite)
+## 1. (ÄLTERER STAND, ersetzt durch Struktur v2) Startseite
 
 Lu, 27.11.: „Das soll die erste Seite bleiben."
 
@@ -74,7 +72,7 @@ Lu, 27.11.: „Das soll die erste Seite bleiben."
     besser/schlechter, Rating-Kurve, sichere Züge. Ersetzt die bisherige Seite `#/progress`.
 - Karte „Daily · Threat Check" (unten links): bleibt.
 
-## 2. Leiste unten
+## 2. (ÄLTERER STAND, ersetzt durch Struktur v2) Leiste unten
 
 Lu, 27.11.: „unten der Balken aus der neuen Version" (= Prototyp A).
 
@@ -116,4 +114,5 @@ Lu, 27.11.: „unten der Balken aus der neuen Version" (= Prototyp A).
 - 27.11.2026: Journey-Karte öffnet die Progress-Seite aus dem Prototyp.
 - 27.11.2026: Struktur-Vorschlag v1 (3 Symbole, Training = Start, Profil oben rechts) – Lu: ok.
 - 27.11.2026: Weiß/Schwarz lernen beschrieben (alles einer Farbe an einem Ort, animierte Liste).
-- 27.11.2026: Nicht zu viel: Training-Seite nur 3 Karten; Threat Check/Square Rush/Puzzle Rush in Gemischt (wartet auf Lus OK).
+- 27.11.2026: Nicht zu viel: Training-Seite nur 3 Karten (verworfen).
+- 27.11.2026: Struktur v2: Training weg, Weiß und Schwarz eigene Punkte, Gemischtes = 🔥 Heute (5 Symbole).
