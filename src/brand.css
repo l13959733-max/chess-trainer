@@ -294,3 +294,96 @@ html .pn .pn-tabs button { flex: 1; text-align: center; padding: 9px 4px; border
 html .pn .pn-tabs button[aria-selected="true"] { background: #ddf4ff; border-color: #84d8ff; color: #1899d6; }
 html .pn .pn-tabs .pn-gear { flex: 0 0 48px; font-size: 18px; }
 html .pn-toast { position: absolute; left: 50%; bottom: 96px; transform: translateX(-50%); background: #3c3c3c; color: #fff; padding: 9px 14px; border-radius: 14px; font-weight: 800; font-size: 14px; white-space: nowrap; z-index: 5; }
+
+/* ======================================================================================
+   7. Visual Progress (components/ProgressViz.tsx, prototype 25.11.) – Duolingo cards, quiet charts
+   ====================================================================================== */
+html .pv { --pv-s1: #8a5cf6; --pv-s2: #2ea7f0; --pv-s3: #e0a200; --pv-ghost: #d9d4e6; --pv-grid: #eeebf5; display: grid; gap: 14px; padding-bottom: 24px; }
+html .pv button { font: inherit; color: inherit; cursor: pointer; border: 0; background: none; min-height: 0; margin: 0; padding: 0; box-shadow: none; text-transform: none; letter-spacing: 0; }
+html .pv-note { color: var(--b-muted); font-weight: 800; font-size: 13px; margin: 0; }
+html .pv-seg { display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; gap: 3px; background: var(--b-bg-soft); border: 2px solid var(--b-line); border-radius: 14px; padding: 3px; }
+html .pv .pv-seg button { padding: 8px 4px; border-radius: 10px; font-weight: 900; font-size: 13px; color: var(--b-muted); text-align: center; }
+html .pv .pv-seg button[aria-pressed="true"] { background: #fff; color: var(--b-text); box-shadow: 0 2px 0 var(--b-line); }
+html .pv-tabs { display: grid; grid-template-columns: repeat(4, 1fr); border-bottom: 2px solid var(--b-line); }
+html .pv .pv-tabs button { padding: 9px 2px; font-weight: 900; font-size: 12px; text-transform: uppercase; letter-spacing: .03em; color: var(--b-muted); border-bottom: 3px solid transparent; margin-bottom: -2px; text-align: center; }
+html .pv .pv-tabs button[aria-selected="true"] { color: #1899d6; border-bottom-color: #1cb0f6; }
+html .pv-card { background: #fff; border: 2px solid #e5e5e5; border-bottom-width: 4px; border-radius: 18px; padding: 14px; display: grid; gap: 6px; min-width: 0; }
+html .pv-card h3 { margin: 0; font-size: 17px; font-weight: 900; letter-spacing: -0.01em; }
+html .pv-sub { color: var(--b-muted); font-weight: 800; font-size: 12px; }
+html .pv-empty { background: #ddf4ff; border-color: #84d8ff; }
+html .pv-empty span { font-weight: 700; font-size: 13.5px; }
+html .pv .pv-go { justify-self: start; background: var(--b-green); color: #fff; border-bottom: 4px solid var(--b-green-d); border-radius: 14px; padding: 10px 16px; font-weight: 900; text-transform: uppercase; letter-spacing: .03em; }
+html .pv-say { display: grid; grid-template-columns: 48px 1fr; gap: 10px; align-items: center; }
+html .pv-say img { width: 48px; height: 48px; border-radius: 50%; object-fit: cover; border: 2px solid #e5e5e5; }
+html .pv-say p { margin: 0; background: #fff; border: 2px solid #e5e5e5; border-radius: 16px; padding: 10px 12px; font-weight: 800; font-size: 14.5px; }
+html .pv-say b { color: #1899d6; }
+html .pv-kpis { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+html .pv-kpi { background: #fff; border: 2px solid #e5e5e5; border-bottom-width: 4px; border-radius: 16px; padding: 10px 12px; display: grid; gap: 2px; min-width: 0; }
+html .pv-kpi .l { font-size: 12px; color: var(--b-muted); font-weight: 900; }
+html .pv-kpi .v { font-size: 26px; font-weight: 900; line-height: 1.1; letter-spacing: -0.02em; }
+html .pv-kpi svg { width: 100%; height: 30px; margin-top: 4px; }
+html .pv-d { font-size: 12.5px; font-weight: 900; }
+html .pv-d.good { color: var(--b-green-d); } html .pv-d.bad { color: var(--b-red-d); } html .pv-d.flat { color: var(--b-muted); }
+html .pv-bwhead { display: flex; justify-content: space-between; font-size: 11px; font-weight: 900; text-transform: uppercase; letter-spacing: .06em; padding-left: calc(54% + 8px); }
+html .pv-bwhead span:first-child { color: var(--b-red-d); } html .pv-bwhead span:last-child { color: var(--b-green-d); }
+html .pv-bw { display: grid; grid-template-columns: minmax(0, 1fr) 46%; gap: 8px; align-items: center; padding: 7px 0; border-top: 2px solid var(--pv-grid); }
+html .pv-bwn { font-size: 13.5px; font-weight: 800; min-width: 0; }
+html .pv-bwn small { display: block; color: var(--b-muted); font-size: 11.5px; font-weight: 800; }
+html .pv-bwbar { position: relative; height: 22px; }
+html .pv-bwbar::before { content: ""; position: absolute; left: 50%; top: 0; bottom: 0; width: 1px; background: var(--b-line); }
+html .pv-bwbar i { position: absolute; top: 4px; height: 14px; }
+html .pv-bwbar i.good { left: 50%; background: var(--b-green); border-radius: 0 4px 4px 0; }
+html .pv-bwbar i.bad { right: 50%; background: var(--b-red); border-radius: 4px 0 0 4px; }
+html .pv-bwbar em { position: absolute; top: 2px; font-style: normal; font-size: 11.5px; font-weight: 900; white-space: nowrap; }
+html .pv-bwbar em.good { color: var(--b-green-d); } html .pv-bwbar em.bad { color: var(--b-red-d); } html .pv-bwbar em.same { color: var(--b-muted); }
+html .pv-chart { position: relative; }
+html .pv-chart svg { display: block; width: 100%; height: auto; overflow: visible; touch-action: pan-y; }
+html .pv-chart text { fill: var(--b-muted); font-size: 10.5px; font-weight: 800; font-family: var(--b-font); }
+html .pv-chart text.lbl { fill: var(--b-text); font-weight: 900; font-size: 11.5px; }
+html .pv-chart text.sm { font-size: 9.5px; }
+html .pv-chart text.name { fill: var(--b-text); font-size: 12px; }
+html .pv-chart text.good { fill: var(--b-green-d); font-weight: 900; } html .pv-chart text.bad { fill: var(--b-red-d); font-weight: 900; } html .pv-chart text.flat { fill: var(--b-muted); }
+html .pv-tip { position: absolute; top: 0; transform: translate(-50%, -100%); background: var(--b-text); color: #fff; border-radius: 10px; padding: 5px 9px; font-size: 12px; font-weight: 800; white-space: nowrap; pointer-events: none; }
+html .pv-tip b { display: block; font-size: 14px; }
+html .pv-legend { display: flex; flex-wrap: wrap; gap: 6px 14px; font-size: 12px; font-weight: 800; color: var(--b-muted); }
+html .pv-legend i { display: inline-block; width: 10px; height: 10px; border-radius: 3px; margin-right: 5px; vertical-align: -1px; }
+html .pv-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+html .pv-chips span { border-radius: 99px; padding: 5px 11px; font-size: 12.5px; font-weight: 900; }
+html .pv-chips .good { background: var(--b-green-t); color: var(--b-green-d); } html .pv-chips .bad { background: var(--b-red-t); color: var(--b-red-d); }
+html .pv-table { width: 100%; border-collapse: collapse; font-size: 12.5px; font-variant-numeric: tabular-nums; }
+html .pv-table th, html .pv-table td { padding: 7px 4px; text-align: right; border-top: 1px solid var(--pv-grid); }
+html .pv-table th:first-child, html .pv-table td:first-child { text-align: left; }
+html .pv-table th { color: var(--b-muted); font-size: 10.5px; text-transform: uppercase; letter-spacing: .05em; border-top: 0; }
+html .pv-meter { display: inline-block; width: 40px; height: 6px; border-radius: 3px; background: var(--pv-grid); vertical-align: middle; margin-right: 6px; overflow: hidden; }
+html .pv-meter i { display: block; height: 100%; background: var(--b-green); border-radius: 3px; }
+html .pv-segbar { display: flex; gap: 2px; height: 28px; border-radius: 6px; overflow: hidden; }
+html .pv-segbar div { display: grid; place-items: center start; padding-left: 6px; color: #fff; font-size: 12px; font-weight: 900; }
+html .pv-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+html .pv-stats div { background: var(--b-bg-soft); border-radius: 14px; padding: 10px 12px; display: grid; }
+html .pv-stats b { font-size: 22px; font-weight: 900; }
+html .pv-stats small { font-size: 12px; color: var(--b-muted); font-weight: 800; }
+/* prototypes, round 2: sorted groups, a picture on top, scrolling content */
+html .pn-scroll { flex: 1; min-height: 0; overflow-y: auto; -webkit-overflow-scrolling: touch; display: flex; flex-direction: column; gap: 14px; padding: 2px 2px 24px; margin: 0 -2px; }
+html .pn-group { display: grid; gap: 6px; }
+html .pn-group h2 { margin: 4px 2px 0; font-size: 13px; font-weight: 900; text-transform: uppercase; letter-spacing: .08em; color: var(--b-muted); }
+html .pn-group .animated-list__viewport { padding: 2px 2px 6px; overflow: visible; }
+html .pn-week { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; background: #fff; border: 2px solid #e5e5e5; border-bottom-width: 4px; border-radius: 18px; padding: 10px 8px; }
+html .pn-week span { display: grid; justify-items: center; gap: 2px; }
+html .pn-week i { width: 34px; height: 34px; border-radius: 50%; display: grid; place-items: center; background: #f7f7f7; font-style: normal; font-size: 18px; border: 2px solid transparent; }
+html .pn-week span.on i { background: #fff3e0; }
+html .pn-week span.today i { border-color: #1cb0f6; }
+html .pn-week small { font-size: 11px; font-weight: 900; color: var(--b-muted); }
+html .pn .pn-pathcard { display: flex; align-items: center; gap: 12px; padding: 12px 14px; border-radius: 18px; background: var(--b-green); border-bottom: 5px solid var(--b-green-d); color: #fff; text-align: left; }
+html .pn .pn-pathcard span { flex: 1; display: grid; }
+html .pn .pn-pathcard small { font-size: 12px; font-weight: 900; text-transform: uppercase; letter-spacing: .06em; opacity: .9; }
+html .pn .pn-pathcard b { font-size: 19px; font-weight: 900; }
+html .pn .pn-pathcard i { font-style: normal; font-weight: 900; background: #fff; color: var(--b-green-d); border-radius: 12px; padding: 8px 12px; border-bottom: 3px solid #d7ffb8; }
+html .pn .pn-citycard { position: relative; display: grid; align-content: end; gap: 2px; min-height: 190px; padding: 14px; border-radius: 20px; background-size: cover; background-position: center 30%; color: #fff; text-align: left; border-bottom: 5px solid rgba(0,0,0,.25); }
+html .pn .pn-citycard small { font-size: 11.5px; font-weight: 900; text-transform: uppercase; letter-spacing: .08em; opacity: .9; }
+html .pn .pn-citycard b { font-size: 28px; font-weight: 900; line-height: 1; }
+html .pn .pn-citycard span { font-weight: 800; font-size: 14px; }
+html .pn .pn-citycard i { position: absolute; right: 14px; bottom: 14px; font-style: normal; font-weight: 900; background: var(--b-green); border-bottom: 4px solid var(--b-green-d); border-radius: 12px; padding: 9px 12px; font-size: 13px; }
+html .pn-mapbtns { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+html .pn .pn-mapbtns button { text-align: center; padding: 11px 6px; border: 2px solid #e5e5e5; border-bottom-width: 4px; border-radius: 14px; font-weight: 900; font-size: 14px; }
+html .pn .animated-list__meta { font-size: 16px; font-weight: 900; color: var(--b-green-d); }
+html .pn-scroll > * { flex: none; } /* nothing in the scrolling column shrinks (buttons with min-height 0 got squeezed in a grid) */
