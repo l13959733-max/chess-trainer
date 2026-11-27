@@ -51,8 +51,14 @@ Schwarz = schwarze Seite.
 **♚ Schwarz lernen** – gleich aufgebaut, plus: Schwarz-System wählen (`#/black`), Hoppys Schwarz-Training
 (`#/black-course`), Opening Rush Schwarz, **Spiegelwelt** (Geschichte, Akt 2 = Schwarz).
 
-**Farblos → 🔀 Gemischt / schnelle Spiele:** Armoury (allgemeine Taktik), Square Rush, Puzzle Rush, Threat Check,
-Tagespfad, Today's cards.
+**Farblos → 🔀 Gemischt** (Lu, 27.11.: „wir müssen genau gucken, was zu viel ist"):
+- Training-Seite zeigt NUR Reise-Leiste + drei große Karten ♔ Weiß · ♚ Schwarz · 🔀 Gemischt – keine Extra-Kacheln.
+- 🔀 Gemischt = Tagespfad (`lib/trainingPath.ts`: Level 1 ist IMMER der Threat Check, dazu Fehler, fällige Linien,
+  Lektion, Square Rush, Schatzkiste, Boss) + Today's cards.
+- Darunter in Gemischt „Freies Spielen": Threat Check, Square Rush, Puzzle Rush, Hoppy-Bot, Armoury.
+- Begründung: `docs/LERNKONZEPT.md` – „vor jedem Zug die Drohung prüfen" ist Lus wichtigste Gewohnheit (bleibt Level 1);
+  Mischen wirkt. Nutzungszahlen gibt es keine (die App zählt nicht mit) → Abwägung, keine Messung.
+- Geschichte: eigener 🧭-Tab + kleine Reise-Leiste = „ein bisschen" (Lu: „ein bisschen Geschichte ist schon nice").
 
 ## 1. Startseite (erste Seite)
 
@@ -110,3 +116,4 @@ Lu, 27.11.: „unten der Balken aus der neuen Version" (= Prototyp A).
 - 27.11.2026: Journey-Karte öffnet die Progress-Seite aus dem Prototyp.
 - 27.11.2026: Struktur-Vorschlag v1 (3 Symbole, Training = Start, Profil oben rechts) – Lu: ok.
 - 27.11.2026: Weiß/Schwarz lernen beschrieben (alles einer Farbe an einem Ort, animierte Liste).
+- 27.11.2026: Nicht zu viel: Training-Seite nur 3 Karten; Threat Check/Square Rush/Puzzle Rush in Gemischt (wartet auf Lus OK).
