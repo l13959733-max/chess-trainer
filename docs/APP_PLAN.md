@@ -14,7 +14,7 @@
 - Nichts geht verloren, nichts ist doppelt. Gute Bedienung.
 - Neue Gestaltung erst als Prototyp zeigen, nicht ungefragt in die echte Navigation bauen.
 
-## Struktur-Vorschlag v1 (27.11.) – wartet auf Lus OK
+## Struktur v1 (27.11.) – von Lu bestätigt
 
 Lu, 27.11.: „Das Hauptding ist: man lernt Schwarz und Weiß, hat die Analyse und kann trainieren." Die Weltkarte
 „soll ein cooles Gimmick sein, aber nicht die Hauptattraktion". Geschichte gefällt, Entwicklung und Training braucht
@@ -29,7 +29,30 @@ es auf jeden Fall. „Wie bringen wir das smart unter alles?"
 - **📊 Entwicklung** = Statistik aus dem Prototyp (`ProgressViz`), oben „Analyse aktualisieren".
 - **🧭 Geschichte** = Weltkarte, Städte, Meister, Tagebuch, Spiegelwelt.
 - **Profil = rundes Bild oben rechts**: Name, chess.com-Konto, Ton, Look, Trophäen, Together.
-- ❓ Lu bestätigt oder ändert. Abschnitte 1 und 2 unten sind ältere Stände (Startseite mit Hoppy-Bild, 4 Symbole).
+- ✅ Lu, 27.11.: „ok". Abschnitte 1 und 2 unten sind ältere Stände (Startseite mit Hoppy-Bild, 4 Symbole) – ersetzt.
+
+## Weiß lernen / Schwarz lernen (das Herzstück)
+
+Lu, 27.11.: „Schwarz und Weiß lernen = da kommen jeweils die weißen Openings, bei Schwarz die schwarzen, die ganzen
+Taktiken, das Training, alles was zu dem Themenbereich gehört." Darstellung: **animierte Liste aus dem Prototyp**
+(`components/AnimatedList.tsx`, Thema `duo`), in Gruppen sortiert. Seite in der Farbe: Weiß = weiße Seite,
+Schwarz = schwarze Seite.
+
+**♔ Weiß lernen**
+1. Deine Eröffnungen: jede Weiß-Eröffnung (Kapitel aus `lib/chapters.ts`, Linien mit `side === 'w'`) mit Fortschritt
+   („5 von 9 Linien", „3 fällig") → Lernen/Drill; Opening Rush Weiß; Überrasch mich (`#/surprise/w`); Was spiele ich
+   wann? (`#/map/w`). *Gibt es schon, nur verstreut.*
+2. Taktik & Fehler: deine Fehler aus Weiß-Partien, Drohungen aus Weiß-Partien, Schatzkiste mit Weiß, Angriffe &
+   Fallen mit Weiß (`#/attacks`, Seite pro Linie). *Fehler/Drohungen/Schatzkiste: neuer Farb-Filter über
+   `Puzzle.myColor` – Daten sind da.*
+3. Spielen: Hoppy-Bot als Weiß; Deine Gewohnheiten (wo du mit Weiß das Buch verlässt).
+4. Kurz-Statistik: Siegquote mit Weiß, beste und schwierigste Weiß-Eröffnung → Tipp öffnet Entwicklung › Openings › Weiß.
+
+**♚ Schwarz lernen** – gleich aufgebaut, plus: Schwarz-System wählen (`#/black`), Hoppys Schwarz-Training
+(`#/black-course`), Opening Rush Schwarz, **Spiegelwelt** (Geschichte, Akt 2 = Schwarz).
+
+**Farblos → 🔀 Gemischt / schnelle Spiele:** Armoury (allgemeine Taktik), Square Rush, Puzzle Rush, Threat Check,
+Tagespfad, Today's cards.
 
 ## 1. Startseite (erste Seite)
 
@@ -85,4 +108,5 @@ Lu, 27.11.: „unten der Balken aus der neuen Version" (= Prototyp A).
 
 - 27.11.2026: Plan angelegt mit Lus Vorgaben zu Startseite und Leiste.
 - 27.11.2026: Journey-Karte öffnet die Progress-Seite aus dem Prototyp.
-- 27.11.2026: Struktur-Vorschlag v1 (3 Symbole, Training = Start, Profil oben rechts).
+- 27.11.2026: Struktur-Vorschlag v1 (3 Symbole, Training = Start, Profil oben rechts) – Lu: ok.
+- 27.11.2026: Weiß/Schwarz lernen beschrieben (alles einer Farbe an einem Ort, animierte Liste).
