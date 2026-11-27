@@ -252,3 +252,45 @@ html .wht-bubbles { position: relative; flex: 1; min-height: 360px; border-radiu
 html .wht-hint { position: absolute; left: 0; right: 0; bottom: 18px; margin: 0; text-align: center; font-weight: 800; color: var(--b-muted); }
 html .trn .wht-bubbles .bubble-menu .menu-btn { border-radius: 50%; }
 html .trn .wht-bubbles a.pill-link { cursor: pointer; }
+
+/* ======================================================================================
+   #/proto – navigation prototypes A/B/C (25.11.), Duolingo style, nothing else uses this
+   ====================================================================================== */
+html .pn { position: fixed; inset: 0; z-index: 50; background: #fff; color: var(--b-text); display: flex; flex-direction: column; }
+@media (min-width: 520px) { html .pn { left: 50%; right: auto; width: 440px; transform: translateX(-50%); box-shadow: 0 0 40px rgba(0,0,0,.12); } }
+html .pn button { font: inherit; color: inherit; min-height: 0; margin: 0; padding: 0; border: 0; background: none; box-shadow: none; text-transform: none; letter-spacing: 0; border-radius: 0; cursor: pointer; text-align: inherit; }
+html .pn button:active:not(:disabled) { transform: none; margin: 0; }
+html .pn-proto { flex: none; display: flex; align-items: center; gap: 6px; padding: calc(6px + env(safe-area-inset-top, 0px)) 12px 6px; background: #2b2140; color: #fff; }
+html .pn-proto span { flex: 1; font-size: 11px; font-weight: 900; letter-spacing: .14em; opacity: .7; }
+html .pn .pn-proto button { width: 34px; height: 30px; border-radius: 10px; font-weight: 900; text-align: center; color: #fff; background: rgba(255,255,255,.12); }
+html .pn .pn-proto button[aria-pressed="true"] { background: #fff; color: #2b2140; }
+html .pn .pn-proto .pn-exit { background: none; width: 28px; opacity: .8; }
+html .pn-screen { position: relative; flex: 1; min-height: 0; display: flex; flex-direction: column; gap: 12px; padding: 14px max(16px, env(safe-area-inset-right, 0px)) 0 max(16px, env(safe-area-inset-left, 0px)); }
+html .pn-head { display: flex; align-items: center; gap: 10px; }
+html .pn-head h1 { flex: 1; margin: 0; font-size: 30px; font-weight: 900; letter-spacing: -0.02em; }
+html .pn-pill { border: 2px solid #e5e5e5; border-radius: 99px; padding: 4px 10px; font-weight: 900; font-size: 14px; color: #ff9600; }
+html .pn .pn-back { width: 40px; height: 40px; display: grid; place-items: center; border: 2px solid #e5e5e5; border-bottom-width: 4px; border-radius: 14px; font-size: 20px; font-weight: 900; text-align: center; }
+html .pn-body { flex: 1; min-height: 0; display: flex; }
+html .pn-body .animated-list { flex: 1; display: flex; }
+html .pn-body .animated-list__viewport { flex: 1; padding: 2px 2px 12px; }
+html .pn .animated-list__item { border: 0; }
+html .pn .animated-list__lead { width: 44px; height: 44px; font-size: 24px; border-radius: 12px; }
+html .pn .animated-list__title { font-size: 16px; }
+/* A: the Duolingo bar – icons only, the active one in a light-blue box, no middle button */
+html .pn-duobar { flex: none; display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin: 0 calc(-1 * max(16px, env(safe-area-inset-right, 0px))); padding: 8px 14px calc(8px + env(safe-area-inset-bottom, 0px)); border-top: 2px solid #e5e5e5; background: #fff; }
+html .pn .pn-duobar button { height: 52px; display: grid; place-items: center; border-radius: 14px; border: 2px solid transparent; font-size: 28px; text-align: center; }
+html .pn .pn-duobar button.on { background: #ddf4ff; border-color: #84d8ff; }
+html .pn .pn-duobar button span { filter: grayscale(.15); }
+/* B: the start card */
+html .pn .pn-continue { display: flex; align-items: center; gap: 12px; padding: 12px 14px; border-radius: 18px; background: var(--b-green); border-bottom: 5px solid var(--b-green-d); color: #fff; }
+html .pn .pn-continue img { width: 48px; height: 48px; border-radius: 50%; border: 3px solid rgba(255,255,255,.8); object-fit: cover; }
+html .pn .pn-continue span { flex: 1; display: grid; }
+html .pn .pn-continue small { font-size: 12px; font-weight: 900; text-transform: uppercase; letter-spacing: .06em; opacity: .9; }
+html .pn .pn-continue b { font-size: 20px; font-weight: 900; }
+html .pn .pn-continue i { font-style: normal; font-weight: 900; background: #fff; color: var(--b-green-d); border-radius: 12px; padding: 8px 12px; border-bottom: 3px solid #d7ffb8; }
+/* C: pill tabs on top */
+html .pn-tabs { display: flex; gap: 8px; }
+html .pn .pn-tabs button { flex: 1; text-align: center; padding: 9px 4px; border: 2px solid #e5e5e5; border-bottom-width: 4px; border-radius: 14px; font-weight: 900; font-size: 14px; color: #777; }
+html .pn .pn-tabs button[aria-selected="true"] { background: #ddf4ff; border-color: #84d8ff; color: #1899d6; }
+html .pn .pn-tabs .pn-gear { flex: 0 0 48px; font-size: 18px; }
+html .pn-toast { position: absolute; left: 50%; bottom: 96px; transform: translateX(-50%); background: #3c3c3c; color: #fff; padding: 9px 14px; border-radius: 14px; font-weight: 800; font-size: 14px; white-space: nowrap; z-index: 5; }

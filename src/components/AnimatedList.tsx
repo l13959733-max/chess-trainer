@@ -16,7 +16,7 @@ export interface ListItem {
 }
 type Anim = 'pop' | 'slide' | 'fade' | 'none'
 
-const THEMES: Record<'dark' | 'light' | 'hoppy', Record<string, string>> = {
+const THEMES: Record<'dark' | 'light' | 'hoppy' | 'duo', Record<string, string>> = {
   dark: {
     '--al-frame': 'rgba(38, 35, 46, 0.66)', '--al-frame-edge': 'rgba(255, 255, 255, 0.08)', '--al-frame-highlight': 'rgba(255, 255, 255, 0.07)',
     '--al-frame-shadow': '0 22px 44px -20px rgba(0, 0, 0, 0.8), 0 6px 16px -8px rgba(0, 0, 0, 0.5)',
@@ -32,6 +32,14 @@ const THEMES: Record<'dark' | 'light' | 'hoppy', Record<string, string>> = {
     '--al-tile-shadow': '0 4px 10px -5px rgba(24, 24, 27, 0.25)', '--al-well': 'rgba(24, 24, 27, 0.05)', '--al-ink': '#27272a', '--al-muted': 'rgba(39, 39, 42, 0.55)',
     '--al-thumb': 'rgba(24, 24, 27, 0.16)', '--al-ring': 'rgba(24, 24, 27, 0.28)', '--al-ring-fill': 'transparent',
     '--al-hover': 'brightness(0.97)', '--al-press': 'brightness(0.92)', '--al-active': 'none',
+  },
+  // Duolingo-style (Lu, 25.11.: "es soll Duolingo-Style bleiben"): white cards with a grey 3D edge, a blue ring
+  duo: {
+    '--al-frame': 'transparent', '--al-frame-edge': 'transparent', '--al-frame-highlight': 'transparent', '--al-frame-shadow': 'none',
+    '--al-tile': '#ffffff', '--al-tile-edge': '#e5e5e5', '--al-tile-highlight': 'transparent',
+    '--al-tile-shadow': '0 4px 0 #e5e5e5', '--al-well': '#f7f7f7', '--al-ink': '#3c3c3c', '--al-muted': '#777777',
+    '--al-thumb': 'rgba(0, 0, 0, 0.12)', '--al-ring': '#1cb0f6', '--al-ring-fill': 'rgba(28, 176, 246, 0.08)',
+    '--al-hover': 'none', '--al-press': 'brightness(0.96)', '--al-active': 'none',
   },
   // Hoppy: the app's palette (brand.css) – lavender frame, white tiles, violet ring
   hoppy: {

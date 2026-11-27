@@ -64,6 +64,7 @@ const BlackSystemScreen = lazy(() => import('./screens/BlackSystem').then((m) =>
 const Workout = lazy(() => import('./screens/Workout').then((m) => ({ default: m.Workout })))
 const Today = lazy(() => import('./screens/Today').then((m) => ({ default: m.Today })))
 const WheelTest = lazy(() => import('./screens/WheelTest').then((m) => ({ default: m.WheelTest })))
+const ProtoNav = lazy(() => import('./screens/ProtoNav').then((m) => ({ default: m.ProtoNav })))
 const Diary = lazy(() => import('./screens/Diary').then((m) => ({ default: m.Diary })))
 const Attacks = lazy(() => import('./screens/Attacks').then((m) => ({ default: m.Attacks })))
 import { Connect, MistakeOne, Training, YourGames } from './screens/Training'
@@ -212,6 +213,7 @@ function App() {
   else if (page === 'progress') body = <Journey puzzles={puzzles} player={player} progress={progress} />
   else if (page === 'today') body = <Today rep={rep} progress={progress} puzzles={puzzles} />
   else if (page === 'wheel') body = <WheelTest />
+  else if (page === 'proto') body = <ProtoNav />
   else if (page === 'diary') body = <Diary />
   else if (page === 'puzzle-rush') body = <PuzzleRush puzzles={puzzles} player={player} />
   else if (page === 'opening-rush') body = id ? <OpeningRush key={id} rep={rep} keys={decodeURIComponent(id)} /> : <OpeningRushHome rep={rep} />
