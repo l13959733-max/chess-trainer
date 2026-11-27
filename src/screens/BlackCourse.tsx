@@ -70,7 +70,7 @@ export function BlackCourse({ rep }: { rep: Rep }) {
         <span className="bc-count">{learned}/{lines} lines played</span>
       </div>
       <ChapterPath levels={levels} doneSay="Your Black system is ready for chess.com!" />
-      <button type="button" className="or-pick" onClick={() => go('black')}>Other Black systems</button>
+      <button type="button" className="or-pick" onClick={() => go('black-system')}>Other Black systems</button>
     </div>
   )
 }

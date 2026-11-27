@@ -5,7 +5,7 @@
 > **Erst bauen, wenn Lu „Plan fertig" oder „bauen" sagt.** Dann alles nach diesem Plan in der Vorschau
 > (`preview`) bauen, am Handy-Format prüfen, Lu den Link geben. Live erst nach „übernehmen".
 > Punkte mit **❓** sind offen und werden mit Lu geklärt, nicht geraten.
-> Prototyp der Struktur v2: Vorschau `#/proto` (`src/screens/ProtoNav.tsx`, gebaut 27.11.). Statistik-Prototyp https://claude.ai/artifact/LFtPR87zyiq4gQo7jeqcru
+> Struktur v2 ist seit 27.11. abends IN DER VORSCHAU-APP selbst gebaut (`src/screens/Sections.tsx`, `components/DuoBar.tsx`) – live erst nach „übernehmen". `#/proto` leitet auf die Startseite. Statistik-Prototyp https://claude.ai/artifact/LFtPR87zyiq4gQo7jeqcru
 
 ## 0. Grundregeln (gelten überall)
 
@@ -123,5 +123,6 @@ Lu, 27.11.: „unten der Balken aus der neuen Version" (= Prototyp A).
 - 27.11.2026: Weiß/Schwarz lernen beschrieben (alles einer Farbe an einem Ort, animierte Liste).
 - 27.11.2026: Nicht zu viel: Training-Seite nur 3 Karten (verworfen).
 - 27.11.2026: Struktur v2: Training weg, Weiß und Schwarz eigene Punkte, Gemischtes = 🔥 Heute (5 Symbole).
+- 27.11.2026 abends: Lu sah in der Vorschau die alte Leiste („die Home site ist weg … nicht der neue Balken") → v2 in die Vorschau-App eingebaut: Startseite (Hoppy-Bild) bleibt 🔥, neue Leiste überall, Zitat-Karte weiß, Square Rush schwarz; Seiten #/today #/white #/black #/progress #/story #/profile; Schwarz-System jetzt #/black-system.
 - 27.11.2026: Eröffnung → eigene Seite mit Geschichte + Pfad; Heute = höchstens 5 Minuten (4 Schritte).
 - 27.11.2026: Prototyp v2 in der Vorschau `#/proto` gebaut (Lu: „bau jetzt erstmal den Prototypen"). Neu dafür: Farb-Filter `#/puzzles/color/w|b`, `#/threats/color/w|b`, `#/play/w|b`.

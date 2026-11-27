@@ -55,16 +55,14 @@ const Trophies = lazy(() => import('./screens/Trophies').then((m) => ({ default:
 const Accuracy = lazy(() => import('./screens/Accuracy').then((m) => ({ default: m.Accuracy })))
 const Watch = lazy(() => import('./screens/Watch').then((m) => ({ default: m.Watch })))
 const Weaknesses = lazy(() => import('./screens/Weaknesses').then((m) => ({ default: m.Weaknesses })))
-const Journey = lazy(() => import('./screens/Journey').then((m) => ({ default: m.Journey })))
 const PuzzleRush = lazy(() => import('./screens/PuzzleRush').then((m) => ({ default: m.PuzzleRush })))
 const OpeningRush = lazy(() => import('./screens/OpeningRush').then((m) => ({ default: m.OpeningRush })))
 const OpeningRushHome = lazy(() => import('./screens/OpeningRush').then((m) => ({ default: m.OpeningRushHome })))
 const BlackCourse = lazy(() => import('./screens/BlackCourse').then((m) => ({ default: m.BlackCourse })))
 const BlackSystemScreen = lazy(() => import('./screens/BlackSystem').then((m) => ({ default: m.BlackSystemScreen })))
 const Workout = lazy(() => import('./screens/Workout').then((m) => ({ default: m.Workout })))
-const Today = lazy(() => import('./screens/Today').then((m) => ({ default: m.Today })))
 const WheelTest = lazy(() => import('./screens/WheelTest').then((m) => ({ default: m.WheelTest })))
-const ProtoNav = lazy(() => import('./screens/ProtoNav').then((m) => ({ default: m.ProtoNav })))
+const SectionPage = lazy(() => import('./screens/Sections').then((m) => ({ default: m.SectionPage })))
 const OpeningPath = lazy(() => import('./screens/OpeningPath').then((m) => ({ default: m.OpeningPath })))
 const Diary = lazy(() => import('./screens/Diary').then((m) => ({ default: m.Diary })))
 const Attacks = lazy(() => import('./screens/Attacks').then((m) => ({ default: m.Attacks })))
@@ -212,15 +210,15 @@ function App() {
   else if (page === 'rush') body = <SquareRush />
   else if (page === 'journey') body = RealMapReady ? <RealMapReady /> : <Suspense fallback={null}><RealMap /></Suspense>
   else if (page === 'painted') body = <KingStamps />
-  else if (page === 'progress') body = <Journey puzzles={puzzles} player={player} progress={progress} />
-  else if (page === 'today') body = <Today rep={rep} progress={progress} puzzles={puzzles} />
+  // structure v2 (Lu, 27.11.2026, docs/APP_PLAN.md): the pages of the Duolingo bar
+  else if (page === 'progress' || page === 'white' || page === 'black' || page === 'story' || page === 'profile' || page === 'today')
+    body = <SectionPage key={page} section={page} player={player} puzzles={puzzles.puzzles} progress={progress} rep={rep} />
   else if (page === 'wheel') body = <WheelTest />
-  else if (page === 'proto') body = <ProtoNav player={player} puzzles={puzzles.puzzles} progress={progress} rep={rep} />
   else if (page === 'opening' && id) body = <OpeningPath key={id} id={decodeURIComponent(id)} rep={rep} />
   else if (page === 'diary') body = <Diary />
   else if (page === 'puzzle-rush') body = <PuzzleRush puzzles={puzzles} player={player} />
   else if (page === 'opening-rush') body = id ? <OpeningRush key={id} rep={rep} keys={decodeURIComponent(id)} /> : <OpeningRushHome rep={rep} />
-  else if (page === 'black') body = <BlackSystemScreen rep={rep} />
+  else if (page === 'black-system') body = <BlackSystemScreen rep={rep} /> // was #/black until 27.11. – #/black is the Black page now
   else if (page === 'black-course') body = <BlackCourse rep={rep} />
   else if (page === 'workout') body = <Workout puzzles={puzzles} progress={progress} player={player} />
   else if (page === 'road') body = <KingFastTravel />
@@ -252,7 +250,7 @@ function App() {
   )
 }
 
-const MERGED: Record<string, string> = { camp: 'today', world: 'painted', realmap: 'journey' }
+const MERGED: Record<string, string> = { camp: 'today', world: 'painted', realmap: 'journey', proto: '' }
 
 function hasStoredPlayer() {
   try {

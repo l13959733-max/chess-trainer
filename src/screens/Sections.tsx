@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react'
 import { AnimatedList, type ListItem } from '../components/AnimatedList'
 import { ProgressViz } from '../components/ProgressViz'
+import { DuoBar } from '../components/DuoBar'
 import { useGames } from '../hooks/useGames'
 import { go } from '../hooks/useHashRoute'
 import type { useProgress } from '../hooks/useProgress'
@@ -17,25 +18,19 @@ import { mineOf } from '../lib/trainingToday'
 import { dayNumber, loadResults } from '../lib/threatcheck'
 import { nextCity, openCity } from '../lib/travel'
 
-// #/proto – prototype of the whole app, structure v2 from docs/APP_PLAN.md (Lu, 27.11.2026):
-// bar 🔥 Today · ♔ White · ♚ Black · 📊 Progress · 🧭 Story (Duolingo bar, icons only, no middle button), no
-// "Training" level – everything for White runs under White, everything for Black under Black, the mixed daily path is
-// Today. Profile = round picture top right. Rows open the real pages; the real navigation of the app is unchanged.
+// The main pages of the app, structure v2 from docs/APP_PLAN.md (Lu, 27.11.2026): 🔥 the start page (HomeHub) and
+// Today (one 5-minute session) · ♔ White · ♚ Black · 📊 Progress · 🧭 Story, plus Profile (round picture top right).
+// "Everything for White runs under White, everything for Black under Black", no Training level, Duolingo bar with
+// icons only (components/DuoBar.tsx). Came from the prototype #/proto.
 const IMG = import.meta.env.BASE_URL + 'king/'
-type Section = 'today' | 'white' | 'black' | 'progress' | 'story'
+export type Section = 'today' | 'white' | 'black' | 'progress' | 'story' | 'profile'
 type Row = ListItem & { to: string }
 type Group = { title: string; rows: Row[] }
 type Prog = ReturnType<typeof useProgress>
 type Rep = ReturnType<typeof useRepertoire>
 type Side = 'w' | 'b'
 
-const TABS: { s: Section; icon: string; label: string }[] = [
-  { s: 'today', icon: '🔥', label: 'Today' },
-  { s: 'white', icon: '♔', label: 'White' },
-  { s: 'black', icon: '♚', label: 'Black' },
-  { s: 'progress', icon: '📊', label: 'Progress' },
-  { s: 'story', icon: '🧭', label: 'Story' },
-]
+const TITLE: Record<Section, string> = { today: 'Today', white: 'White', black: 'Black', progress: 'Progress', story: 'Story', profile: 'Profile' }
 
 function Groups({ groups, k, dark }: { groups: Group[]; k: string; dark?: boolean }) {
   return (
@@ -131,6 +126,7 @@ function Today({ progress, onStory, rep, puzzles, player }: { progress: Prog; on
           { to: 'puzzle-rush', icon: '⏱', title: 'Puzzle Rush', description: '3 minutes, 3 lives' },
           { to: 'armoury', icon: '🛡', title: 'Armoury', description: 'Tactics to endgame' },
           { to: 'daily', icon: '🃏', title: 'Today’s cards', description: 'Everything due, mixed' },
+          { to: 'warmup', icon: '🔥', title: 'Warm-up', description: '2 minutes before chess.com' },
           { to: 'tent', icon: '⭐', title: 'The long daily path', description: 'All levels of today' },
         ] }]} />
       </details>
@@ -188,9 +184,11 @@ function SidePage({ side, rep, puzzles, player }: { side: Side; rep: Rep; puzzle
           { to: 'opening-rush', icon: '⚡', title: 'Opening Rush', description: `Your ${name} openings on time` },
           { to: `surprise/${side}`, icon: '🎲', title: 'Surprise me', description: `A random ${name} line you know` },
           { to: `map/${side}`, icon: '🗺', title: 'What to play when?', description: white ? 'Black’s replies and your answer' : 'White’s first moves and your answer' },
+          { to: 'atlas', icon: '🧭', title: 'Opening atlas', description: 'New weapons – every big opening family' },
+          { to: 'path', icon: '🪙', title: 'All openings', description: 'Every line of your book, both colours' },
           ...(white ? [] : [
             { to: 'black-course', icon: '♚', title: 'Hoppy’s Black training', description: '1...d5 against everything' },
-            { to: 'black', icon: '🎛', title: 'Your Black system', description: 'Pick your answer to 1.e4 and 1.d4' },
+            { to: 'black-system', icon: '🎛', title: 'Your Black system', description: 'Pick your answer to 1.e4 and 1.d4' },
           ]),
         ] },
         { title: 'Tactics & your mistakes', rows: [
@@ -219,6 +217,12 @@ function ProgressTab({ player, puzzles }: { player: string; puzzles: Puzzle[] })
         <i>GO</i>
       </button>
       <ProgressViz player={player} puzzles={puzzles} />
+      <Groups k="analyses" groups={[{ title: 'Your analyses', rows: [
+        { to: 'weaknesses', icon: '🧩', title: 'My weaknesses', description: 'Your mistakes by kind – rules and training' },
+        { to: hasOwnPlayer() ? 'games' : 'connect', icon: '♟', title: 'Your chess.com games', description: 'Every finished game, checked by Hoppy' },
+        { to: 'check', icon: '🔍', title: 'Chess check', description: 'What costs you points?' },
+        { to: 'accuracy', icon: '📊', title: 'How well did I play? (test)', description: 'Three ways to score your games' },
+      ] }]} />
     </>
   )
 }
@@ -249,6 +253,7 @@ function Story() {
         { title: `Done · ${beaten.length}`, rows: beaten.map((s) => row(s, '✓')) },
         { title: 'Still ahead', rows: ahead.map((s) => row(s)) },
         { title: 'More', rows: [
+          { to: 'road', icon: '🚀', title: 'Fast travel', description: 'Every city in a list' },
           { to: 'painted', icon: '🎨', title: 'The painted map', description: 'The world as a painting' },
           { to: 'quests', icon: '📖', title: 'Quest book', description: 'Your quests' },
           { to: 'portal', icon: '🌀', title: 'Real world', description: 'Quests from your chess.com games' },
@@ -267,9 +272,7 @@ const PROFILE: Group[] = [
   { title: 'Together', rows: [{ to: 'watch', icon: '👫', title: 'Together', description: 'Watch and help each other' }] },
 ]
 
-export function ProtoNav({ player, puzzles, progress, rep }: { player: string; puzzles: Puzzle[]; progress: Prog; rep: Rep }) {
-  const [section, setSection] = useState<Section>('today')
-  const [profile, setProfile] = useState(false)
+export function SectionPage({ section, player, puzzles, progress, rep }: { section: Section; player: string; puzzles: Puzzle[]; progress: Prog; rep: Rep }) {
   const name = (() => {
     try {
       return localStorage.getItem('chess-trainer-name') || 'you'
@@ -277,36 +280,26 @@ export function ProtoNav({ player, puzzles, progress, rep }: { player: string; p
       return 'you'
     }
   })()
-  const title = profile ? 'Profile' : TABS.find((t) => t.s === section)!.label
+  const profile = section === 'profile'
   return (
-    <div className={`pn${section === 'black' && !profile ? ' pn-dark' : ''}`}>
-      <div className="pn-proto">
-        <button type="button" className="pn-exit" onClick={() => go('')} aria-label="Leave the prototype">✕</button>
-        <span>PROTOTYPE · STRUCTURE V2</span>
-      </div>
+    <div className={`pn pn-page${section === 'black' ? ' pn-dark' : ''}`}>
       <div className="pn-screen">
         <header className="pn-head">
-          {profile && <button type="button" className="pn-back" onClick={() => setProfile(false)} aria-label="Back">←</button>}
-          <h1>{title}</h1>
+          {profile && <button type="button" className="pn-back" onClick={() => window.history.back()} aria-label="Back">←</button>}
+          <h1>{TITLE[section]}</h1>
           <span className="pn-pill">🔥 {progress.streak}</span>
-          {!profile && <button type="button" className="pn-avatar" onClick={() => setProfile(true)} aria-label="Profile">{name.slice(0, 1).toUpperCase()}</button>}
+          {!profile && <button type="button" className="pn-avatar" onClick={() => go('profile')} aria-label="Profile">{name.slice(0, 1).toUpperCase()}</button>}
         </header>
-        <div className="pn-scroll" key={profile ? 'profile' : section}>
-          {profile ? <Groups k="profile" groups={PROFILE} /> : section === 'today' ? <Today progress={progress} onStory={() => setSection('story')} rep={rep} puzzles={puzzles} player={player} />
+        <div className="pn-scroll">
+          {profile ? <Groups k="profile" groups={PROFILE} />
+            : section === 'today' ? <Today progress={progress} onStory={() => go('story')} rep={rep} puzzles={puzzles} player={player} />
             : section === 'white' ? <SidePage side="w" rep={rep} puzzles={puzzles} player={player} />
             : section === 'black' ? <SidePage side="b" rep={rep} puzzles={puzzles} player={player} />
             : section === 'progress' ? <ProgressTab player={player} puzzles={puzzles} />
             : <Story />}
         </div>
-        <nav className="pn-duobar pn-bar5" aria-label="Main">
-          {TABS.map((t) => (
-            <button key={t.s} type="button" className={!profile && section === t.s ? 'on' : ''} aria-label={t.label} aria-current={!profile && section === t.s ? 'page' : undefined}
-              onClick={() => { setProfile(false); setSection(t.s) }}>
-              <span aria-hidden="true">{t.icon}</span>
-            </button>
-          ))}
-        </nav>
       </div>
+      <DuoBar active={section === 'today' || section === 'profile' ? 'home' : section} />
     </div>
   )
 }

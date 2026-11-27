@@ -462,3 +462,27 @@ html .pn-more { border: 2px solid #e5e5e5; border-radius: 16px; padding: 10px 12
 html .pn-more summary { cursor: pointer; font-weight: 900; color: var(--b-muted); }
 html .pn-more .pn-group h2:empty { display: none; }
 html .pn-more .pn-group { margin-top: 8px; }
+
+/* ======================================================================================
+   8. Structure v2 in the app (27.11.): ONE Duolingo bar on every page (components/DuoBar.tsx)
+   ====================================================================================== */
+html body nav.duo-bar { position: fixed; left: 0; right: 0; bottom: 0; z-index: 45; max-width: 440px; margin: 0 auto;
+  display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; padding: 8px 14px calc(8px + env(safe-area-inset-bottom, 0px));
+  background: #fff; border-top: 2px solid #e5e5e5; color: #3c3c3c; }
+html body nav.duo-bar button { all: unset; box-sizing: border-box; height: 52px; display: grid; place-items: center; border-radius: 14px; border: 2px solid transparent; cursor: pointer; }
+html body nav.duo-bar button span { font-size: 26px; line-height: 1; font-family: system-ui, -apple-system, 'Apple Color Emoji', sans-serif !important; color: #3c3c3c; }
+html body nav.duo-bar button.on { background: #ddf4ff; border-color: #84d8ff; }
+html body nav.duo-bar button:focus-visible { outline: 3px solid #1cb0f6; outline-offset: 2px; }
+html .pn-page .pn-scroll { padding-bottom: 96px; }
+html .pn-page .pn-screen { padding-top: calc(14px + env(safe-area-inset-top, 0px)); }
+/* every scrolling page leaves room for the bar */
+html .trn-in, html .king-road, html .dia-in { padding-bottom: calc(100px + env(safe-area-inset-bottom, 0px)); }
+html .hub { padding-bottom: calc(80px + env(safe-area-inset-bottom, 0px)); }
+
+/* start page (Lu, 27.11.): the quote card WHITE, the Square Rush card BLACK */
+html .hub .hub-quote { background: #fff; border: 2px solid #e5e5e5; border-bottom-width: 4px; color: var(--b-text); }
+html .hub .hub-quote h3, html .hub .hub-quote small, html .hub .hub-diary li small { color: var(--b-muted); }
+html .hub .hub-quote p span { color: var(--b-sun-d); }
+html .hub .hub-quote p::before { color: var(--b-sun-d); }
+html .hub .hub-rush { background: #111; border: 2px solid #000; border-bottom-width: 4px; color: #fff; }
+html .hub .hub-rush h3, html .hub .hub-best { color: #a1a1a6; }
