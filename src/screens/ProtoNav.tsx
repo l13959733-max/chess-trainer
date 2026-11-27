@@ -13,7 +13,8 @@ import type { Puzzle } from '../lib/db'
 import { STATIONS, loadKing, route, stationById } from '../lib/king'
 import { dateKey } from '../lib/progress'
 import { isDue } from '../lib/srs'
-import { mineOf, pathProgress } from '../lib/trainingToday'
+import { mineOf } from '../lib/trainingToday'
+import { dayNumber, loadResults } from '../lib/threatcheck'
 import { nextCity, openCity } from '../lib/travel'
 
 // #/proto – prototype of the whole app, structure v2 from docs/APP_PLAN.md (Lu, 27.11.2026):
@@ -64,9 +65,10 @@ function TravelStrip({ onOpen }: { onOpen: () => void }) {
     </button>
   )
 }
-function Today({ progress, onStory }: { progress: Prog; onStory: () => void }) {
+// Lu, 27.11.: "Im Today ist zu viel, das macht man nicht an einem Tag – höchstens fünf Minuten Material."
+// Today = ONE short session of four steps (about 5 minutes), then "done for today". More = White / Black.
+function Today({ progress, onStory, rep, puzzles, player }: { progress: Prog; onStory: () => void; rep: Rep; puzzles: Puzzle[]; player: string }) {
   const [now] = useState(() => Date.now())
-  const [path] = useState(pathProgress)
   const week = Array.from({ length: 7 }, (_, i) => {
     const d = new Date(now)
     d.setHours(12, 0, 0, 0)
@@ -74,7 +76,24 @@ function Today({ progress, onStory }: { progress: Prog; onStory: () => void }) {
     const a = progress.days.get(dateKey(d))
     return { label: d.toLocaleDateString('en-GB', { weekday: 'narrow' }), on: !!a && a.lines + a.puzzles + (a.games ?? 0) + a.xp > 0, today: dateKey(d) === dateKey(new Date(now)) }
   })
-  const ring = path && path.total ? path.done / path.total : 0
+  const day = dayNumber()
+  const threatDone = !!loadResults()[day]
+  // one of your own mistakes – a different one every day
+  const mine = mineOf(puzzles, player)
+  const mistake = mine.length ? mine[day % mine.length] : undefined
+  // up to two due lines, else one new line
+  const due = rep.lines.filter((l) => l.source !== 'import' && isDue(rep.srs.get(l.id), now)).slice(0, 2)
+  const fresh = due.length ? undefined : rep.lines.find((l) => l.source !== 'import' && !rep.srs.get(l.id))
+  const steps: { icon: string; title: string; sub: string; min: number; to: string; done?: boolean }[] = [
+    { icon: '🎯', title: 'Threat Check', sub: 'What does your opponent threaten?', min: 1, to: 'threat-check', done: threatDone },
+    ...(mistake ? [{ icon: '🩹', title: 'One of your mistakes', sub: `From your game vs ${mistake.opponent}`, min: 1, to: 'mistake/' + encodeURIComponent(mistake.id) }] : []),
+    ...(due.length
+      ? [{ icon: '🗺', title: due.length === 1 ? '1 line to repeat' : '2 lines to repeat', sub: due.map((l) => l.title.split(': ').pop()).join(' · '), min: 2, to: 'drill/' + due[0].id }]
+      : fresh ? [{ icon: '✨', title: 'One new line', sub: fresh.title, min: 2, to: 'learn/' + fresh.id }] : []),
+    { icon: '💥', title: 'Square Rush', sub: '60 seconds', min: 1, to: 'rush' },
+  ]
+  const minutes = steps.reduce((m, x) => m + x.min, 0)
+  const done = steps.filter((x) => x.done).length
   const C = 2 * Math.PI * 26
   return (
     <>
@@ -84,24 +103,37 @@ function Today({ progress, onStory }: { progress: Prog; onStory: () => void }) {
           <span key={i} className={`${d.on ? 'on' : ''}${d.today ? ' today' : ''}`}><i>{d.on ? '🔥' : ''}</i><small>{d.label}</small></span>
         ))}
       </div>
-      <button type="button" className="pn-pathcard" onClick={() => go('tent')}>
-        <svg viewBox="0 0 64 64" width="60" height="60" aria-hidden="true">
-          <circle cx="32" cy="32" r="26" fill="none" stroke="rgba(255,255,255,.35)" strokeWidth="9" />
-          <circle cx="32" cy="32" r="26" fill="none" stroke="#fff" strokeWidth="9" strokeLinecap="round" strokeDasharray={C} strokeDashoffset={C * (1 - ring)} transform="rotate(-90 32 32)" />
-          <text x="32" y="37" textAnchor="middle" fontSize="14" fontWeight="900" fill="#fff">{path ? `${path.done}/${path.total}` : '0'}</text>
-        </svg>
-        <span><small>Today’s path · White and Black mixed</small><b>{!path ? 'Ready when you are' : path.done >= path.total ? 'All done – well played!' : `${path.total - path.done} levels left`}</b></span>
-        <i>{!path || path.done === 0 ? 'START' : 'GO'}</i>
-      </button>
-      <Groups k="today" groups={[
-        { title: 'Everything due', rows: [{ to: 'daily', icon: '🃏', title: 'Today’s cards', description: 'Lines, mistakes and threats that are due – mixed' }] },
-        { title: 'Free play', rows: [
-          { to: 'threat-check', icon: '🎯', title: 'Daily Threat Check', description: 'One position – what does your opponent threaten?' },
-          { to: 'rush', icon: '💥', title: 'Square Rush', description: 'Learn the squares – 60 seconds' },
+      <div className="pn-five">
+        <div className="pn-five-head">
+          <svg viewBox="0 0 64 64" width="54" height="54" aria-hidden="true">
+            <circle cx="32" cy="32" r="26" fill="none" stroke="rgba(255,255,255,.35)" strokeWidth="9" />
+            <circle cx="32" cy="32" r="26" fill="none" stroke="#fff" strokeWidth="9" strokeLinecap="round" strokeDasharray={C} strokeDashoffset={C * (1 - done / steps.length)} transform="rotate(-90 32 32)" />
+            <text x="32" y="37" textAnchor="middle" fontSize="14" fontWeight="900" fill="#fff">{done}/{steps.length}</text>
+          </svg>
+          <span><small>Today · about {minutes} minutes</small><b>{done >= steps.length ? 'Done for today – well played!' : 'Your short session'}</b></span>
+        </div>
+        <ol>
+          {steps.map((x) => (
+            <li key={x.title}>
+              <button type="button" className={x.done ? 'done' : ''} onClick={() => go(x.to)}>
+                <span className="e" aria-hidden="true">{x.done ? '✓' : x.icon}</span>
+                <span className="t"><b>{x.title}</b><small>{x.sub}</small></span>
+                <span className="m">{x.min} min</span>
+              </button>
+            </li>
+          ))}
+        </ol>
+      </div>
+      <p className="pn-more-note">Want more today? Go on with ♔ White or ♚ Black.</p>
+      <details className="pn-more">
+        <summary>More to play</summary>
+        <Groups k="more" groups={[{ title: '', rows: [
           { to: 'puzzle-rush', icon: '⏱', title: 'Puzzle Rush', description: '3 minutes, 3 lives' },
-          { to: 'armoury', icon: '🛡', title: 'Armoury', description: 'Tactics to endgame – bronze, silver, gold' },
-        ] },
-      ]} />
+          { to: 'armoury', icon: '🛡', title: 'Armoury', description: 'Tactics to endgame' },
+          { to: 'daily', icon: '🃏', title: 'Today’s cards', description: 'Everything due, mixed' },
+          { to: 'tent', icon: '⭐', title: 'The long daily path', description: 'All levels of today' },
+        ] }]} />
+      </details>
     </>
   )
 }
@@ -124,8 +156,8 @@ function SidePage({ side, rep, puzzles, player }: { side: Side; rep: Rep; puzzle
   const rowOf = (c: (typeof chs)[number]): Row => {
     const played = c.lines.filter((l) => rep.srs.get(l.id)).length
     const due = c.lines.filter((l) => isDue(rep.srs.get(l.id), now))
-    const fresh = c.lines.find((l) => !rep.srs.get(l.id))
-    const to = due[0] ? 'drill/' + due[0].id : fresh ? 'learn/' + fresh.id : 'drill/' + c.lines[0].id
+    // Lu, 27.11.: an opening opens its own path with the story, not straight a drill
+    const to = 'opening/' + encodeURIComponent(c.key)
     return { id: c.key, to, icon: white ? '♙' : '♟', title: c.title, description: `${played} of ${c.lines.length} lines${due.length ? ` · ${due.length} due` : ''}`, meta: due.length ? '!' : played === c.lines.length ? '✓' : '' }
   }
   // sorted like the app's opening book: one group per section (e.g. "White · 1.e4 e5", "White · 1.d4")
@@ -260,7 +292,7 @@ export function ProtoNav({ player, puzzles, progress, rep }: { player: string; p
           {!profile && <button type="button" className="pn-avatar" onClick={() => setProfile(true)} aria-label="Profile">{name.slice(0, 1).toUpperCase()}</button>}
         </header>
         <div className="pn-scroll" key={profile ? 'profile' : section}>
-          {profile ? <Groups k="profile" groups={PROFILE} /> : section === 'today' ? <Today progress={progress} onStory={() => setSection('story')} />
+          {profile ? <Groups k="profile" groups={PROFILE} /> : section === 'today' ? <Today progress={progress} onStory={() => setSection('story')} rep={rep} puzzles={puzzles} player={player} />
             : section === 'white' ? <SidePage side="w" rep={rep} puzzles={puzzles} player={player} />
             : section === 'black' ? <SidePage side="b" rep={rep} puzzles={puzzles} player={player} />
             : section === 'progress' ? <ProgressTab player={player} puzzles={puzzles} />

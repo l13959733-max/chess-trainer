@@ -65,6 +65,7 @@ const Workout = lazy(() => import('./screens/Workout').then((m) => ({ default: m
 const Today = lazy(() => import('./screens/Today').then((m) => ({ default: m.Today })))
 const WheelTest = lazy(() => import('./screens/WheelTest').then((m) => ({ default: m.WheelTest })))
 const ProtoNav = lazy(() => import('./screens/ProtoNav').then((m) => ({ default: m.ProtoNav })))
+const OpeningPath = lazy(() => import('./screens/OpeningPath').then((m) => ({ default: m.OpeningPath })))
 const Diary = lazy(() => import('./screens/Diary').then((m) => ({ default: m.Diary })))
 const Attacks = lazy(() => import('./screens/Attacks').then((m) => ({ default: m.Attacks })))
 import { Connect, MistakeOne, Training, YourGames } from './screens/Training'
@@ -106,6 +107,7 @@ function App() {
     if (page === 'path') rememberOrigin('path')
     else if (page === 'atlas') rememberOrigin('atlas')
     else if (page === 'black-course') rememberOrigin('black-course')
+    else if (page === 'opening' && id) rememberOrigin('opening/' + id) // back from a line → the opening's path (27.11.)
     else if (page === 'king' && id && !arg) rememberOrigin('king/' + id)
   }, [page, id, arg])
   // The start page is the world map; back from a line you land where you opened it
@@ -214,6 +216,7 @@ function App() {
   else if (page === 'today') body = <Today rep={rep} progress={progress} puzzles={puzzles} />
   else if (page === 'wheel') body = <WheelTest />
   else if (page === 'proto') body = <ProtoNav player={player} puzzles={puzzles.puzzles} progress={progress} rep={rep} />
+  else if (page === 'opening' && id) body = <OpeningPath key={id} id={decodeURIComponent(id)} rep={rep} />
   else if (page === 'diary') body = <Diary />
   else if (page === 'puzzle-rush') body = <PuzzleRush puzzles={puzzles} player={player} />
   else if (page === 'opening-rush') body = id ? <OpeningRush key={id} rep={rep} keys={decodeURIComponent(id)} /> : <OpeningRushHome rep={rep} />

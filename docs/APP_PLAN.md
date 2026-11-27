@@ -23,10 +23,11 @@ Das Gemischte bekommt einen eigenen Punkt „Heute" (Lus Wahl).
 - **Leiste: 5 Symbole** 🔥 Heute · ♔ Weiß · ♚ Schwarz · 📊 Entwicklung · 🧭 Geschichte (Duolingo-Leiste aus
   Prototyp A: nur Symbole, aktives im hellblauen Kästchen, graue Linie oben, kein Mittelknopf).
 - **Kein Punkt „Training"** mehr, keine Ebene über Weiß/Schwarz.
-- **🔥 Heute = Start** (App öffnet hier): kleine Reise-Leiste als Gimmick („🐴 Samarkand → Rom · noch 3 Level",
-  Tipp → Geschichte), der gemischte Tagespfad (Level 1 IMMER Threat Check, dann Fehler, fällige Linien, Lektion,
-  Square Rush, Schatzkiste, Boss) + Today's cards; darunter „Freies Spielen": Threat Check, Square Rush, Puzzle Rush,
-  Hoppy-Bot, Armoury.
+- **🔥 Heute = Start** (App öffnet hier): kleine Reise-Leiste als Gimmick, Woche als Flammen und **EINE kurze
+  Einheit von höchstens 5 Minuten** (Lu, 27.11.: „Im Today ist zu viel, das macht man nicht an einem Tag – höchstens
+  fünf Minuten Material"): 🎯 Threat Check (1) · 🩹 ein eigener Fehler (1) · 🗺 bis zu 2 fällige Linien, sonst 1 neue
+  (2) · 💥 Square Rush (1) → „Done for today". Mehr = ♔ Weiß / ♚ Schwarz. Zugeklappt „More to play": Puzzle Rush,
+  Armoury, Today's cards, der lange Tagespfad (nichts verloren).
 - **♔ Weiß / ♚ Schwarz** = eigene Punkte, Inhalt siehe nächster Abschnitt.
 - **📊 Entwicklung** = Statistik aus dem Prototyp (`ProgressViz`), oben „Analyse aktualisieren".
 - **🧭 Geschichte** = Weltkarte, Städte, Meister, Tagebuch, Spiegelwelt („ein bisschen Geschichte ist schon nice",
@@ -53,6 +54,12 @@ Schwarz = schwarze Seite.
 
 **♚ Schwarz lernen** – gleich aufgebaut, plus: Schwarz-System wählen (`#/black`), Hoppys Schwarz-Training
 (`#/black-course`), Opening Rush Schwarz, **Spiegelwelt** (Geschichte, Akt 2 = Schwarz).
+
+**Eröffnung antippen → eigene Seite `#/opening/<Kapitel>`** (Lu, 27.11.: „wenn ich die Eröffnungen auswähle, will
+ich, dass da mein Ablauf kommt und die Geschichte"): oben die Geschichte (Stadt/Spiegelwelt-Ort, der diese
+Eröffnung erzählt, „Read" → Stadtkapitel) + worum es geht (`lib/guide.ts`), darunter **dein Pfad** (`ChapterPath`):
+jede Linie lernen/spielen, nach je 3 Linien ein Rush, am Ende Rush als Abschlusstest (Bronze-Gürtel). Nach einer
+Linie führt „Overview" zurück auf diese Seite.
 
 **Farblos → 🔥 Heute** (siehe Struktur v2). Begründung für den gemischten Tagespfad: `docs/LERNKONZEPT.md` –
 „vor jedem Zug die Drohung prüfen" ist Lus wichtigste Gewohnheit (bleibt Level 1); Mischen wirkt. Nutzungszahlen
@@ -116,4 +123,5 @@ Lu, 27.11.: „unten der Balken aus der neuen Version" (= Prototyp A).
 - 27.11.2026: Weiß/Schwarz lernen beschrieben (alles einer Farbe an einem Ort, animierte Liste).
 - 27.11.2026: Nicht zu viel: Training-Seite nur 3 Karten (verworfen).
 - 27.11.2026: Struktur v2: Training weg, Weiß und Schwarz eigene Punkte, Gemischtes = 🔥 Heute (5 Symbole).
+- 27.11.2026: Eröffnung → eigene Seite mit Geschichte + Pfad; Heute = höchstens 5 Minuten (4 Schritte).
 - 27.11.2026: Prototyp v2 in der Vorschau `#/proto` gebaut (Lu: „bau jetzt erstmal den Prototypen"). Neu dafür: Farb-Filter `#/puzzles/color/w|b`, `#/threats/color/w|b`, `#/play/w|b`.

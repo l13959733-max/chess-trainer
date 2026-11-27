@@ -426,3 +426,39 @@ html .pn.pn-dark .pn-group h2 { color: #8e8e93; }
 html .pn.pn-dark .pn-duobar { background: #fff; color: #3c3c3c; }
 html .pn.pn-dark .pn-avatar { box-shadow: 0 0 0 2px #2c2c2e; }
 html .pn .pn-bar5 button span { font-family: system-ui, -apple-system, 'Apple Color Emoji', sans-serif !important; }
+/* #/opening/<key> – one opening as a path with its story (27.11.) */
+html .opp { display: grid; gap: 12px; padding-bottom: 40px; }
+html .opp-head { display: flex; gap: 10px; align-items: flex-start; }
+html .opp-head h2 { margin: 2px 0 0; font-size: 26px; font-weight: 900; letter-spacing: -0.02em; }
+html .opp-head small { color: var(--b-muted); font-weight: 800; font-size: 12.5px; }
+html .opp .opp-story { display: grid; align-content: end; gap: 2px; min-height: 150px; padding: 14px; border-radius: 20px; background-size: cover; background-position: center 30%; color: #fff; text-align: left; border: 0; border-bottom: 5px solid rgba(0,0,0,.25); position: relative; text-transform: none; letter-spacing: 0; }
+html .opp .opp-story small { font-size: 11.5px; font-weight: 900; text-transform: uppercase; letter-spacing: .08em; opacity: .9; }
+html .opp .opp-story b { font-size: 22px; font-weight: 900; line-height: 1.1; padding-right: 70px; }
+html .opp .opp-story i { position: absolute; right: 14px; bottom: 14px; font-style: normal; font-weight: 900; font-size: 13px; background: var(--b-green); border-bottom: 4px solid var(--b-green-d); border-radius: 12px; padding: 8px 12px; }
+html .opp-about { background: #fff; border: 2px solid #e5e5e5; border-bottom-width: 4px; border-radius: 18px; padding: 12px 14px; }
+html .opp-about summary { cursor: pointer; font-weight: 800; font-size: 14.5px; }
+html .opp-about ul { margin: 8px 0 0; padding-left: 18px; display: grid; gap: 4px; font-weight: 700; font-size: 13.5px; }
+html .opp-about p { margin: 8px 0 0; font-weight: 700; font-size: 13.5px; color: var(--b-text); }
+html .opp-fact { color: var(--b-muted) !important; }
+html .opp-h { margin: 6px 0 0; font-size: 13px; font-weight: 900; text-transform: uppercase; letter-spacing: .08em; color: var(--b-muted); }
+html .opp-b .opp-head h2 { color: var(--b-text); }
+/* Today = one short session of about 5 minutes (Lu, 27.11.) */
+html .pn-five { border-radius: 20px; background: var(--b-green); border-bottom: 5px solid var(--b-green-d); color: #fff; padding: 12px; display: grid; gap: 10px; }
+html .pn-five-head { display: flex; align-items: center; gap: 12px; }
+html .pn-five-head span { display: grid; }
+html .pn-five-head small { font-size: 12px; font-weight: 900; text-transform: uppercase; letter-spacing: .06em; opacity: .92; }
+html .pn-five-head b { font-size: 19px; font-weight: 900; }
+html .pn-five ol { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+html .pn .pn-five li button { width: 100%; display: flex; align-items: center; gap: 10px; background: #fff; color: #3c3c3c; border-radius: 14px; border-bottom: 4px solid #d7ffb8; padding: 10px 12px; text-align: left; }
+html .pn .pn-five li button.done { opacity: .6; }
+html .pn .pn-five .e { width: 34px; height: 34px; border-radius: 10px; background: #f7f7f7; display: grid; place-items: center; font-size: 18px; flex: none; }
+html .pn .pn-five li button.done .e { background: var(--b-green-t); color: var(--b-green-d); font-weight: 900; }
+html .pn .pn-five .t { flex: 1; display: grid; min-width: 0; }
+html .pn .pn-five .t b { font-size: 15px; font-weight: 900; }
+html .pn .pn-five .t small { font-size: 12.5px; font-weight: 700; color: #777; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+html .pn .pn-five .m { font-size: 12px; font-weight: 900; color: var(--b-green-d); white-space: nowrap; }
+html .pn-more-note { margin: 0; text-align: center; font-weight: 800; color: var(--b-muted); font-size: 13.5px; }
+html .pn-more { border: 2px solid #e5e5e5; border-radius: 16px; padding: 10px 12px; }
+html .pn-more summary { cursor: pointer; font-weight: 900; color: var(--b-muted); }
+html .pn-more .pn-group h2:empty { display: none; }
+html .pn-more .pn-group { margin-top: 8px; }
