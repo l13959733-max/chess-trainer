@@ -45,7 +45,7 @@ describe('Opening Rush tasks', () => {
         checkTask(t, f.side)
       }
     }
-  })
+  }, 30_000) // reads every arena file – slow on the GitHub runner (28.11.: >5 s blocked every deploy)
 
   it('book tasks come from your lines, are legal, and accept every book move of the position', () => {
     const catalan = builtinLines.filter((l) => l.opening === 'Catalan' && l.side === 'w')
