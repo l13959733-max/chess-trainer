@@ -133,6 +133,8 @@ Lu, 27.11.: „unten der Balken aus der neuen Version" (= Prototyp A).
 
 ## Verlauf
 
+- **28.11.2026: LIVE übernommen (main=1431e17)** – Struktur v2, Weiß/Schwarz mit Eröffnungs-Statistik, Eröffnungs-Seite, Heute 5 Min., Entwicklung + Analysen vorne, Deine letzte Partie + Fehler üben. Nächstes: Together-Prototypen (Lu: „weiß ich noch nicht, erst Prototypen").
+
 - 27.11.2026: Plan angelegt mit Lus Vorgaben zu Startseite und Leiste.
 - 27.11.2026: Journey-Karte öffnet die Progress-Seite aus dem Prototyp.
 - 27.11.2026: Struktur-Vorschlag v1 (3 Symbole, Training = Start, Profil oben rechts) – Lu: ok.
