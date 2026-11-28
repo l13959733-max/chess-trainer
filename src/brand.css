@@ -576,3 +576,9 @@ html .rv-why .rv-san { text-transform: none; letter-spacing: 0; color: #3c3c3c; 
 html .rv-elo > div:first-child b { font-size: 23px !important; white-space: nowrap; }
 html .rv-elo.strong > div:first-child b { color: var(--b-green-d); } html .rv-elo.weak > div:first-child b { color: var(--b-red-d); }
 html details.rv-note summary { cursor: pointer; font-weight: 900; color: #1899d6; }
+html .pn .rv-practise { display: flex; align-items: center; gap: 12px; padding: 12px 14px; border-radius: 18px; background: var(--b-green); border-bottom: 5px solid var(--b-green-d); color: #fff; text-align: left; }
+html .pn .rv-practise > span:first-child { font-size: 26px; }
+html .pn .rv-practise span:nth-child(2) { display: grid; }
+html .pn .rv-practise b { font-size: 17px; font-weight: 900; }
+html .pn .rv-practise small { font-size: 12.5px; font-weight: 700; opacity: .92; }
+html .pn .rv-practise:disabled { opacity: .7; }

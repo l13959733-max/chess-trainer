@@ -3,8 +3,9 @@
 // how accurate both players were, how strong the game was (an estimate, see gameElo.ts), the key moments with the
 // reason and the better move (lib/explain.ts – facts from the engine line, no AI), and tips from the kinds of mistakes.
 import { scoreGame } from './accuracy'
-import { findBlunders, gamePositions, terminalScore, uciToSan, type PositionEval } from './blunders'
-import { myColor, type ChessComGame } from './chesscom'
+import { clampScore, findBlunders, gamePositions, terminalScore, uciToSan, type PositionEval, type Score } from './blunders'
+import { gameKey, myColor, type ChessComGame } from './chesscom'
+import type { Puzzle } from './db'
 import { evaluate, newGame } from './engine'
 import { explainBest, explainMistake } from './explain'
 import { CATEGORY, categorize, phaseOf, type Category } from './weakness'
@@ -21,6 +22,15 @@ export interface Moment {
   line: string[] // SAN from the start of the game through the opponent's answer, to replay
   category?: Category
   phase: 'opening' | 'middlegame' | 'endgame'
+  // what a puzzle needs (Lu, 28.11.: "aus seinen Fehlern lernen" – the moments become exercises)
+  fen: string
+  played: string // SAN
+  bestUci: string
+  pv: string[] // UCI, from the best move
+  scoreBefore: Score
+  refutation?: { best: string; pv: string[]; score: Score }
+  cpLoss: number
+  missedMate: boolean
 }
 export interface Review {
   uuid: string
@@ -39,7 +49,9 @@ export interface Review {
   moments: Moment[] // in the order of the game
   tips: { title: string; rule: string; n: number }[]
   depth: number
+  v: number // REVIEW_VERSION – older saved reviews are checked again
 }
+const REVIEW_VERSION = 2
 
 // winning chance lost in percentage points – the same steps as the coach (lib/coach.ts verdict)
 export const kindOf = (loss: number): MomentKind | null => (loss >= 30 ? 'blunder' : loss >= 20 ? 'mistake' : loss >= 10 ? 'inaccuracy' : null)
@@ -85,6 +97,14 @@ export async function reviewGame(g: ChessComGame, player: string, depth = 14, on
       line: [...sans.slice(0, m.ply), ...why.line.map((s) => s.san)],
       category,
       phase: phaseOf(fen),
+      fen,
+      played: m.san,
+      bestUci: best.best ?? '',
+      pv: best.pv,
+      scoreBefore: best.score,
+      refutation: after.best ? { best: after.best, pv: after.pv, score: after.score } : undefined,
+      cpLoss: Math.round(m.cpLoss),
+      missedMate: missedMate.has(m.ply),
     })
   }
   const counts = { blunder: 0, mistake: 0, inaccuracy: 0 }
@@ -114,6 +134,7 @@ export async function reviewGame(g: ChessComGame, player: string, depth = 14, on
     moments,
     tips,
     depth,
+    v: REVIEW_VERSION,
   }
 }
 
@@ -123,7 +144,7 @@ export function loadReview(uuid: string, depth: number): Review | null {
   try {
     const all = JSON.parse(localStorage.getItem(KEY) ?? '{}') as Record<string, Review>
     const r = all[uuid]
-    return r && r.depth >= depth ? r : null
+    return r && r.depth >= depth && r.v === REVIEW_VERSION ? r : null
   } catch {
     return null
   }
@@ -137,4 +158,31 @@ export function saveReview(r: Review) {
   } catch {
     // not kept – the page still shows it now
   }
+}
+
+// The game's mistakes and blunders as puzzles – the same shape and the same id as the puzzles the analyzer makes
+// (lib/analyzer.ts), so a later analysis of the game does not add them twice. Inaccuracies are too small for a puzzle.
+export function momentPuzzles(r: Review, player: string): Puzzle[] {
+  return r.moments
+    .filter((m) => m.kind !== 'inaccuracy' && m.bestUci)
+    .map((m) => ({
+      id: `${gameKey(player, r.uuid)}:${m.ply}`,
+      ply: m.ply,
+      fen: m.fen,
+      played: m.played,
+      best: m.bestUci,
+      pv: m.pv,
+      loss: Math.max(0, Math.min(m.cpLoss, clampScore({ cp: 1000 }))),
+      kind: m.missedMate ? 'missed-mate' : 'blunder',
+      player,
+      gameUuid: r.uuid,
+      gameUrl: r.url,
+      endTime: r.endTime,
+      opponent: r.opponent,
+      myColor: r.side,
+      scoreBefore: m.scoreBefore,
+      bestSan: m.better,
+      refutation: m.refutation,
+      category: m.category,
+    }))
 }

@@ -73,7 +73,8 @@ nicht gut sind"), Karte oben auf 📊 Entwicklung: eine der letzten 5 Partien w�
 (gespeichert), Genauigkeit beider, Zähler, Tipps aus den Fehlerarten, Schlüsselmomente (warum schlecht, besserer
 Zug, Brett zum Nachspielen). **Keine Elo pro Partie:** gemessen an 2.268 Spieler-Partien – eine Partie sagt fast
 nichts über die Elo (Korrelation 0,16). Stattdessen „besser als X von 100 Partien von Spielern deiner Stufe"
-(`lib/gameLevel.ts`, Tabelle aus echten Daten). Option später: „Form-Elo" über viele Partien; Claude-Erklärsätze
+(`lib/gameLevel.ts`, Tabelle aus echten Daten). Knopf „Practise these mistakes" (28.11.): Fehler + grobe Fehler werden normale Aufgaben (gleiche ID wie beim
+Analysieren → nie doppelt), Runde `#/puzzles/game/<uuid>`, danach in den Wiederholungen. Option später: „Form-Elo" über viele Partien; Claude-Erklärsätze
 (Modul 3, braucht Cloudflare + API-Schlüssel).
 
 **Farblos → 🔥 Heute** (siehe Struktur v2). Begründung für den gemischten Tagespfad: `docs/LERNKONZEPT.md` –

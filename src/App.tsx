@@ -216,7 +216,7 @@ function App() {
     body = <SectionPage key={page} section={page} player={player} puzzles={puzzles.puzzles} progress={progress} rep={rep} />
   else if (page === 'wheel') body = <WheelTest />
   else if (page === 'opening' && id) body = <OpeningPath key={id} id={decodeURIComponent(id)} rep={rep} player={player} puzzles={puzzles.puzzles} />
-  else if (page === 'last-game') body = <GameReview player={player} />
+  else if (page === 'last-game') body = <GameReview player={player} puzzles={puzzles.puzzles} onPuzzlesAdded={() => setBotFound((n) => n + 1)} />
   else if (page === 'diary') body = <Diary />
   else if (page === 'puzzle-rush') body = <PuzzleRush puzzles={puzzles} player={player} />
   else if (page === 'opening-rush') body = id ? <OpeningRush key={id} rep={rep} keys={decodeURIComponent(id)} /> : <OpeningRushHome rep={rep} />
@@ -368,6 +368,8 @@ function weaknessFilter(id?: string, arg?: string): ((p: Puzzle) => boolean) | u
   if (id === 'phase' && arg) return (p) => phaseOf(p.fen) === arg
   // only the mistakes from games with White / Black (#/puzzles/color/w – the White and Black pages, 27.11.)
   if (id === 'color' && (arg === 'w' || arg === 'b')) return (p) => p.myColor === arg
+  // only the mistakes of one game (#/puzzles/game/<uuid> – "Practise these mistakes" on Your last game, 28.11.)
+  if (id === 'game' && arg) return (p) => p.gameUuid === arg
   if (id === 'other' && arg) return (p) => p.category === 'other' && otherKindOf(p) === arg
   if (id && id in CATEGORY) return (p) => p.category === id
   return undefined

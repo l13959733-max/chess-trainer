@@ -5,14 +5,15 @@ import { go } from '../hooks/useHashRoute'
 import { recentRapid } from '../lib/analyzer'
 import type { ChessComGame } from '../lib/chesscom'
 import { LEVEL_SOURCE, levelOf } from '../lib/gameLevel'
-import { loadReview, reviewGame, saveReview, type Moment, type Review } from '../lib/review'
+import { loadReview, momentPuzzles, reviewGame, saveReview, type Moment, type Review } from '../lib/review'
+import { putPuzzle, type Puzzle } from '../lib/db'
 
 // #/review – "Your last game" (Lu, 28.11.2026): pick one of your newest rapid games, Hoppy checks every move and says
 // how strong the game was (estimate), what went wrong and why, the better move, and three tips.
 const DEPTH = 14
 const KIND: Record<Moment['kind'], { name: string; cls: string }> = { blunder: { name: 'Blunder', cls: 'bad' }, mistake: { name: 'Mistake', cls: 'mid' }, inaccuracy: { name: 'Inaccuracy', cls: 'soft' } }
 
-export function GameReview({ player }: { player: string }) {
+export function GameReview({ player, puzzles, onPuzzlesAdded }: { player: string; puzzles: Puzzle[]; onPuzzlesAdded: () => void }) {
   const [games, setGames] = useState<ChessComGame[] | null>(null)
   const [failed, setFailed] = useState(false)
   const [pick, setPick] = useState(0)
@@ -49,6 +50,21 @@ export function GameReview({ player }: { player: string }) {
     }
   }, [needs, game, player])
   const progress = busy && busy.uuid === game?.uuid ? busy : needs ? { ply: 0, plies: 1 } : null
+
+  // "Practise these mistakes" (Lu, 28.11.: "aus seinen Fehlern lernen"): the moments become puzzles (kept with your other
+  // puzzles and their repetition), then a round with only this game's mistakes starts – once the app has loaded them
+  const toPractise = review ? momentPuzzles(review, player) : []
+  const [waiting, setWaiting] = useState<string | null>(null)
+  const loaded = !!waiting && toPractise.length > 0 && toPractise.every((p) => puzzles.some((x) => x.id === p.id))
+  useEffect(() => {
+    if (loaded && waiting) go('puzzles/game/' + encodeURIComponent(waiting))
+  }, [loaded, waiting])
+  async function practise() {
+    if (!review || !toPractise.length) return
+    await Promise.all(toPractise.map((p) => putPuzzle(puzzles.find((x) => x.id === p.id) ? { ...puzzles.find((x) => x.id === p.id)!, ...p } : p)))
+    setWaiting(review.uuid)
+    onPuzzlesAdded()
+  }
 
   const lvl = review?.accuracy != null ? levelOf(review.accuracy, review.myRating) : null
 
@@ -129,6 +145,12 @@ export function GameReview({ player }: { player: string }) {
               )}
 
               <h2 className="rv-h">Key moments</h2>
+              {toPractise.length > 0 && (
+                <button type="button" className="rv-practise" onClick={practise} disabled={!!waiting}>
+                  <span aria-hidden="true">🎯</span>
+                  <span><b>{waiting ? 'Getting them ready …' : toPractise.length === 1 ? 'Practise this mistake' : `Practise these ${toPractise.length} mistakes`}</b><small>Find the better move yourself – they come back in your repetitions</small></span>
+                </button>
+              )}
               {!review.moments.length && <p className="pv-note">No real mistakes in this game – well played!</p>}
               {review.moments.map((m, i) => (
                 <div key={m.ply} className={`rv-m ${KIND[m.kind].cls}`}>
