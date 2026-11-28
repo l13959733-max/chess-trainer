@@ -4,7 +4,7 @@ import { DuoBar } from '../components/DuoBar'
 import { go } from '../hooks/useHashRoute'
 import { recentRapid } from '../lib/analyzer'
 import type { ChessComGame } from '../lib/chesscom'
-import { estimateElo } from '../lib/gameElo'
+import { LEVEL_SOURCE, levelOf } from '../lib/gameLevel'
 import { loadReview, reviewGame, saveReview, type Moment, type Review } from '../lib/review'
 
 // #/review – "Your last game" (Lu, 28.11.2026): pick one of your newest rapid games, Hoppy checks every move and says
@@ -50,7 +50,7 @@ export function GameReview({ player }: { player: string }) {
   }, [needs, game, player])
   const progress = busy && busy.uuid === game?.uuid ? busy : needs ? { ply: 0, plies: 1 } : null
 
-  const est = review?.accuracy != null ? estimateElo(review.accuracy) : null
+  const lvl = review?.accuracy != null ? levelOf(review.accuracy, review.myRating) : null
 
   return (
     <div className="pn pn-page">
@@ -97,11 +97,13 @@ export function GameReview({ player }: { player: string }) {
                 <a href={review.url} target="_blank" rel="noopener">chess.com ›</a>
               </div>
 
-              <div className="rv-elo">
+              {/* Lu wanted an Elo per game – measured: one game says almost nothing about the rating (lib/gameLevel.ts), so
+                  the honest number is how this game compares with games of players around your rating */}
+              <div className={`rv-elo ${lvl?.label ?? ''}`}>
                 <div>
-                  <small>This game played like</small>
-                  <b>{est ? `≈ ${est.elo}` : '–'}</b>
-                  <span>{est ? `range ${est.low}–${est.high} · your rating ${review.myRating}` : 'No estimate for this game'}</span>
+                  <small>{lvl ? `For players rated ${lvl.from}–${lvl.to}` : 'Your level'}</small>
+                  <b>{lvl ? `Better than ${lvl.better} of 100` : '–'}</b>
+                  <span>{lvl ? (lvl.label === 'strong' ? '💪 A strong game for your level' : lvl.label === 'weak' ? '🙈 A weak game for your level' : '👍 A normal game for your level') : 'No comparison for this game'}</span>
                 </div>
                 <div className="rv-acc">
                   <span><b>{review.accuracy == null ? '–' : Math.round(review.accuracy)}%</b>you</span>
@@ -109,7 +111,7 @@ export function GameReview({ player }: { player: string }) {
                   <small>accuracy</small>
                 </div>
               </div>
-              {est && <p className="rv-note">{est.note}</p>}
+              {lvl && <details className="rv-note"><summary>Why no Elo for one game?</summary>Measured in {LEVEL_SOURCE}: stronger players are more accurate on average, but one game tells almost nothing about the rating – games of every accuracy came from players around 620–650. So Hoppy compares your game with the games of players of your level instead of guessing an Elo.</details>}
 
               <div className="rv-counts">
                 {(['blunder', 'mistake', 'inaccuracy'] as const).map((k) => (

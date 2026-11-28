@@ -68,6 +68,14 @@ Zuordnung Partie → Kapitel über die längste Übereinstimmung mit deinen Lini
 „Test all White/Black openings" (Rush gemischt). Eröffnungs-Seite: Statistik-Karte (S/R/N-Balken, Fehler/Partie,
 letzte 5, häufigste Fehlerart) + „Zufällige Linie". Ganzes Buch, PGN-Import, Tagesziel → Profil.
 
+**Deine letzte Partie `#/last-game`** (Lu, 28.11.: „mein letztes Game per Elo geratet, Tipps, erklärt warum Sachen
+nicht gut sind"), Karte oben auf 📊 Entwicklung: eine der letzten 5 Partien wählen, Stockfish prüft jeden Zug
+(gespeichert), Genauigkeit beider, Zähler, Tipps aus den Fehlerarten, Schlüsselmomente (warum schlecht, besserer
+Zug, Brett zum Nachspielen). **Keine Elo pro Partie:** gemessen an 2.268 Spieler-Partien – eine Partie sagt fast
+nichts über die Elo (Korrelation 0,16). Stattdessen „besser als X von 100 Partien von Spielern deiner Stufe"
+(`lib/gameLevel.ts`, Tabelle aus echten Daten). Option später: „Form-Elo" über viele Partien; Claude-Erklärsätze
+(Modul 3, braucht Cloudflare + API-Schlüssel).
+
 **Farblos → 🔥 Heute** (siehe Struktur v2). Begründung für den gemischten Tagespfad: `docs/LERNKONZEPT.md` –
 „vor jedem Zug die Drohung prüfen" ist Lus wichtigste Gewohnheit (bleibt Level 1); Mischen wirkt. Nutzungszahlen
 gibt es keine (die App zählt nicht mit) → Abwägung, keine Messung.
