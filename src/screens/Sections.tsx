@@ -249,6 +249,12 @@ function SidePage({ side, rep, puzzles, player }: { side: Side; rep: Rep; puzzle
 function ProgressTab({ player, puzzles }: { player: string; puzzles: Puzzle[] }) {
   return (
     <>
+      {/* Lu, 28.11.: "mein letztes Game geratet per Elo, Tipps, erklärt warum Sachen nicht gut sind" */}
+      <button type="button" className="pn-lastgame" onClick={() => go('last-game')}>
+        <span aria-hidden="true">♟</span>
+        <span><b>Your last game</b><small>How strong it was, what went wrong and why, tips</small></span>
+        <i>SEE</i>
+      </button>
       <button type="button" className="pn-update" onClick={() => go(hasOwnPlayer() ? 'connect/read' : 'connect')}>
         <span aria-hidden="true">🔄</span>
         <span><b>Update the analysis</b><small>Hoppy checks your newest chess.com games</small></span>

@@ -64,6 +64,7 @@ const Workout = lazy(() => import('./screens/Workout').then((m) => ({ default: m
 const WheelTest = lazy(() => import('./screens/WheelTest').then((m) => ({ default: m.WheelTest })))
 const SectionPage = lazy(() => import('./screens/Sections').then((m) => ({ default: m.SectionPage })))
 const OpeningPath = lazy(() => import('./screens/OpeningPath').then((m) => ({ default: m.OpeningPath })))
+const GameReview = lazy(() => import('./screens/GameReview').then((m) => ({ default: m.GameReview })))
 const Diary = lazy(() => import('./screens/Diary').then((m) => ({ default: m.Diary })))
 const Attacks = lazy(() => import('./screens/Attacks').then((m) => ({ default: m.Attacks })))
 import { Connect, MistakeOne, Training, YourGames } from './screens/Training'
@@ -215,6 +216,7 @@ function App() {
     body = <SectionPage key={page} section={page} player={player} puzzles={puzzles.puzzles} progress={progress} rep={rep} />
   else if (page === 'wheel') body = <WheelTest />
   else if (page === 'opening' && id) body = <OpeningPath key={id} id={decodeURIComponent(id)} rep={rep} player={player} puzzles={puzzles.puzzles} />
+  else if (page === 'last-game') body = <GameReview player={player} />
   else if (page === 'diary') body = <Diary />
   else if (page === 'puzzle-rush') body = <PuzzleRush puzzles={puzzles} player={player} />
   else if (page === 'opening-rush') body = id ? <OpeningRush key={id} rep={rep} keys={decodeURIComponent(id)} /> : <OpeningRushHome rep={rep} />
