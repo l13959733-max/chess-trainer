@@ -12,6 +12,8 @@ import { lessonOf, loadDiary, when } from '../lib/lessons'
 import { nextCity, openCity } from '../lib/travel'
 import { getName } from '../lib/profile'
 import { dailyBoard } from '../lib/dailyBoard'
+import { mineOf } from '../lib/trainingToday'
+import { CATEGORY, type Category } from '../lib/weakness'
 import { dayNumber, loadResults } from '../lib/threatcheck'
 
 // The start page (Lu, 12.11.: Pinterest model in our book look, "alles auf eine Handy-Seite"): the journey as the hero,
@@ -34,7 +36,7 @@ function rushBest(): number {
   }
 }
 
-export function HomeHub({ progress, player }: { rep: ReturnType<typeof useRepertoire>; progress: ReturnType<typeof useProgress>; puzzles: ReturnType<typeof usePuzzles>; player: string }) {
+export function HomeHub({ progress, puzzles, player }: { rep: ReturnType<typeof useRepertoire>; progress: ReturnType<typeof useProgress>; puzzles: ReturnType<typeof usePuzzles>; player: string }) {
   const [king] = useState(loadKing)
   const [now] = useState(() => Date.now())
   const [rating, setRating] = useState<number | null>(null)
@@ -70,6 +72,13 @@ export function HomeHub({ progress, player }: { rep: ReturnType<typeof useRepert
   const storyOpen = !!next && !king.got.includes(`${next.id}/talk`)
   const lessonOpen = !storyOpen && !!next && !!lesson && !king.got.includes(`${next.id}/${lesson.id}`)
   const [diary] = useState(loadDiary)
+  // your biggest weakness: the kind of mistake that is most common in your own games
+  const weakest = useMemo(() => {
+    const m = new Map<Category, number>()
+    // the catch-all "other" says nothing – the most common concrete kind
+    for (const p of mineOf(puzzles.puzzles, player)) if (p.category && p.category !== 'other') m.set(p.category, (m.get(p.category) ?? 0) + 1)
+    return [...m.entries()].sort((a, b) => b[1] - a[1])[0]
+  }, [puzzles.puzzles, player])
   const headline = next ? chapterOf(next.id)?.headline : undefined
   const say = !next
     ? 'We travelled the whole world!'
@@ -152,24 +161,21 @@ export function HomeHub({ progress, player }: { rep: ReturnType<typeof useRepert
       </div>
 
       <div className="hub-bento">
-        {diary.length > 0 ? (
-          <button type="button" className="hub-card hub-quote hub-diary" onClick={() => go('diary')} aria-label="Open Hoppy’s diary">
-            <h3>Hoppy’s diary</h3>
-            <ol>
-              {diary.slice(0, 2).map((d) => (
-                <li key={d.id}>
-                  <small>{d.city} · {when(d.at, now)}</small>
-                  {d.text}
-                </li>
-              ))}
-            </ol>
-          </button>
-        ) : (
-          <button type="button" className="hub-card hub-quote" onClick={() => go('diary')} aria-label="Open Hoppy’s diary">
-            <p>A king is not born. He is made – <span>move by move.</span></p>
-            <small>– Grandmaster Lu</small>
-          </button>
-        )}
+        {/* Lu, 28.11.: the analyses to the front – this card (was the quote / Hoppy's diary, the diary lives in Story)
+            shows your biggest weakness and opens #/analyses */}
+        <button type="button" className="hub-card hub-quote hub-analyses" onClick={() => go('analyses')} aria-label="Open your analyses">
+          <h3>🔎 Your analyses</h3>
+          {weakest ? (
+            <>
+              <span className="hub-an-k">Biggest weakness</span>
+              <b className="hub-an-b">{CATEGORY[weakest[0]].title}</b>
+              <small>{weakest[1]}× in your games</small>
+            </>
+          ) : (
+            <b className="hub-an-b">Your last game, weak spots, your games</b>
+          )}
+          <span className="hub-pill">Open →</span>
+        </button>
         <button type="button" className="hub-card hub-prog" onClick={() => go('progress')} aria-label={`Journey: ${beaten} of ${bosses} cities – your progress`}>
           <h3>Journey</h3>
           <svg className="hub-ringsvg" viewBox="0 0 64 64" width="46" height="46" aria-hidden="true"><circle cx="32" cy="32" r="26" fill="none" stroke="#e6e3ef" strokeWidth="8" /><circle cx="32" cy="32" r="26" fill="none" stroke="#ffc531" strokeWidth="8" strokeLinecap="round" strokeDasharray="163.4" strokeDashoffset={ring} /></svg>

@@ -18,6 +18,7 @@ import { STATIONS, loadKing, route, stationById } from '../lib/king'
 import { dateKey } from '../lib/progress'
 import { isDue } from '../lib/srs'
 import { mineOf } from '../lib/trainingToday'
+import { CATEGORY } from '../lib/weakness'
 import { dayNumber, loadResults } from '../lib/threatcheck'
 import { nextCity, openCity } from '../lib/travel'
 
@@ -26,14 +27,14 @@ import { nextCity, openCity } from '../lib/travel'
 // "Everything for White runs under White, everything for Black under Black", no Training level, Duolingo bar with
 // icons only (components/DuoBar.tsx). Came from the prototype #/proto.
 const IMG = import.meta.env.BASE_URL + 'king/'
-export type Section = 'today' | 'white' | 'black' | 'progress' | 'story' | 'profile'
+export type Section = 'today' | 'white' | 'black' | 'progress' | 'story' | 'profile' | 'analyses'
 type Row = ListItem & { to: string; op?: { key: string; played: number; total: number; due: number } } // op: an opening card
 type Group = { title: string; rows: Row[]; render?: (row: Row) => ReactNode }
 type Prog = ReturnType<typeof useProgress>
 type Rep = ReturnType<typeof useRepertoire>
 type Side = 'w' | 'b'
 
-const TITLE: Record<Section, string> = { today: 'Today', white: 'White', black: 'Black', progress: 'Progress', story: 'Story', profile: 'Profile' }
+const TITLE: Record<Section, string> = { today: 'Today', white: 'White', black: 'Black', progress: 'Progress', story: 'Story', profile: 'Profile', analyses: 'Your analyses' }
 
 function Groups({ groups, k, dark }: { groups: Group[]; k: string; dark?: boolean }) {
   return (
@@ -249,11 +250,11 @@ function SidePage({ side, rep, puzzles, player }: { side: Side; rep: Rep; puzzle
 function ProgressTab({ player, puzzles }: { player: string; puzzles: Puzzle[] }) {
   return (
     <>
-      {/* Lu, 28.11.: "mein letztes Game geratet per Elo, Tipps, erklärt warum Sachen nicht gut sind" */}
-      <button type="button" className="pn-lastgame" onClick={() => go('last-game')}>
-        <span aria-hidden="true">♟</span>
-        <span><b>Your last game</b><small>How strong it was, what went wrong and why, tips</small></span>
-        <i>SEE</i>
+      {/* Lu, 28.11.: the analyses to the front – one card on top here, the page itself is #/analyses */}
+      <button type="button" className="pn-lastgame" onClick={() => go('analyses')}>
+        <span aria-hidden="true">🔎</span>
+        <span><b>Your analyses</b><small>Your last game · weak spots · your games · chess check</small></span>
+        <i>OPEN</i>
       </button>
       <button type="button" className="pn-update" onClick={() => go(hasOwnPlayer() ? 'connect/read' : 'connect')}>
         <span aria-hidden="true">🔄</span>
@@ -261,12 +262,36 @@ function ProgressTab({ player, puzzles }: { player: string; puzzles: Puzzle[] })
         <i>GO</i>
       </button>
       <ProgressViz player={player} puzzles={puzzles} />
-      <Groups k="analyses" groups={[{ title: 'Your analyses', rows: [
-        { to: 'weaknesses', icon: '🧩', title: 'My weaknesses', description: 'Your mistakes by kind – rules and training' },
-        { to: hasOwnPlayer() ? 'games' : 'connect', icon: '♟', title: 'Your chess.com games', description: 'Every finished game, checked by Hoppy' },
-        { to: 'check', icon: '🔍', title: 'Chess check', description: 'What costs you points?' },
-        { to: 'accuracy', icon: '📊', title: 'How well did I play? (test)', description: 'Three ways to score your games' },
-      ] }]} />
+    </>
+  )
+}
+
+// ---------- 🔎 Your analyses (Lu, 28.11.: "die vier Punkte weiter in den Vordergrund, nicht hinten in der letzten Ecke") ----------
+function Analyses({ puzzles, player }: { puzzles: Puzzle[]; player: string }) {
+  const mine = mineOf(puzzles, player)
+  const kinds = new Map<string, number>()
+  for (const p of mine) if (p.category && p.category !== 'other') kinds.set(p.category, (kinds.get(p.category) ?? 0) + 1) // concrete kinds only
+  const top = [...kinds.entries()].sort((a, b) => b[1] - a[1])[0]
+  return (
+    <>
+      {top && (
+        <button type="button" className="pn-weakest" onClick={() => go('weaknesses')}>
+          <small>Your biggest weakness</small>
+          <b>{CATEGORY[top[0] as keyof typeof CATEGORY].title}</b>
+          <span>{top[1]}× in your games · {CATEGORY[top[0] as keyof typeof CATEGORY].rule}</span>
+        </button>
+      )}
+      <Groups k="analyses" groups={[
+        { title: 'Your games', rows: [
+          { to: 'last-game', icon: '♟', title: 'Your last game', description: 'How good it was, what went wrong and why, tips' },
+          { to: hasOwnPlayer() ? 'games' : 'connect', icon: '📋', title: 'Your chess.com games', description: 'Every finished game, checked by Hoppy' },
+        ] },
+        { title: 'What to work on', rows: [
+          { to: 'weaknesses', icon: '🧩', title: 'My weaknesses', description: 'Your mistakes by kind – rules and training' },
+          { to: 'check', icon: '🔍', title: 'Chess check', description: 'What costs you points?' },
+          { to: 'accuracy', icon: '📊', title: 'How well did I play? (test)', description: 'Three ways to score your games' },
+        ] },
+      ]} />
     </>
   )
 }
@@ -329,17 +354,19 @@ export function SectionPage({ section, player, puzzles, progress, rep }: { secti
     }
   })()
   const profile = section === 'profile'
+  const sub = profile || section === 'analyses' // pages with a back arrow
   return (
     <div className={`pn pn-page${section === 'black' ? ' pn-dark' : ''}`}>
       <div className="pn-screen">
         <header className="pn-head">
-          {profile && <button type="button" className="pn-back" onClick={() => window.history.back()} aria-label="Back">←</button>}
+          {sub && <button type="button" className="pn-back" onClick={() => window.history.back()} aria-label="Back">←</button>}
           <h1>{TITLE[section]}</h1>
           <span className="pn-pill">🔥 {progress.streak}</span>
           {!profile && <button type="button" className="pn-avatar" onClick={() => go('profile')} aria-label="Profile">{name.slice(0, 1).toUpperCase()}</button>}
         </header>
         <div className="pn-scroll">
           {profile ? <Groups k="profile" groups={PROFILE} />
+            : section === 'analyses' ? <Analyses puzzles={puzzles} player={player} />
             : section === 'today' ? <Today progress={progress} onStory={() => go('story')} rep={rep} puzzles={puzzles} player={player} />
             : section === 'white' ? <SidePage side="w" rep={rep} puzzles={puzzles} player={player} />
             : section === 'black' ? <SidePage side="b" rep={rep} puzzles={puzzles} player={player} />
@@ -347,7 +374,7 @@ export function SectionPage({ section, player, puzzles, progress, rep }: { secti
             : <Story />}
         </div>
       </div>
-      <DuoBar active={section === 'today' || section === 'profile' ? 'home' : section} />
+      <DuoBar active={section === 'today' || section === 'profile' ? 'home' : section === 'analyses' ? 'progress' : section} />
     </div>
   )
 }

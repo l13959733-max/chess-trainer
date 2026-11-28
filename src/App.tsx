@@ -212,7 +212,7 @@ function App() {
   else if (page === 'journey') body = RealMapReady ? <RealMapReady /> : <Suspense fallback={null}><RealMap /></Suspense>
   else if (page === 'painted') body = <KingStamps />
   // structure v2 (Lu, 27.11.2026, docs/APP_PLAN.md): the pages of the Duolingo bar
-  else if (page === 'progress' || page === 'white' || page === 'black' || page === 'story' || page === 'profile' || page === 'today')
+  else if (page === 'progress' || page === 'white' || page === 'black' || page === 'story' || page === 'profile' || page === 'today' || page === 'analyses')
     body = <SectionPage key={page} section={page} player={player} puzzles={puzzles.puzzles} progress={progress} rep={rep} />
   else if (page === 'wheel') body = <WheelTest />
   else if (page === 'opening' && id) body = <OpeningPath key={id} id={decodeURIComponent(id)} rep={rep} player={player} puzzles={puzzles.puzzles} />

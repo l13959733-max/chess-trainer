@@ -19,7 +19,8 @@ export function GameReview({ player, puzzles, onPuzzlesAdded }: { player: string
   const [pick, setPick] = useState(0)
   const [done, setDone] = useState<Record<string, Review>>({}) // reviewed in this visit
   const [busy, setBusy] = useState<{ uuid: string; ply: number; plies: number } | null>(null)
-  const [open, setOpen] = useState<number | null>(null)
+  const [open, setOpen] = useState<number | null>(null) // the moment whose explanation is open (Lu, 28.11.: Dropdown)
+  const [board, setBoard] = useState<number | null>(null) // the moment shown on the board
 
   useEffect(() => {
     let gone = false
@@ -85,7 +86,7 @@ export function GameReview({ player, puzzles, onPuzzlesAdded }: { player: string
                 const opp = me === g.white ? g.black : g.white
                 const r = me.result === 'win' ? 'w' : ['agreed', 'repetition', 'stalemate', 'insufficient', '50move', 'timevsinsufficient'].includes(me.result) ? 'd' : 'l'
                 return (
-                  <button key={g.uuid} type="button" aria-pressed={pick === i} className={r} onClick={() => { setPick(i); setOpen(null) }}>
+                  <button key={g.uuid} type="button" aria-pressed={pick === i} className={r} onClick={() => { setPick(i); setOpen(null); setBoard(null) }}>
                     <b>{r === 'w' ? 'Won' : r === 'd' ? 'Draw' : 'Lost'}</b>
                     <small>vs {opp.username}</small>
                   </button>
@@ -160,18 +161,21 @@ export function GameReview({ player, puzzles, onPuzzlesAdded }: { player: string
                     <small>{m.phase}</small>
                     <span aria-hidden="true">{open === i ? '▾' : '▸'}</span>
                   </button>
-                  <div className="rv-why">
-                    <p className="rv-q">Why it is not good</p>
-                    {m.why.map((x) => <p key={x}>{x}</p>)}
-                    {m.better && (
-                      <>
-                        <p className="rv-q">Better: <span className="rv-san">{m.better}</span></p>
-                        {m.betterWhy.map((x) => <p key={x}>{x}</p>)}
-                      </>
-                    )}
-                  </div>
-                  {open === i && <MoveReplay sans={m.line} orientation={review.side === 'w' ? 'white' : 'black'} />}
-                  {open !== i && <button type="button" className="rv-show" onClick={() => setOpen(i)}>Show on the board</button>}
+                  {open === i && (
+                    <>
+                      <div className="rv-why">
+                        <p className="rv-q">Why it is not good</p>
+                        {m.why.map((x) => <p key={x}>{x}</p>)}
+                        {m.better && (
+                          <>
+                            <p className="rv-q">Better: <span className="rv-san">{m.better}</span></p>
+                            {m.betterWhy.map((x) => <p key={x}>{x}</p>)}
+                          </>
+                        )}
+                      </div>
+                      {board === i ? <MoveReplay sans={m.line} orientation={review.side === 'w' ? 'white' : 'black'} /> : <button type="button" className="rv-show" onClick={() => setBoard(i)}>Show on the board</button>}
+                    </>
+                  )}
                 </div>
               ))}
             </>
