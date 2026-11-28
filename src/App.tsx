@@ -14,7 +14,7 @@ import { getName } from './lib/profile'
 import type { Puzzle } from './lib/db'
 import { isDbBlocked } from './lib/db'
 import { dailyQueue } from './lib/daily'
-import { startLive } from './lib/live'
+import { publishDays, startLive } from './lib/live'
 import { isDue } from './lib/srs'
 import { isUnlocked, stop as stopVoice, unlockAudio } from './lib/voice'
 import { InstallBanner } from './components/InstallBanner'
@@ -65,6 +65,8 @@ const WheelTest = lazy(() => import('./screens/WheelTest').then((m) => ({ defaul
 const SectionPage = lazy(() => import('./screens/Sections').then((m) => ({ default: m.SectionPage })))
 const OpeningPath = lazy(() => import('./screens/OpeningPath').then((m) => ({ default: m.OpeningPath })))
 const GameReview = lazy(() => import('./screens/GameReview').then((m) => ({ default: m.GameReview })))
+const Together = lazy(() => import('./screens/Together').then((m) => ({ default: m.Together })))
+const Challenge = lazy(() => import('./screens/Challenge').then((m) => ({ default: m.Challenge })))
 const Diary = lazy(() => import('./screens/Diary').then((m) => ({ default: m.Diary })))
 const Attacks = lazy(() => import('./screens/Attacks').then((m) => ({ default: m.Attacks })))
 import { Connect, MistakeOne, Training, YourGames } from './screens/Training'
@@ -127,6 +129,10 @@ function App() {
     return () => events.forEach((e) => window.removeEventListener(e, tryUnlock))
   }, [])
   useEffect(() => void startLive(), [])
+  // the days I practised go to my friends' group (a streak together, #/together – 28.11.)
+  useEffect(() => {
+    publishDays([...progress.days.values()].filter((d) => d.lines + d.puzzles + (d.games ?? 0) + d.xp > 0).map((d) => d.date))
+  }, [progress.days])
   // the real world map is ready before you tap it (Lu, 14.11.: "oben aufs Abenteuer – die Map sofort da"):
   // a moment after the start its code loads and the map is built hidden, with style, tiles and coins
   useEffect(() => {
@@ -148,6 +154,8 @@ function App() {
   let body: React.ReactNode
   if (!rep.ready) body = <Loading />
   else if (alias) body = null
+  // a friend's challenge opens without a name or an account (Lu, 28.11.: "Freunde schicken es einander")
+  else if (page === 'challenge') body = <Challenge payload={id} named={named} />
   else if (!named) body = <Welcome player={player} hasPlayer={hasStoredPlayer()} onDone={(p) => { setPlayerState(p); setNamed(true) }} />
   else if (page === 'learn' && line) body = <Learn line={line} onComplete={progress.recordLearn} />
   else if (page === 'drill' && line)
@@ -217,6 +225,7 @@ function App() {
   else if (page === 'wheel') body = <WheelTest />
   else if (page === 'opening' && id) body = <OpeningPath key={id} id={decodeURIComponent(id)} rep={rep} player={player} puzzles={puzzles.puzzles} />
   else if (page === 'last-game') body = <GameReview player={player} puzzles={puzzles.puzzles} onPuzzlesAdded={() => setBotFound((n) => n + 1)} />
+  else if (page === 'together') body = <Together progress={progress} puzzles={puzzles.puzzles} player={player} />
   else if (page === 'diary') body = <Diary />
   else if (page === 'puzzle-rush') body = <PuzzleRush puzzles={puzzles} player={player} />
   else if (page === 'opening-rush') body = id ? <OpeningRush key={id} rep={rep} keys={decodeURIComponent(id)} /> : <OpeningRushHome rep={rep} />

@@ -63,6 +63,15 @@ export interface Presence {
   ts: number
 }
 
+// The days someone practised (Lu, 28.11.2026: "zusammen lernen" – a streak together). Retained, so a friend sees it
+// even when you are not online; only dates (YYYY-MM-DD), sealed with the room code like everything else.
+export interface FriendDays {
+  owner: string
+  name: string
+  dates: string[]
+  ts: number
+}
+
 // A move someone else plays in the owner's drill
 export interface DrillMove {
   owner: string
@@ -203,6 +212,7 @@ export interface Live {
   states: LiveState[]
   drills: LiveDrill[]
   online: Presence[]
+  days: FriendDays[]
 }
 
 let room = read(ROOM_KEY)
@@ -212,11 +222,13 @@ let generation = 0 // a change of room makes everything still on its way irrelev
 const states = new Map<string, LiveState>()
 const drills = new Map<string, LiveDrill>()
 const presence = new Map<string, Presence>()
+const days = new Map<string, FriendDays>()
+let myDays: string[] = []
 const listeners = new Set<() => void>()
-let snapshot: Live = { room, connected: false, states: [], drills: [], online: [] }
+let snapshot: Live = { room, connected: false, states: [], drills: [], online: [], days: [] }
 
 function changed() {
-  snapshot = { room, connected: clients.some((c) => c.connected), states: [...states.values()], drills: [...drills.values()], online: [...presence.values()] }
+  snapshot = { room, connected: clients.some((c) => c.connected), states: [...states.values()], drills: [...drills.values()], online: [...presence.values()], days: [...days.values()] }
   listeners.forEach((l) => l())
 }
 
@@ -231,6 +243,32 @@ async function onDrill(gen: number, code: string, owner: string, payload: Uint8A
     drills.set(owner, drill)
     changed()
   }
+}
+
+async function onDays(gen: number, code: string, owner: string, payload: Uint8Array) {
+  if (!payload.length) {
+    if (gen === generation && days.delete(owner)) changed()
+    return
+  }
+  const d = await unseal<FriendDays>(code, payload)
+  if (gen !== generation || !d || d.owner !== owner || !Array.isArray(d.dates)) return
+  if (!days.has(owner) || d.ts > days.get(owner)!.ts) {
+    days.set(owner, d)
+    changed()
+  }
+}
+
+// Tell the room on which days I practised (called by the app when the days change; again on every connect)
+export function publishDays(dates: string[]) {
+  myDays = [...dates].sort().slice(-60)
+  const code = room
+  if (!code || !topic || !myDays.length) return
+  const me: FriendDays = { owner: deviceId(), name: getName() ?? getPlayer(), dates: myDays, ts: Date.now() }
+  const to = `${topic}/s/${deviceId()}`
+  const targets = clients.filter((c) => c.connected)
+  void seal(code, me).then((bytes) => {
+    for (const c of targets) c.publish(to, bytes as Buffer, { retain: true, qos: 1 })
+  })
 }
 
 async function onPresence(gen: number, code: string, owner: string, payload: Uint8Array) {
@@ -327,15 +365,16 @@ export async function startLive(): Promise<void> {
     const will = { topic: `${prefix}/p/${deviceId()}`, payload: '', retain: true, qos: 1 as const }
     const client = mqtt.connect(url, { connectTimeout: 8000, reconnectPeriod: 3000, will })
     client.on('connect', () => {
-      client.subscribe([`${prefix}/g/+`, `${prefix}/d/+`, `${prefix}/p/+`, `${prefix}/m/${deviceId()}`], { qos: 1 })
+      client.subscribe([`${prefix}/g/+`, `${prefix}/d/+`, `${prefix}/p/+`, `${prefix}/s/+`, `${prefix}/m/${deviceId()}`], { qos: 1 })
       changed()
       if (document.visibilityState === 'visible') announce(true)
+      if (myDays.length) publishDays(myDays)
     })
     client.on('close', changed)
     client.on('error', () => {}) // it keeps reconnecting; the screen shows "Connecting"
     client.on('message', (t, payload) => {
       const [kind, owner] = t.split('/').slice(-2)
-      void (kind === 'd' ? onDrill : kind === 'm' ? onDrillMove : kind === 'p' ? onPresence : onMessage)(gen, code, owner, payload)
+      void (kind === 'd' ? onDrill : kind === 'm' ? onDrillMove : kind === 'p' ? onPresence : kind === 's' ? onDays : onMessage)(gen, code, owner, payload)
     })
     return client
   })
@@ -370,6 +409,7 @@ export function leaveRoom() {
     if (prefix) {
       c.publish(`${prefix}/d/${deviceId()}`, '', { retain: true, qos: 1 })
       c.publish(`${prefix}/p/${deviceId()}`, '', { retain: true, qos: 1 })
+      c.publish(`${prefix}/s/${deviceId()}`, '', { retain: true, qos: 1 })
       c.publish(`${prefix}/g/${deviceId()}`, '', { retain: true, qos: 1 }, () => c.end())
     } else c.end()
   }
@@ -379,6 +419,7 @@ export function leaveRoom() {
   states.clear()
   drills.clear()
   presence.clear()
+  days.clear()
   write(ROOM_KEY, null)
   changed()
 }
@@ -472,4 +513,9 @@ export function useBeat(owner: string | null, active: boolean) {
     }, BEAT)
     return () => window.clearInterval(t)
   }, [owner, active])
+}
+
+// friends' practice days (not my own device)
+export function othersDays(live: Live): FriendDays[] {
+  return live.days.filter((d) => d.owner !== deviceId())
 }

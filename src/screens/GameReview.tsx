@@ -7,6 +7,8 @@ import type { ChessComGame } from '../lib/chesscom'
 import { LEVEL_SOURCE, levelOf } from '../lib/gameLevel'
 import { loadReview, momentPuzzles, reviewGame, saveReview, type Moment, type Review } from '../lib/review'
 import { putPuzzle, type Puzzle } from '../lib/db'
+import { getName } from '../lib/profile'
+import { challengeLink, share } from '../lib/together'
 
 // #/review – "Your last game" (Lu, 28.11.2026): pick one of your newest rapid games, Hoppy checks every move and says
 // how strong the game was (estimate), what went wrong and why, the better move, and three tips.
@@ -173,6 +175,7 @@ export function GameReview({ player, puzzles, onPuzzlesAdded }: { player: string
                           </>
                         )}
                       </div>
+                      <button type="button" className="rv-show" onClick={() => void share(`🤝 Can you find the better move? I played ${m.played} here…`, challengeLink({ fen: m.fen, best: [m.bestUci], played: m.played, from: getName() ?? 'A friend' }))}>🤝 Challenge a friend with this position</button>
                       {board === i ? <MoveReplay sans={m.line} orientation={review.side === 'w' ? 'white' : 'black'} /> : <button type="button" className="rv-show" onClick={() => setBoard(i)}>Show on the board</button>}
                     </>
                   )}

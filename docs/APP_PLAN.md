@@ -131,6 +131,15 @@ Lu, 27.11.: „unten der Balken aus der neuen Version" (= Prototyp A).
 
 - ❓ offen
 
+## Together (Prototyp in der Vorschau, 28.11.)
+
+Lu: „zusammen spielen und lernen mehr in den Vordergrund – die App soll sich so spreaden, dass Freunde sie einander
+schicken". Gebaut (Vorschau, NICHT live): Startseiten-Leiste „👫“ (Freund online / heute geübt / 🔥 zusammen),
+Seite `#/together` (einladen per Teilen-Menü, Freundeskarten mit gemeinsamer Serie, eigene Fehler als Herausforderung
+schicken, Live-Zusehen `#/watch`), Herausforderungs-Link `#/challenge/<…>` (öffnet ohne Anmeldung, Lösen, dann
+„Start Hoppy“ bzw. „Challenge back“), „Challenge a friend“ bei den Momenten der letzten Partie. Gemeinsame Tage über
+`live.ts` (`publishDays`, Thema `s/`, verschlüsselt, retained). ❓ Lu entscheidet nach Ansicht, was live geht.
+
 ## Verlauf
 
 - **28.11.2026: LIVE übernommen (main=1431e17)** – Struktur v2, Weiß/Schwarz mit Eröffnungs-Statistik, Eröffnungs-Seite, Heute 5 Min., Entwicklung + Analysen vorne, Deine letzte Partie + Fehler üben. Nächstes: Together-Prototypen (Lu: „weiß ich noch nicht, erst Prototypen").

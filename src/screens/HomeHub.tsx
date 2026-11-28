@@ -13,6 +13,9 @@ import { nextCity, openCity } from '../lib/travel'
 import { getName } from '../lib/profile'
 import { dailyBoard } from '../lib/dailyBoard'
 import { mineOf } from '../lib/trainingToday'
+import { othersDays, othersOnline, useLive } from '../lib/live'
+import { dateKey } from '../lib/progress'
+import { togetherStreak } from '../lib/together'
 import { CATEGORY, type Category } from '../lib/weakness'
 import { dayNumber, loadResults } from '../lib/threatcheck'
 
@@ -72,6 +75,17 @@ export function HomeHub({ progress, puzzles, player }: { rep: ReturnType<typeof 
   const storyOpen = !!next && !king.got.includes(`${next.id}/talk`)
   const lessonOpen = !storyOpen && !!next && !!lesson && !king.got.includes(`${next.id}/${lesson.id}`)
   const [diary] = useState(loadDiary)
+  // Together on the start page (Lu, 28.11.: "zusammen spielen und lernen mehr in den Vordergrund")
+  const live = useLive()
+  const today = dateKey(new Date(now))
+  const myDates = [...progress.days.values()].filter((d) => d.lines + d.puzzles + (d.games ?? 0) + d.xp > 0).map((d) => d.date)
+  const friend = (() => {
+    const online = othersOnline(live)
+    const days = othersDays(live)
+    const f = days[0] ?? (online[0] ? { owner: online[0].owner, name: online[0].name, dates: [] as string[] } : undefined)
+    if (!f) return null
+    return { name: f.name, online: online.some((o) => o.owner === f.owner), today: f.dates.includes(today), streak: togetherStreak(myDates, f.dates, today), more: Math.max(days.length, online.length) - 1 }
+  })()
   // your biggest weakness: the kind of mistake that is most common in your own games
   const weakest = useMemo(() => {
     const m = new Map<Category, number>()
@@ -159,6 +173,16 @@ export function HomeHub({ progress, puzzles, player }: { rep: ReturnType<typeof 
           </span>
         </span>
       </div>
+
+      <button type="button" className="hub-together" onClick={() => go('together')}>
+        <span className="hub-tg-ic" aria-hidden="true">👫</span>
+        {friend ? (
+          <span className="hub-tg-tx"><b>{friend.name}{friend.more > 0 ? ` +${friend.more}` : ''} {friend.online ? '· online' : ''}</b><small>{friend.today ? `${friend.name} practised today` : `${friend.name} has not practised yet today`} · 🔥 {friend.streak} together</small></span>
+        ) : (
+          <span className="hub-tg-tx"><b>Learn with a friend</b><small>A streak together, challenges, live games</small></span>
+        )}
+        <i>{friend ? 'OPEN' : 'INVITE'}</i>
+      </button>
 
       <div className="hub-bento">
         {/* Lu, 28.11.: the analyses to the front – this card (was the quote / Hoppy's diary, the diary lives in Story)

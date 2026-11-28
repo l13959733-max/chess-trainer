@@ -342,7 +342,7 @@ const PROFILE: Group[] = [
     { to: 'path', icon: '📚', title: 'The whole book', description: 'Every line of both colours · daily goal · analyse all games' },
     { to: 'import', icon: '📥', title: 'Import a PGN', description: 'Add your own lines' },
   ] },
-  { title: 'Together', rows: [{ to: 'watch', icon: '👫', title: 'Together', description: 'Watch and help each other' }] },
+  { title: 'Together', rows: [{ to: 'together', icon: '👫', title: 'Together', description: 'Learn with friends – streak, challenges, live games' }] },
 ]
 
 export function SectionPage({ section, player, puzzles, progress, rep }: { section: Section; player: string; puzzles: Puzzle[]; progress: Prog; rep: Rep }) {

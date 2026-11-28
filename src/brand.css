@@ -594,3 +594,60 @@ html .pn .pn-weakest { display: grid; gap: 2px; text-align: left; padding: 14px;
 html .pn .pn-weakest small { font-size: 11.5px; font-weight: 900; text-transform: uppercase; letter-spacing: .06em; color: var(--b-red-d); }
 html .pn .pn-weakest b { font-size: 22px; font-weight: 900; color: var(--b-text); }
 html .pn .pn-weakest span { font-size: 13px; font-weight: 700; color: var(--b-text); }
+
+/* ======================================================================================
+   10. Together (prototype in the preview, 28.11.)
+   ====================================================================================== */
+html .hub .hub-together { flex: none; display: flex; align-items: center; gap: 10px; padding: 8px 10px; border-radius: 16px; background: #fff; border: 2px solid #e5e5e5; border-bottom-width: 4px; text-align: left; cursor: pointer; }
+html .hub .hub-tg-ic { width: 34px; height: 34px; border-radius: 10px; background: #ddf4ff; display: grid; place-items: center; font-size: 19px; flex: none; }
+html .hub .hub-tg-tx { flex: 1; min-width: 0; display: grid; }
+html .hub .hub-tg-tx b { font-size: 14px; font-weight: 900; }
+html .hub .hub-tg-tx small { font-size: 11.5px; font-weight: 700; color: var(--b-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+html .hub .hub-together i { font-style: normal; font-weight: 900; font-size: 12px; color: #fff; background: #1cb0f6; border-bottom: 3px solid #1899d6; border-radius: 10px; padding: 6px 10px; }
+html .tg-hero, html .tg-wait { display: grid; gap: 8px; padding: 16px; border-radius: 20px; background: #ddf4ff; border: 2px solid #84d8ff; border-bottom-width: 5px; }
+html .tg-hero > span { font-size: 40px; }
+html .tg-hero b, html .tg-wait b { font-size: 21px; font-weight: 900; }
+html .tg-hero ul { margin: 0; padding-left: 18px; display: grid; gap: 4px; font-weight: 700; font-size: 14px; }
+html .tg-wait span { font-weight: 700; font-size: 14px; }
+html .pn .tg-go { justify-self: stretch; text-align: center; background: var(--b-green); color: #fff; border-bottom: 5px solid var(--b-green-d); border-radius: 16px; padding: 13px; font-weight: 900; font-size: 15px; text-transform: uppercase; letter-spacing: .03em; }
+html .tg-friend { display: grid; gap: 10px; padding: 14px; border-radius: 20px; background: #fff; border: 2px solid #e5e5e5; border-bottom-width: 4px; }
+html .tg-top { display: flex; align-items: center; gap: 10px; }
+html .tg-av { position: relative; width: 44px; height: 44px; border-radius: 50%; background: var(--b-sun); display: grid; place-items: center; font-weight: 900; font-size: 18px; }
+html .tg-av i { position: absolute; right: -1px; bottom: -1px; width: 13px; height: 13px; border-radius: 50%; background: #c8c8c8; border: 2px solid #fff; }
+html .tg-av i.on { background: var(--b-green); }
+html .tg-name { flex: 1; display: grid; min-width: 0; }
+html .tg-name b { font-size: 17px; font-weight: 900; }
+html .tg-name small { font-size: 12.5px; font-weight: 700; color: #777; }
+html .tg-streak { display: grid; justify-items: center; }
+html .tg-streak b { font-size: 22px; font-weight: 900; color: #ff9600; }
+html .tg-streak small { font-size: 11px; font-weight: 800; color: #777; }
+html .tg-today { display: flex; flex-wrap: wrap; gap: 6px 8px; align-items: center; }
+html .tg-today span { border-radius: 99px; padding: 4px 10px; font-weight: 900; font-size: 13px; background: #f7f7f7; color: #777; }
+html .tg-today span.ok { background: var(--b-green-t); color: var(--b-green-d); }
+html .tg-today small { flex-basis: 100%; font-weight: 700; color: #777; font-size: 12.5px; }
+html .tg-act { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+html .pn .tg-act button { text-align: center; padding: 10px; border: 2px solid #e5e5e5; border-bottom-width: 4px; border-radius: 14px; font-weight: 900; font-size: 13.5px; }
+html .pn .tg-more { text-align: center; padding: 12px; border: 2px dashed #84d8ff; border-radius: 16px; font-weight: 900; color: #1899d6; }
+html .tg-note { margin: 0; text-align: center; font-weight: 800; color: var(--b-green-d); }
+html .tg-ch { display: grid; gap: 8px; }
+html .tg-ch h2 { margin: 6px 2px 0; font-size: 13px; font-weight: 900; text-transform: uppercase; letter-spacing: .08em; color: var(--b-muted); }
+html .tg-ch p { margin: 0 2px; font-size: 13px; font-weight: 700; color: #777; }
+html .pn .tg-ch button { display: flex; align-items: center; gap: 10px; padding: 11px 12px; border: 2px solid #e5e5e5; border-bottom-width: 4px; border-radius: 14px; text-align: left; }
+html .pn .tg-ch button span { flex: 1; display: grid; }
+html .pn .tg-ch button b { font-size: 15px; font-weight: 900; }
+html .pn .tg-ch button small { font-size: 12px; font-weight: 700; color: #777; }
+html .pn .tg-ch button i { font-style: normal; font-weight: 900; font-size: 12px; color: #1899d6; }
+/* #/challenge */
+html .ch-head { display: flex; gap: 12px; align-items: center; padding: 14px; border-radius: 20px; background: #ddf4ff; border: 2px solid #84d8ff; }
+html .ch-head > span { font-size: 36px; }
+html .ch-head div { display: grid; }
+html .ch-head small { font-size: 12px; font-weight: 900; text-transform: uppercase; letter-spacing: .06em; color: #1899d6; }
+html .ch-head b { font-size: 22px; font-weight: 900; }
+html .ch-head div span { font-size: 13px; font-weight: 700; color: #3c3c3c; }
+html .ch-tip { margin: 0; text-align: center; font-weight: 800; color: #777; }
+html .ch-done { display: grid; gap: 2px; padding: 14px; border-radius: 18px; text-align: center; }
+html .ch-done.solved { background: var(--b-green-t); color: var(--b-green-d); } html .ch-done.helped { background: var(--b-sun-t); color: #9a6b00; }
+html .ch-done b { font-size: 20px; font-weight: 900; }
+html .ch-cta { display: grid; gap: 8px; padding: 16px; border-radius: 20px; background: #fff; border: 2px solid #e5e5e5; border-bottom-width: 4px; }
+html .ch-cta b { font-size: 18px; font-weight: 900; }
+html .ch-cta span { font-weight: 700; font-size: 13.5px; color: #555; }
